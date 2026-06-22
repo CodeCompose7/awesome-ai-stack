@@ -1,0 +1,37 @@
+---
+name: Cline
+category: coding-agents
+description: Autonomous coding agent inside VS Code — plans, edits files, runs commands, and supports MCP tools.
+website: https://cline.bot
+repo: https://github.com/cline/cline
+docs: https://docs.cline.bot
+tags: [vscode, ide, mcp, plan-act]
+language: TypeScript
+license: Apache-2.0
+pricing: open-source
+featured: true
+---
+
+## Overview
+
+Cline (formerly Claude Dev) is a VS Code extension that turns the editor into an
+agentic workspace. It proposes a plan, then — with your approval at each step —
+creates and edits files, runs terminal commands, and can use external tools via
+the Model Context Protocol (MCP). You bring your own API key.
+
+## Sample: install and point it at a model
+
+```bash
+# Install the extension from the CLI (or search "Cline" in the Extensions panel)
+code --install-extension saoudrizwan.claude-dev
+```
+
+Then open the Cline panel, choose **Anthropic** as the provider, paste your API
+key, and select a model such as `claude-opus-4-8`. Describe a task ("add a
+health-check endpoint and a test") and approve each step as it works.
+
+## When to use it
+
+Pick Cline when you want an autonomous agent **inside your editor** with
+human-in-the-loop approvals and MCP tool access, rather than a separate app or
+CI-style runner.

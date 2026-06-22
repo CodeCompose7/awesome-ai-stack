@@ -16,9 +16,14 @@ export const categories: Category[] = [
     description: 'Libraries for orchestrating reasoning loops, tools, and multi-agent flows.',
   },
   {
+    id: 'coding-agents',
+    label: 'Coding Agents',
+    description: 'Autonomous agents that read, write, and run code to complete software tasks.',
+  },
+  {
     id: 'llm-providers',
-    label: 'LLM Providers',
-    description: 'Foundation-model APIs that power an agent’s reasoning.',
+    label: 'LLM Providers & Gateways',
+    description: 'Foundation-model APIs — and the gateways that unify them — powering an agent’s reasoning.',
   },
   {
     id: 'vector-stores',
