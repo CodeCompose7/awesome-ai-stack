@@ -21,7 +21,12 @@ const stacks = defineCollection({
     tags: z.array(z.string()).default([]),
     language: z.string().optional(),
     license: z.string().optional(),
-    pricing: z.enum(['open-source', 'free-tier', 'paid', 'freemium']).optional(),
+    // Composable pricing/hosting model tags (a tool can be several at once):
+    //   open-source = source is open / free to self-host
+    //   free-tier   = vendor-hosted free tier
+    //   paid        = paid plans exist
+    //   free        = entirely free to use (non-OSS)
+    pricing: z.array(z.enum(['open-source', 'free-tier', 'paid', 'free'])).default([]),
     featured: z.boolean().default(false),
   }),
 });

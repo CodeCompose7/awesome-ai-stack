@@ -86,15 +86,15 @@ export function useTranslations(lang: Lang) {
 /** Human labels for the `pricing` frontmatter enum, per locale. */
 export const pricingLabels: Record<Lang, Record<string, string>> = {
   en: {
-    'open-source': 'open-source',
+    'open-source': 'open source',
     'free-tier': 'free tier',
     paid: 'paid',
-    freemium: 'freemium',
+    free: 'free',
   },
   ko: {
     'open-source': '오픈소스',
     'free-tier': '무료 티어',
     paid: '유료',
-    freemium: '무료+유료',
+    free: '무료',
   },
 };

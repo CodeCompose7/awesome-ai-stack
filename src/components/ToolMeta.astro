@@ -1,0 +1,29 @@
+---
+import { pricingLabels, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  pricing: string[];
+  license?: string;
+  class?: string;
+}
+
+const { lang, pricing, license, class: className } = Astro.props;
+---
+
+{
+  (pricing.length > 0 || license) && (
+    <div class:list={['flex flex-wrap items-center gap-1.5', className]}>
+      {pricing.map((p) => (
+        <span class="rounded-full border border-[var(--aas-accent)] px-2 py-0.5 text-xs text-[var(--aas-accent)]">
+          {pricingLabels[lang][p] ?? p}
+        </span>
+      ))}
+      {license && (
+        <span class="rounded-full border border-[var(--aas-border)] px-2 py-0.5 text-xs text-[var(--aas-muted)]">
+          ⚖ {license}
+        </span>
+      )}
+    </div>
+  )
+}

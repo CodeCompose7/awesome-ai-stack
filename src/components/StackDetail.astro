@@ -2,10 +2,11 @@
 import { render } from 'astro:content';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { categoryMap } from '../data/categories';
-import { useTranslations, pricingLabels, type Lang } from '../i18n/ui';
+import { useTranslations, type Lang } from '../i18n/ui';
 import { slugOf, type StackEntry } from '../lib/stacks';
 import { getArticlesForTool, articleSlugOf } from '../lib/articles';
 import ToolAvatar from './ToolAvatar.astro';
+import ToolMeta from './ToolMeta.astro';
 
 interface Props {
   entry: StackEntry;
@@ -26,12 +27,6 @@ const links = [
   data.repo && { label: t('detail.repository'), href: data.repo },
   data.docs && { label: t('detail.docs'), href: data.docs },
 ].filter(Boolean) as { label: string; href: string }[];
-
-const meta = [
-  data.language && { label: t('detail.language'), value: data.language },
-  data.license && { label: t('detail.license'), value: data.license },
-  data.pricing && { label: t('detail.pricing'), value: pricingLabels[lang][data.pricing] },
-].filter(Boolean) as { label: string; value: string }[];
 ---
 
 <a href={getRelativeLocaleUrl(lang, '')} class="text-sm text-[var(--aas-accent)] no-underline"
@@ -61,16 +56,13 @@ const meta = [
     }
   </div>
 
+  <ToolMeta lang={lang} pricing={data.pricing} license={data.license} class="mt-5" />
+
   {
-    meta.length > 0 && (
-      <dl class="mt-5 grid grid-cols-2 gap-x-6 gap-y-2 text-sm sm:grid-cols-4">
-        {meta.map((m) => (
-          <div>
-            <dt class="text-[var(--aas-muted)]">{m.label}</dt>
-            <dd>{m.value}</dd>
-          </div>
-        ))}
-      </dl>
+    data.language && (
+      <p class="mt-3 text-sm text-[var(--aas-muted)]">
+        {t('detail.language')}: <span class="text-[var(--aas-text)]">{data.language}</span>
+      </p>
     )
   }
 </header>

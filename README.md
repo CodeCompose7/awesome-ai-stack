@@ -132,8 +132,8 @@ repo: https://github.com/...  # optional
 docs: https://docs.example.com # optional
 tags: [orchestration, python] # optional
 language: Python / JS         # optional
-license: MIT                  # optional
-pricing: open-source          # optional: open-source | free-tier | paid | freemium
+license: MIT                  # optional; shown as a chip on cards + detail
+pricing: [open-source, paid]  # optional list: open-source | free-tier | paid | free
 featured: true                # optional: sorts first within its category
 ---
 
