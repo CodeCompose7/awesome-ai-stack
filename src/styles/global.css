@@ -1,6 +1,20 @@
 @import "tailwindcss";
 
+/* Light is the default; `data-theme="dark"` (set by the inline script in
+   BaseLayout) switches to dark. The @media block covers no-JS users whose
+   system prefers dark before any explicit choice is stored. */
 :root {
+  color-scheme: light;
+  --aas-bg: #ffffff;
+  --aas-panel: #f6f7f9;
+  --aas-border: #e3e6ec;
+  --aas-text: #1a1d24;
+  --aas-muted: #5b6473;
+  --aas-accent: #3a5bd9;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
   --aas-bg: #0b0d12;
   --aas-panel: #12151d;
   --aas-border: #232838;
@@ -9,11 +23,22 @@
   --aas-accent: #7c9cff;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --aas-bg: #0b0d12;
+    --aas-panel: #12151d;
+    --aas-border: #232838;
+    --aas-text: #e6e9f0;
+    --aas-muted: #9aa3b2;
+    --aas-accent: #7c9cff;
+  }
+}
+
 html {
   scroll-behavior: smooth;
   background: var(--aas-bg);
   color: var(--aas-text);
-  color-scheme: dark;
 }
 
 body {
@@ -58,4 +83,27 @@ body {
   padding: 1rem 1.1rem;
   overflow-x: auto;
   margin: 1rem 0;
+}
+
+/* Markdown tables — without these, columns collapse together. */
+.prose :where(table) {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+  font-size: 0.92rem;
+  display: block;
+  overflow-x: auto;
+}
+.prose :where(th, td) {
+  border: 1px solid var(--aas-border);
+  padding: 0.55rem 0.85rem;
+  text-align: left;
+  vertical-align: top;
+}
+.prose :where(thead th) {
+  background: var(--aas-panel);
+  font-weight: 600;
+}
+.prose :where(tbody tr:nth-child(even)) {
+  background: color-mix(in srgb, var(--aas-panel) 45%, transparent);
 }

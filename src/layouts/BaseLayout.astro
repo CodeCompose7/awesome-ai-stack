@@ -3,6 +3,7 @@ import '../styles/global.css';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { useTranslations, type Lang } from '../i18n/ui';
 import LanguageSwitcher from '../components/LanguageSwitcher.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
 
 interface Props {
   title: string;
@@ -29,6 +30,18 @@ const base = import.meta.env.BASE_URL;
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    {/* Set the theme before first paint to avoid a flash of the wrong theme. */}
+    <script is:inline>
+      (function () {
+        try {
+          var pref = localStorage.getItem('theme') || 'system';
+          var dark =
+            pref === 'dark' ||
+            (pref === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body class="min-h-screen">
     <header class="border-b border-[var(--aas-border)]">
@@ -50,6 +63,7 @@ const base = import.meta.env.BASE_URL;
             href="https://github.com/codecompose7/awesome-agent-stack"
             class="no-underline hover:text-[var(--aas-text)]">GitHub</a
           >
+          <ThemeToggle lang={lang} />
           <LanguageSwitcher lang={lang} path={path} />
         </nav>
       </div>
