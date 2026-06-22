@@ -39,7 +39,11 @@ samples:
 
       app = graph.compile()
       print(app.invoke({"input": "hello", "steps": 0}))
-    note: The explicit graph API — best when you need branching, loops, and checkpoints.
+    description: |
+      The **graph API** is explicit: you declare nodes and the edges between
+      them, including a `conditional edge` that loops back until a stop
+      condition. Reach for it when you need branching, retries, or checkpointed
+      state across many steps.
   - version: "0.2 · Functional API"
     lang: python
     diagram: |
@@ -61,7 +65,10 @@ samples:
           return value
 
       print(app.invoke(0))
-    note: The functional API — lighter syntax when a plain control-flow loop is enough.
+    description: |
+      The **functional API** wraps plain functions with `@task` and an
+      `@entrypoint`. Control flow is just Python — the `for` loop here — so it
+      reads naturally when you don't need an explicit graph.
 ---
 
 ## Overview

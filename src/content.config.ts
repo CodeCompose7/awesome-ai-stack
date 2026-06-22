@@ -36,9 +36,10 @@ const stacks = defineCollection({
         z.object({
           version: z.string(), // label shown in the version selector
           lang: z.string().default('ts'), // language id for syntax highlighting
+          description: z.string().optional(), // Markdown explanation, shown above the code
           diagram: z.string().optional(), // Mermaid source
           code: z.string(),
-          note: z.string().optional(),
+          note: z.string().optional(), // short caption below the code
         }),
       )
       .default([]),

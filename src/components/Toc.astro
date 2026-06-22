@@ -1,0 +1,39 @@
+---
+interface Item {
+  slug: string;
+  text: string;
+  depth: number;
+}
+
+interface Props {
+  items: Item[];
+  title: string;
+}
+
+const { items, title } = Astro.props;
+---
+
+{
+  items.length > 0 && (
+    <nav aria-label={title} class="text-sm">
+      <p class="mb-2 text-xs font-semibold tracking-wide text-[var(--aas-muted)] uppercase">
+        {title}
+      </p>
+      <ul class="border-l border-[var(--aas-border)]">
+        {items.map((it) => (
+          <li>
+            <a
+              href={`#${it.slug}`}
+              class:list={[
+                '-ml-px block border-l-2 border-transparent py-1 text-[var(--aas-muted)] no-underline hover:border-[var(--aas-accent)] hover:text-[var(--aas-text)]',
+                it.depth >= 3 ? 'pl-6' : 'pl-3',
+              ]}
+            >
+              {it.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}

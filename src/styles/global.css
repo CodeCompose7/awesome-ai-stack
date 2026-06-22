@@ -50,11 +50,13 @@ body {
   font-size: 1.5rem;
   font-weight: 700;
   margin: 2rem 0 0.75rem;
+  scroll-margin-top: 1.5rem; /* so TOC anchor jumps don't clip the heading */
 }
 .prose :where(h3) {
   font-size: 1.2rem;
   font-weight: 600;
   margin: 1.5rem 0 0.5rem;
+  scroll-margin-top: 1.5rem;
 }
 .prose :where(p, ul, ol) {
   margin: 0.75rem 0;

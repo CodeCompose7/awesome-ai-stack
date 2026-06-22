@@ -43,6 +43,7 @@ const tabClass =
         const id = tab.dataset.tab;
         tabs.forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
         panels.forEach((p) => p.classList.toggle('hidden', p.dataset.panel !== id));
+        document.dispatchEvent(new CustomEvent('aas:tabchange', { detail: { id } }));
         (window as unknown as { __aasRenderMermaid?: () => void }).__aasRenderMermaid?.();
       });
     });

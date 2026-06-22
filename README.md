@@ -97,6 +97,8 @@ for a worked example.
 samples:
   - version: "0.2 · Graph API"   # label shown in the selector
     lang: python                 # syntax-highlight language (Shiki, build-time)
+    description: |               # optional Markdown explanation, shown above the code
+      The **graph API** is explicit: nodes plus the edges between them.
     diagram: |                   # optional Mermaid structure diagram
       flowchart LR
         START([START]) --> think[think]
@@ -105,6 +107,9 @@ samples:
       ...
     note: One-line caption under the code.       # optional
 ```
+
+Detail pages also render a sticky right-rail **table of contents** (h2–h3, from
+`render()`'s `headings`); on the Code tab it becomes the version list.
 
 - **Mermaid** diagrams work both in the Overview body (a ```mermaid fenced
   block) and per-sample via `diagram:`. They render on the client and recolor

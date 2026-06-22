@@ -1,10 +1,12 @@
 ---
 import { codeToHtml } from 'shiki';
+import MarkdownIt from 'markdown-it';
 import { useTranslations, type Lang } from '../i18n/ui';
 
 interface Sample {
   version: string;
   lang?: string;
+  description?: string;
   diagram?: string;
   code: string;
   note?: string;
@@ -17,8 +19,10 @@ interface Props {
 
 const { samples, lang } = Astro.props;
 const t = useTranslations(lang);
+const md = new MarkdownIt({ html: false, linkify: true });
 
-// Highlight each sample's code at build time with Shiki.
+// Highlight each sample's code at build time with Shiki; render the optional
+// Markdown description to HTML.
 const rendered = await Promise.all(
   samples.map(async (s) => {
     let html: string;
@@ -27,7 +31,8 @@ const rendered = await Promise.all(
     } catch {
       html = await codeToHtml(s.code, { lang: 'text', theme: 'github-dark' });
     }
-    return { ...s, html };
+    const descHtml = s.description ? md.render(s.description) : undefined;
+    return { ...s, html, descHtml };
   }),
 );
 ---
@@ -47,6 +52,7 @@ const rendered = await Promise.all(
     {
       rendered.map((s, i) => (
         <div data-sample-panel={i} class:list={[i === 0 ? '' : 'hidden']}>
+          {s.descHtml && <div class="prose mb-4 max-w-none" set:html={s.descHtml} />}
           {s.diagram && (
             <figure class="mb-4">
               <figcaption class="mb-1 text-xs tracking-wide text-[var(--aas-muted)] uppercase">
