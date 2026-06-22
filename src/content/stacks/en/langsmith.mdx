@@ -1,0 +1,51 @@
+---
+name: LangSmith
+category: observability
+description: LangChain's hosted platform for tracing, evaluating, and monitoring LLM and agent apps (works with or without LangChain).
+website: https://www.langchain.com/langsmith
+docs: https://docs.smith.langchain.com
+tags: [tracing, eval, monitoring, prompts]
+language: SaaS / SDK
+license: proprietary
+pricing: freemium
+---
+
+## Overview
+
+LangSmith is LangChain's hosted platform for the operational side of LLM apps:
+trace every model and tool call, run evaluations against datasets, manage and
+version prompts, and monitor cost and latency in production. It integrates
+tightly with LangChain/LangGraph but works with any stack via its SDK.
+
+## Sample: trace a function
+
+Set `LANGSMITH_TRACING=true` and `LANGSMITH_API_KEY`, install with
+`pnpm add langsmith`, then wrap any function with `traceable`:
+
+```ts
+import { traceable } from 'langsmith/traceable';
+import Anthropic from '@anthropic-ai/sdk';
+
+const client = new Anthropic();
+
+const plan = traceable(
+  async (input: string) => {
+    const res = await client.messages.create({
+      model: 'claude-opus-4-8',
+      max_tokens: 256,
+      messages: [{ role: 'user', content: input }],
+    });
+    return res.content;
+  },
+  { name: 'plan', run_type: 'chain' },
+);
+
+await plan('How do I reset my password?'); // appears as a trace in LangSmith
+```
+
+## When to use it
+
+Choose LangSmith when you want a managed, batteries-included observability and
+eval platform — especially if you're already in the LangChain ecosystem.
+
+See also: [Langfuse vs LangSmith](../../blog/langfuse-vs-langsmith/).

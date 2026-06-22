@@ -41,6 +41,12 @@ const base = import.meta.env.BASE_URL;
             {t('nav.browse')}
           </a>
           <a
+            href={getRelativeLocaleUrl(lang, 'blog/')}
+            class="no-underline hover:text-[var(--aas-text)]"
+          >
+            {t('nav.blog')}
+          </a>
+          <a
             href="https://github.com/codecompose7/awesome-agent-stack"
             class="no-underline hover:text-[var(--aas-text)]">GitHub</a
           >

@@ -1,0 +1,48 @@
+---
+title: 'Langfuse vs LangSmith: choosing an LLM observability stack'
+description: Both trace, evaluate, and monitor LLM agents — but they differ on hosting, openness, and ecosystem. Here's how to choose.
+date: 2026-06-22
+tools: [langfuse, langsmith]
+tags: [observability, eval, comparison]
+---
+
+Once an agent does more than one model call, logs stop being enough: you need to
+see the **trace** — every model and tool step, with inputs, outputs, latency, and
+cost. Two tools dominate that space for AI agents:
+[Langfuse](../../stacks/langfuse/) and [LangSmith](../../stacks/langsmith/).
+They overlap a lot, so the decision usually comes down to a few axes.
+
+## At a glance
+
+| | Langfuse | LangSmith |
+| --- | --- | --- |
+| **Source** | Open source (MIT) | Proprietary (SaaS) |
+| **Hosting** | Cloud **or** self-host | Hosted (cloud / enterprise) |
+| **Ecosystem** | Framework-agnostic | LangChain-native, also standalone |
+| **Core** | Tracing, evals, prompt mgmt, analytics | Tracing, evals, prompt mgmt, monitoring |
+| **Pricing** | Freemium + free self-host | Freemium |
+
+## Where Langfuse shines
+
+[Langfuse](../../stacks/langfuse/) is open source, so you can **self-host** and
+keep prompts and user data inside your own infrastructure — often the deciding
+factor in regulated or privacy-sensitive settings. It's deliberately
+framework-agnostic: the SDK and OpenTelemetry support drop into any stack,
+whether or not you use LangChain.
+
+## Where LangSmith shines
+
+[LangSmith](../../stacks/langsmith/) is the most frictionless option if you're
+already building on LangChain or LangGraph — tracing lights up with almost no
+wiring. As a managed product it leans into a polished, batteries-included
+experience for datasets, evaluations, and production monitoring.
+
+## How to choose
+
+- **Want to self-host or stay framework-agnostic?** → Langfuse.
+- **Already on LangChain/LangGraph and want zero-setup tracing?** → LangSmith.
+- **Need open source / data residency control?** → Langfuse.
+- **Want a fully managed, polished eval suite?** → LangSmith.
+
+Both are strong; many teams start with whichever matches their framework and
+hosting constraints, since the day-to-day tracing experience is comparable.

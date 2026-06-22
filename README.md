@@ -53,25 +53,23 @@ a postinstall step, add it there.
 
 ```
 src/
-├─ content.config.ts            # schema for the "stacks" collection (frontmatter)
-├─ content/stacks/
-│  ├─ en/*.mdx                  # English entries   ← add a tool here
-│  └─ ko/*.mdx                  # Korean entries (same slug per tool)
+├─ content.config.ts            # schemas for the "stacks" and "articles" collections
+├─ content/
+│  ├─ stacks/{en,ko}/*.mdx      # one tool per locale   ← add a tool here
+│  └─ articles/{en,ko}/*.mdx    # writing/blog posts    ← add an article here
 ├─ data/categories.ts           # category ids + per-locale labels/descriptions
 ├─ i18n/ui.ts                   # languages, UI strings, t() translator
-├─ lib/stacks.ts                # getStacks(lang) / slugOf() helpers
-├─ layouts/BaseLayout.astro     # shared shell (header/footer/lang switcher)
+├─ lib/
+│  ├─ stacks.ts                 # getStacks(lang) / slugOf()
+│  └─ articles.ts               # getArticles(lang) / getArticlesForTool() (backlinks)
+├─ layouts/BaseLayout.astro     # shared shell (header/footer/lang dropdown)
 ├─ components/
-│  ├─ Home.astro                # homepage body (per locale)
-│  ├─ StackDetail.astro         # detail body (per locale)
-│  ├─ StackCard.astro           # card used on the homepage grid
-│  └─ LanguageSwitcher.astro    # EN / KO toggle
+│  ├─ Home.astro / StackCard / StackDetail.astro      # tool catalog
+│  ├─ BlogIndex / ArticleCard / ArticleDetail.astro   # writing
+│  └─ LanguageSwitcher.astro    # language dropdown
 ├─ pages/
-│  ├─ index.astro               # EN homepage  →  /
-│  ├─ stacks/[...id].astro       # EN detail    →  /stacks/<slug>/
-│  └─ ko/
-│     ├─ index.astro            # KO homepage  →  /ko/
-│     └─ stacks/[...id].astro    # KO detail    →  /ko/stacks/<slug>/
+│  ├─ index.astro · stacks/[...id].astro · blog/…      # EN  →  /, /stacks/…, /blog/…
+│  └─ ko/…                       # KO  →  /ko/, /ko/stacks/…, /ko/blog/…
 └─ styles/global.css            # Tailwind import + Markdown ("prose") styles
 ```
 
@@ -87,6 +85,34 @@ the same page in the other locale.
 - **Tool content** is one MDX file per locale: `content/stacks/en/<slug>.mdx`
   and `content/stacks/ko/<slug>.mdx`. Keep the **same slug** in both so the
   switcher lines up; code samples are usually identical, only prose is translated.
+
+## Writing (blog) & backlinks
+
+Articles live in the separate `articles` collection (`content/articles/{en,ko}/`)
+and render under `/blog/` — kept apart from the tool catalog. An article's
+frontmatter lists the tool slugs it references:
+
+```mdx
+---
+title: 'Langfuse vs LangSmith: choosing an LLM observability stack'
+description: One-line summary for the card and <head>.
+date: 2026-06-22
+tools: [langfuse, langsmith]   # stack slugs this article references
+tags: [observability, comparison]
+draft: false                   # optional; drafts are excluded from the build
+---
+```
+
+That single `tools` list powers links in **both** directions:
+
+- **Forward** (article → tool): `ArticleDetail` resolves each slug to the tool's
+  localized name and links to its page. In prose you can also link with a
+  base-independent relative path, e.g. `[Langfuse](../../stacks/langfuse/)`.
+- **Backlink** (tool → article): Astro has **no native backlinks**, so
+  [`getArticlesForTool()`](src/lib/articles.ts) computes the reverse lookup at
+  build time — `StackDetail` then shows a "Related writing" list of every
+  article whose `tools` includes that slug. Add the slug to an article and the
+  backlink appears automatically; nothing to maintain by hand.
 
 ## Adding a tool
 

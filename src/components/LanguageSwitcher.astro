@@ -12,24 +12,41 @@ const { lang, path } = Astro.props;
 const codes = Object.keys(languages) as Lang[];
 ---
 
-<div class="flex items-center gap-1 text-sm">
-  {
-    codes.map((code, i) => (
-      <>
-        {i > 0 && <span class="text-[var(--aas-border)]">/</span>}
-        <a
-          href={getRelativeLocaleUrl(code, path)}
-          class:list={[
-            'no-underline',
-            code === lang
-              ? 'font-semibold text-[var(--aas-text)]'
-              : 'text-[var(--aas-muted)] hover:text-[var(--aas-text)]',
-          ]}
-          aria-current={code === lang ? 'true' : undefined}
-        >
-          {code.toUpperCase()}
-        </a>
-      </>
-    ))
+<details class="aas-lang">
+  <summary
+    class="flex cursor-pointer list-none items-center gap-1 rounded-lg border border-[var(--aas-border)] px-2.5 py-1 text-[var(--aas-text)] select-none"
+  >
+    {languages[lang]}
+    <span aria-hidden="true" class="text-[var(--aas-muted)]">▾</span>
+  </summary>
+  <ul
+    class="absolute right-0 z-10 mt-1 min-w-[8rem] overflow-hidden rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] py-1 shadow-lg"
+  >
+    {
+      codes.map((code) => (
+        <li>
+          <a
+            href={getRelativeLocaleUrl(code, path)}
+            class:list={[
+              'block px-3 py-1.5 no-underline hover:bg-[var(--aas-bg)]',
+              code === lang ? 'font-semibold text-[var(--aas-text)]' : 'text-[var(--aas-muted)]',
+            ]}
+            aria-current={code === lang ? 'true' : undefined}
+          >
+            {languages[code]}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</details>
+
+<style>
+  /* Lightweight, JS-free dropdown built on <details>. */
+  .aas-lang {
+    position: relative;
   }
-</div>
+  .aas-lang > summary::-webkit-details-marker {
+    display: none;
+  }
+</style>
