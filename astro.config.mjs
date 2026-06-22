@@ -21,6 +21,14 @@ export default defineConfig({
 
   integrations: [mdx(), sitemap()],
 
+  // Bind the dev server to 0.0.0.0 so it's reachable from a browser on the
+  // host (outside the Docker container). Without this, `astro dev` only listens
+  // on the container's localhost and the host browser can't connect — the fix
+  // for the "blank page / can't reach" symptom that `astro dev --host` solved.
+  server: {
+    host: true,
+  },
+
   vite: {
     plugins: [tailwindcss()],
 
