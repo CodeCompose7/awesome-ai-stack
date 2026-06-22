@@ -29,6 +29,19 @@ const stacks = defineCollection({
     //   paid        = paid plans exist
     //   free        = entirely free to use (non-OSS)
     pricing: z.array(z.enum(['open-source', 'free-tier', 'paid', 'free'])).default([]),
+    // Versioned code samples for the "Code" tab. Each can carry a Mermaid
+    // diagram explaining the structure plus a highlighted code snippet.
+    samples: z
+      .array(
+        z.object({
+          version: z.string(), // label shown in the version selector
+          lang: z.string().default('ts'), // language id for syntax highlighting
+          diagram: z.string().optional(), // Mermaid source
+          code: z.string(),
+          note: z.string().optional(),
+        }),
+      )
+      .default([]),
     featured: z.boolean().default(false),
   }),
 });

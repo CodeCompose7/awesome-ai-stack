@@ -10,6 +10,58 @@ language: Python / JS
 license: MIT
 pricing: [open-source]
 featured: true
+samples:
+  - version: "0.2 · Graph API"
+    lang: python
+    diagram: |
+      flowchart LR
+        START([START]) --> think[think]
+        think -->|steps < 3| think
+        think -->|done| FIN([END])
+    code: |
+      from langgraph.graph import StateGraph, START, END
+      from typing import TypedDict
+
+      class State(TypedDict):
+          input: str
+          steps: int
+
+      def think(state: State) -> State:
+          return {"input": state["input"], "steps": state["steps"] + 1}
+
+      def should_continue(state: State) -> str:
+          return "think" if state["steps"] < 3 else END
+
+      graph = StateGraph(State)
+      graph.add_node("think", think)
+      graph.add_edge(START, "think")
+      graph.add_conditional_edges("think", should_continue)
+
+      app = graph.compile()
+      print(app.invoke({"input": "hello", "steps": 0}))
+    note: 명시적 그래프 API — 분기·루프·체크포인트가 필요할 때 가장 좋습니다.
+  - version: "0.2 · Functional API"
+    lang: python
+    diagram: |
+      flowchart LR
+        IN([invoke]) --> task[task: think]
+        task -->|loop x3| task
+        task --> OUT([return])
+    code: |
+      from langgraph.func import entrypoint, task
+
+      @task
+      def think(value: int) -> int:
+          return value + 1
+
+      @entrypoint()
+      def app(value: int):
+          for _ in range(3):
+              value = think(value).result()
+          return value
+
+      print(app.invoke(0))
+    note: 함수형 API — 단순한 제어 흐름 루프면 충분할 때 더 가벼운 문법입니다.
 ---
 
 ## 개요
@@ -19,32 +71,18 @@ LangGraph는 에이전트를 **노드들의 그래프**로 모델링하고 엣�
 무엇을 실행할지 결정합니다. 상태가 명시적이기 때문에 평범한 while 루프로는
 표현하기 어려운 지속적 실행, 루프, 분기, 휴먼 인 더 루프 일시정지를 얻습니다.
 
-## 샘플: 최소 구성의 두 노드 그래프
-
-`pip install langgraph`로 설치한 뒤:
-
-```python
-from langgraph.graph import StateGraph, START, END
-from typing import TypedDict
-
-class State(TypedDict):
-    input: str
-    steps: int
-
-def think(state: State) -> State:
-    return {"input": state["input"], "steps": state["steps"] + 1}
-
-def should_continue(state: State) -> str:
-    return "think" if state["steps"] < 3 else END
-
-graph = StateGraph(State)
-graph.add_node("think", think)
-graph.add_edge(START, "think")
-graph.add_conditional_edges("think", should_continue)
-
-app = graph.compile()
-print(app.invoke({"input": "hello", "steps": 0}))
+```mermaid
+flowchart TD
+  State[(State)] -.-> think
+  subgraph Graph
+    think[node: think] --> cond{conditional edge}
+    cond -->|continue| think
+    cond -->|end| done([END])
+  end
 ```
+
+**코드 샘플** 탭에는 같은 아이디어를 두 가지 방식으로 작성한 예시가 있습니다 —
+선택기에서 API 버전을 골라 비교해 보세요.
 
 ## 언제 쓰면 좋은가
 

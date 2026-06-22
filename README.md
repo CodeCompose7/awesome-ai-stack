@@ -86,6 +86,33 @@ the same page in the other locale.
   and `content/stacks/ko/<slug>.mdx`. Keep the **same slug** in both so the
   switcher lines up; code samples are usually identical, only prose is translated.
 
+## Detail tabs: overview + versioned code samples
+
+When a tool defines `samples` in frontmatter, its detail page splits into two
+tabs: **Overview** (the MDX body — prose + diagrams) and **Code samples** (a
+version selector over the snippets). See `content/stacks/{en,ko}/langgraph.mdx`
+for a worked example.
+
+```yaml
+samples:
+  - version: "0.2 · Graph API"   # label shown in the selector
+    lang: python                 # syntax-highlight language (Shiki, build-time)
+    diagram: |                   # optional Mermaid structure diagram
+      flowchart LR
+        START([START]) --> think[think]
+    code: |
+      from langgraph.graph import StateGraph
+      ...
+    note: One-line caption under the code.       # optional
+```
+
+- **Mermaid** diagrams work both in the Overview body (a ```mermaid fenced
+  block) and per-sample via `diagram:`. They render on the client and recolor
+  with the light/dark theme ([`MermaidLoader.astro`](src/components/MermaidLoader.astro)).
+- Code is highlighted at **build time** with Shiki.
+- Tools without `samples` render the MDX body directly (no tabs), so adopting
+  this per tool is optional and incremental.
+
 ## Live data (GitHub stars & version)
 
 Cards and detail pages show a star count and the latest version for any tool

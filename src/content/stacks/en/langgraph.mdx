@@ -10,6 +10,58 @@ language: Python / JS
 license: MIT
 pricing: [open-source]
 featured: true
+samples:
+  - version: "0.2 · Graph API"
+    lang: python
+    diagram: |
+      flowchart LR
+        START([START]) --> think[think]
+        think -->|steps < 3| think
+        think -->|done| FIN([END])
+    code: |
+      from langgraph.graph import StateGraph, START, END
+      from typing import TypedDict
+
+      class State(TypedDict):
+          input: str
+          steps: int
+
+      def think(state: State) -> State:
+          return {"input": state["input"], "steps": state["steps"] + 1}
+
+      def should_continue(state: State) -> str:
+          return "think" if state["steps"] < 3 else END
+
+      graph = StateGraph(State)
+      graph.add_node("think", think)
+      graph.add_edge(START, "think")
+      graph.add_conditional_edges("think", should_continue)
+
+      app = graph.compile()
+      print(app.invoke({"input": "hello", "steps": 0}))
+    note: The explicit graph API — best when you need branching, loops, and checkpoints.
+  - version: "0.2 · Functional API"
+    lang: python
+    diagram: |
+      flowchart LR
+        IN([invoke]) --> task[task: think]
+        task -->|loop x3| task
+        task --> OUT([return])
+    code: |
+      from langgraph.func import entrypoint, task
+
+      @task
+      def think(value: int) -> int:
+          return value + 1
+
+      @entrypoint()
+      def app(value: int):
+          for _ in range(3):
+              value = think(value).result()
+          return value
+
+      print(app.invoke(0))
+    note: The functional API — lighter syntax when a plain control-flow loop is enough.
 ---
 
 ## Overview
@@ -19,32 +71,18 @@ is a step (call the model, run a tool, update memory); edges decide what runs
 next. Because state is explicit, you get durable execution, loops, branching,
 and human-in-the-loop pauses that are hard to express with a plain while-loop.
 
-## Sample: a minimal two-node graph
-
-Install with `pip install langgraph`, then:
-
-```python
-from langgraph.graph import StateGraph, START, END
-from typing import TypedDict
-
-class State(TypedDict):
-    input: str
-    steps: int
-
-def think(state: State) -> State:
-    return {"input": state["input"], "steps": state["steps"] + 1}
-
-def should_continue(state: State) -> str:
-    return "think" if state["steps"] < 3 else END
-
-graph = StateGraph(State)
-graph.add_node("think", think)
-graph.add_edge(START, "think")
-graph.add_conditional_edges("think", should_continue)
-
-app = graph.compile()
-print(app.invoke({"input": "hello", "steps": 0}))
+```mermaid
+flowchart TD
+  State[(State)] -.-> think
+  subgraph Graph
+    think[node: think] --> cond{conditional edge}
+    cond -->|continue| think
+    cond -->|end| done([END])
+  end
 ```
+
+The **Code samples** tab shows the same idea written two ways — pick the API
+version from the selector to compare.
 
 ## When to use it
 

@@ -3,6 +3,27 @@ import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
+import rehypeExternalLinks from 'rehype-external-links';
+
+// Turn ```mermaid fenced blocks into <pre class="mermaid"> (raw, un-highlighted)
+// so the client-side mermaid loader can render them. Runs at the remark stage,
+// before syntax highlighting, so Shiki leaves these blocks alone.
+function remarkMermaid() {
+  /** @param {string} s */
+  const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  /** @param {any} node */
+  const walk = (node) => {
+    if (!node.children) return;
+    node.children.forEach((/** @type {any} */ child, /** @type {number} */ i) => {
+      if (child.type === 'code' && child.lang === 'mermaid') {
+        node.children[i] = { type: 'html', value: `<pre class="mermaid">${esc(child.value)}</pre>` };
+      } else {
+        walk(child);
+      }
+    });
+  };
+  return (/** @type {any} */ tree) => walk(tree);
+}
 
 // https://astro.build/config
 export default defineConfig({
@@ -20,6 +41,15 @@ export default defineConfig({
   },
 
   integrations: [mdx(), sitemap()],
+
+  // Open external links in Markdown/MDX bodies in a new tab. Internal links
+  // (no protocol) are left alone, so in-site navigation stays in the same tab.
+  markdown: {
+    remarkPlugins: [remarkMermaid],
+    rehypePlugins: [
+      [rehypeExternalLinks, { target: '_blank', rel: ['noopener', 'noreferrer'] }],
+    ],
+  },
 
   // Bind the dev server to 0.0.0.0 so it's reachable from a browser on the
   // host (outside the Docker container). Without this, `astro dev` only listens

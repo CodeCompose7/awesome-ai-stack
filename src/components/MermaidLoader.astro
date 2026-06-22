@@ -1,0 +1,45 @@
+---
+// Renders any <pre class="mermaid"> on the page on the client, and re-renders
+// when the site theme changes (data-theme on <html>). Include once on pages
+// that contain Mermaid diagrams.
+---
+
+<script>
+  import mermaid from 'mermaid';
+
+  const themeFor = () =>
+    document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default';
+
+  async function renderAll() {
+    const nodes = Array.from(document.querySelectorAll<HTMLElement>('pre.mermaid'));
+    if (nodes.length === 0) return;
+    for (const n of nodes) {
+      // Keep the original source so we can re-render on theme change.
+      if (!n.dataset.src) n.dataset.src = (n.textContent ?? '').trim();
+      n.removeAttribute('data-processed');
+      n.innerHTML = n.dataset.src ?? '';
+    }
+    mermaid.initialize({ startOnLoad: false, theme: themeFor(), securityLevel: 'strict' });
+    try {
+      await mermaid.run({ nodes });
+    } catch {
+      /* leave the raw source visible on failure */
+    }
+  }
+
+  renderAll();
+
+  // Allow tab/version switches to re-render diagrams that were hidden (and thus
+  // mis-sized) at first paint.
+  (window as unknown as { __aasRenderMermaid?: () => void }).__aasRenderMermaid = renderAll;
+
+  // Re-render diagrams when the theme toggles.
+  let last = document.documentElement.dataset.theme;
+  new MutationObserver(() => {
+    const now = document.documentElement.dataset.theme;
+    if (now !== last) {
+      last = now;
+      renderAll();
+    }
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+</script>

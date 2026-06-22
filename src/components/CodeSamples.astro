@@ -1,0 +1,89 @@
+---
+import { codeToHtml } from 'shiki';
+import { useTranslations, type Lang } from '../i18n/ui';
+
+interface Sample {
+  version: string;
+  lang?: string;
+  diagram?: string;
+  code: string;
+  note?: string;
+}
+
+interface Props {
+  samples: Sample[];
+  lang: Lang;
+}
+
+const { samples, lang } = Astro.props;
+const t = useTranslations(lang);
+
+// Highlight each sample's code at build time with Shiki.
+const rendered = await Promise.all(
+  samples.map(async (s) => {
+    let html: string;
+    try {
+      html = await codeToHtml(s.code, { lang: s.lang ?? 'ts', theme: 'github-dark' });
+    } catch {
+      html = await codeToHtml(s.code, { lang: 'text', theme: 'github-dark' });
+    }
+    return { ...s, html };
+  }),
+);
+---
+
+<div class="aas-samples" data-samples>
+  <label class="flex items-center gap-2 text-sm text-[var(--aas-muted)]">
+    {t('sample.version')}
+    <select
+      data-sample-select
+      class="rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] px-2 py-1 text-[var(--aas-text)]"
+    >
+      {rendered.map((s, i) => <option value={i}>{s.version}</option>)}
+    </select>
+  </label>
+
+  <div class="mt-4 space-y-4">
+    {
+      rendered.map((s, i) => (
+        <div data-sample-panel={i} class:list={[i === 0 ? '' : 'hidden']}>
+          {s.diagram && (
+            <figure class="mb-4">
+              <figcaption class="mb-1 text-xs tracking-wide text-[var(--aas-muted)] uppercase">
+                {t('sample.diagram')}
+              </figcaption>
+              <pre class="mermaid rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] p-4 text-center">
+                {s.diagram}
+              </pre>
+            </figure>
+          )}
+          <div class="aas-code overflow-x-auto rounded-lg border border-[var(--aas-border)]" set:html={s.html} />
+          {s.note && <p class="mt-2 text-sm text-[var(--aas-muted)]">{s.note}</p>}
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  /* Shiki emits its own background; pad it and keep corners rounded. */
+  .aas-code :global(pre.shiki) {
+    margin: 0;
+    padding: 1rem 1.1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-samples]').forEach((root) => {
+    const select = root.querySelector<HTMLSelectElement>('[data-sample-select]');
+    const panels = Array.from(root.querySelectorAll<HTMLElement>('[data-sample-panel]'));
+    select?.addEventListener('change', () => {
+      panels.forEach((p) =>
+        p.classList.toggle('hidden', p.dataset.samplePanel !== select.value),
+      );
+      (window as unknown as { __aasRenderMermaid?: () => void }).__aasRenderMermaid?.();
+    });
+  });
+</script>

@@ -7,6 +7,9 @@ import { slugOf, type StackEntry } from '../lib/stacks';
 import { getArticlesForTool, articleSlugOf } from '../lib/articles';
 import ToolAvatar from './ToolAvatar.astro';
 import ToolMeta from './ToolMeta.astro';
+import DetailTabs from './DetailTabs.astro';
+import CodeSamples from './CodeSamples.astro';
+import MermaidLoader from './MermaidLoader.astro';
 import { getRepoStats } from '../lib/github';
 
 interface Props {
@@ -32,6 +35,8 @@ const links = [
   data.repo && { label: t('detail.repository'), href: data.repo },
   data.docs && { label: t('detail.docs'), href: data.docs },
 ].filter(Boolean) as { label: string; href: string }[];
+
+const hasSamples = data.samples.length > 0;
 ---
 
 <a href={getRelativeLocaleUrl(lang, '')} class="text-sm text-[var(--aas-accent)] no-underline"
@@ -53,6 +58,8 @@ const links = [
       links.map((l) => (
         <a
           href={l.href}
+          target="_blank"
+          rel="noopener noreferrer"
           class="rounded-lg border border-[var(--aas-border)] px-3 py-1.5 text-[var(--aas-accent)] no-underline hover:border-[var(--aas-accent)]"
         >
           {l.label} &nearr;
@@ -79,9 +86,25 @@ const links = [
   }
 </header>
 
-<article class="prose mt-8 max-w-none">
-  <Content />
-</article>
+{
+  hasSamples ? (
+    <div class="mt-8">
+      <DetailTabs overviewLabel={t('tab.overview')} codeLabel={t('tab.code')}>
+        <article slot="overview" class="prose max-w-none">
+          <Content />
+        </article>
+        <div slot="code">
+          <CodeSamples samples={data.samples} lang={lang} />
+        </div>
+      </DetailTabs>
+      <MermaidLoader />
+    </div>
+  ) : (
+    <article class="prose mt-8 max-w-none">
+      <Content />
+    </article>
+  )
+}
 
 {
   relatedArticles.length > 0 && (

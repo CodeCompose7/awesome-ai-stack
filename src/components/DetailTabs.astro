@@ -1,0 +1,50 @@
+---
+interface Props {
+  overviewLabel: string;
+  codeLabel: string;
+}
+
+const { overviewLabel, codeLabel } = Astro.props;
+const tabClass =
+  'aas-tab border-b-2 px-1 pb-2 text-sm font-medium border-transparent text-[var(--aas-muted)] hover:text-[var(--aas-text)]';
+---
+
+<div data-tabs>
+  <div role="tablist" class="flex gap-5 border-b border-[var(--aas-border)]">
+    <button type="button" data-tab="overview" class={tabClass} aria-selected="true">
+      {overviewLabel}
+    </button>
+    <button type="button" data-tab="code" class={tabClass} aria-selected="false">
+      {codeLabel}
+    </button>
+  </div>
+
+  <div data-panel="overview" class="mt-6">
+    <slot name="overview" />
+  </div>
+  <div data-panel="code" class="mt-6 hidden">
+    <slot name="code" />
+  </div>
+</div>
+
+<style>
+  .aas-tab[aria-selected='true'] {
+    border-color: var(--aas-accent);
+    color: var(--aas-text);
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-tabs]').forEach((root) => {
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-tab]'));
+    const panels = Array.from(root.querySelectorAll<HTMLElement>('[data-panel]'));
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const id = tab.dataset.tab;
+        tabs.forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+        panels.forEach((p) => p.classList.toggle('hidden', p.dataset.panel !== id));
+        (window as unknown as { __aasRenderMermaid?: () => void }).__aasRenderMermaid?.();
+      });
+    });
+  });
+</script>
