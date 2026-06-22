@@ -1,0 +1,47 @@
+---
+name: pgvector
+category: vector-stores
+description: Postgres extension for vector similarity search — add agent memory and RAG without a separate database.
+website: https://github.com/pgvector/pgvector
+repo: https://github.com/pgvector/pgvector
+tags: [embeddings, rag, postgres, similarity-search]
+language: SQL / C
+license: PostgreSQL
+pricing: open-source
+---
+
+## Overview
+
+`pgvector` adds a `vector` column type and similarity operators to PostgreSQL.
+If your stack already runs Postgres, it is the lowest-friction way to give an
+agent long-term memory or RAG retrieval — no extra service to operate.
+
+## Sample: store and query embeddings
+
+```sql
+CREATE EXTENSION IF NOT EXISTS vector;
+
+CREATE TABLE memories (
+  id    bigserial PRIMARY KEY,
+  body  text,
+  embedding vector(1536)        -- match your embedding model's dimensions
+);
+
+-- Nearest-neighbour search using cosine distance (<=>):
+SELECT body
+FROM memories
+ORDER BY embedding <=> $1
+LIMIT 5;
+```
+
+For large tables add an approximate index (`hnsw` or `ivfflat`) to keep queries
+fast:
+
+```sql
+CREATE INDEX ON memories USING hnsw (embedding vector_cosine_ops);
+```
+
+## When to use it
+
+Choose pgvector when you want vector search co-located with your relational data
+and prefer operating one database instead of adding a dedicated vector store.

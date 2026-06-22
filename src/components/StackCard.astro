@@ -1,0 +1,34 @@
+---
+interface Props {
+  id: string;
+  name: string;
+  description: string;
+  tags: string[];
+  pricing?: string;
+}
+
+const { id, name, description, tags, pricing } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+
+<a
+  href={`${base}stacks/${id}/`}
+  class="block rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-5 no-underline transition-colors hover:border-[var(--aas-accent)]"
+>
+  <div class="flex items-start justify-between gap-3">
+    <h3 class="text-base font-semibold text-[var(--aas-text)]">{name}</h3>
+    {pricing && <span class="shrink-0 text-xs text-[var(--aas-muted)]">{pricing}</span>}
+  </div>
+  <p class="mt-2 text-sm leading-relaxed text-[var(--aas-muted)]">{description}</p>
+  {
+    tags.length > 0 && (
+      <div class="mt-3 flex flex-wrap gap-1.5">
+        {tags.slice(0, 4).map((tag) => (
+          <span class="rounded-full border border-[var(--aas-border)] px-2 py-0.5 text-xs text-[var(--aas-muted)]">
+            {tag}
+          </span>
+        ))}
+      </div>
+    )
+  }
+</a>

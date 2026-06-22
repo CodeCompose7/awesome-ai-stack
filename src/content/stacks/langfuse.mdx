@@ -1,0 +1,47 @@
+---
+name: Langfuse
+category: observability
+description: Open-source tracing, evaluation, and analytics for LLM and agent applications.
+website: https://langfuse.com
+repo: https://github.com/langfuse/langfuse
+docs: https://langfuse.com/docs
+tags: [tracing, eval, monitoring, analytics]
+language: TypeScript
+license: MIT
+pricing: freemium
+---
+
+## Overview
+
+Agents fail in ways that are hard to see from logs alone. Langfuse records each
+run as a **trace** of nested spans (model calls, tool calls, retrievals) so you
+can inspect latency, cost, and the exact prompts/outputs at every step — then
+attach scores and evals on top.
+
+## Sample: trace an agent step
+
+Install with `pnpm add langfuse`, then:
+
+```ts
+import { Langfuse } from 'langfuse';
+
+const langfuse = new Langfuse(); // reads LANGFUSE_* env vars
+
+const trace = langfuse.trace({ name: 'support-agent', userId: 'u_123' });
+
+const gen = trace.generation({
+  name: 'plan',
+  model: 'claude-opus-4-8',
+  input: 'How do I reset my password?',
+});
+
+// ... call the model ...
+gen.end({ output: 'Tell the user to use the reset link.' });
+
+await langfuse.flushAsync();
+```
+
+## When to use it
+
+Add Langfuse early when you need to debug multi-step agent runs, compare prompt
+versions, or track cost and quality in production.

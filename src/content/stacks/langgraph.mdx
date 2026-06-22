@@ -1,0 +1,52 @@
+---
+name: LangGraph
+category: frameworks
+description: Graph-based orchestration for stateful, multi-step agents with branching, loops, and human-in-the-loop.
+website: https://www.langchain.com/langgraph
+repo: https://github.com/langchain-ai/langgraph
+docs: https://langchain-ai.github.io/langgraph/
+tags: [orchestration, state-machine, multi-agent, python]
+language: Python / JS
+license: MIT
+pricing: open-source
+featured: true
+---
+
+## Overview
+
+LangGraph models an agent as a **graph of nodes** connected by edges. Each node
+is a step (call the model, run a tool, update memory); edges decide what runs
+next. Because state is explicit, you get durable execution, loops, branching,
+and human-in-the-loop pauses that are hard to express with a plain while-loop.
+
+## Sample: a minimal two-node graph
+
+Install with `pip install langgraph`, then:
+
+```python
+from langgraph.graph import StateGraph, START, END
+from typing import TypedDict
+
+class State(TypedDict):
+    input: str
+    steps: int
+
+def think(state: State) -> State:
+    return {"input": state["input"], "steps": state["steps"] + 1}
+
+def should_continue(state: State) -> str:
+    return "think" if state["steps"] < 3 else END
+
+graph = StateGraph(State)
+graph.add_node("think", think)
+graph.add_edge(START, "think")
+graph.add_conditional_edges("think", should_continue)
+
+app = graph.compile()
+print(app.invoke({"input": "hello", "steps": 0}))
+```
+
+## When to use it
+
+Pick LangGraph when an agent needs cycles, retries, or checkpointed state across
+many steps — anything more structured than a single linear prompt chain.

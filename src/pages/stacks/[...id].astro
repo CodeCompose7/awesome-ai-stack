@@ -1,0 +1,65 @@
+---
+import { getCollection, render } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { categoryMap } from '../../data/categories';
+
+export const getStaticPaths = (async () => {
+  const entries = await getCollection('stacks');
+  return entries.map((entry) => ({
+    params: { id: entry.id },
+    props: { entry },
+  }));
+}) satisfies GetStaticPaths;
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const data = entry.data;
+const category = categoryMap.get(data.category);
+const base = import.meta.env.BASE_URL;
+
+const links = [
+  data.website && { label: 'Website', href: data.website },
+  data.repo && { label: 'Repository', href: data.repo },
+  data.docs && { label: 'Docs', href: data.docs },
+].filter(Boolean) as { label: string; href: string }[];
+---
+
+<BaseLayout title={`${data.name} — awesome-agent-stack`} description={data.description}>
+  <a href={base} class="text-sm text-[var(--aas-accent)] no-underline">&larr; All tools</a>
+
+  <header class="mt-4 border-b border-[var(--aas-border)] pb-6">
+    {category && <p class="text-sm text-[var(--aas-muted)]">{category.label}</p>}
+    <h1 class="mt-1 text-3xl font-bold tracking-tight">{data.name}</h1>
+    <p class="mt-2 max-w-2xl text-lg text-[var(--aas-muted)]">{data.description}</p>
+
+    <div class="mt-4 flex flex-wrap gap-3 text-sm">
+      {
+        links.map((l) => (
+          <a
+            href={l.href}
+            class="rounded-lg border border-[var(--aas-border)] px-3 py-1.5 text-[var(--aas-accent)] no-underline hover:border-[var(--aas-accent)]"
+          >
+            {l.label} &nearr;
+          </a>
+        ))
+      }
+    </div>
+
+    <dl class="mt-5 grid grid-cols-2 gap-x-6 gap-y-2 text-sm sm:grid-cols-4">
+      {data.language && (
+        <div><dt class="text-[var(--aas-muted)]">Language</dt><dd>{data.language}</dd></div>
+      )}
+      {data.license && (
+        <div><dt class="text-[var(--aas-muted)]">License</dt><dd>{data.license}</dd></div>
+      )}
+      {data.pricing && (
+        <div><dt class="text-[var(--aas-muted)]">Pricing</dt><dd>{data.pricing}</dd></div>
+      )}
+    </dl>
+  </header>
+
+  <article class="prose mt-8 max-w-none">
+    <Content />
+  </article>
+</BaseLayout>

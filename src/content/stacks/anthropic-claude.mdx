@@ -1,0 +1,65 @@
+---
+name: Anthropic Claude
+category: llm-providers
+description: Frontier LLM API with strong tool-use and long-context reasoning, ideal as an agent's core model.
+website: https://www.anthropic.com
+docs: https://docs.anthropic.com
+tags: [llm, tool-use, reasoning, api]
+language: API
+pricing: paid
+featured: true
+---
+
+## Overview
+
+Claude is Anthropic's family of frontier models. For agentic workloads it is a
+strong default thanks to reliable **tool use** (function calling), large context
+windows, and steerable instruction-following.
+
+Common model ids (use the latest/most capable for new agents):
+
+- `claude-opus-4-8` — most capable, best for hard reasoning and long agent loops
+- `claude-sonnet-4-6` — balanced cost/latency for high-volume agents
+- `claude-haiku-4-5-20251001` — fastest/cheapest for simple sub-tasks
+
+## Sample: a tool-using agent turn
+
+Install the SDK with `pnpm add @anthropic-ai/sdk`, then:
+
+```ts
+import Anthropic from '@anthropic-ai/sdk';
+
+const client = new Anthropic(); // reads ANTHROPIC_API_KEY
+
+const tools = [
+  {
+    name: 'get_weather',
+    description: 'Get the current weather for a city',
+    input_schema: {
+      type: 'object',
+      properties: { city: { type: 'string' } },
+      required: ['city'],
+    },
+  },
+] as const;
+
+const message = await client.messages.create({
+  model: 'claude-opus-4-8',
+  max_tokens: 1024,
+  tools,
+  messages: [{ role: 'user', content: 'What should I wear in Seoul today?' }],
+});
+
+// When Claude wants a tool, it returns a `tool_use` block. Run the tool,
+// then send the result back as a `tool_result` to continue the loop.
+for (const block of message.content) {
+  if (block.type === 'tool_use') {
+    console.log('call', block.name, block.input);
+  }
+}
+```
+
+## When to use it
+
+Reach for Claude when your agent needs dependable multi-step tool use, careful
+instruction-following, or long-context document reasoning.
