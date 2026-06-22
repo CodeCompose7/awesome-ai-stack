@@ -93,7 +93,7 @@ body {
 .aas-diagram {
   margin: 1rem 0;
   padding: 1rem;
-  background: var(--aas-panel);
+  background: transparent;
   border: 1px solid var(--aas-border);
   border-radius: 0.6rem;
   overflow: hidden;
