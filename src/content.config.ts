@@ -21,6 +21,8 @@ const stacks = defineCollection({
     tags: z.array(z.string()).default([]),
     language: z.string().optional(),
     license: z.string().optional(),
+    version: z.string().optional(), // manual fallback; GitHub release/tag is used when available
+
     // Composable pricing/hosting model tags (a tool can be several at once):
     //   open-source = source is open / free to self-host
     //   free-tier   = vendor-hosted free tier

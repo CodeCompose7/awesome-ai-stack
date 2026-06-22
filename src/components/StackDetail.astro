@@ -7,6 +7,7 @@ import { slugOf, type StackEntry } from '../lib/stacks';
 import { getArticlesForTool, articleSlugOf } from '../lib/articles';
 import ToolAvatar from './ToolAvatar.astro';
 import ToolMeta from './ToolMeta.astro';
+import { getRepoStats } from '../lib/github';
 
 interface Props {
   entry: StackEntry;
@@ -21,6 +22,10 @@ const category = categoryMap.get(data.category);
 
 // Backlinks: writing that references this tool (computed reverse lookup).
 const relatedArticles = await getArticlesForTool(lang, slugOf(entry));
+
+// Live GitHub stats (build-time), with the manual `version` as fallback.
+const stats = await getRepoStats(data.repo);
+const displayVersion = stats?.version ?? data.version;
 
 const links = [
   data.website && { label: t('detail.website'), href: data.website },
@@ -56,7 +61,14 @@ const links = [
     }
   </div>
 
-  <ToolMeta lang={lang} pricing={data.pricing} license={data.license} class="mt-5" />
+  <ToolMeta
+    lang={lang}
+    pricing={data.pricing}
+    license={data.license}
+    stars={stats?.stars}
+    version={displayVersion}
+    class="mt-5"
+  />
 
   {
     data.language && (

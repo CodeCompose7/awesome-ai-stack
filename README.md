@@ -86,6 +86,21 @@ the same page in the other locale.
   and `content/stacks/ko/<slug>.mdx`. Keep the **same slug** in both so the
   switcher lines up; code samples are usually identical, only prose is translated.
 
+## Live data (GitHub stars & version)
+
+Cards and detail pages show a star count and the latest version for any tool
+with a `repo` on GitHub — **fetched at build time**, not hand-entered. The logic
+lives in [`src/lib/github.ts`](src/lib/github.ts) (memoized per repo; degrades
+to nothing on error/offline/rate-limit).
+
+- These reflect the project's real state **as of the last build**. The deploy
+  workflow runs on every push **and on a daily `schedule:` cron**, so numbers
+  stay fresh without code changes.
+- CI passes `GITHUB_TOKEN` to the build to lift the 60 req/hour unauthenticated
+  rate limit. Locally, unauthenticated requests are usually plenty.
+- For tools not on GitHub (e.g. a closed SaaS), set `version:` in frontmatter as
+  a manual fallback; the live release wins whenever `repo` is present.
+
 ## Writing (blog) & backlinks
 
 Articles live in the separate `articles` collection (`content/articles/{en,ko}/`)
@@ -134,6 +149,7 @@ tags: [orchestration, python] # optional
 language: Python / JS         # optional
 license: MIT                  # optional; shown as a chip on cards + detail
 pricing: [open-source, paid]  # optional list: open-source | free-tier | paid | free
+version: 0.2.1                # optional fallback; the live GitHub release is used when `repo` is set
 featured: true                # optional: sorts first within its category
 ---
 

@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # Rebuild daily so GitHub stars/versions (fetched at build time) stay fresh
+  # even without code changes.
+  schedule:
+    - cron: '0 6 * * *'
 
 # Allow GITHUB_TOKEN to deploy to Pages and verify the deployment origin
 permissions:
@@ -25,6 +29,10 @@ jobs:
 
       - name: Build with Astro
         uses: withastro/action@v3
+        env:
+          # Authenticate the build-time GitHub API calls (stars/version) to
+          # lift the 60 req/hour unauthenticated rate limit.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           node-version: 24
           package-manager: pnpm@latest

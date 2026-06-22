@@ -1,6 +1,7 @@
 ---
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import type { Lang } from '../i18n/ui';
+import { getRepoStats } from '../lib/github';
 import ToolAvatar from './ToolAvatar.astro';
 import ToolMeta from './ToolMeta.astro';
 
@@ -13,15 +14,21 @@ interface Props {
   pricing: string[];
   license?: string;
   logo?: string;
+  repo?: string;
+  version?: string;
 }
 
-const { slug, lang, name, description, tags, pricing, license, logo } = Astro.props;
+const { slug, lang, name, description, tags, pricing, license, logo, repo, version } = Astro.props;
 const href = getRelativeLocaleUrl(lang, `stacks/${slug}/`);
+
+// Live stats from GitHub (build-time), with the manual `version` as fallback.
+const stats = await getRepoStats(repo);
+const displayVersion = stats?.version ?? version;
 ---
 
 <a
   href={href}
-  class="block rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-5 no-underline transition-colors hover:border-[var(--aas-accent)]"
+  class="flex flex-col rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-5 no-underline transition-colors hover:border-[var(--aas-accent)]"
 >
   <div class="flex min-w-0 items-center gap-3">
     <ToolAvatar name={name} logo={logo} size={40} />
@@ -29,15 +36,22 @@ const href = getRelativeLocaleUrl(lang, `stacks/${slug}/`);
   </div>
   <p class="mt-2 text-sm leading-relaxed text-[var(--aas-muted)]">{description}</p>
 
-  <ToolMeta lang={lang} pricing={pricing} license={license} class="mt-3" />
+  {/* Facts: stars · version · pricing · license */}
+  <ToolMeta
+    lang={lang}
+    pricing={pricing}
+    license={license}
+    stars={stats?.stars}
+    version={displayVersion}
+    class="mt-3"
+  />
 
+  {/* Keyword tags — visually separate from the facts above */}
   {
     tags.length > 0 && (
-      <div class="mt-2 flex flex-wrap gap-1.5">
+      <div class="mt-auto flex flex-wrap gap-x-2 gap-y-1 pt-3 text-xs text-[var(--aas-muted)]">
         {tags.slice(0, 4).map((tag) => (
-          <span class="rounded-full border border-[var(--aas-border)] px-2 py-0.5 text-xs text-[var(--aas-muted)]">
-            {tag}
-          </span>
+          <span class="opacity-80">#{tag}</span>
         ))}
       </div>
     )

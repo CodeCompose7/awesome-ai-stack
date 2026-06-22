@@ -1,26 +1,43 @@
 ---
 import { pricingLabels, type Lang } from '../i18n/ui';
+import { formatStars } from '../lib/github';
 
 interface Props {
   lang: Lang;
   pricing: string[];
   license?: string;
+  stars?: number | null;
+  version?: string | null;
   class?: string;
 }
 
-const { lang, pricing, license, class: className } = Astro.props;
+const { lang, pricing, license, stars, version, class: className } = Astro.props;
+const hasAny = pricing.length > 0 || license || typeof stars === 'number' || version;
 ---
 
 {
-  (pricing.length > 0 || license) && (
-    <div class:list={['flex flex-wrap items-center gap-1.5', className]}>
+  hasAny && (
+    <div class:list={['flex flex-wrap items-center gap-1.5 text-xs', className]}>
+      {typeof stars === 'number' && (
+        <span class="inline-flex items-center gap-1 rounded-full border border-[var(--aas-border)] px-2 py-0.5 text-[var(--aas-muted)]">
+          <span aria-hidden="true" class="text-amber-500">
+            ★
+          </span>
+          {formatStars(stars)}
+        </span>
+      )}
+      {version && (
+        <span class="rounded-full border border-[var(--aas-border)] px-2 py-0.5 font-mono text-[var(--aas-muted)]">
+          {version}
+        </span>
+      )}
       {pricing.map((p) => (
-        <span class="rounded-full border border-[var(--aas-accent)] px-2 py-0.5 text-xs text-[var(--aas-accent)]">
+        <span class="rounded-full border border-[var(--aas-accent)] px-2 py-0.5 text-[var(--aas-accent)]">
           {pricingLabels[lang][p] ?? p}
         </span>
       ))}
       {license && (
-        <span class="rounded-full border border-[var(--aas-border)] px-2 py-0.5 text-xs text-[var(--aas-muted)]">
+        <span class="rounded-full border border-[var(--aas-border)] px-2 py-0.5 text-[var(--aas-muted)]">
           ⚖ {license}
         </span>
       )}
