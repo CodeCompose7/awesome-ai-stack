@@ -95,6 +95,6 @@ export const pricingLabels: Record<Lang, Record<string, string>> = {
     'open-source': '오픈소스',
     'free-tier': '무료 티어',
     paid: '유료',
-    freemium: '프리미엄',
+    freemium: '무료+유료',
   },
 };

@@ -1,6 +1,7 @@
 ---
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { pricingLabels, type Lang } from '../i18n/ui';
+import ToolAvatar from './ToolAvatar.astro';
 
 interface Props {
   slug: string;
@@ -9,9 +10,10 @@ interface Props {
   description: string;
   tags: string[];
   pricing?: string;
+  logo?: string;
 }
 
-const { slug, lang, name, description, tags, pricing } = Astro.props;
+const { slug, lang, name, description, tags, pricing, logo } = Astro.props;
 const href = getRelativeLocaleUrl(lang, `stacks/${slug}/`);
 const pricingLabel = pricing ? pricingLabels[lang][pricing] : undefined;
 ---
@@ -21,7 +23,10 @@ const pricingLabel = pricing ? pricingLabels[lang][pricing] : undefined;
   class="block rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-5 no-underline transition-colors hover:border-[var(--aas-accent)]"
 >
   <div class="flex items-start justify-between gap-3">
-    <h3 class="text-base font-semibold text-[var(--aas-text)]">{name}</h3>
+    <div class="flex min-w-0 items-center gap-3">
+      <ToolAvatar name={name} logo={logo} size={40} />
+      <h3 class="truncate text-base font-semibold text-[var(--aas-text)]">{name}</h3>
+    </div>
     {pricingLabel && <span class="shrink-0 text-xs text-[var(--aas-muted)]">{pricingLabel}</span>}
   </div>
   <p class="mt-2 text-sm leading-relaxed text-[var(--aas-muted)]">{description}</p>

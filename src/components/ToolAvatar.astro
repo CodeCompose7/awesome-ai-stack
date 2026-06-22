@@ -1,0 +1,58 @@
+---
+interface Props {
+  name: string;
+  /** Optional logo image (URL or /public path). Falls back to a monogram. */
+  logo?: string;
+  size?: number;
+  class?: string;
+}
+
+const { name, logo, size = 44, class: className } = Astro.props;
+
+// Initials: first letter of the first two "tokens" (split on separators and
+// camelCase), else the first two characters. Keeps the Lang* family distinct
+// (LangGraph → LG, LangSmith → LS, Langfuse → LA, LiteLLM → LL).
+const tokens = name
+  .split(/[^A-Za-z0-9]+/)
+  .flatMap((w) => w.split(/(?<=[a-z])(?=[A-Z])/))
+  .filter(Boolean);
+const initials = (
+  tokens.length >= 2 ? tokens[0][0] + tokens[1][0] : name.replace(/[^A-Za-z0-9]/g, '').slice(0, 2)
+).toUpperCase();
+
+// Deterministic hue from the name so each tool gets a stable color.
+let h = 0;
+for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+const hue = h % 360;
+
+const boxStyle = `width:${size}px;height:${size}px`;
+const monogramStyle =
+  `${boxStyle};` +
+  `background:linear-gradient(135deg,hsl(${hue} 68% 55%),hsl(${(hue + 38) % 360} 68% 45%));` +
+  `font-size:${Math.round(size * 0.38)}px`;
+---
+
+{
+  logo ? (
+    <img
+      src={logo}
+      alt=""
+      width={size}
+      height={size}
+      loading="lazy"
+      class:list={['shrink-0 rounded-lg object-contain', className]}
+      style={boxStyle}
+    />
+  ) : (
+    <span
+      class:list={[
+        'flex shrink-0 items-center justify-center rounded-lg font-bold tracking-tight text-white',
+        className,
+      ]}
+      style={monogramStyle}
+      aria-hidden="true"
+    >
+      {initials}
+    </span>
+  )
+}

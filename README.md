@@ -126,6 +126,7 @@ becomes the URL slug (`langgraph.mdx` → `/stacks/langgraph/` and
 name: LangGraph
 category: frameworks          # must match an id in src/data/categories.ts
 description: One-line summary shown on the card and detail header.
+logo: /logos/langgraph.svg    # optional image; otherwise a colored monogram is generated
 website: https://example.com  # optional
 repo: https://github.com/...  # optional
 docs: https://docs.example.com # optional
