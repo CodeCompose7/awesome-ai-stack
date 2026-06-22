@@ -53,21 +53,47 @@ a postinstall step, add it there.
 
 ```
 src/
-├─ content.config.ts        # schema for the "stacks" collection (frontmatter)
-├─ content/stacks/*.mdx      # one file per tool/service  ← add entries here
-├─ data/categories.ts        # category ids, labels, and ordering
-├─ layouts/BaseLayout.astro  # shared page shell (header/footer/styles)
-├─ components/StackCard.astro # card used on the homepage grid
+├─ content.config.ts            # schema for the "stacks" collection (frontmatter)
+├─ content/stacks/
+│  ├─ en/*.mdx                  # English entries   ← add a tool here
+│  └─ ko/*.mdx                  # Korean entries (same slug per tool)
+├─ data/categories.ts           # category ids + per-locale labels/descriptions
+├─ i18n/ui.ts                   # languages, UI strings, t() translator
+├─ lib/stacks.ts                # getStacks(lang) / slugOf() helpers
+├─ layouts/BaseLayout.astro     # shared shell (header/footer/lang switcher)
+├─ components/
+│  ├─ Home.astro                # homepage body (per locale)
+│  ├─ StackDetail.astro         # detail body (per locale)
+│  ├─ StackCard.astro           # card used on the homepage grid
+│  └─ LanguageSwitcher.astro    # EN / KO toggle
 ├─ pages/
-│  ├─ index.astro            # homepage, grouped by category
-│  └─ stacks/[...id].astro   # detail page generated per entry
-└─ styles/global.css         # Tailwind import + Markdown ("prose") styles
+│  ├─ index.astro               # EN homepage  →  /
+│  ├─ stacks/[...id].astro       # EN detail    →  /stacks/<slug>/
+│  └─ ko/
+│     ├─ index.astro            # KO homepage  →  /ko/
+│     └─ stacks/[...id].astro    # KO detail    →  /ko/stacks/<slug>/
+└─ styles/global.css            # Tailwind import + Markdown ("prose") styles
 ```
+
+## Internationalization (EN / KO)
+
+The site is bilingual. `en` is the default locale (served at the root) and `ko`
+is served under `/ko/` — configured via Astro's `i18n` in
+[`astro.config.mjs`](astro.config.mjs). A language toggle in the header links to
+the same page in the other locale.
+
+- **UI strings** live in [`src/i18n/ui.ts`](src/i18n/ui.ts) (the `ui` dictionary).
+- **Category labels** are per-locale in [`src/data/categories.ts`](src/data/categories.ts).
+- **Tool content** is one MDX file per locale: `content/stacks/en/<slug>.mdx`
+  and `content/stacks/ko/<slug>.mdx`. Keep the **same slug** in both so the
+  switcher lines up; code samples are usually identical, only prose is translated.
 
 ## Adding a tool
 
-Adding an entry is just dropping one MDX file into `src/content/stacks/`.
-The filename becomes the URL slug (`langgraph.mdx` → `/stacks/langgraph/`).
+Drop one MDX file per locale into `src/content/stacks/en/` and
+`src/content/stacks/ko/` (use the **same filename** in both). The filename
+becomes the URL slug (`langgraph.mdx` → `/stacks/langgraph/` and
+`/ko/stacks/langgraph/`).
 
 ```mdx
 ---

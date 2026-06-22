@@ -1,0 +1,35 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { languages, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  /** Locale-relative path of the current page, e.g. '' or 'stacks/litellm/'. */
+  path: string;
+}
+
+const { lang, path } = Astro.props;
+const codes = Object.keys(languages) as Lang[];
+---
+
+<div class="flex items-center gap-1 text-sm">
+  {
+    codes.map((code, i) => (
+      <>
+        {i > 0 && <span class="text-[var(--aas-border)]">/</span>}
+        <a
+          href={getRelativeLocaleUrl(code, path)}
+          class:list={[
+            'no-underline',
+            code === lang
+              ? 'font-semibold text-[var(--aas-text)]'
+              : 'text-[var(--aas-muted)] hover:text-[var(--aas-text)]',
+          ]}
+          aria-current={code === lang ? 'true' : undefined}
+        >
+          {code.toUpperCase()}
+        </a>
+      </>
+    ))
+  }
+</div>

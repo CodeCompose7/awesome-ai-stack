@@ -1,17 +1,27 @@
 ---
 import '../styles/global.css';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { useTranslations, type Lang } from '../i18n/ui';
+import LanguageSwitcher from '../components/LanguageSwitcher.astro';
 
 interface Props {
   title: string;
   description?: string;
+  lang: Lang;
+  /** Locale-relative path of this page, e.g. '' (home) or 'stacks/litellm/'. */
+  path: string;
 }
 
-const { title, description = 'A curated stack of tools and services for building AI agents.' } = Astro.props;
+const { title, lang, path } = Astro.props;
+const t = useTranslations(lang);
+const description = Astro.props.description ?? t('site.tagline');
+
+const home = getRelativeLocaleUrl(lang, '');
 const base = import.meta.env.BASE_URL;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -23,16 +33,18 @@ const base = import.meta.env.BASE_URL;
   <body class="min-h-screen">
     <header class="border-b border-[var(--aas-border)]">
       <div class="mx-auto flex max-w-5xl items-center justify-between px-5 py-4">
-        <a href={base} class="text-lg font-bold tracking-tight no-underline">
+        <a href={home} class="text-lg font-bold tracking-tight no-underline">
           ⚡ awesome-agent-stack
         </a>
-        <nav class="flex gap-4 text-sm text-[var(--aas-muted)]">
-          <a href={`${base}#categories`} class="no-underline hover:text-[var(--aas-text)]">Browse</a>
+        <nav class="flex items-center gap-4 text-sm text-[var(--aas-muted)]">
+          <a href={`${home}#categories`} class="no-underline hover:text-[var(--aas-text)]">
+            {t('nav.browse')}
+          </a>
           <a
             href="https://github.com/codecompose7/awesome-agent-stack"
-            class="no-underline hover:text-[var(--aas-text)]"
-            >GitHub</a
+            class="no-underline hover:text-[var(--aas-text)]">GitHub</a
           >
+          <LanguageSwitcher lang={lang} path={path} />
         </nav>
       </div>
     </header>
@@ -41,10 +53,14 @@ const base = import.meta.env.BASE_URL;
       <slot />
     </main>
 
-    <footer class="border-t border-[var(--aas-border)] py-8 text-center text-sm text-[var(--aas-muted)]">
+    <footer
+      class="border-t border-[var(--aas-border)] py-8 text-center text-sm text-[var(--aas-muted)]"
+    >
       <p>
-        Built with <a href="https://astro.build" class="text-[var(--aas-accent)]">Astro</a>.
-        Contributions welcome — add a tool by dropping an MDX file.
+        {t('footer.builtWith')}
+        <a href="https://astro.build" class="text-[var(--aas-accent)]">Astro</a>. {
+          t('footer.contribute')
+        }
       </p>
     </footer>
   </body>

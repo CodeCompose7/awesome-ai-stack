@@ -1,0 +1,53 @@
+---
+name: LangGraph
+category: frameworks
+description: 분기·루프·휴먼 인 더 루프를 갖춘 상태 기반 다단계 에이전트를 위한 그래프 오케스트레이션.
+website: https://www.langchain.com/langgraph
+repo: https://github.com/langchain-ai/langgraph
+docs: https://langchain-ai.github.io/langgraph/
+tags: [orchestration, state-machine, multi-agent, python]
+language: Python / JS
+license: MIT
+pricing: open-source
+featured: true
+---
+
+## 개요
+
+LangGraph는 에이전트를 **노드들의 그래프**로 모델링하고 엣지로 연결합니다.
+각 노드는 하나의 단계(모델 호출, 도구 실행, 메모리 갱신)이고, 엣지가 다음에
+무엇을 실행할지 결정합니다. 상태가 명시적이기 때문에 평범한 while 루프로는
+표현하기 어려운 지속적 실행, 루프, 분기, 휴먼 인 더 루프 일시정지를 얻습니다.
+
+## 샘플: 최소 구성의 두 노드 그래프
+
+`pip install langgraph`로 설치한 뒤:
+
+```python
+from langgraph.graph import StateGraph, START, END
+from typing import TypedDict
+
+class State(TypedDict):
+    input: str
+    steps: int
+
+def think(state: State) -> State:
+    return {"input": state["input"], "steps": state["steps"] + 1}
+
+def should_continue(state: State) -> str:
+    return "think" if state["steps"] < 3 else END
+
+graph = StateGraph(State)
+graph.add_node("think", think)
+graph.add_edge(START, "think")
+graph.add_conditional_edges("think", should_continue)
+
+app = graph.compile()
+print(app.invoke({"input": "hello", "steps": 0}))
+```
+
+## 언제 쓰면 좋은가
+
+에이전트가 여러 단계에 걸친 순환, 재시도, 체크포인트된 상태가 필요할 때 —
+즉 단일 선형 프롬프트 체인보다 더 구조적인 흐름이 필요할 때 LangGraph를
+선택하세요.

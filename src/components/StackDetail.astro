@@ -1,0 +1,70 @@
+---
+import { render } from 'astro:content';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { categoryMap } from '../data/categories';
+import { useTranslations, pricingLabels, type Lang } from '../i18n/ui';
+import type { StackEntry } from '../lib/stacks';
+
+interface Props {
+  entry: StackEntry;
+  lang: Lang;
+}
+
+const { entry, lang } = Astro.props;
+const t = useTranslations(lang);
+const { Content } = await render(entry);
+const data = entry.data;
+const category = categoryMap.get(data.category);
+
+const links = [
+  data.website && { label: t('detail.website'), href: data.website },
+  data.repo && { label: t('detail.repository'), href: data.repo },
+  data.docs && { label: t('detail.docs'), href: data.docs },
+].filter(Boolean) as { label: string; href: string }[];
+
+const meta = [
+  data.language && { label: t('detail.language'), value: data.language },
+  data.license && { label: t('detail.license'), value: data.license },
+  data.pricing && { label: t('detail.pricing'), value: pricingLabels[lang][data.pricing] },
+].filter(Boolean) as { label: string; value: string }[];
+---
+
+<a href={getRelativeLocaleUrl(lang, '')} class="text-sm text-[var(--aas-accent)] no-underline"
+  >&larr; {t('detail.allTools')}</a
+>
+
+<header class="mt-4 border-b border-[var(--aas-border)] pb-6">
+  {category && <p class="text-sm text-[var(--aas-muted)]">{category.label[lang]}</p>}
+  <h1 class="mt-1 text-3xl font-bold tracking-tight">{data.name}</h1>
+  <p class="mt-2 max-w-2xl text-lg text-[var(--aas-muted)]">{data.description}</p>
+
+  <div class="mt-4 flex flex-wrap gap-3 text-sm">
+    {
+      links.map((l) => (
+        <a
+          href={l.href}
+          class="rounded-lg border border-[var(--aas-border)] px-3 py-1.5 text-[var(--aas-accent)] no-underline hover:border-[var(--aas-accent)]"
+        >
+          {l.label} &nearr;
+        </a>
+      ))
+    }
+  </div>
+
+  {
+    meta.length > 0 && (
+      <dl class="mt-5 grid grid-cols-2 gap-x-6 gap-y-2 text-sm sm:grid-cols-4">
+        {meta.map((m) => (
+          <div>
+            <dt class="text-[var(--aas-muted)]">{m.label}</dt>
+            <dd>{m.value}</dd>
+          </div>
+        ))}
+      </dl>
+    )
+  }
+</header>
+
+<article class="prose mt-8 max-w-none">
+  <Content />
+</article>

@@ -1,0 +1,78 @@
+/**
+ * Central place for everything language-related.
+ *
+ * Locale routing (configured in astro.config.mjs): `en` is the default and is
+ * served at the root, `ko` is served under `/ko/`. Tool content lives in
+ * `src/content/stacks/<lang>/`. Use `astro:i18n`'s `getRelativeLocaleUrl` to
+ * build locale-aware links so the base path and `/ko` prefix are handled for us.
+ */
+
+export const languages = {
+  en: 'English',
+  ko: '한국어',
+} as const;
+
+export type Lang = keyof typeof languages;
+
+export const defaultLang: Lang = 'en';
+
+export function isLang(value: string): value is Lang {
+  return value in languages;
+}
+
+/** UI chrome strings, keyed by a dotted id. */
+export const ui = {
+  en: {
+    'site.tagline':
+      'A curated stack of the tools and services you actually use to build AI agents — each with a detail page and runnable sample code.',
+    'nav.browse': 'Browse',
+    'detail.allTools': 'All tools',
+    'detail.website': 'Website',
+    'detail.repository': 'Repository',
+    'detail.docs': 'Docs',
+    'detail.language': 'Language',
+    'detail.license': 'License',
+    'detail.pricing': 'Pricing',
+    'footer.builtWith': 'Built with',
+    'footer.contribute': 'Contributions welcome — add a tool by dropping an MDX file.',
+  },
+  ko: {
+    'site.tagline':
+      'AI 에이전트를 만들 때 실제로 쓰는 도구와 서비스를 모았습니다 — 각 항목마다 상세 페이지와 바로 실행 가능한 샘플 코드를 제공합니다.',
+    'nav.browse': '둘러보기',
+    'detail.allTools': '전체 도구',
+    'detail.website': '웹사이트',
+    'detail.repository': '저장소',
+    'detail.docs': '문서',
+    'detail.language': '언어',
+    'detail.license': '라이선스',
+    'detail.pricing': '가격',
+    'footer.builtWith': '제작 도구:',
+    'footer.contribute': '기여를 환영합니다 — MDX 파일 하나만 추가하면 도구가 등록됩니다.',
+  },
+} as const;
+
+export type UIKey = keyof (typeof ui)['en'];
+
+/** Returns a `t(key)` translator bound to the given language. */
+export function useTranslations(lang: Lang) {
+  return function t(key: UIKey): string {
+    return ui[lang][key] ?? ui[defaultLang][key];
+  };
+}
+
+/** Human labels for the `pricing` frontmatter enum, per locale. */
+export const pricingLabels: Record<Lang, Record<string, string>> = {
+  en: {
+    'open-source': 'open-source',
+    'free-tier': 'free tier',
+    paid: 'paid',
+    freemium: 'freemium',
+  },
+  ko: {
+    'open-source': '오픈소스',
+    'free-tier': '무료 티어',
+    paid: '유료',
+    freemium: '프리미엄',
+  },
+};

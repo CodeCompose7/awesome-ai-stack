@@ -1,0 +1,41 @@
+---
+name: DSPy
+category: frameworks
+description: 프롬프트가 아니라 프로그램으로 LM을 다룹니다 — 모듈을 선언하면 DSPy가 프롬프트를 컴파일·최적화합니다.
+website: https://dspy.ai
+repo: https://github.com/stanfordnlp/dspy
+docs: https://dspy.ai/learn/
+tags: [prompt-optimization, modular, stanford, python]
+language: Python
+license: MIT
+pricing: open-source
+---
+
+## 개요
+
+DSPy(스탠퍼드 NLP)는 손으로 다듬은 프롬프트 문자열 대신, LM 파이프라인을
+타입이 있는 시그니처(`question -> answer`)를 가진 **선언적 파이썬 모듈**로
+작성하게 합니다. 그런 다음 옵티마이저("텔레프롬프터")가 그 모듈을 컴파일하며 —
+지표를 기준으로 프롬프트와 few-shot 예시를 탐색해 — 수동 프롬프트 조정 없이
+품질을 끌어올립니다.
+
+## 샘플: 스스로 최적화하는 예측기
+
+```python
+import dspy
+
+dspy.configure(lm=dspy.LM("anthropic/claude-opus-4-8"))
+
+# 시그니처가 작업을 선언하면 DSPy가 프롬프트를 채웁니다.
+qa = dspy.ChainOfThought("question -> answer")
+
+result = qa(question="Why is the sky blue?")
+print(result.answer)
+
+# 이후: 옵티마이저 + 지표로 `qa`를 컴파일해 프롬프트를 자동 개선합니다.
+```
+
+## 언제 쓰면 좋은가
+
+깨지기 쉬운 프롬프트 문자열을 관리하기보다 파이프라인을 지표에 맞춰 최적화하고
+싶을 때 — 특히 다단계 추론이나 RAG 시스템에 — DSPy를 선택하세요.

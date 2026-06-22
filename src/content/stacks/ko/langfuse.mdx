@@ -1,0 +1,47 @@
+---
+name: Langfuse
+category: observability
+description: LLM·에이전트 애플리케이션을 위한 오픈소스 트레이싱·평가·분석 도구.
+website: https://langfuse.com
+repo: https://github.com/langfuse/langfuse
+docs: https://langfuse.com/docs
+tags: [tracing, eval, monitoring, analytics]
+language: TypeScript
+license: MIT
+pricing: freemium
+---
+
+## 개요
+
+에이전트는 로그만으로는 파악하기 어려운 방식으로 실패합니다. Langfuse는 각
+실행을 중첩된 스팬(모델 호출, 도구 호출, 검색)의 **트레이스**로 기록해, 모든
+단계의 지연·비용·정확한 프롬프트/출력을 들여다볼 수 있게 합니다. 그 위에
+점수와 평가를 덧붙일 수 있습니다.
+
+## 샘플: 에이전트 한 단계 트레이싱
+
+`pnpm add langfuse`로 설치한 뒤:
+
+```ts
+import { Langfuse } from 'langfuse';
+
+const langfuse = new Langfuse(); // LANGFUSE_* 환경변수를 읽습니다
+
+const trace = langfuse.trace({ name: 'support-agent', userId: 'u_123' });
+
+const gen = trace.generation({
+  name: 'plan',
+  model: 'claude-opus-4-8',
+  input: 'How do I reset my password?',
+});
+
+// ... 모델 호출 ...
+gen.end({ output: 'Tell the user to use the reset link.' });
+
+await langfuse.flushAsync();
+```
+
+## 언제 쓰면 좋은가
+
+다단계 에이전트 실행을 디버깅하거나, 프롬프트 버전을 비교하거나, 프로덕션에서
+비용과 품질을 추적해야 할 때 Langfuse를 일찍 도입하세요.
