@@ -52,9 +52,7 @@ const rendered = await Promise.all(
               <figcaption class="mb-1 text-xs tracking-wide text-[var(--aas-muted)] uppercase">
                 {t('sample.diagram')}
               </figcaption>
-              <pre class="mermaid rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] p-4 text-center">
-                {s.diagram}
-              </pre>
+              <pre class="mermaid">{s.diagram}</pre>
             </figure>
           )}
           <div class="aas-code overflow-x-auto rounded-lg border border-[var(--aas-border)]" set:html={s.html} />

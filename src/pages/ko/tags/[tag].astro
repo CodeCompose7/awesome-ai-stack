@@ -1,0 +1,17 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import TagIndex from '../../../components/TagIndex.astro';
+import { getAllTags } from '../../../lib/stacks';
+
+export const getStaticPaths = (async () => {
+  const tags = await getAllTags('ko');
+  return tags.map((tag) => ({ params: { tag }, props: { tag } }));
+}) satisfies GetStaticPaths;
+
+const { tag } = Astro.props;
+---
+
+<BaseLayout title={`#${tag} — awesome-agent-stack`} lang="ko" path={`tags/${tag}/`}>
+  <TagIndex lang="ko" tag={tag} />
+</BaseLayout>

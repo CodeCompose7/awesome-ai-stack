@@ -26,13 +26,17 @@ const stats = await getRepoStats(repo);
 const displayVersion = stats?.version ?? version;
 ---
 
-<a
-  href={href}
-  class="flex flex-col rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-5 no-underline transition-colors hover:border-[var(--aas-accent)]"
+{/* The card is a container, not a link: the name is the stretched primary link
+   (its ::after covers the whole card), while tag links sit above it (z-10) so
+   they remain individually clickable. */}
+<div
+  class="relative flex flex-col rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-5 transition-colors hover:border-[var(--aas-accent)]"
 >
   <div class="flex min-w-0 items-center gap-3">
     <ToolAvatar name={name} logo={logo} size={40} />
-    <h3 class="truncate text-base font-semibold text-[var(--aas-text)]">{name}</h3>
+    <h3 class="truncate text-base font-semibold text-[var(--aas-text)]">
+      <a href={href} class="no-underline after:absolute after:inset-0 after:content-['']">{name}</a>
+    </h3>
   </div>
   <p class="mt-2 text-sm leading-relaxed text-[var(--aas-muted)]">{description}</p>
 
@@ -46,14 +50,19 @@ const displayVersion = stats?.version ?? version;
     class="mt-3"
   />
 
-  {/* Keyword tags — visually separate from the facts above */}
+  {/* Keyword tags — clickable links to per-tag pages, above the card overlay */}
   {
     tags.length > 0 && (
-      <div class="mt-auto flex flex-wrap gap-x-2 gap-y-1 pt-3 text-xs text-[var(--aas-muted)]">
+      <div class="relative z-10 mt-auto flex flex-wrap gap-x-3 gap-y-1 pt-3 text-xs text-[var(--aas-muted)]">
         {tags.slice(0, 4).map((tag) => (
-          <span class="opacity-80">#{tag}</span>
+          <a
+            href={getRelativeLocaleUrl(lang, `tags/${tag}/`)}
+            class="no-underline opacity-80 hover:text-[var(--aas-accent)] hover:opacity-100"
+          >
+            #{tag}
+          </a>
         ))}
       </div>
     )
   }
-</a>
+</div>

@@ -1,0 +1,45 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import StackCard from './StackCard.astro';
+import { getStacksByTag, slugOf } from '../lib/stacks';
+import { useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  tag: string;
+}
+
+const { lang, tag } = Astro.props;
+const t = useTranslations(lang);
+const entries = (await getStacksByTag(lang, tag)).sort((a, b) =>
+  a.data.name.localeCompare(b.data.name),
+);
+---
+
+<section class="py-6">
+  <a href={getRelativeLocaleUrl(lang, '')} class="text-sm text-[var(--aas-accent)] no-underline"
+    >&larr; {t('tag.allTools')}</a
+  >
+  <h1 class="mt-3 text-3xl font-bold tracking-tight">
+    <span class="text-[var(--aas-muted)]">{t('tag.heading')}</span> #{tag}
+  </h1>
+</section>
+
+<div class="mt-4 grid gap-4 sm:grid-cols-2">
+  {
+    entries.map((e) => (
+      <StackCard
+        slug={slugOf(e)}
+        lang={lang}
+        name={e.data.name}
+        description={e.data.description}
+        tags={e.data.tags}
+        pricing={e.data.pricing}
+        license={e.data.license}
+        logo={e.data.logo}
+        repo={e.data.repo}
+        version={e.data.version}
+      />
+    ))
+  }
+</div>
