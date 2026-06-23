@@ -10,6 +10,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app.py .
+COPY tools ./tools
 
 # Provide your config at run time (.env is NOT baked into the image):
 #   docker run --rm --env-file .env aas-langgraph2 "<question>"
