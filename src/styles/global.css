@@ -50,8 +50,8 @@ html {
 /* Neutral chip surface — a subtle tint that reads on any background (page or
    the panel-colored cards), so no outline is needed. */
 .aas-chip {
-  background: color-mix(in srgb, var(--aas-text) 4.5%, transparent);
-  border: 1px solid color-mix(in srgb, var(--aas-text) 10%, transparent);
+  background: color-mix(in srgb, var(--aas-text) 2.5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--aas-text) 7%, transparent);
   color: var(--aas-muted);
 }
 /* Pricing chip: a soft accent-tinted surface with a faint accent outline. */
