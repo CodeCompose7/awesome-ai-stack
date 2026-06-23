@@ -13,6 +13,7 @@ import MermaidLoader from './MermaidLoader.astro';
 import RelatedTools from './RelatedTools.astro';
 import ProjectViewer from './ProjectViewer.astro';
 import ProjectRelatedTools, { type RelatedTool } from './ProjectRelatedTools.astro';
+import ProjectFileList from './ProjectFileList.astro';
 import Toc from './Toc.astro';
 import { getRepoStats } from '../lib/github';
 import { renderSamples } from '../lib/samples';
@@ -74,11 +75,14 @@ function resolveTool(slug: string): RelatedTool {
     deprecated: e.data.deprecated,
   };
 }
-const projectRelated = projects.map((p) => ({
+// The right rail's impl block carries, per example: its related tools plus its
+// file list (the file list lives here on ≥2xl screens, inline otherwise).
+const projectRail = projects.map((p) => ({
   folder: p.folder,
+  files: p.files,
   tools: (relatedByFolder.get(p.folder) ?? []).map(resolveTool),
 }));
-const hasProjectRelated = projectRelated.some((p) => p.tools.length > 0);
+const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools]));
 ---
 
 <a href={getRelativeLocaleUrl(lang, '')} class="text-sm text-[var(--aas-accent)] no-underline"
@@ -159,7 +163,7 @@ const hasProjectRelated = projectRelated.some((p) => p.tools.length > 0);
         )}
         {hasProject && (
           <div slot="impl">
-            <ProjectViewer lang={lang} projects={projects} />
+            <ProjectViewer lang={lang} projects={projects} related={relatedToolsByFolder} />
           </div>
         )}
       </DetailTabs>
@@ -190,11 +194,12 @@ const hasProjectRelated = projectRelated.some((p) => p.tools.length > 0);
       )
     }
     {
-      hasProjectRelated && (
+      hasProject && (
         <div data-toc="impl" class="hidden">
-          {projectRelated.map((pr, i) => (
-            <div data-project-related={pr.folder} class:list={[i === 0 ? '' : 'hidden']}>
+          {projectRail.map((pr, i) => (
+            <div data-project-related={pr.folder} class:list={[i === 0 ? '' : 'hidden', 'space-y-5']}>
               <ProjectRelatedTools lang={lang} tools={pr.tools} />
+              <ProjectFileList lang={lang} folder={pr.folder} files={pr.files} />
             </div>
           ))}
         </div>

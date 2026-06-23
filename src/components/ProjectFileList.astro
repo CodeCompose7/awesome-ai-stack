@@ -1,0 +1,44 @@
+---
+import { useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  folder: string;
+  files: { path: string }[];
+  class?: string;
+}
+
+const { lang, folder, files, class: className } = Astro.props;
+const t = useTranslations(lang);
+---
+
+{
+  files.length > 0 && (
+    <div
+      class:list={[
+        'rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-1.5',
+        className,
+      ]}
+    >
+      <p class="px-2 pt-1 pb-2 text-xs font-semibold tracking-wide text-[var(--aas-muted)] uppercase">
+        {t('project.files')}
+      </p>
+      <ul class="space-y-0.5">
+        {files.map((f, fi) => (
+          <li>
+            <button
+              type="button"
+              data-file={fi}
+              data-file-path={f.path}
+              data-file-folder={folder}
+              aria-current={fi === 0 ? 'true' : 'false'}
+              class="block w-full truncate rounded-lg px-2.5 py-1 text-left font-mono text-xs text-[var(--aas-muted)] hover:bg-[var(--aas-tint)] aria-[current=true]:bg-[var(--aas-tint)] aria-[current=true]:text-[var(--aas-text)]"
+            >
+              {f.path}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}

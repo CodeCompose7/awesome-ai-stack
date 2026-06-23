@@ -2,13 +2,17 @@
 import { useTranslations, type Lang } from '../i18n/ui';
 import type { RenderedProject } from '../lib/project';
 import ChevronDown from './ChevronDown.astro';
+import ProjectFileList from './ProjectFileList.astro';
+import ProjectRelatedTools, { type RelatedTool } from './ProjectRelatedTools.astro';
 
 interface Props {
   lang: Lang;
   projects: RenderedProject[];
+  // Related tools per example folder; rendered inline below 2xl (in the rail at 2xl+).
+  related: Map<string, RelatedTool[]>;
 }
 
-const { lang, projects } = Astro.props;
+const { lang, projects, related } = Astro.props;
 const t = useTranslations(lang);
 ---
 
@@ -65,27 +69,13 @@ const t = useTranslations(lang);
         {p.readmeHtml && <div class="prose mt-5 max-w-none" set:html={p.readmeHtml} />}
 
         {p.files.length > 0 && (
-          <div class="mt-6 lg:grid lg:grid-cols-[13rem_minmax(0,1fr)] lg:items-start lg:gap-4">
-            {/* File tree */}
-            <div class="rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-1.5">
-              <p class="px-2 pt-1 pb-2 text-xs font-semibold tracking-wide text-[var(--aas-muted)] uppercase">
-                {t('project.files')}
-              </p>
-              <ul class="space-y-0.5">
-                {p.files.map((f, fi) => (
-                  <li>
-                    <button
-                      type="button"
-                      data-file={fi}
-                      data-file-path={f.path}
-                      aria-current={fi === 0 ? 'true' : 'false'}
-                      class="block w-full truncate rounded-lg px-2.5 py-1 text-left font-mono text-xs text-[var(--aas-muted)] hover:bg-[var(--aas-tint)] aria-[current=true]:bg-[var(--aas-tint)] aria-[current=true]:text-[var(--aas-text)]"
-                    >
-                      {f.path}
-                    </button>
-                  </li>
-                ))}
-              </ul>
+          <div class="mt-6 lg:grid lg:grid-cols-[13rem_minmax(0,1fr)] lg:items-start lg:gap-4 2xl:block">
+            {/* Sidebar — related tools + file tree, inline below 2xl; on 2xl+
+                both move to the right rail (rendered in StackDetail) since this
+                inline column is hidden here. */}
+            <div class="space-y-5 2xl:hidden">
+              <ProjectRelatedTools lang={lang} tools={related.get(p.folder) ?? []} />
+              <ProjectFileList lang={lang} folder={p.folder} files={p.files} />
             </div>
 
             {/* Selected file content */}
@@ -192,18 +182,28 @@ const t = useTranslations(lang);
       history.replaceState(null, '', url);
     }
 
+    // File buttons exist in two places: inline next to the code (narrow screens)
+    // and in the fixed right rail (≥2xl). Both carry data-file-folder, so we
+    // match them document-wide by folder and keep their state in sync.
+    function fileButtonsFor(folder: string) {
+      return Array.from(
+        document.querySelectorAll<HTMLButtonElement>(`[data-file][data-file-folder="${folder}"]`),
+      );
+    }
+
     function selectFile(panel: HTMLElement, file: string | null, write: boolean) {
-      const fileBtns = Array.from(panel.querySelectorAll<HTMLButtonElement>('[data-file]'));
+      const folder = panel.dataset.projectFolder ?? '';
       const filePanels = Array.from(panel.querySelectorAll<HTMLElement>('[data-file-panel]'));
-      if (!fileBtns.length) return;
-      const btn = fileBtns.find((b) => b.dataset.filePath === file) ?? fileBtns[0];
-      const sel = btn.dataset.filePath ?? null;
+      if (!filePanels.length) return;
+      const fileBtns = fileButtonsFor(folder);
+      const btn = fileBtns.find((b) => b.dataset.filePath === file);
+      const sel = btn?.dataset.filePath ?? filePanels[0].dataset.filePath ?? null;
       filePanels.forEach((fp) => {
         fp.style.removeProperty('display'); // clear the pre-paint inline style
         fp.classList.toggle('hidden', fp.dataset.filePath !== sel);
       });
-      fileBtns.forEach((b) => b.setAttribute('aria-current', String(b === btn)));
-      if (write) writeUrl(panel.dataset.projectFolder ?? null, sel);
+      fileBtns.forEach((b) => b.setAttribute('aria-current', String(b.dataset.filePath === sel)));
+      if (write) writeUrl(folder || null, sel);
     }
 
     function selectProject(folder: string | null, write: boolean) {
@@ -230,7 +230,7 @@ const t = useTranslations(lang);
     );
 
     projPanels.forEach((panel) =>
-      panel.querySelectorAll<HTMLButtonElement>('[data-file]').forEach((btn) =>
+      fileButtonsFor(panel.dataset.projectFolder ?? '').forEach((btn) =>
         btn.addEventListener('click', () => selectFile(panel, btn.dataset.filePath ?? null, true)),
       ),
     );
