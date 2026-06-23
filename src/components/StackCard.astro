@@ -1,7 +1,7 @@
 ---
 import { getRelativeLocaleUrl } from 'astro:i18n';
-import type { Lang } from '../i18n/ui';
-import { getRepoStats } from '../lib/github';
+import { pricingLabels, type Lang } from '../i18n/ui';
+import { getRepoStats, formatStars } from '../lib/github';
 import ToolAvatar from './ToolAvatar.astro';
 import ToolMeta from './ToolMeta.astro';
 
@@ -34,21 +34,44 @@ const displayVersion = stats?.version ?? version;
 <div
   class="aas-lift relative flex flex-col rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-5"
 >
-  <div class="flex min-w-0 items-center gap-3">
-    <ToolAvatar name={name} logo={logo} size={40} />
-    <h3 class="truncate text-base font-semibold text-[var(--aas-text)]">
-      <a href={href} class="no-underline after:absolute after:inset-0 after:content-['']">{name}</a>
-    </h3>
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex min-w-0 items-center gap-3">
+      <ToolAvatar name={name} logo={logo} size={40} />
+      <h3 class="truncate text-base font-semibold text-[var(--aas-text)]">
+        <a href={href} class="no-underline after:absolute after:inset-0 after:content-['']">
+          {name}
+        </a>
+      </h3>
+    </div>
+
+    {/* Key facts in the top-right corner, stacked vertically. */}
+    <div class="flex shrink-0 flex-col items-end gap-1 text-xs">
+      {
+        typeof stats?.stars === 'number' && (
+          <span class="aas-chip inline-flex items-center gap-1 rounded-md px-2 py-0.5">
+            <span aria-hidden="true" class="text-amber-500">
+              ★
+            </span>
+            {formatStars(stats.stars)}
+          </span>
+        )
+      }
+      {
+        pricing.map((p) => (
+          <span class="aas-pricing rounded-md px-2 py-0.5">{pricingLabels[lang][p] ?? p}</span>
+        ))
+      }
+    </div>
   </div>
+
   <p class="mt-2 text-sm leading-relaxed text-[var(--aas-muted)]">{description}</p>
 
-  {/* Facts: stars · version · pricing · license */}
+  {/* Secondary facts: version · release date · language · license */}
   <ToolMeta
     lang={lang}
-    pricing={pricing}
+    pricing={[]}
     license={license}
     language={language}
-    stars={stats?.stars}
     version={displayVersion}
     released={stats?.releasedAt?.slice(0, 10)}
     class="mt-3"

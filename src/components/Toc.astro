@@ -19,14 +19,14 @@ const { items, title } = Astro.props;
       <p class="mb-2 text-xs font-semibold tracking-wide text-[var(--aas-muted)] uppercase">
         {title}
       </p>
-      <ul class="border-l border-[var(--aas-border)]">
+      <ul class="space-y-0.5">
         {items.map((it) => (
           <li>
             <a
               href={`#${it.slug}`}
               class:list={[
-                '-ml-px block border-l-2 border-transparent py-1 text-[var(--aas-muted)] no-underline hover:border-[var(--aas-accent)] hover:text-[var(--aas-text)]',
-                it.depth >= 3 ? 'pl-6' : 'pl-3',
+                'block rounded-md py-1 pr-2 text-[var(--aas-muted)] no-underline hover:bg-[var(--aas-panel)] hover:text-[var(--aas-text)]',
+                it.depth >= 3 ? 'pl-5' : 'pl-2.5',
               ]}
             >
               {it.text}

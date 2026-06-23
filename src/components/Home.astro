@@ -35,7 +35,7 @@ const byCategory = (categoryId: string) =>
       if (items.length === 0) return null;
       return (
         <div>
-          <div class="border-b border-[var(--aas-border)] pb-2">
+          <div class="pb-1">
             <h2 class="text-2xl font-semibold">{cat.label[lang]}</h2>
             <p class="mt-1 text-sm text-[var(--aas-muted)]">{cat.description[lang]}</p>
           </div>

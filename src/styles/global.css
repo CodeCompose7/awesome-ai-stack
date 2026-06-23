@@ -43,6 +43,12 @@ html {
   color: var(--aas-text);
 }
 
+/* Neutral chip surface — a subtle tint that reads on any background (page or
+   the panel-colored cards), so no outline is needed. */
+.aas-chip {
+  background: color-mix(in srgb, var(--aas-text) 6%, transparent);
+  color: var(--aas-muted);
+}
 /* Pricing chip: a soft accent-tinted surface (no outline). */
 .aas-pricing {
   background: color-mix(in srgb, var(--aas-accent) 14%, transparent);
@@ -89,25 +95,28 @@ html {
   overflow-y: auto;
 }
 .aas-toc-rail a[aria-current='true'] {
+  background: var(--aas-panel);
   color: var(--aas-text);
-  border-color: var(--aas-accent);
 }
 
-/* "Back to top" pinned at the bottom of the TOC rail. */
+/* "Back to top" pinned at the bottom of the TOC rail (surface row, no divider). */
 .aas-toc-top {
   flex-shrink: 0;
-  margin-top: 0.85rem;
-  padding-top: 0.85rem;
-  border-top: 1px solid var(--aas-border);
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.625rem;
+  border-radius: 0.375rem;
   text-align: left;
   font-size: 0.8rem;
   color: var(--aas-muted);
   background: none;
   cursor: pointer;
-  transition: color 0.15s;
+  transition:
+    color 0.15s,
+    background-color 0.15s;
 }
 .aas-toc-top:hover {
-  color: var(--aas-accent);
+  background: var(--aas-panel);
+  color: var(--aas-text);
 }
 
 /* "#" copy-link anchor prepended to headings (h2/h3). Faint by default, fully

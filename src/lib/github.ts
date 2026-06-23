@@ -19,15 +19,21 @@ export interface RepoStats {
 
 const cache = new Map<string, Promise<RepoStats | null>>();
 
-// On-disk fallback so values survive rate-limited builds (e.g. local dev without
-// a token). A successful fetch updates it; a failure falls back to it.
+// On-disk cache so values survive rate-limited builds and so we only hit the
+// API ~once a day per repo. A fresh entry (< TTL) is used as-is without
+// fetching; a stale entry is refreshed but kept as a fallback on failure.
+type CachedStats = RepoStats & { fetchedAt: number };
+const ONE_DAY = 24 * 60 * 60 * 1000;
 const CACHE_DIR = '.aas-cache';
 const CACHE_FILE = `${CACHE_DIR}/github.json`;
-let disk: Record<string, RepoStats> = {};
+let disk: Record<string, CachedStats> = {};
 try {
   disk = JSON.parse(readFileSync(CACHE_FILE, 'utf8'));
 } catch {
   /* no cache yet */
+}
+function strip(c: CachedStats): RepoStats {
+  return { stars: c.stars, version: c.version, releasedAt: c.releasedAt };
 }
 function persist() {
   try {
@@ -96,17 +102,23 @@ export function getRepoStats(repoUrl?: string): Promise<RepoStats | null> {
   if (!slug) return Promise.resolve(null);
   const key = `${slug.owner}/${slug.repo}`;
   if (!cache.has(key)) {
-    cache.set(
-      key,
-      fetchStats(slug.owner, slug.repo).then((stats) => {
-        if (stats) {
-          disk[key] = stats;
-          persist();
-          return stats;
-        }
-        return disk[key] ?? null; // rate-limited/offline → last known value
-      }),
-    );
+    const cached = disk[key];
+    if (cached && Date.now() - cached.fetchedAt < ONE_DAY) {
+      // Fresh enough — use the cache, skip the network (refreshes ~daily).
+      cache.set(key, Promise.resolve(strip(cached)));
+    } else {
+      cache.set(
+        key,
+        fetchStats(slug.owner, slug.repo).then((stats) => {
+          if (stats) {
+            disk[key] = { ...stats, fetchedAt: Date.now() };
+            persist();
+            return stats;
+          }
+          return cached ? strip(cached) : null; // rate-limited/offline → last known
+        }),
+      );
+    }
   }
   return cache.get(key)!;
 }
