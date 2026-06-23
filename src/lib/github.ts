@@ -134,9 +134,8 @@ export function getRepoStats(repoUrl?: string): Promise<RepoStats | null> {
   return cache.get(key)!;
 }
 
-/** Compact star count: 1234 → "1.2k", 23456 → "23k". */
+/** Compact star count, one decimal in k: 1234 → "1.2k", 35456 → "35.5k". */
 export function formatStars(n: number): string {
   if (n < 1000) return String(n);
-  const k = n / 1000;
-  return (k >= 10 ? Math.round(k) : Math.round(k * 10) / 10) + 'k';
+  return (n / 1000).toFixed(1) + 'k';
 }

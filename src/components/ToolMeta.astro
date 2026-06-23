@@ -33,7 +33,7 @@ const chip = 'aas-chip rounded-lg px-2.5 py-1';
     <div class:list={['flex flex-wrap items-center gap-1.5 text-xs', className]}>
       {typeof stars === 'number' && (
         <span class:list={['inline-flex items-center gap-1', chip]}>
-          <span aria-hidden="true" class="text-amber-400">
+          <span aria-hidden="true" class="text-[var(--aas-text)]">
             ★
           </span>
           {formatStars(stars)}

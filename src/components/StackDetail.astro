@@ -51,7 +51,7 @@ const renderedSamples = hasSamples ? await renderSamples(data.samples) : [];
 
 <header class="mt-4 pb-6">
   <div class="flex items-center gap-4">
-    <ToolAvatar name={data.name} logo={data.logo} size={56} />
+    <ToolAvatar name={data.name} logo={data.logo} category={data.category} size={56} />
     <div>
       {category && <p class="text-sm text-[var(--aas-muted)]">{category.label[lang]}</p>}
       <h1 class="text-3xl font-bold tracking-tight">{data.name}</h1>

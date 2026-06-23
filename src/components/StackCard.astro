@@ -14,12 +14,13 @@ interface Props {
   pricing: string[];
   license?: string;
   language?: string;
+  category?: string;
   logo?: string;
   repo?: string;
   version?: string;
 }
 
-const { slug, lang, name, description, tags, pricing, license, language, logo, repo, version } =
+const { slug, lang, name, description, tags, pricing, license, language, category, logo, repo, version } =
   Astro.props;
 const href = getRelativeLocaleUrl(lang, `stacks/${slug}/`);
 
@@ -37,7 +38,7 @@ const displayVersion = stats?.version ?? version;
   {/* Left column: the content. Grows; chips on the right don't push it down. */}
   <div class="flex min-w-0 flex-1 flex-col">
     <div class="flex min-w-0 items-center gap-3">
-      <ToolAvatar name={name} logo={logo} size={40} />
+      <ToolAvatar name={name} logo={logo} category={category} size={40} />
       <h3 class="truncate text-base font-semibold text-[var(--aas-text)]">
         <a href={href} class="no-underline after:absolute after:inset-0 after:content-['']">
           {name}
@@ -81,7 +82,7 @@ const displayVersion = stats?.version ?? version;
     {
       typeof stats?.stars === 'number' && (
         <span class="aas-chip inline-flex items-center gap-1 rounded-lg px-2.5 py-1">
-          <span aria-hidden="true" class="text-amber-400">
+          <span aria-hidden="true" class="text-[var(--aas-text)]">
             ★
           </span>
           {formatStars(stats.stars)}
