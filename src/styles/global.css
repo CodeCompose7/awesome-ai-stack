@@ -51,11 +51,13 @@ html {
    the panel-colored cards), so no outline is needed. */
 .aas-chip {
   background: color-mix(in srgb, var(--aas-text) 4.5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--aas-text) 10%, transparent);
   color: var(--aas-muted);
 }
-/* Pricing chip: a soft accent-tinted surface (no outline). */
+/* Pricing chip: a soft accent-tinted surface with a faint accent outline. */
 .aas-pricing {
-  background: color-mix(in srgb, var(--aas-accent) 14%, transparent);
+  background: color-mix(in srgb, var(--aas-accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--aas-accent) 28%, transparent);
   color: var(--aas-accent);
 }
 

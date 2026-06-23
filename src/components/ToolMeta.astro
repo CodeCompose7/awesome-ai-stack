@@ -24,8 +24,8 @@ const hasAny =
   version ||
   released;
 
-// Filled, borderless "surface" chips — no outlines (tint reads on any bg).
-const chip = 'aas-chip rounded-md px-2 py-0.5';
+// Filled "surface" chips with a faint outline; a touch taller for presence.
+const chip = 'aas-chip rounded-lg px-2.5 py-1';
 ---
 
 {
@@ -48,7 +48,7 @@ const chip = 'aas-chip rounded-md px-2 py-0.5';
       )}
       {language && <span class={chip}>{language}</span>}
       {pricing.map((p) => (
-        <span class="aas-pricing rounded-md px-2 py-0.5">{pricingLabels[lang][p] ?? p}</span>
+        <span class="aas-pricing rounded-lg px-2.5 py-1">{pricingLabels[lang][p] ?? p}</span>
       ))}
       {license && (
         <span class:list={['inline-flex items-center gap-1', chip]}>
