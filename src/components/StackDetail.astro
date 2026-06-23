@@ -10,6 +10,7 @@ import ToolMeta from './ToolMeta.astro';
 import DetailTabs from './DetailTabs.astro';
 import CodeSamples from './CodeSamples.astro';
 import MermaidLoader from './MermaidLoader.astro';
+import RelatedTools from './RelatedTools.astro';
 import Toc from './Toc.astro';
 import { getRepoStats } from '../lib/github';
 import { renderSamples } from '../lib/samples';
@@ -101,6 +102,8 @@ const renderedSamples = hasSamples ? await renderSamples(data.samples) : [];
     )
   }
 </header>
+
+<RelatedTools lang={lang} slugs={data.related} />
 
 {/* Full-width content; the TOC is a fixed right rail, out of this flow. */}
 <div class="mt-8 min-w-0">
