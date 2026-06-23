@@ -105,6 +105,17 @@ body {
   line-height: 0; /* avoid extra space from the raw source before render */
 }
 
+/* Pre-paint tab state from the URL hash (set by the inline script in
+   BaseLayout) so deep-linking to #code doesn't flash the Overview tab first.
+   The compound selector outranks Tailwind's `.hidden`; JS removes the
+   attribute once it takes over. */
+:root[data-tab-init="code"] [data-panel="overview"] {
+  display: none;
+}
+:root[data-tab-init="code"] [data-panel="code"] {
+  display: block;
+}
+
 /* Markdown tables — without these, columns collapse together. */
 .prose :where(table) {
   width: 100%;

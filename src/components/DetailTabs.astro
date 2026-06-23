@@ -70,5 +70,8 @@ const tabClass =
       show('code', false);
       if (raw && raw !== 'code') document.getElementById(raw)?.scrollIntoView();
     }
+    // JS now controls visibility via the `hidden` class; drop the pre-paint
+    // override so tab clicks aren't blocked by it.
+    delete document.documentElement.dataset.tabInit;
   });
 </script>
