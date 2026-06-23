@@ -32,9 +32,10 @@ const displayVersion = stats?.version ?? version;
    (its ::after covers the whole card), while tag links sit above it (z-10) so
    they remain individually clickable. */}
 <div
-  class="aas-lift relative flex flex-col rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-5"
+  class="aas-lift relative flex gap-3 rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-5"
 >
-  <div class="flex items-start justify-between gap-3">
+  {/* Left column: the content. Grows; chips on the right don't push it down. */}
+  <div class="flex min-w-0 flex-1 flex-col">
     <div class="flex min-w-0 items-center gap-3">
       <ToolAvatar name={name} logo={logo} size={40} />
       <h3 class="truncate text-base font-semibold text-[var(--aas-text)]">
@@ -44,52 +45,53 @@ const displayVersion = stats?.version ?? version;
       </h3>
     </div>
 
-    {/* Key facts in the top-right corner, stacked vertically. */}
-    <div class="flex shrink-0 flex-col items-end gap-1 text-xs">
-      {
-        typeof stats?.stars === 'number' && (
-          <span class="aas-chip inline-flex items-center gap-1 rounded-md px-2 py-0.5">
-            <span aria-hidden="true" class="text-amber-500">
-              ★
-            </span>
-            {formatStars(stats.stars)}
-          </span>
-        )
-      }
-      {
-        pricing.map((p) => (
-          <span class="aas-pricing rounded-md px-2 py-0.5">{pricingLabels[lang][p] ?? p}</span>
-        ))
-      }
-    </div>
+    <p class="mt-2 text-sm leading-relaxed text-[var(--aas-muted)]">{description}</p>
+
+    {/* Secondary facts: version · release date · language · license */}
+    <ToolMeta
+      lang={lang}
+      pricing={[]}
+      license={license}
+      language={language}
+      version={displayVersion}
+      released={stats?.releasedAt?.slice(0, 10)}
+      class="mt-3"
+    />
+
+    {/* Keyword tags — clickable links to per-tag pages, above the card overlay */}
+    {
+      tags.length > 0 && (
+        <div class="relative z-10 mt-auto flex flex-wrap gap-x-3 gap-y-1 pt-3 text-xs text-[var(--aas-muted)]">
+          {tags.slice(0, 4).map((tag) => (
+            <a
+              href={getRelativeLocaleUrl(lang, `tags/${tag}/`)}
+              class="no-underline opacity-80 hover:text-[var(--aas-accent)] hover:opacity-100"
+            >
+              #{tag}
+            </a>
+          ))}
+        </div>
+      )
+    }
   </div>
 
-  <p class="mt-2 text-sm leading-relaxed text-[var(--aas-muted)]">{description}</p>
-
-  {/* Secondary facts: version · release date · language · license */}
-  <ToolMeta
-    lang={lang}
-    pricing={[]}
-    license={license}
-    language={language}
-    version={displayVersion}
-    released={stats?.releasedAt?.slice(0, 10)}
-    class="mt-3"
-  />
-
-  {/* Keyword tags — clickable links to per-tag pages, above the card overlay */}
-  {
-    tags.length > 0 && (
-      <div class="relative z-10 mt-auto flex flex-wrap gap-x-3 gap-y-1 pt-3 text-xs text-[var(--aas-muted)]">
-        {tags.slice(0, 4).map((tag) => (
-          <a
-            href={getRelativeLocaleUrl(lang, `tags/${tag}/`)}
-            class="no-underline opacity-80 hover:text-[var(--aas-accent)] hover:opacity-100"
-          >
-            #{tag}
-          </a>
-        ))}
-      </div>
-    )
-  }
+  {/* Right column: key facts (stars + pricing), stacked. Out of the content
+     column so the number of chips never changes the description position. */}
+  <div class="flex shrink-0 flex-col items-end gap-1 text-xs">
+    {
+      typeof stats?.stars === 'number' && (
+        <span class="aas-chip inline-flex items-center gap-1 rounded-md px-2 py-0.5">
+          <span aria-hidden="true" class="text-amber-400">
+            ★
+          </span>
+          {formatStars(stats.stars)}
+        </span>
+      )
+    }
+    {
+      pricing.map((p) => (
+        <span class="aas-pricing rounded-md px-2 py-0.5">{pricingLabels[lang][p] ?? p}</span>
+      ))
+    }
+  </div>
 </div>

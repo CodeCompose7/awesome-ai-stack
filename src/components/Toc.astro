@@ -25,7 +25,7 @@ const { items, title } = Astro.props;
             <a
               href={`#${it.slug}`}
               class:list={[
-                'block rounded-md py-1 pr-2 text-[var(--aas-muted)] no-underline hover:bg-[var(--aas-panel)] hover:text-[var(--aas-text)]',
+                'block rounded-md py-1 pr-2 text-[var(--aas-muted)] no-underline hover:bg-[var(--aas-tint)] hover:text-[var(--aas-text)]',
                 it.depth >= 3 ? 'pl-5' : 'pl-2.5',
               ]}
             >

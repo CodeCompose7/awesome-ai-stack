@@ -6,7 +6,7 @@ interface Props {
 
 const { overviewLabel, codeLabel } = Astro.props;
 const tabClass =
-  'aas-tab cursor-pointer rounded-lg px-3 py-1.5 text-sm font-medium text-[var(--aas-muted)] hover:bg-[var(--aas-panel)] hover:text-[var(--aas-text)]';
+  'aas-tab cursor-pointer rounded-lg px-3 py-1.5 text-sm font-medium text-[var(--aas-muted)] hover:bg-[var(--aas-tint)] hover:text-[var(--aas-text)]';
 ---
 
 <div data-tabs>
@@ -53,7 +53,7 @@ const tabClass =
 
 <style>
   .aas-tab[aria-selected='true'] {
-    background: var(--aas-panel);
+    background: var(--aas-tint);
     color: var(--aas-text);
   }
 </style>

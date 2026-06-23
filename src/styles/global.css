@@ -6,18 +6,22 @@
 :root {
   color-scheme: light;
   --aas-bg: #fafafa;
-  --aas-panel: #f4f4f5;
+  --aas-panel: #fdfdfd;
   --aas-border: #e7e7ea;
   --aas-text: #2b2b31;
   --aas-muted: #76767e;
   --aas-accent: #5f63c4;
   --aas-shadow: 0 8px 24px -10px rgb(20 20 40 / 0.22);
+  /* Interactive-surface tint (hover/active). Text-derived so it has real
+     contrast on any background even when --aas-panel is near-white. Defined
+     once; the var(--aas-text) inside resolves per theme. */
+  --aas-tint: color-mix(in srgb, var(--aas-text) 7%, transparent);
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
   --aas-bg: #0c0d11;
-  --aas-panel: #15161b;
+  --aas-panel: #1a1b21;
   --aas-border: #25262e;
   --aas-text: #e2e3e8;
   --aas-muted: #989aa4;
@@ -29,7 +33,7 @@
   :root:not([data-theme]) {
     color-scheme: dark;
     --aas-bg: #0c0d11;
-    --aas-panel: #15161b;
+    --aas-panel: #1a1b21;
     --aas-border: #25262e;
     --aas-text: #e2e3e8;
     --aas-muted: #989aa4;
@@ -46,7 +50,7 @@ html {
 /* Neutral chip surface — a subtle tint that reads on any background (page or
    the panel-colored cards), so no outline is needed. */
 .aas-chip {
-  background: color-mix(in srgb, var(--aas-text) 6%, transparent);
+  background: color-mix(in srgb, var(--aas-text) 4.5%, transparent);
   color: var(--aas-muted);
 }
 /* Pricing chip: a soft accent-tinted surface (no outline). */
@@ -95,7 +99,7 @@ html {
   overflow-y: auto;
 }
 .aas-toc-rail a[aria-current='true'] {
-  background: var(--aas-panel);
+  background: var(--aas-tint);
   color: var(--aas-text);
 }
 
@@ -115,7 +119,7 @@ html {
     background-color 0.15s;
 }
 .aas-toc-top:hover {
-  background: var(--aas-panel);
+  background: var(--aas-tint);
   color: var(--aas-text);
 }
 
