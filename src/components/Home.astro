@@ -3,7 +3,7 @@ import StackCard from './StackCard.astro';
 import ChevronDown from './ChevronDown.astro';
 import { categories } from '../data/categories';
 import { getStacks, slugOf } from '../lib/stacks';
-import { useTranslations, pricingLabels, type Lang } from '../i18n/ui';
+import { useTranslations, pricingLabels, licenseLabel, type Lang } from '../i18n/ui';
 
 interface Props {
   lang: Lang;
@@ -43,7 +43,7 @@ const facets = [
     label: t('detail.license'),
     options: [...new Set(entries.map((e) => e.data.license).filter(Boolean))]
       .sort()
-      .map((l) => ({ value: l as string, label: l as string })),
+      .map((l) => ({ value: l as string, label: licenseLabel(lang, l as string) })),
   },
   {
     key: 'language',

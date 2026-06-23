@@ -124,10 +124,10 @@ export function useTranslations(lang: Lang) {
 /** Human labels for the `pricing` frontmatter enum, per locale. */
 export const pricingLabels: Record<Lang, Record<string, string>> = {
   en: {
-    'open-source': 'open source',
-    'free-tier': 'free tier',
-    paid: 'paid',
-    free: 'free',
+    'open-source': 'Open source',
+    'free-tier': 'Free tier',
+    paid: 'Paid',
+    free: 'Free',
   },
   ko: {
     'open-source': '오픈소스',
@@ -136,3 +136,12 @@ export const pricingLabels: Record<Lang, Record<string, string>> = {
     free: '무료',
   },
 };
+
+/** Descriptive (non-name) licenses get localized; real license names pass through. */
+const licenseLabels: Record<Lang, Record<string, string>> = {
+  en: { proprietary: 'Proprietary' },
+  ko: { proprietary: '독점' },
+};
+export function licenseLabel(lang: Lang, value: string): string {
+  return licenseLabels[lang][value] ?? value;
+}
