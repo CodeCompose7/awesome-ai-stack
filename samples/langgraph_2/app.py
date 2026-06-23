@@ -35,28 +35,38 @@ load_dotenv()
 litellm.drop_params = True
 
 
+DEFAULT_QUESTION = (
+    "How many times does the letter r appear in strawberry? Show it uppercased."
+)
+
+
 class State(TypedDict):
     # `add_messages` appends new messages to the list instead of overwriting it.
     messages: Annotated[list[BaseMessage], add_messages]
 
 
-def build_graph():
-    """Wire the ReAct loop explicitly: agent -> (tools -> agent)* -> end."""
+def build_model():
+    """The provider-routed chat model with the tools bound to it."""
     # MODEL chooses the provider (claude-opus-4-8 / gpt-4o / gemini/gemini-2.5-flash).
     model = ChatLiteLLM(
         model=os.environ.get("MODEL", "claude-opus-4-8"),
         temperature=0,
     )
-    model = model.bind_tools(TOOLS)
+    return model.bind_tools(TOOLS)
+
+
+def should_continue(state: State) -> str:
+    """Conditional edge: run tools if the model asked for them, otherwise stop."""
+    last = state["messages"][-1]
+    return "tools" if getattr(last, "tool_calls", None) else "end"
+
+
+def build_graph(model):
+    """Wire the ReAct loop explicitly: agent -> (tools -> agent)* -> end."""
 
     # Agent node: ask the model what to do next given the conversation so far.
     def agent(state: State) -> State:
         return {"messages": [model.invoke(state["messages"])]}
-
-    # Conditional edge: if the model requested tools, run them; otherwise stop.
-    def should_continue(state: State) -> str:
-        last = state["messages"][-1]
-        return "tools" if getattr(last, "tool_calls", None) else "end"
 
     graph = StateGraph(State)
     graph.add_node("agent", agent)
@@ -69,21 +79,30 @@ def build_graph():
     return graph.compile()
 
 
-def main() -> None:
-    question = " ".join(sys.argv[1:]) or (
-        "How many times does the letter r appear in strawberry? Show it uppercased."
-    )
+def parse_question(argv: list[str]) -> str:
+    """The CLI arguments joined into one question, or the default demo prompt."""
+    return " ".join(argv) or DEFAULT_QUESTION
 
-    graph = build_graph()
 
-    # stream_mode="values" yields the full state after each node, so we can watch
-    # the loop unfold: agent -> tools -> agent -> ... -> final answer.
+def stream_answer(graph, question: str) -> BaseMessage | None:
+    """Stream each step and print it, returning the final message.
+
+    stream_mode="values" yields the full state after each node, so we can watch
+    the loop unfold: agent -> tools -> agent -> ... -> final answer.
+    """
     final: BaseMessage | None = None
     for step in graph.stream(
         {"messages": [HumanMessage(question)]}, stream_mode="values"
     ):
         final = step["messages"][-1]
         final.pretty_print()
+    return final
+
+
+def main() -> None:
+    question = parse_question(sys.argv[1:])
+    graph = build_graph(build_model())
+    final = stream_answer(graph, question)
 
     if final is not None:
         print("\n=== answer ===")
