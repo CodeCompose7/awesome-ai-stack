@@ -7,8 +7,13 @@
   // Docker daemon, so you can build/run the samples/ projects from inside the
   // dev container (e.g. `cd samples/langgraph_1 && docker build -t x . && docker run …`).
   // Rebuild the dev container after adding this for it to take effect.
+  // moby:false installs Docker CE instead of Moby — the moby-cli packages are
+  // not available on the base image's Debian 'trixie' (debian 13), so the
+  // default moby:true fails to install.
   "features": {
-    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+      "moby": false
+    }
   },
   "forwardPorts": [4321],
   "portsAttributes": {
@@ -26,11 +31,15 @@
         "unifiedjs.vscode-mdx",
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
-        "astro-build.astro-vscode"
+        "charliermarsh.ruff",
+        "DavidAnson.vscode-markdownlint"
       ],
       "settings": {
         "editor.formatOnSave": true,
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff"
+        }
       }
     }
   },
