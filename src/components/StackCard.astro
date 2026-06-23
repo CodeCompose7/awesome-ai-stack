@@ -4,6 +4,7 @@ import { pricingLabels, type Lang } from '../i18n/ui';
 import { getRepoStats, formatStars } from '../lib/github';
 import ToolAvatar from './ToolAvatar.astro';
 import ToolMeta from './ToolMeta.astro';
+import StarIcon from './StarIcon.astro';
 
 interface Props {
   slug: string;
@@ -82,9 +83,7 @@ const displayVersion = stats?.version ?? version;
     {
       typeof stats?.stars === 'number' && (
         <span class="aas-chip inline-flex items-center gap-1 rounded-lg px-2.5 py-1">
-          <span aria-hidden="true" class="text-[var(--aas-text)]">
-            ★
-          </span>
+          <StarIcon class="text-[var(--aas-text)]" />
           {formatStars(stats.stars)}
         </span>
       )
