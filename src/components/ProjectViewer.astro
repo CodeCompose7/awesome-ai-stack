@@ -81,7 +81,7 @@ const t = useTranslations(lang);
             {/* Selected file content */}
             <div class="mt-4 min-w-0 lg:mt-0">
               {p.files.map((f, fi) => (
-                <div data-file-panel={fi} data-file-path={f.path} class:list={[fi === 0 ? '' : 'hidden']}>
+                <div data-file-panel={fi} data-file-path={f.path} class:list={['scroll-mt-6', fi === 0 ? '' : 'hidden']}>
                   <figure class="overflow-hidden rounded-xl border border-[var(--aas-border)]">
                     <figcaption class="border-b border-[var(--aas-border)] bg-[var(--aas-panel)] px-3.5 py-2 font-mono text-xs text-[var(--aas-muted)]">
                       {f.path}
@@ -229,9 +229,20 @@ const t = useTranslations(lang);
       opt.addEventListener('click', () => selectProject(opt.dataset.projectFolder ?? null, true)),
     );
 
+    // Bring the selected file's code into view. The file list (especially the
+    // right rail) sits far above the code on a long README, so a click there
+    // would otherwise look like nothing happened.
+    function scrollToFile(panel: HTMLElement) {
+      const visible = panel.querySelector<HTMLElement>('[data-file-panel]:not(.hidden)');
+      visible?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
     projPanels.forEach((panel) =>
       fileButtonsFor(panel.dataset.projectFolder ?? '').forEach((btn) =>
-        btn.addEventListener('click', () => selectFile(panel, btn.dataset.filePath ?? null, true)),
+        btn.addEventListener('click', () => {
+          selectFile(panel, btn.dataset.filePath ?? null, true);
+          scrollToFile(panel);
+        }),
       ),
     );
 

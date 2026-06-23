@@ -209,7 +209,7 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
   <button type="button" class="aas-toc-top" data-back-to-top>↑ {t('top.label')}</button>
 </aside>
 
-{hasSamples && <MermaidLoader />}
+{(hasSamples || hasProject) && <MermaidLoader />}
 
 {/* Restore collapsed file-tree folders from localStorage before first paint
     (placed after every tree in the DOM, so no expand→collapse flash). */}

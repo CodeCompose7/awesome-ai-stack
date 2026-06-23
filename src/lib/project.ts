@@ -109,10 +109,18 @@ function gitIgnored(paths: string[]): Set<string> {
 /** Read + render the sample projects in the given `samples/<folder>/` list. */
 export async function renderProjects(folders: string[]): Promise<RenderedProject[]> {
   const hl = await getHighlighter();
+  const escapeHtml = (s: string) =>
+    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const md = new MarkdownIt({
     html: false,
     linkify: true,
-    highlight: (code, info) => highlight(hl, code, (info || '').trim() || 'text'),
+    highlight: (code, info) => {
+      const lang = (info || '').trim() || 'text';
+      // Hand mermaid blocks to the client-side MermaidLoader instead of Shiki,
+      // so README diagrams render as graphics rather than highlighted text.
+      if (lang === 'mermaid') return `<pre class="mermaid">${escapeHtml(code)}</pre>`;
+      return highlight(hl, code, lang);
+    },
   });
   // README links open in a new tab.
   const baseLink = md.renderer.rules.link_open ?? ((t, i, o, _e, s) => s.renderToken(t, i, o));
