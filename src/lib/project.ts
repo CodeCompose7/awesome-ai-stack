@@ -1,11 +1,37 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import { codeToHtml } from 'shiki';
+import { createHighlighter, type Highlighter } from 'shiki';
 import MarkdownIt from 'markdown-it';
 
 const SAMPLES_DIR = 'samples';
 const REPO = 'https://github.com/codecompose7/awesome-agent-stack';
-const md = new MarkdownIt({ html: false, linkify: true });
+const THEME = 'github-dark';
+const LANGS = [
+  'python',
+  'typescript',
+  'tsx',
+  'javascript',
+  'jsx',
+  'bash',
+  'docker',
+  'markdown',
+  'json',
+  'yaml',
+  'toml',
+  'sql',
+  'go',
+  'rust',
+];
+
+let hlPromise: Promise<Highlighter> | null = null;
+function getHighlighter() {
+  if (!hlPromise) hlPromise = createHighlighter({ themes: [THEME], langs: LANGS });
+  return hlPromise;
+}
+function highlight(hl: Highlighter, code: string, lang: string): string {
+  const l = hl.getLoadedLanguages().includes(lang) ? lang : 'text';
+  return hl.codeToHtml(code, { lang: l, theme: THEME });
+}
 
 export interface ProjectFile {
   path: string; // relative to the project folder, e.g. "app.py"
@@ -59,17 +85,22 @@ function walk(dir: string, base: string, out: { path: string; name: string; cont
   }
 }
 
-async function highlight(content: string, name: string): Promise<string> {
-  const lang = langFor(name);
-  try {
-    return await codeToHtml(content, { lang, theme: 'github-dark' });
-  } catch {
-    return await codeToHtml(content, { lang: 'text', theme: 'github-dark' });
-  }
-}
-
 /** Read + render the sample projects in the given `samples/<folder>/` list. */
 export async function renderProjects(folders: string[]): Promise<RenderedProject[]> {
+  const hl = await getHighlighter();
+  const md = new MarkdownIt({
+    html: false,
+    linkify: true,
+    highlight: (code, info) => highlight(hl, code, (info || '').trim() || 'text'),
+  });
+  // README links open in a new tab.
+  const baseLink = md.renderer.rules.link_open ?? ((t, i, o, _e, s) => s.renderToken(t, i, o));
+  md.renderer.rules.link_open = (tokens, idx, opts, env, self) => {
+    tokens[idx].attrSet('target', '_blank');
+    tokens[idx].attrSet('rel', 'noopener noreferrer');
+    return baseLink(tokens, idx, opts, env, self);
+  };
+
   const out: RenderedProject[] = [];
   for (const folder of folders) {
     const dir = join(SAMPLES_DIR, folder);
@@ -86,7 +117,7 @@ export async function renderProjects(folders: string[]): Promise<RenderedProject
         readmeHtml = md.render(f.content);
         name = f.content.match(/^#\s+(.+?)\s*$/m)?.[1] ?? folder;
       } else {
-        files.push({ path: f.path, html: await highlight(f.content, f.name) });
+        files.push({ path: f.path, html: highlight(hl, f.content, langFor(f.name)) });
       }
     }
     out.push({ folder, name, readmeHtml, files, folderUrl: `${REPO}/tree/main/samples/${folder}` });

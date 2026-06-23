@@ -3,6 +3,13 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
+  // Docker-outside-of-Docker: installs the docker CLI and shares the host's
+  // Docker daemon, so you can build/run the samples/ projects from inside the
+  // dev container (e.g. `cd samples/langgraph_1 && docker build -t x . && docker run …`).
+  // Rebuild the dev container after adding this for it to take effect.
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+  },
   "forwardPorts": [4321],
   "portsAttributes": {
     "4321": {

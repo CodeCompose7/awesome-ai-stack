@@ -247,6 +247,15 @@ summary {
 }
 
 /* Readable defaults for rendered Markdown bodies. */
+.prose :where(h1) {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 1.5rem 0 0.75rem;
+  scroll-margin-top: 1.5rem;
+}
+.prose :where(h1):first-child {
+  margin-top: 0;
+}
 .prose :where(h2) {
   font-size: 1.5rem;
   font-weight: 700;
