@@ -93,71 +93,97 @@ const renderedSamples = hasSamples ? await renderSamples(data.samples) : [];
   }
 </header>
 
-<div class="mt-8 lg:grid lg:grid-cols-[minmax(0,1fr)_13rem] lg:items-start lg:gap-10">
-  <div class="min-w-0">
-    {
-      hasSamples ? (
-        <DetailTabs overviewLabel={t('tab.overview')} codeLabel={t('tab.code')}>
-          <article slot="overview" class="prose max-w-none">
-            <Content />
-          </article>
-          <div slot="code">
-            <CodeSamples samples={renderedSamples} lang={lang} />
-          </div>
-        </DetailTabs>
-      ) : (
-        <article class="prose max-w-none">
+{/* Full-width content; the TOC is a fixed right rail, out of this flow. */}
+<div class="mt-8 min-w-0">
+  {
+    hasSamples ? (
+      <DetailTabs overviewLabel={t('tab.overview')} codeLabel={t('tab.code')}>
+        <article slot="overview" class="prose max-w-none">
           <Content />
         </article>
-      )
-    }
-  </div>
-
-  {/* Sticky right-rail TOC; swaps with the active tab. */}
-  <aside class="mt-8 hidden lg:mt-0 lg:block">
-    <div class="sticky top-6 space-y-4">
-      <div data-toc="overview">
-        <Toc items={tocItems} title={t('toc.onThisPage')} />
-      </div>
-      {
-        hasSamples && (
-          <div data-toc="code" class="hidden">
-            {renderedSamples.map((s, i) => (
-              <div data-sample-toc={i} class:list={[i === 0 ? '' : 'hidden']}>
-                <Toc items={s.headings} title={t('toc.onThisPage')} />
-              </div>
-            ))}
-          </div>
-        )
-      }
-    </div>
-  </aside>
+        <div slot="code">
+          <CodeSamples samples={renderedSamples} lang={lang} />
+        </div>
+      </DetailTabs>
+    ) : (
+      <article class="prose max-w-none">
+        <Content />
+      </article>
+    )
+  }
 </div>
+
+{/* Fixed right-rail TOC: follows scroll, swaps with the active tab, and hides
+    near the footer. */}
+<aside class="aas-toc-rail" data-toc-rail>
+  <div data-toc="overview">
+    <Toc items={tocItems} title={t('toc.onThisPage')} />
+  </div>
+  {
+    hasSamples && (
+      <div data-toc="code" class="hidden">
+        {renderedSamples.map((s, i) => (
+          <div data-sample-toc={i} class:list={[i === 0 ? '' : 'hidden']}>
+            <Toc items={s.headings} title={t('toc.onThisPage')} />
+          </div>
+        ))}
+      </div>
+    )
+  }
+</aside>
 
 {hasSamples && <MermaidLoader />}
 
 <script>
-  // Swap the right-rail TOC with the active tab.
+  const rail = document.querySelector<HTMLElement>('[data-toc-rail]');
+
+  // Swap the rail's TOC with the active tab.
   const syncToc = (id: string) =>
-    document
-      .querySelectorAll<HTMLElement>('[data-toc]')
+    rail
+      ?.querySelectorAll<HTMLElement>('[data-toc]')
       .forEach((el) => el.classList.toggle('hidden', el.dataset.toc !== id));
 
-  document.addEventListener('aas:tabchange', (e) =>
-    syncToc((e as CustomEvent<{ id: string }>).detail.id),
-  );
+  // Scroll-spy: highlight the section nearest the top of the viewport.
+  function spy() {
+    if (!rail) return;
+    const links = Array.from(rail.querySelectorAll<HTMLAnchorElement>('a[href^="#"]'));
+    let activeId: string | null = null;
+    for (const a of links) {
+      const id = a.getAttribute('href')!.slice(1);
+      const h = document.getElementById(id);
+      if (h && h.offsetParent !== null && h.getBoundingClientRect().top <= 140) activeId = id;
+    }
+    links.forEach((a) =>
+      a.setAttribute('aria-current', String(a.getAttribute('href')!.slice(1) === activeId)),
+    );
+  }
 
-  // Initial sync from the already-applied tab state (the tab may have been set
-  // from the URL hash before this listener was attached).
+  document.addEventListener('aas:tabchange', (e) => {
+    syncToc((e as CustomEvent<{ id: string }>).detail.id);
+    spy();
+  });
+
   const active = document.querySelector<HTMLElement>('[data-tab][aria-selected="true"]');
   if (active?.dataset.tab) syncToc(active.dataset.tab);
 
-  // On the Code tab, show the selected version's internal headings.
+  // Code tab: show the selected version's internal headings.
   const select = document.querySelector<HTMLSelectElement>('[data-sample-select]');
   const tocBlocks = Array.from(document.querySelectorAll<HTMLElement>('[data-sample-toc]'));
   select?.addEventListener('change', () => {
     tocBlocks.forEach((b) => b.classList.toggle('hidden', b.dataset.sampleToc !== select.value));
+    spy();
   });
+
+  window.addEventListener('scroll', spy, { passive: true });
+  spy();
+
+  // Hide the rail once the footer scrolls into view.
+  const footer = document.querySelector('footer');
+  if (rail && footer) {
+    new IntersectionObserver(([entry]) =>
+      rail.setAttribute('data-hidden', String(entry.isIntersecting)),
+    ).observe(footer);
+  }
 </script>
 
 {

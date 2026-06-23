@@ -4,6 +4,7 @@ import { getRelativeLocaleUrl } from 'astro:i18n';
 import { useTranslations, type Lang } from '../i18n/ui';
 import LanguageSwitcher from '../components/LanguageSwitcher.astro';
 import ThemeToggle from '../components/ThemeToggle.astro';
+import BackToTop from '../components/BackToTop.astro';
 
 interface Props {
   title: string;
@@ -93,6 +94,8 @@ const base = import.meta.env.BASE_URL;
         }
       </p>
     </footer>
+
+    <BackToTop lang={lang} />
 
     <script>
       // Clicking a heading's "#" anchor copies that section's URL to the
