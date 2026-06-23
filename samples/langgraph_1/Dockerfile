@@ -8,6 +8,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app.py .
 
-# Provide your key at run time:
-#   docker run --rm -e ANTHROPIC_API_KEY=sk-ant-... aas-langgraph "<question>"
+# Provide your config at run time (.env is NOT baked into the image):
+#   docker run --rm --env-file .env aas-langgraph "<question>"
 ENTRYPOINT ["python", "app.py"]
