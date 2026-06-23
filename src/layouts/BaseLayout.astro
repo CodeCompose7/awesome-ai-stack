@@ -108,6 +108,20 @@ const base = import.meta.env.BASE_URL;
         anchor.classList.add('copied');
         setTimeout(() => anchor.classList.remove('copied'), 1200);
       });
+
+      // Close any open <details> dropdown when clicking outside it (or on Esc).
+      document.addEventListener('click', (e) => {
+        const target = e.target as Node;
+        document.querySelectorAll<HTMLDetailsElement>('details[open]').forEach((d) => {
+          if (!d.contains(target)) d.open = false;
+        });
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape')
+          document
+            .querySelectorAll<HTMLDetailsElement>('details[open]')
+            .forEach((d) => (d.open = false));
+      });
     </script>
   </body>
 </html>

@@ -207,6 +207,45 @@ summary {
   opacity: 1;
 }
 
+/* Custom checkbox (filter facets). */
+.aas-check {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+  border: 1.5px solid var(--aas-border);
+  border-radius: 0.35rem;
+  background: var(--aas-panel);
+  cursor: pointer;
+  transition:
+    background-color 0.12s,
+    border-color 0.12s;
+}
+.aas-check:hover {
+  border-color: var(--aas-accent);
+}
+.aas-check:checked {
+  background: var(--aas-accent);
+  border-color: var(--aas-accent);
+}
+.aas-check::after {
+  content: '';
+  position: absolute;
+  left: 0.34rem;
+  top: 0.14rem;
+  width: 0.3rem;
+  height: 0.55rem;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform 0.12s;
+}
+.aas-check:checked::after {
+  transform: rotate(45deg) scale(1);
+}
+
 /* Readable defaults for rendered Markdown bodies. */
 .prose :where(h2) {
   font-size: 1.5rem;
