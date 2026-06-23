@@ -230,6 +230,11 @@ body {
   text-align: center;
   line-height: 0; /* avoid extra space from the raw source before render */
 }
+/* Mermaid renders a block <svg>; center it horizontally. */
+.aas-diagram .mermaid svg {
+  display: block;
+  margin-inline: auto;
+}
 
 
 /* Markdown tables — without these, columns collapse together. */
