@@ -11,6 +11,7 @@
   --aas-text: #2b2b31;
   --aas-muted: #76767e;
   --aas-accent: #5f63c4;
+  --aas-shadow: 0 8px 24px -10px rgb(20 20 40 / 0.22);
 }
 
 :root[data-theme="dark"] {
@@ -21,6 +22,7 @@
   --aas-text: #e2e3e8;
   --aas-muted: #989aa4;
   --aas-accent: #9398f0;
+  --aas-shadow: 0 8px 24px -8px rgb(0 0 0 / 0.6);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -39,6 +41,23 @@ html {
   scroll-behavior: smooth;
   background: var(--aas-bg);
   color: var(--aas-text);
+}
+
+/* Subtle "lift + shadow" on hover for cards and button-like elements. */
+.aas-lift {
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease,
+    border-color 0.16s ease;
+}
+.aas-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--aas-shadow);
+}
+@media (prefers-reduced-motion: reduce) {
+  .aas-lift:hover {
+    transform: none;
+  }
 }
 
 /* Fixed right-rail TOC: out of the content flow, parked in the right margin.
