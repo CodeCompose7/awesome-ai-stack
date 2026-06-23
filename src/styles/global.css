@@ -171,6 +171,13 @@ body {
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
+/* Tailwind v4 no longer sets a pointer cursor on buttons; restore it (and for
+   <summary>, used by the custom dropdowns). */
+button:not(:disabled),
+summary {
+  cursor: pointer;
+}
+
 /* Readable defaults for rendered Markdown bodies. */
 .prose :where(h2) {
   font-size: 1.5rem;
