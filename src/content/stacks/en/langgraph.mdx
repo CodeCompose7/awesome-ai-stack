@@ -17,7 +17,7 @@ projects:
     related: [litellm, langchain]
 featured: true
 samples:
-  - version: "0.2 · Graph API"
+  - version: "1.x · Graph API"
     lang: python
     diagram: |
       flowchart LR
@@ -53,7 +53,8 @@ samples:
       ### How it flows
       A `conditional edge` loops back to `think` until the stop condition, then
       routes to `END`.
-  - version: "0.2 · Functional API"
+    note: For a runnable build of this pattern, see langgraph_2 in the Implementation tab — a real ReAct loop using litellm and tools.
+  - version: "1.x · Functional API"
     lang: python
     diagram: |
       flowchart LR
