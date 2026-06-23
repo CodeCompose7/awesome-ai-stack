@@ -5,7 +5,37 @@ import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import rehypeExternalLinks from 'rehype-external-links';
 import rehypeSlug from 'rehype-slug';
-import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+
+// Prepend a "#" copy-link anchor to h2/h3 headings only (a global click handler
+// in BaseLayout copies the section URL). Runs after rehype-slug adds the ids.
+function rehypeHeadingAnchors() {
+  /** @param {any} node */
+  const walk = (node) => {
+    if (!node.children) return;
+    for (const child of node.children) {
+      if (
+        child.type === 'element' &&
+        (child.tagName === 'h2' || child.tagName === 'h3') &&
+        child.properties &&
+        child.properties.id
+      ) {
+        child.children.unshift({
+          type: 'element',
+          tagName: 'a',
+          properties: {
+            className: ['aas-anchor'],
+            href: '#' + child.properties.id,
+            'aria-label': 'Copy link to section',
+          },
+          children: [{ type: 'text', value: '#' }],
+        });
+      } else {
+        walk(child);
+      }
+    }
+  };
+  return (/** @type {any} */ tree) => walk(tree);
+}
 
 // Turn ```mermaid fenced blocks into <pre class="mermaid"> (raw, un-highlighted)
 // so the client-side mermaid loader can render them. Runs at the remark stage,
@@ -53,16 +83,7 @@ export default defineConfig({
     remarkPlugins: [remarkMermaid],
     rehypePlugins: [
       rehypeSlug,
-      // Append a "#" anchor to each heading; a global click handler copies the
-      // section's URL to the clipboard (see BaseLayout).
-      [
-        rehypeAutolinkHeadings,
-        {
-          behavior: 'append',
-          properties: { className: ['aas-anchor'], 'aria-label': 'Copy link to section' },
-          content: { type: 'text', value: '#' },
-        },
-      ],
+      rehypeHeadingAnchors,
       [rehypeExternalLinks, { target: '_blank', rel: ['noopener', 'noreferrer'] }],
     ],
   },

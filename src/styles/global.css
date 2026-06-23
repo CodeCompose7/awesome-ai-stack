@@ -41,34 +41,39 @@ html {
   color: var(--aas-text);
 }
 
-/* "#" anchor appended to headings; click copies the section URL (BaseLayout). */
-.aas-anchor {
+/* "#" copy-link anchor prepended to headings (h2/h3). Faint by default, fully
+   shown on hover/focus. `a.aas-anchor` outranks `.prose :where(a)` so it keeps
+   no underline / muted color. Click copies the section URL (see BaseLayout). */
+a.aas-anchor {
   position: relative;
-  margin-left: 0.4rem;
+  margin-right: 0.4rem;
   font-weight: 400;
   color: var(--aas-muted);
   text-decoration: none;
-  opacity: 0;
-  transition: opacity 0.15s;
+  opacity: 0.25;
+  transition:
+    opacity 0.15s,
+    color 0.15s;
 }
-:where(h1, h2, h3, h4):hover > .aas-anchor,
-.aas-anchor:focus {
+:where(h2, h3):hover > a.aas-anchor,
+a.aas-anchor:hover,
+a.aas-anchor:focus {
   opacity: 1;
-}
-.aas-anchor:hover {
   color: var(--aas-accent);
 }
-.aas-anchor.copied {
+a.aas-anchor.copied {
   opacity: 1;
 }
-.aas-anchor.copied::after {
+a.aas-anchor.copied::after {
   content: 'Copied';
   position: absolute;
-  left: 100%;
-  margin-left: 0.4rem;
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 0.3rem;
   padding: 0.05rem 0.4rem;
   white-space: nowrap;
   font-size: 0.7rem;
+  font-weight: 400;
   color: var(--aas-accent);
   border: 1px solid var(--aas-border);
   border-radius: 0.3rem;

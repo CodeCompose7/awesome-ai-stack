@@ -68,8 +68,8 @@ export async function renderSamples(samples: RawSample[]): Promise<RenderedSampl
         descHtml = md.renderer.render(tokens, md.options, {}).replace(
           /<(h[23]) id="([^"]+)">([\s\S]*?)<\/\1>/g,
           (_m, tag, id, inner) =>
-            `<${tag} id="${id}">${inner}` +
-            `<a class="aas-anchor" href="#${id}" aria-label="Copy link to section">#</a></${tag}>`,
+            `<${tag} id="${id}">` +
+            `<a class="aas-anchor" href="#${id}" aria-label="Copy link to section">#</a>${inner}</${tag}>`,
         );
       }
 
