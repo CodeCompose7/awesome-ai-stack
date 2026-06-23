@@ -1,6 +1,10 @@
 # Minimal image for the LangGraph sample agent.
 FROM python:3.12-slim
 
+# Stream stdout/stderr unbuffered so the agent's output appears live (and isn't
+# lost if the container is killed mid-run, e.g. under low memory).
+ENV PYTHONUNBUFFERED=1
+
 WORKDIR /app
 
 COPY requirements.txt .
