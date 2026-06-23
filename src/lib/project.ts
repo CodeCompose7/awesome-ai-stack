@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { createHighlighter, type Highlighter } from 'shiki';
@@ -85,6 +86,26 @@ function walk(dir: string, base: string, out: { path: string; name: string; cont
   }
 }
 
+/**
+ * Subset of `paths` (relative to the repo root) that git would ignore, so files
+ * like `.env` never leak into the rendered file tree. Respects nested .gitignore
+ * files and negations. Falls back to ignoring nothing if git isn't available.
+ */
+function gitIgnored(paths: string[]): Set<string> {
+  if (!paths.length) return new Set();
+  try {
+    const out = execFileSync('git', ['check-ignore', '--stdin'], {
+      input: paths.join('\n'),
+      encoding: 'utf8',
+    });
+    return new Set(out.split('\n').map((s) => s.trim()).filter(Boolean));
+  } catch (err) {
+    // Exit code 1 ("nothing ignored") still throws; its stdout holds any matches.
+    const out = (err as { stdout?: string }).stdout ?? '';
+    return new Set(out.split('\n').map((s) => s.trim()).filter(Boolean));
+  }
+}
+
 /** Read + render the sample projects in the given `samples/<folder>/` list. */
 export async function renderProjects(folders: string[]): Promise<RenderedProject[]> {
   const hl = await getHighlighter();
@@ -109,10 +130,15 @@ export async function renderProjects(folders: string[]): Promise<RenderedProject
     walk(dir, dir, raw);
     if (!raw.length) continue;
 
+    // Hide gitignored files (e.g. a local .env) from the file tree.
+    const ignored = gitIgnored(raw.map((f) => join(dir, f.path)));
+    const shown = raw.filter((f) => !ignored.has(join(dir, f.path)));
+    if (!shown.length) continue;
+
     let readmeHtml: string | undefined;
     let name = folder;
     const files: ProjectFile[] = [];
-    for (const f of raw.sort((a, b) => priority(a.path) - priority(b.path) || a.path.localeCompare(b.path))) {
+    for (const f of shown.sort((a, b) => priority(a.path) - priority(b.path) || a.path.localeCompare(b.path))) {
       if (/^readme\.md$/i.test(f.path)) {
         readmeHtml = md.render(f.content);
         name = f.content.match(/^#\s+(.+?)\s*$/m)?.[1] ?? folder;
