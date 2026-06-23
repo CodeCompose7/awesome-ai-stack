@@ -43,6 +43,12 @@ html {
   color: var(--aas-text);
 }
 
+/* Pricing chip: a soft accent-tinted surface (no outline). */
+.aas-pricing {
+  background: color-mix(in srgb, var(--aas-accent) 14%, transparent);
+  color: var(--aas-accent);
+}
+
 /* Subtle "lift + shadow" on hover for cards and button-like elements. */
 .aas-lift {
   transition:

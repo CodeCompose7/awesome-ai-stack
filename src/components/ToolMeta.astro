@@ -6,51 +6,54 @@ interface Props {
   lang: Lang;
   pricing: string[];
   license?: string;
+  language?: string;
   stars?: number | null;
   version?: string | null;
   released?: string | null; // YYYY-MM-DD of the latest release
   class?: string;
 }
 
-const { lang, pricing, license, stars, version, released, class: className } = Astro.props;
+const { lang, pricing, license, language, stars, version, released, class: className } =
+  Astro.props;
 const t = useTranslations(lang);
 const hasAny =
-  pricing.length > 0 || license || typeof stars === 'number' || version || released;
+  pricing.length > 0 ||
+  license ||
+  language ||
+  typeof stars === 'number' ||
+  version ||
+  released;
+
+// Filled, borderless "surface" chips — no outlines.
+const chip = 'rounded-md bg-[var(--aas-panel)] px-2 py-0.5 text-[var(--aas-muted)]';
 ---
 
 {
   hasAny && (
     <div class:list={['flex flex-wrap items-center gap-1.5 text-xs', className]}>
       {typeof stars === 'number' && (
-        <span class="inline-flex items-center gap-1 rounded-full border border-[var(--aas-border)] px-2 py-0.5 text-[var(--aas-muted)]">
+        <span class:list={['inline-flex items-center gap-1', chip]}>
           <span aria-hidden="true" class="text-amber-500">
             ★
           </span>
           {formatStars(stars)}
         </span>
       )}
-      {version && (
-        <span class="rounded-full border border-[var(--aas-border)] px-2 py-0.5 font-mono text-[var(--aas-muted)]">
-          {version}
-        </span>
-      )}
+      {version && <span class:list={['font-mono', chip]}>{version}</span>}
       {released && (
-        <span
-          title={t('meta.released')}
-          class="inline-flex items-center gap-1 rounded-full border border-[var(--aas-border)] px-2 py-0.5 text-[var(--aas-muted)]"
-        >
+        <span title={t('meta.released')} class:list={['inline-flex items-center gap-1', chip]}>
           <span aria-hidden="true">↻</span>
           {released}
         </span>
       )}
+      {language && <span class={chip}>{language}</span>}
       {pricing.map((p) => (
-        <span class="rounded-full border border-[var(--aas-accent)] px-2 py-0.5 text-[var(--aas-accent)]">
-          {pricingLabels[lang][p] ?? p}
-        </span>
+        <span class="aas-pricing rounded-md px-2 py-0.5">{pricingLabels[lang][p] ?? p}</span>
       ))}
       {license && (
-        <span class="rounded-full border border-[var(--aas-border)] px-2 py-0.5 text-[var(--aas-muted)]">
-          ⚖ {license}
+        <span class:list={['inline-flex items-center gap-1', chip]}>
+          <span aria-hidden="true">⚖</span>
+          {license}
         </span>
       )}
     </div>

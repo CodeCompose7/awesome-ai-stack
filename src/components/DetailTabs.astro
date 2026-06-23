@@ -6,11 +6,11 @@ interface Props {
 
 const { overviewLabel, codeLabel } = Astro.props;
 const tabClass =
-  'aas-tab cursor-pointer border-b-2 px-1 pb-2 text-sm font-medium border-transparent text-[var(--aas-muted)] hover:text-[var(--aas-text)]';
+  'aas-tab cursor-pointer rounded-lg px-3 py-1.5 text-sm font-medium text-[var(--aas-muted)] hover:bg-[var(--aas-panel)] hover:text-[var(--aas-text)]';
 ---
 
 <div data-tabs>
-  <div role="tablist" class="flex gap-5 border-b border-[var(--aas-border)]">
+  <div role="tablist" class="flex gap-1.5">
     <button type="button" data-tab="overview" class={tabClass} aria-selected="true">
       {overviewLabel}
     </button>
@@ -53,7 +53,7 @@ const tabClass =
 
 <style>
   .aas-tab[aria-selected='true'] {
-    border-color: var(--aas-accent);
+    background: var(--aas-panel);
     color: var(--aas-text);
   }
 </style>

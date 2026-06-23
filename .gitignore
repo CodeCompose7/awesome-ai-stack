@@ -32,6 +32,7 @@ pnpm-debug.log*
 
 # caches
 .cache/
+.aas-cache/
 .eslintcache
 
 # os

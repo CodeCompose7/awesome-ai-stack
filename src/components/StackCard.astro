@@ -13,12 +13,14 @@ interface Props {
   tags: string[];
   pricing: string[];
   license?: string;
+  language?: string;
   logo?: string;
   repo?: string;
   version?: string;
 }
 
-const { slug, lang, name, description, tags, pricing, license, logo, repo, version } = Astro.props;
+const { slug, lang, name, description, tags, pricing, license, language, logo, repo, version } =
+  Astro.props;
 const href = getRelativeLocaleUrl(lang, `stacks/${slug}/`);
 
 // Live stats from GitHub (build-time), with the manual `version` as fallback.
@@ -45,6 +47,7 @@ const displayVersion = stats?.version ?? version;
     lang={lang}
     pricing={pricing}
     license={license}
+    language={language}
     stars={stats?.stars}
     version={displayVersion}
     released={stats?.releasedAt?.slice(0, 10)}

@@ -9,6 +9,8 @@
  *
  * In CI, set GITHUB_TOKEN to lift the unauthenticated 60 req/hour limit.
  */
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+
 export interface RepoStats {
   stars: number;
   version?: string;
@@ -16,6 +18,25 @@ export interface RepoStats {
 }
 
 const cache = new Map<string, Promise<RepoStats | null>>();
+
+// On-disk fallback so values survive rate-limited builds (e.g. local dev without
+// a token). A successful fetch updates it; a failure falls back to it.
+const CACHE_DIR = '.aas-cache';
+const CACHE_FILE = `${CACHE_DIR}/github.json`;
+let disk: Record<string, RepoStats> = {};
+try {
+  disk = JSON.parse(readFileSync(CACHE_FILE, 'utf8'));
+} catch {
+  /* no cache yet */
+}
+function persist() {
+  try {
+    if (!existsSync(CACHE_DIR)) mkdirSync(CACHE_DIR, { recursive: true });
+    writeFileSync(CACHE_FILE, JSON.stringify(disk));
+  } catch {
+    /* read-only fs — skip */
+  }
+}
 
 function parseRepo(url?: string): { owner: string; repo: string } | null {
   if (!url) return null;
@@ -74,7 +95,19 @@ export function getRepoStats(repoUrl?: string): Promise<RepoStats | null> {
   const slug = parseRepo(repoUrl);
   if (!slug) return Promise.resolve(null);
   const key = `${slug.owner}/${slug.repo}`;
-  if (!cache.has(key)) cache.set(key, fetchStats(slug.owner, slug.repo));
+  if (!cache.has(key)) {
+    cache.set(
+      key,
+      fetchStats(slug.owner, slug.repo).then((stats) => {
+        if (stats) {
+          disk[key] = stats;
+          persist();
+          return stats;
+        }
+        return disk[key] ?? null; // rate-limited/offline → last known value
+      }),
+    );
+  }
   return cache.get(key)!;
 }
 
