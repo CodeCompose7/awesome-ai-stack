@@ -42,13 +42,6 @@ const base = import.meta.env.BASE_URL;
         } catch (e) {}
       })();
     </script>
-    {/* Pre-paint the detail tab when deep-linking to #code, to avoid a flash of
-        the Overview tab on load. JS removes this attribute once it takes over. */}
-    <script is:inline>
-      try {
-        if (location.hash === '#code') document.documentElement.dataset.tabInit = 'code';
-      } catch (e) {}
-    </script>
   </head>
   <body class="min-h-screen">
     <header class="border-b border-[var(--aas-border)]">
@@ -97,5 +90,21 @@ const base = import.meta.env.BASE_URL;
         }
       </p>
     </footer>
+
+    <script>
+      // Clicking a heading's "#" anchor copies that section's URL to the
+      // clipboard (and updates the address bar) instead of just navigating.
+      document.addEventListener('click', (e) => {
+        const anchor = (e.target as HTMLElement).closest<HTMLAnchorElement>('a.aas-anchor');
+        if (!anchor) return;
+        e.preventDefault();
+        const hash = anchor.getAttribute('href') ?? '';
+        const url = location.origin + location.pathname + location.search + hash;
+        history.replaceState(null, '', hash);
+        navigator.clipboard?.writeText(url).catch(() => {});
+        anchor.classList.add('copied');
+        setTimeout(() => anchor.classList.remove('copied'), 1200);
+      });
+    </script>
   </body>
 </html>

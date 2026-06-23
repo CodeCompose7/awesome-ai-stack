@@ -65,7 +65,12 @@ export async function renderSamples(samples: RawSample[]): Promise<RenderedSampl
             headings.push({ slug, text, depth: tk.tag === 'h2' ? 2 : 3 });
           }
         }
-        descHtml = md.renderer.render(tokens, md.options, {});
+        descHtml = md.renderer.render(tokens, md.options, {}).replace(
+          /<(h[23]) id="([^"]+)">([\s\S]*?)<\/\1>/g,
+          (_m, tag, id, inner) =>
+            `<${tag} id="${id}">${inner}` +
+            `<a class="aas-anchor" href="#${id}" aria-label="Copy link to section">#</a></${tag}>`,
+        );
       }
 
       return {

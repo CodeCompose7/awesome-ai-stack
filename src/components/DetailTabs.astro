@@ -25,6 +25,30 @@ const tabClass =
   <div data-panel="code" class="mt-6 hidden">
     <slot name="code" />
   </div>
+
+  {/* Pre-paint: pick the tab from the hash using inline display styles, which
+      apply before the stylesheet loads (so it works in dev too, where Vite
+      injects CSS after first paint). The module script below normalizes this. */}
+  <script is:inline>
+    (function () {
+      var root = document.currentScript.parentElement;
+      var hash = location.hash;
+      var wantCode = hash === '#code';
+      if (!wantCode && hash && hash !== '#overview') {
+        var cp = root.querySelector('[data-panel="code"]');
+        try {
+          if (cp && cp.querySelector(hash)) wantCode = true;
+        } catch (e) {}
+      }
+      if (wantCode) {
+        root.querySelector('[data-panel="overview"]').style.display = 'none';
+        root.querySelector('[data-panel="code"]').style.display = 'block';
+        root.querySelectorAll('[data-tab]').forEach(function (t) {
+          t.setAttribute('aria-selected', String(t.dataset.tab === 'code'));
+        });
+      }
+    })();
+  </script>
 </div>
 
 <style>
@@ -41,7 +65,10 @@ const tabClass =
 
     function show(id: string, updateHash: boolean) {
       tabs.forEach((t) => t.setAttribute('aria-selected', String(t.dataset.tab === id)));
-      panels.forEach((p) => p.classList.toggle('hidden', p.dataset.panel !== id));
+      panels.forEach((p) => {
+        p.style.removeProperty('display'); // clear the pre-paint inline style
+        p.classList.toggle('hidden', p.dataset.panel !== id);
+      });
       document.dispatchEvent(new CustomEvent('aas:tabchange', { detail: { id } }));
       (window as unknown as { __aasRenderMermaid?: () => void }).__aasRenderMermaid?.();
       // replaceState updates the URL without scrolling or stacking history.
@@ -66,12 +93,20 @@ const tabClass =
         /* invalid selector — ignore */
       }
     }
-    if (initial === 'code') {
-      show('code', false);
-      if (raw && raw !== 'code') document.getElementById(raw)?.scrollIntoView();
+    // Normalize to class-based visibility (also clears the pre-paint inline
+    // styles). Run for both tabs so the inline overrides never linger.
+    show(initial, false);
+    if (initial === 'code' && raw && raw !== 'code') {
+      // Sample-heading ids look like `s<index>-...`; select that version first.
+      const m = raw.match(/^s(\d+)-/);
+      if (m) {
+        const sel = document.querySelector<HTMLSelectElement>('[data-sample-select]');
+        if (sel) {
+          sel.value = m[1];
+          sel.dispatchEvent(new Event('change'));
+        }
+      }
+      document.getElementById(raw)?.scrollIntoView();
     }
-    // JS now controls visibility via the `hidden` class; drop the pre-paint
-    // override so tab clicks aren't blocked by it.
-    delete document.documentElement.dataset.tabInit;
   });
 </script>

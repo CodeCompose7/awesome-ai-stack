@@ -4,6 +4,8 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import rehypeExternalLinks from 'rehype-external-links';
+import rehypeSlug from 'rehype-slug';
+import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 
 // Turn ```mermaid fenced blocks into <pre class="mermaid"> (raw, un-highlighted)
 // so the client-side mermaid loader can render them. Runs at the remark stage,
@@ -50,6 +52,17 @@ export default defineConfig({
   markdown: {
     remarkPlugins: [remarkMermaid],
     rehypePlugins: [
+      rehypeSlug,
+      // Append a "#" anchor to each heading; a global click handler copies the
+      // section's URL to the clipboard (see BaseLayout).
+      [
+        rehypeAutolinkHeadings,
+        {
+          behavior: 'append',
+          properties: { className: ['aas-anchor'], 'aria-label': 'Copy link to section' },
+          content: { type: 'text', value: '#' },
+        },
+      ],
       [rehypeExternalLinks, { target: '_blank', rel: ['noopener', 'noreferrer'] }],
     ],
   },
