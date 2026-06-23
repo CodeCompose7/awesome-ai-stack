@@ -167,6 +167,10 @@ const t = useTranslations(lang);
       projOptions.forEach((o) => o.setAttribute('aria-current', String(o === opt)));
       if (projCurrent && opt) projCurrent.textContent = opt.dataset.projectName ?? '';
       projDD?.removeAttribute('open');
+      // Let the rail swap its related-tools block to match the example.
+      document.dispatchEvent(
+        new CustomEvent('aas:project', { detail: { folder: panel.dataset.projectFolder } }),
+      );
       // Switching examples resets to that example's first file.
       selectFile(panel, null, write);
     }

@@ -31,7 +31,24 @@ const stacks = defineCollection({
     pricing: z.array(z.enum(['open-source', 'free-tier', 'paid', 'free'])).default([]),
     deprecated: z.boolean().default(false), // maintenance-only / superseded
     related: z.array(z.string()).default([]), // slugs of related tools (same collection)
-    projects: z.array(z.string()).default([]), // sample project folders under samples/
+    // Sample project folders under samples/. Either a bare folder name, or an
+    // object pairing the folder with the tools that project uses (slugs of other
+    // stacks; unknown slugs render as "not in our catalog").
+    //   projects: [langgraph_1]
+    //   projects:
+    //     - folder: langgraph_1
+    //       related: [langgraph, langchain]
+    projects: z
+      .array(
+        z.union([
+          z.string(),
+          z.object({
+            folder: z.string(),
+            related: z.array(z.string()).default([]),
+          }),
+        ]),
+      )
+      .default([]),
 
 
 

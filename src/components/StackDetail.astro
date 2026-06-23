@@ -3,7 +3,7 @@ import { render } from 'astro:content';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { categoryMap } from '../data/categories';
 import { useTranslations, type Lang } from '../i18n/ui';
-import { slugOf, type StackEntry } from '../lib/stacks';
+import { getStacks, slugOf, type StackEntry } from '../lib/stacks';
 import { getArticlesForTool, articleSlugOf } from '../lib/articles';
 import ToolAvatar from './ToolAvatar.astro';
 import ToolMeta from './ToolMeta.astro';
@@ -12,6 +12,7 @@ import CodeSamples from './CodeSamples.astro';
 import MermaidLoader from './MermaidLoader.astro';
 import RelatedTools from './RelatedTools.astro';
 import ProjectViewer from './ProjectViewer.astro';
+import ProjectRelatedTools, { type RelatedTool } from './ProjectRelatedTools.astro';
 import Toc from './Toc.astro';
 import { getRepoStats } from '../lib/github';
 import { renderSamples } from '../lib/samples';
@@ -47,10 +48,37 @@ const links = [
 const hasSamples = data.samples.length > 0;
 const renderedSamples = hasSamples ? await renderSamples(data.samples) : [];
 
-// Real runnable mini-projects (samples/<folder>/) listed in frontmatter.
-const projects = data.projects.length ? await renderProjects(data.projects) : [];
+// Real runnable mini-projects (samples/<folder>/) listed in frontmatter. Each
+// entry is a bare folder name or { folder, related: [slugs] }; normalize both.
+const projectSpecs = data.projects.map((p) =>
+  typeof p === 'string' ? { folder: p, related: [] as string[] } : { folder: p.folder, related: p.related },
+);
+const projects = projectSpecs.length ? await renderProjects(projectSpecs.map((p) => p.folder)) : [];
 const hasProject = projects.length > 0;
 const hasTabs = hasSamples || hasProject;
+
+// Resolve each project's related tool slugs against the stacks collection. A
+// known slug links to its page; an unknown one shows as "not in our catalog".
+const relatedByFolder = new Map(projectSpecs.map((p) => [p.folder, p.related]));
+const allStacks = hasProject ? await getStacks(lang) : [];
+const stackBySlug = new Map(allStacks.map((s) => [slugOf(s), s]));
+function resolveTool(slug: string): RelatedTool {
+  const e = stackBySlug.get(slug);
+  if (!e) return { slug, name: slug, registered: false };
+  return {
+    slug,
+    name: e.data.name,
+    registered: true,
+    logo: e.data.logo,
+    category: e.data.category,
+    deprecated: e.data.deprecated,
+  };
+}
+const projectRelated = projects.map((p) => ({
+  folder: p.folder,
+  tools: (relatedByFolder.get(p.folder) ?? []).map(resolveTool),
+}));
+const hasProjectRelated = projectRelated.some((p) => p.tools.length > 0);
 ---
 
 <a href={getRelativeLocaleUrl(lang, '')} class="text-sm text-[var(--aas-accent)] no-underline"
@@ -161,6 +189,17 @@ const hasTabs = hasSamples || hasProject;
         </div>
       )
     }
+    {
+      hasProjectRelated && (
+        <div data-toc="impl" class="hidden">
+          {projectRelated.map((pr, i) => (
+            <div data-project-related={pr.folder} class:list={[i === 0 ? '' : 'hidden']}>
+              <ProjectRelatedTools lang={lang} tools={pr.tools} />
+            </div>
+          ))}
+        </div>
+      )
+    }
   </div>
   <button type="button" class="aas-toc-top" data-back-to-top>↑ {t('top.label')}</button>
 </aside>
@@ -198,6 +237,21 @@ const hasTabs = hasSamples || hasProject;
 
   const active = document.querySelector<HTMLElement>('[data-tab][aria-selected="true"]');
   if (active?.dataset.tab) syncToc(active.dataset.tab);
+
+  // Impl tab: the rail's related-tools block depends on the selected example.
+  const syncProjectRelated = (folder: string) =>
+    rail
+      ?.querySelectorAll<HTMLElement>('[data-project-related]')
+      .forEach((b) => b.classList.toggle('hidden', b.dataset.projectRelated !== folder));
+
+  document.addEventListener('aas:project', (e) => {
+    syncProjectRelated((e as CustomEvent<{ folder: string }>).detail.folder);
+    spy();
+  });
+
+  // Initial example (ProjectViewer may have restored one from the URL already).
+  const activeProj = document.querySelector<HTMLElement>('[data-project-panel]:not(.hidden)');
+  if (activeProj?.dataset.projectFolder) syncProjectRelated(activeProj.dataset.projectFolder);
 
   // Code tab: show the selected version's internal headings (CodeSamples emits
   // `aas:sample` when the version changes).
