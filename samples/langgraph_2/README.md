@@ -50,20 +50,20 @@ docker run --rm --env-file .env aas-langgraph2 \
   "How many times does the letter r appear in strawberry? Show it uppercased."
 ```
 
-> **Blank output (exits 0, no error)?** In some nested-Docker setups (e.g. a
-> docker-in-docker dev container), the process gets hard-killed the moment
-> `litellm` is imported *while a client is attached to the container's stdio* —
-> so the foreground `docker run` above prints nothing yet exits 0. It is **not**
-> a memory problem (the container is not OOM-killed). Run **detached** and read
-> the logs instead:
->
-> ```bash
-> cid=$(docker run -d --env-file .env aas-langgraph2 \
->   "How many times does the letter r appear in strawberry? Show it uppercased.")
-> docker logs -f "$cid"
-> ```
->
-> Or just run locally (below).
+## Run with Docker (in a devcontainer with DooD)
+
+In a dev container that talks to the host Docker daemon (Docker-outside-of-Docker),
+the foreground `docker run` above prints nothing and exits 0 — the process is
+hard-killed as `litellm` is imported while a client is attached to the
+container's stdio (it is **not** an OOM, and no flag, `setsid`, or in-container
+redirect avoids it). Run **detached** and follow the logs instead:
+
+```bash
+cd samples/langgraph_2
+docker build -t aas-langgraph2 .
+docker logs -f "$(docker run -d --env-file .env aas-langgraph2 \
+  "How many times does the letter r appear in strawberry? Show it uppercased.")"
+```
 
 ## Run locally
 
