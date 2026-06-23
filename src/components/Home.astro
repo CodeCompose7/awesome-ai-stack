@@ -1,5 +1,6 @@
 ---
 import StackCard from './StackCard.astro';
+import ChevronDown from './ChevronDown.astro';
 import { categories } from '../data/categories';
 import { getStacks, slugOf } from '../lib/stacks';
 import { useTranslations, pricingLabels, type Lang } from '../i18n/ui';
@@ -85,9 +86,7 @@ const menuClass =
           <summary class={summaryClass}>
             {f.label}
             <span data-facet-count={f.key} hidden class="aas-pricing rounded px-1.5 text-xs" />
-            <span aria-hidden="true" class="text-[var(--aas-muted)]">
-              ▾
-            </span>
+            <ChevronDown class="text-[var(--aas-muted)]" />
           </summary>
           <ul class={menuClass}>
             {f.options.map((o) => (
@@ -107,7 +106,7 @@ const menuClass =
       <summary class={summaryClass}>
         <span class="text-[var(--aas-muted)]">{t('sort.label')}:</span>
         <span data-sort-label>{sortOptions[0].label}</span>
-        <span aria-hidden="true" class="text-[var(--aas-muted)]">▾</span>
+        <ChevronDown class="text-[var(--aas-muted)]" />
       </summary>
       <ul class={menuClass}>
         {

@@ -1,5 +1,6 @@
 ---
 import { useTranslations, type Lang } from '../i18n/ui';
+import ChevronDown from './ChevronDown.astro';
 import type { RenderedSample } from '../lib/samples';
 
 interface Props {
@@ -19,7 +20,7 @@ const t = useTranslations(lang);
         class="flex cursor-pointer list-none items-center gap-2 rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] px-3 py-1.5 text-[var(--aas-text)] select-none"
       >
         <span data-sample-current>{samples[0]?.version}</span>
-        <span aria-hidden="true" class="text-[var(--aas-muted)]">▾</span>
+        <ChevronDown class="text-[var(--aas-muted)]" />
       </summary>
       <ul
         class="absolute left-0 z-10 mt-1 min-w-[13rem] overflow-hidden rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] py-1 shadow-lg"

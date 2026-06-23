@@ -1,5 +1,6 @@
 ---
 import { getRelativeLocaleUrl } from 'astro:i18n';
+import ChevronDown from './ChevronDown.astro';
 import { languages, type Lang } from '../i18n/ui';
 
 interface Props {
@@ -17,7 +18,7 @@ const codes = Object.keys(languages) as Lang[];
     class="flex cursor-pointer list-none items-center gap-1 rounded-lg border border-[var(--aas-border)] px-2.5 py-1 text-[var(--aas-text)] select-none"
   >
     {languages[lang]}
-    <span aria-hidden="true" class="text-[var(--aas-muted)]">▾</span>
+    <ChevronDown class="text-[var(--aas-muted)]" />
   </summary>
   <ul
     class="absolute right-0 z-10 mt-1 min-w-[8rem] overflow-hidden rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] py-1 shadow-lg"

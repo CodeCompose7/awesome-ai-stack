@@ -1,5 +1,6 @@
 ---
 import { useTranslations, type Lang } from '../i18n/ui';
+import ChevronDown from './ChevronDown.astro';
 
 interface Props {
   lang: Lang;
@@ -22,7 +23,7 @@ const options = [
     title={t('theme.label')}
   >
     <span data-theme-icon aria-hidden="true">☀</span>
-    <span aria-hidden="true" class="text-[var(--aas-muted)]">▾</span>
+    <ChevronDown class="text-[var(--aas-muted)]" />
   </summary>
   <ul
     class="absolute right-0 z-10 mt-1 min-w-[8rem] overflow-hidden rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] py-1 shadow-lg"
