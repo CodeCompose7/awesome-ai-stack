@@ -1,0 +1,44 @@
+---
+name: OpenHands
+logo: /logos/openhands.svg
+category: coding-agents
+description: Open-source platform for autonomous AI software developers that edit code, run commands, and browse the web.
+website: https://www.all-hands.dev
+repo: https://github.com/All-Hands-AI/OpenHands
+docs: https://docs.all-hands.dev
+tags: [autonomous, software-engineering, sandbox, python]
+language: Python
+license: MIT
+pricing: [open-source]
+featured: true
+---
+
+## Overview
+
+OpenHands (formerly OpenDevin) runs an AI agent that works like a developer:
+it writes and edits code, executes shell commands in a sandboxed runtime,
+browses the web, and iterates until a task is done. You give it a goal and a
+repo; it does the multi-step work and shows you the diff.
+
+## Sample: run the agent against a model
+
+The quickest start is the published Docker image. Point it at any model
+(OpenHands talks to providers through LiteLLM-style model names):
+
+```bash
+docker run -it --rm --pull=always \
+  -e SANDBOX_RUNTIME_CONTAINER_IMAGE=docker.all-hands.dev/all-hands-ai/runtime:latest \
+  -e LLM_MODEL="anthropic/claude-opus-4-8" \
+  -e LLM_API_KEY="$ANTHROPIC_API_KEY" \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -p 3000:3000 \
+  docker.all-hands.dev/all-hands-ai/openhands:latest
+```
+
+Then open `http://localhost:3000` and describe the task. There is also a
+headless/CLI mode (`pip install openhands-ai` → `openhands`) for scripting.
+
+## When to use it
+
+Choose OpenHands when you want a full autonomous coding loop with a real
+sandboxed environment (not just file edits) and a UI to supervise the agent.

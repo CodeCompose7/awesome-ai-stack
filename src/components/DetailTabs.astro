@@ -1,0 +1,139 @@
+---
+interface Props {
+  overviewLabel: string;
+  codeLabel?: string;
+  implLabel?: string;
+}
+
+const { overviewLabel, codeLabel, implLabel } = Astro.props;
+const tabClass =
+  'aas-tab cursor-pointer rounded-lg px-3 py-1.5 text-sm font-medium text-[var(--aas-muted)] hover:text-[var(--aas-text)]';
+---
+
+<div data-tabs>
+  <div role="tablist" class="inline-flex gap-1 rounded-xl bg-[var(--aas-tint)] p-1">
+    <button type="button" data-tab="overview" class={tabClass} aria-selected="true">
+      {overviewLabel}
+    </button>
+    {
+      codeLabel && (
+        <button type="button" data-tab="code" class={tabClass} aria-selected="false">
+          {codeLabel}
+        </button>
+      )
+    }
+    {
+      implLabel && (
+        <button type="button" data-tab="impl" class={tabClass} aria-selected="false">
+          {implLabel}
+        </button>
+      )
+    }
+  </div>
+
+  <div data-panel="overview" class="mt-6">
+    <slot name="overview" />
+  </div>
+  {
+    codeLabel && (
+      <div data-panel="code" class="mt-6 hidden">
+        <slot name="code" />
+      </div>
+    )
+  }
+  {
+    implLabel && (
+      <div data-panel="impl" class="mt-6 hidden">
+        <slot name="impl" />
+      </div>
+    )
+  }
+
+  {/* Pre-paint: pick the tab from the hash using inline display styles, which
+      apply before the stylesheet loads (so it works in dev too). */}
+  <script is:inline>
+    (function () {
+      var root = document.currentScript.parentElement;
+      var hash = decodeURIComponent(location.hash.slice(1));
+      if (!hash || hash === 'overview') return;
+      var panels = root.querySelectorAll('[data-panel]');
+      var target = null;
+      root.querySelectorAll('[data-tab]').forEach(function (t) {
+        if (t.dataset.tab === hash) target = hash;
+      });
+      if (!target) {
+        panels.forEach(function (p) {
+          if (target) return;
+          try {
+            var esc = window.CSS && CSS.escape ? CSS.escape(hash) : hash;
+            if (p.querySelector('#' + esc)) target = p.dataset.panel;
+          } catch (e) {}
+        });
+      }
+      if (!target || target === 'overview') return;
+      panels.forEach(function (p) {
+        p.style.display = p.dataset.panel === target ? 'block' : 'none';
+      });
+      root.querySelectorAll('[data-tab]').forEach(function (t) {
+        t.setAttribute('aria-selected', String(t.dataset.tab === target));
+      });
+    })();
+  </script>
+</div>
+
+<style>
+  .aas-tab[aria-selected='true'] {
+    background: var(--aas-panel);
+    color: var(--aas-text);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-tabs]').forEach((root) => {
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-tab]'));
+    const panels = Array.from(root.querySelectorAll<HTMLElement>('[data-panel]'));
+    const tabIds = tabs.map((t) => t.dataset.tab);
+
+    function show(id: string, updateHash: boolean) {
+      tabs.forEach((t) => t.setAttribute('aria-selected', String(t.dataset.tab === id)));
+      panels.forEach((p) => {
+        p.style.removeProperty('display'); // clear the pre-paint inline style
+        p.classList.toggle('hidden', p.dataset.panel !== id);
+      });
+      document.dispatchEvent(new CustomEvent('aas:tabchange', { detail: { id } }));
+      (window as unknown as { __aasRenderMermaid?: () => void }).__aasRenderMermaid?.();
+      if (updateHash) history.replaceState(null, '', '#' + id);
+    }
+
+    tabs.forEach((tab) => tab.addEventListener('click', () => show(tab.dataset.tab!, true)));
+
+    // Restore the tab from the URL hash: a tab id, or a hash pointing at an
+    // element inside a panel (e.g. a sample heading). Everything else → Overview.
+    const raw = decodeURIComponent(location.hash.slice(1));
+    let initial = 'overview';
+    if (tabIds.includes(raw)) {
+      initial = raw;
+    } else if (raw) {
+      for (const p of panels) {
+        const esc = window.CSS && CSS.escape ? CSS.escape(raw) : raw;
+        try {
+          if (p.querySelector('#' + esc)) {
+            initial = p.dataset.panel!;
+            break;
+          }
+        } catch {
+          /* invalid selector — ignore */
+        }
+      }
+    }
+    show(initial, false);
+    if (initial !== 'overview' && raw && !tabIds.includes(raw)) {
+      const m = raw.match(/^s(\d+)-/);
+      if (m) {
+        document.dispatchEvent(new CustomEvent('aas:select-sample', { detail: { index: Number(m[1]) } }));
+      }
+      document.getElementById(raw)?.scrollIntoView();
+    }
+  });
+</script>

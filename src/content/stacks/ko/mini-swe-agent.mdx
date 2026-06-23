@@ -1,0 +1,42 @@
+---
+name: mini-SWE-agent
+logo: /logos/mini-swe-agent.svg
+category: coding-agents
+description: SWE-agent의 미니멀 후속작 — 약 100줄 코어로 GitHub 이슈를 자율 해결하며, 성능은 동등하지만 훨씬 단순합니다.
+website: https://mini-swe-agent.com
+repo: https://github.com/SWE-agent/mini-swe-agent
+docs: https://mini-swe-agent.com/latest/
+tags: [github-issues, swe-bench, autonomous, python]
+language: Python
+license: MIT
+pricing: [open-source]
+related: [swe-agent]
+featured: true
+---
+
+## 개요
+
+mini-SWE-agent는 [SWE-agent](../swe-agent/)의 간결한 후속작입니다. 모델이
+코드를 읽고 편집하고 실행해 GitHub 이슈를 고친다는 핵심 아이디어는 그대로지만,
+에이전트 루프를 약 **100줄**로 줄였습니다 — 특수 도구 없이 셸 명령만 사용합니다.
+읽고, 고치고, 배포하기가 더 쉬우면서 SWE-bench에서도 경쟁력을 유지합니다.
+
+## 샘플: 작업 실행
+
+```bash
+pip install mini-swe-agent
+
+# 현재 저장소에서 대화형 실행:
+mini
+
+# 또는 일회성 작업과 모델 지정:
+mini -m claude-opus-4-8 -t "Fix the failing test in tests/test_parser.py"
+```
+
+에이전트가 셸 명령을 제안해 사용자의 환경에서 실행하고, 작업이 끝날 때까지
+반복합니다.
+
+## 언제 쓰면 좋은가
+
+새 작업에는 SWE-agent보다 mini-SWE-agent를 선택하세요 — 활발히 개발되는
+쪽이고, 작은 코어 덕분에 이해하고 커스터마이즈하기 쉽습니다.

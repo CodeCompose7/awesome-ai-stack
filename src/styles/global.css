@@ -1,0 +1,345 @@
+@import "tailwindcss";
+
+/* Light is the default; `data-theme="dark"` (set by the inline script in
+   BaseLayout) switches to dark. The @media block covers no-JS users whose
+   system prefers dark before any explicit choice is stored. */
+:root {
+  color-scheme: light;
+  --aas-bg: #fafafa;
+  --aas-panel: #fdfdfd;
+  --aas-border: #e7e7ea;
+  --aas-text: #2b2b31;
+  --aas-muted: #76767e;
+  --aas-accent: #5f63c4;
+  --aas-shadow: 0 8px 24px -10px rgb(20 20 40 / 0.22);
+  /* Interactive-surface tint (hover/active). Text-derived so it has real
+     contrast on any background even when --aas-panel is near-white. Defined
+     once; the var(--aas-text) inside resolves per theme. */
+  --aas-tint: color-mix(in srgb, var(--aas-text) 7%, transparent);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --aas-bg: #0c0d11;
+  --aas-panel: #1a1b21;
+  --aas-border: #25262e;
+  --aas-text: #e2e3e8;
+  --aas-muted: #989aa4;
+  --aas-accent: #9398f0;
+  --aas-shadow: 0 8px 24px -8px rgb(0 0 0 / 0.6);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --aas-bg: #0c0d11;
+    --aas-panel: #1a1b21;
+    --aas-border: #25262e;
+    --aas-text: #e2e3e8;
+    --aas-muted: #989aa4;
+    --aas-accent: #9398f0;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--aas-bg);
+  color: var(--aas-text);
+}
+
+/* Neutral chip surface — a subtle tint that reads on any background (page or
+   the panel-colored cards), so no outline is needed. */
+.aas-chip {
+  background: color-mix(in srgb, var(--aas-text) 2.5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--aas-text) 7%, transparent);
+  color: var(--aas-muted);
+}
+/* Deprecated / maintenance-only badge — amber warning surface. */
+.aas-deprecated {
+  background: color-mix(in srgb, #d97706 16%, transparent);
+  border: 1px solid color-mix(in srgb, #d97706 35%, transparent);
+  color: #b45309;
+}
+:root[data-theme='dark'] .aas-deprecated {
+  color: #fbbf24;
+}
+/* Pricing chip: a soft accent-tinted surface with a faint accent outline. */
+.aas-pricing {
+  background: color-mix(in srgb, var(--aas-accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--aas-accent) 28%, transparent);
+  color: var(--aas-accent);
+}
+
+/* Subtle "lift + shadow" on hover for cards and button-like elements. */
+.aas-lift {
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease,
+    border-color 0.16s ease;
+}
+.aas-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--aas-shadow);
+}
+@media (prefers-reduced-motion: reduce) {
+  .aas-lift:hover {
+    transform: none;
+  }
+}
+
+/* Fixed right-rail TOC: out of the content flow, parked in the right margin.
+   Only shown on wide screens where it won't overlap the centered content. A
+   flex column so a long TOC scrolls internally while the back-to-top button
+   stays pinned at the bottom. */
+.aas-toc-rail {
+  display: none;
+}
+@media (min-width: 1536px) {
+  .aas-toc-rail {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 7rem;
+    right: max(1.5rem, calc((100vw - 64rem) / 2 - 15rem));
+    width: 13rem;
+    max-height: calc(100vh - 9rem);
+  }
+}
+.aas-toc-scroll {
+  min-height: 0; /* allow this flex child to shrink so it can scroll */
+  overflow-y: auto;
+}
+.aas-toc-rail a[aria-current='true'] {
+  background: var(--aas-tint);
+  color: var(--aas-text);
+}
+
+/* "Back to top" pinned at the bottom of the TOC rail (surface row, no divider). */
+.aas-toc-top {
+  flex-shrink: 0;
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.625rem;
+  border-radius: 0.375rem;
+  text-align: left;
+  font-size: 0.8rem;
+  color: var(--aas-muted);
+  background: none;
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    background-color 0.15s;
+}
+.aas-toc-top:hover {
+  background: var(--aas-tint);
+  color: var(--aas-text);
+}
+
+/* "#" copy-link anchor prepended to headings (h2/h3). Faint by default, fully
+   shown on hover/focus. `a.aas-anchor` outranks `.prose :where(a)` so it keeps
+   no underline / muted color. Click copies the section URL (see BaseLayout). */
+a.aas-anchor {
+  position: relative;
+  margin-right: 0.4rem;
+  font-weight: 400;
+  color: var(--aas-muted);
+  text-decoration: none;
+  opacity: 0.25;
+  transition:
+    opacity 0.15s,
+    color 0.15s;
+}
+a.aas-anchor::before {
+  content: '#';
+}
+:where(h2, h3):hover > a.aas-anchor,
+a.aas-anchor:hover,
+a.aas-anchor:focus {
+  opacity: 1;
+  color: var(--aas-accent);
+}
+a.aas-anchor.copied {
+  opacity: 1;
+}
+a.aas-anchor.copied::after {
+  content: 'Copied';
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 0.3rem;
+  padding: 0.05rem 0.4rem;
+  white-space: nowrap;
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: var(--aas-accent);
+  border: 1px solid var(--aas-border);
+  border-radius: 0.3rem;
+  background: var(--aas-panel);
+}
+
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Tailwind v4 no longer sets a pointer cursor on buttons; restore it (and for
+   <summary>, used by the custom dropdowns). */
+button:not(:disabled),
+summary {
+  cursor: pointer;
+}
+
+/* Make the `hidden` attribute win over display:flex/grid (used by the homepage
+   search/filter to hide cards and sections). */
+[hidden] {
+  display: none !important;
+}
+
+/* Generic <details> dropdown used by the homepage filter/sort controls. */
+.aas-dd {
+  position: relative;
+}
+.aas-dd > summary {
+  list-style: none;
+}
+.aas-dd > summary::-webkit-details-marker {
+  display: none;
+}
+.aas-dd [data-sort][aria-current='true'] [data-check] {
+  opacity: 1;
+}
+
+/* Custom checkbox (filter facets). */
+.aas-check {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+  border: 1.5px solid var(--aas-border);
+  border-radius: 0.35rem;
+  background: var(--aas-panel);
+  cursor: pointer;
+  transition:
+    background-color 0.12s,
+    border-color 0.12s;
+}
+.aas-check:hover {
+  border-color: var(--aas-accent);
+}
+.aas-check:checked {
+  background: var(--aas-accent);
+  border-color: var(--aas-accent);
+}
+.aas-check::after {
+  content: '';
+  position: absolute;
+  left: 0.34rem;
+  top: 0.14rem;
+  width: 0.3rem;
+  height: 0.55rem;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform 0.12s;
+}
+.aas-check:checked::after {
+  transform: rotate(45deg) scale(1);
+}
+
+/* Readable defaults for rendered Markdown bodies. */
+.prose :where(h1) {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 1.5rem 0 0.75rem;
+  scroll-margin-top: 1.5rem;
+}
+.prose :where(h1):first-child {
+  margin-top: 0;
+}
+.prose :where(h2) {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 2rem 0 0.75rem;
+  scroll-margin-top: 1.5rem; /* so TOC anchor jumps don't clip the heading */
+}
+.prose :where(h3) {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.5rem;
+  scroll-margin-top: 1.5rem;
+}
+.prose :where(p, ul, ol) {
+  margin: 0.75rem 0;
+  line-height: 1.7;
+  color: var(--aas-text);
+}
+.prose :where(ul) {
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+.prose :where(a) {
+  color: var(--aas-accent);
+  text-decoration: underline;
+}
+.prose :where(code):not(pre code) {
+  background: var(--aas-panel);
+  border: 1px solid var(--aas-border);
+  border-radius: 0.3rem;
+  padding: 0.1rem 0.35rem;
+  font-size: 0.85em;
+}
+/* Code blocks — but not Mermaid diagrams, which carry their own background. */
+.prose :where(pre:not(.mermaid)) {
+  background: #0e1117 !important;
+  border: 1px solid var(--aas-border);
+  border-radius: 0.6rem;
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+/* Mermaid diagram container. The styled wrapper is a div we own, so the
+   border/radius survive Mermaid replacing the inner <pre> with an <svg>. */
+.aas-diagram {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: transparent;
+  border: 1px solid var(--aas-border);
+  border-radius: 0.6rem;
+  overflow: hidden;
+}
+.aas-diagram .mermaid {
+  margin: 0;
+  background: transparent;
+  text-align: center;
+  line-height: 0; /* avoid extra space from the raw source before render */
+}
+/* Mermaid renders a block <svg>; center it horizontally. */
+.aas-diagram .mermaid svg {
+  display: block;
+  margin-inline: auto;
+}
+
+
+/* Markdown tables — without these, columns collapse together. */
+.prose :where(table) {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+  font-size: 0.92rem;
+  display: block;
+  overflow-x: auto;
+}
+.prose :where(th, td) {
+  border: 1px solid var(--aas-border);
+  padding: 0.55rem 0.85rem;
+  text-align: left;
+  vertical-align: top;
+}
+.prose :where(thead th) {
+  background: var(--aas-panel);
+  font-weight: 600;
+}
+.prose :where(tbody tr:nth-child(even)) {
+  background: color-mix(in srgb, var(--aas-panel) 45%, transparent);
+}

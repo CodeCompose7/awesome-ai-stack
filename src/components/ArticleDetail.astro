@@ -1,0 +1,62 @@
+---
+import { render } from 'astro:content';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { getStacks, slugOf } from '../lib/stacks';
+import { useTranslations, type Lang } from '../i18n/ui';
+import type { ArticleEntry } from '../lib/articles';
+
+interface Props {
+  entry: ArticleEntry;
+  lang: Lang;
+}
+
+const { entry, lang } = Astro.props;
+const t = useTranslations(lang);
+const { Content } = await render(entry);
+const data = entry.data;
+const dateStr = data.date.toISOString().slice(0, 10);
+
+// Forward links: resolve referenced tool slugs to their localized name + url.
+const stacks = await getStacks(lang);
+const nameBySlug = new Map(stacks.map((s) => [slugOf(s), s.data.name]));
+const referenced = data.tools
+  .filter((slug) => nameBySlug.has(slug))
+  .map((slug) => ({
+    name: nameBySlug.get(slug)!,
+    href: getRelativeLocaleUrl(lang, `stacks/${slug}/`),
+  }));
+---
+
+<a href={getRelativeLocaleUrl(lang, 'blog/')} class="text-sm text-[var(--aas-accent)] no-underline"
+  >&larr; {t('article.backToBlog')}</a
+>
+
+<header class="mt-4 border-b border-[var(--aas-border)] pb-6">
+  <time datetime={dateStr} class="text-sm text-[var(--aas-muted)]">{dateStr}</time>
+  <h1 class="mt-1 text-3xl font-bold tracking-tight">{data.title}</h1>
+  <p class="mt-2 max-w-2xl text-lg text-[var(--aas-muted)]">{data.description}</p>
+
+  {
+    referenced.length > 0 && (
+      <div class="mt-4">
+        <span class="text-xs tracking-wide text-[var(--aas-muted)] uppercase">
+          {t('article.referencedTools')}
+        </span>
+        <div class="mt-2 flex flex-wrap gap-2">
+          {referenced.map((tool) => (
+            <a
+              href={tool.href}
+              class="aas-lift rounded-lg border border-[var(--aas-border)] px-3 py-1.5 text-sm text-[var(--aas-accent)] no-underline"
+            >
+              {tool.name}
+            </a>
+          ))}
+        </div>
+      </div>
+    )
+  }
+</header>
+
+<article class="prose mt-8 max-w-none">
+  <Content />
+</article>

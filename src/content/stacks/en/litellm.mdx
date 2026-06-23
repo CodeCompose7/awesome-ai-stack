@@ -1,0 +1,45 @@
+---
+name: LiteLLM
+logo: 🚅
+category: llm-providers
+description: Call 100+ LLM APIs through one OpenAI-style interface, plus a proxy with routing, fallbacks, and cost tracking.
+website: https://litellm.ai
+repo: https://github.com/BerriAI/litellm
+docs: https://docs.litellm.ai
+tags: [gateway, multi-provider, proxy, python]
+language: Python
+license: MIT
+pricing: [open-source]
+featured: true
+---
+
+## Overview
+
+LiteLLM is a thin abstraction over many model providers (Anthropic, OpenAI,
+Bedrock, Vertex, local models, …) exposing a single OpenAI-compatible call.
+Beyond the SDK, its **proxy server** acts as an LLM gateway: load balancing,
+automatic fallbacks, retries, budgets, and per-key cost tracking — so agents
+can swap models without code changes.
+
+## Sample: one interface, any provider
+
+```python
+from litellm import completion
+import os
+
+os.environ["ANTHROPIC_API_KEY"] = "sk-ant-..."
+
+resp = completion(
+    model="anthropic/claude-opus-4-8",
+    messages=[{"role": "user", "content": "Summarize litellm in one line."}],
+)
+print(resp.choices[0].message.content)
+
+# Switch providers by changing only the model string, e.g.:
+#   model="openai/gpt-4o"  or  model="bedrock/anthropic.claude-3-5-sonnet"
+```
+
+## When to use it
+
+Use LiteLLM when an agent must stay provider-agnostic, needs fallbacks across
+models, or when you want a central gateway to enforce budgets and track spend.

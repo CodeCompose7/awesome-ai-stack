@@ -1,0 +1,53 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import ChevronDown from './ChevronDown.astro';
+import { languages, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  /** Locale-relative path of the current page, e.g. '' or 'stacks/litellm/'. */
+  path: string;
+}
+
+const { lang, path } = Astro.props;
+const codes = Object.keys(languages) as Lang[];
+---
+
+<details class="aas-lang">
+  <summary
+    class="flex cursor-pointer list-none items-center gap-1 rounded-lg border border-[var(--aas-border)] px-2.5 py-1 text-[var(--aas-text)] select-none"
+  >
+    {languages[lang]}
+    <ChevronDown class="text-[var(--aas-muted)]" />
+  </summary>
+  <ul
+    class="absolute right-0 z-10 mt-1 min-w-[8rem] overflow-hidden rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] py-1 shadow-lg"
+  >
+    {
+      codes.map((code) => (
+        <li>
+          <a
+            href={getRelativeLocaleUrl(code, path)}
+            class:list={[
+              'block px-3 py-1.5 no-underline hover:bg-[var(--aas-bg)]',
+              code === lang ? 'font-semibold text-[var(--aas-text)]' : 'text-[var(--aas-muted)]',
+            ]}
+            aria-current={code === lang ? 'true' : undefined}
+          >
+            {languages[code]}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</details>
+
+<style>
+  /* Lightweight, JS-free dropdown built on <details>. */
+  .aas-lang {
+    position: relative;
+  }
+  .aas-lang > summary::-webkit-details-marker {
+    display: none;
+  }
+</style>
