@@ -15,7 +15,7 @@ import ProjectViewer from './ProjectViewer.astro';
 import Toc from './Toc.astro';
 import { getRepoStats } from '../lib/github';
 import { renderSamples } from '../lib/samples';
-import { getProject } from '../lib/project';
+import { renderProjects } from '../lib/project';
 
 interface Props {
   entry: StackEntry;
@@ -47,10 +47,10 @@ const links = [
 const hasSamples = data.samples.length > 0;
 const renderedSamples = hasSamples ? await renderSamples(data.samples) : [];
 
-// A real runnable mini-project under samples/<slug>/, if present.
-const slug = slugOf(entry);
-const project = getProject(slug);
-const hasTabs = hasSamples || project !== null;
+// Real runnable mini-projects (samples/<folder>/) listed in frontmatter.
+const projects = data.projects.length ? await renderProjects(data.projects) : [];
+const hasProject = projects.length > 0;
+const hasTabs = hasSamples || hasProject;
 ---
 
 <a href={getRelativeLocaleUrl(lang, '')} class="text-sm text-[var(--aas-accent)] no-underline"
@@ -119,7 +119,7 @@ const hasTabs = hasSamples || project !== null;
       <DetailTabs
         overviewLabel={t('tab.overview')}
         codeLabel={hasSamples ? t('tab.code') : undefined}
-        implLabel={project ? t('tab.impl') : undefined}
+        implLabel={hasProject ? t('tab.impl') : undefined}
       >
         <article slot="overview" class="prose max-w-none">
           <Content />
@@ -129,9 +129,9 @@ const hasTabs = hasSamples || project !== null;
             <CodeSamples samples={renderedSamples} lang={lang} />
           </div>
         )}
-        {project && (
+        {hasProject && (
           <div slot="impl">
-            <ProjectViewer lang={lang} slug={slug} files={project} />
+            <ProjectViewer lang={lang} projects={projects} />
           </div>
         )}
       </DetailTabs>

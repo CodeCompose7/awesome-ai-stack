@@ -31,6 +31,8 @@ const stacks = defineCollection({
     pricing: z.array(z.enum(['open-source', 'free-tier', 'paid', 'free'])).default([]),
     deprecated: z.boolean().default(false), // maintenance-only / superseded
     related: z.array(z.string()).default([]), // slugs of related tools (same collection)
+    projects: z.array(z.string()).default([]), // sample project folders under samples/
+
 
 
     // Versioned code samples for the "Code" tab. Each can carry a Mermaid

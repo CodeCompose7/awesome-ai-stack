@@ -1,62 +1,156 @@
 ---
-import { codeToHtml } from 'shiki';
 import { useTranslations, type Lang } from '../i18n/ui';
-import type { ProjectFile } from '../lib/project';
+import type { RenderedProject } from '../lib/project';
+import ChevronDown from './ChevronDown.astro';
 
 interface Props {
   lang: Lang;
-  slug: string;
-  files: ProjectFile[];
+  projects: RenderedProject[];
 }
 
-const { lang, slug, files } = Astro.props;
+const { lang, projects } = Astro.props;
 const t = useTranslations(lang);
-const folderUrl = `https://github.com/codecompose7/awesome-agent-stack/tree/main/samples/${slug}`;
-
-const rendered = await Promise.all(
-  files.map(async (f) => {
-    let html: string;
-    try {
-      html = await codeToHtml(f.content, { lang: f.lang, theme: 'github-dark' });
-    } catch {
-      html = await codeToHtml(f.content, { lang: 'text', theme: 'github-dark' });
-    }
-    return { ...f, html };
-  }),
-);
 ---
 
-<div>
-  <div class="flex flex-wrap items-center justify-between gap-3">
-    <p class="text-sm text-[var(--aas-muted)]">{t('project.intro')}</p>
-    <a
-      href={folderUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      class="aas-lift rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] px-3 py-1.5 text-sm text-[var(--aas-text)] no-underline"
-    >
-      {t('project.viewOnGitHub')} <span class="text-[var(--aas-muted)]">&nearr;</span>
-    </a>
-  </div>
+<div data-projects>
+  {/* Example selector (only when there are multiple) */}
+  {
+    projects.length > 1 && (
+      <div class="flex items-center gap-2 text-sm text-[var(--aas-muted)]">
+        {t('project.example')}
+        <details class="aas-vdd" data-project-dd>
+          <summary class="flex cursor-pointer list-none items-center gap-2 rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] px-3 py-1.5 text-[var(--aas-text)] select-none">
+            <span data-project-current>{projects[0].name}</span>
+            <ChevronDown class="text-[var(--aas-muted)]" />
+          </summary>
+          <ul class="absolute left-0 z-10 mt-1 min-w-[14rem] overflow-hidden rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] py-1 shadow-lg">
+            {projects.map((p, i) => (
+              <li>
+                <button
+                  type="button"
+                  data-project-option={i}
+                  data-project-name={p.name}
+                  aria-current={i === 0 ? 'true' : 'false'}
+                  class="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-[var(--aas-muted)] hover:bg-[var(--aas-tint)] aria-[current=true]:font-semibold aria-[current=true]:text-[var(--aas-text)]"
+                >
+                  {p.name}
+                  <span data-check aria-hidden="true" class="opacity-0">
+                    ✓
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </details>
+      </div>
+    )
+  }
 
-  <div class="mt-4 space-y-4">
-    {
-      rendered.map((f) => (
-        <figure class="overflow-hidden rounded-xl border border-[var(--aas-border)]">
-          <figcaption class="border-b border-[var(--aas-border)] bg-[var(--aas-panel)] px-3.5 py-2 font-mono text-xs text-[var(--aas-muted)]">
-            {f.path}
-          </figcaption>
-          <div class="aas-projfile overflow-x-auto" set:html={f.html} />
-        </figure>
-      ))
-    }
-  </div>
+  {
+    projects.map((p, pi) => (
+      <div data-project-panel={pi} class:list={[pi === 0 ? '' : 'hidden', projects.length > 1 ? 'mt-4' : '']}>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <p class="text-sm text-[var(--aas-muted)]">{t('project.intro')}</p>
+          <a
+            href={p.folderUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="aas-lift rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] px-3 py-1.5 text-sm text-[var(--aas-text)] no-underline"
+          >
+            {t('project.viewOnGitHub')} <span class="text-[var(--aas-muted)]">&nearr;</span>
+          </a>
+        </div>
+
+        {p.readmeHtml && <div class="prose mt-5 max-w-none" set:html={p.readmeHtml} />}
+
+        {p.files.length > 0 && (
+          <div class="mt-6 lg:grid lg:grid-cols-[13rem_minmax(0,1fr)] lg:items-start lg:gap-4">
+            {/* File tree */}
+            <div class="rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-1.5">
+              <p class="px-2 pt-1 pb-2 text-xs font-semibold tracking-wide text-[var(--aas-muted)] uppercase">
+                {t('project.files')}
+              </p>
+              <ul class="space-y-0.5">
+                {p.files.map((f, fi) => (
+                  <li>
+                    <button
+                      type="button"
+                      data-file={fi}
+                      aria-current={fi === 0 ? 'true' : 'false'}
+                      class="block w-full truncate rounded-lg px-2.5 py-1 text-left font-mono text-xs text-[var(--aas-muted)] hover:bg-[var(--aas-tint)] aria-[current=true]:bg-[var(--aas-tint)] aria-[current=true]:text-[var(--aas-text)]"
+                    >
+                      {f.path}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Selected file content */}
+            <div class="mt-4 min-w-0 lg:mt-0">
+              {p.files.map((f, fi) => (
+                <div data-file-panel={fi} class:list={[fi === 0 ? '' : 'hidden']}>
+                  <figure class="overflow-hidden rounded-xl border border-[var(--aas-border)]">
+                    <figcaption class="border-b border-[var(--aas-border)] bg-[var(--aas-panel)] px-3.5 py-2 font-mono text-xs text-[var(--aas-muted)]">
+                      {f.path}
+                    </figcaption>
+                    <div class="aas-projfile overflow-x-auto" set:html={f.html} />
+                  </figure>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    ))
+  }
 </div>
 
 <style>
+  .aas-vdd {
+    position: relative;
+  }
+  .aas-vdd > summary::-webkit-details-marker {
+    display: none;
+  }
+  .aas-vdd [data-project-option][aria-current='true'] [data-check] {
+    opacity: 1;
+  }
   .aas-projfile :global(pre.shiki) {
     margin: 0;
     padding: 1rem 1.1rem;
     overflow-x: auto;
   }
 </style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-projects]').forEach((root) => {
+    // Example (project) selector
+    const projDD = root.querySelector<HTMLDetailsElement>('[data-project-dd]');
+    const projCurrent = root.querySelector<HTMLElement>('[data-project-current]');
+    const projOptions = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-project-option]'));
+    const projPanels = Array.from(root.querySelectorAll<HTMLElement>('[data-project-panel]'));
+
+    projOptions.forEach((opt) =>
+      opt.addEventListener('click', () => {
+        const i = opt.dataset.projectOption!;
+        projPanels.forEach((p) => p.classList.toggle('hidden', p.dataset.projectPanel !== i));
+        projOptions.forEach((o) => o.setAttribute('aria-current', String(o === opt)));
+        if (projCurrent) projCurrent.textContent = opt.dataset.projectName ?? '';
+        projDD?.removeAttribute('open');
+      }),
+    );
+
+    // File tree (scoped per project panel)
+    projPanels.forEach((panel) => {
+      const fileBtns = Array.from(panel.querySelectorAll<HTMLButtonElement>('[data-file]'));
+      const filePanels = Array.from(panel.querySelectorAll<HTMLElement>('[data-file-panel]'));
+      fileBtns.forEach((btn) =>
+        btn.addEventListener('click', () => {
+          filePanels.forEach((fp) => fp.classList.toggle('hidden', fp.dataset.filePanel !== btn.dataset.file));
+          fileBtns.forEach((b) => b.setAttribute('aria-current', String(b === btn)));
+        }),
+      );
+    });
+  });
+</script>
