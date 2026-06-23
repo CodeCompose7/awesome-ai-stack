@@ -85,11 +85,22 @@ async function fetchStats(owner: string, repo: string): Promise<RepoStats | null
       version = normalizeVersion(data.tag_name);
       releasedAt = data.published_at; // e.g. "2026-05-12T09:00:00Z"
     } else {
-      // No releases — fall back to the most recent tag (no date available).
+      // No releases — fall back to the most recent tag. Tags carry no date, so
+      // fetch the commit they point to for the update date.
       const tags = await fetch(`https://api.github.com/repos/${owner}/${repo}/tags?per_page=1`, {
         headers: headers(),
       });
-      if (tags.ok) version = normalizeVersion((await tags.json())[0]?.name);
+      if (tags.ok) {
+        const tag = (await tags.json())[0];
+        version = normalizeVersion(tag?.name);
+        if (tag?.commit?.url) {
+          const commit = await fetch(tag.commit.url, { headers: headers() });
+          if (commit.ok) {
+            const c = await commit.json();
+            releasedAt = c.commit?.committer?.date ?? c.commit?.author?.date;
+          }
+        }
+      }
     }
     return { stars, version, releasedAt };
   } catch {
