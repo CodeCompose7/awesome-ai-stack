@@ -66,7 +66,7 @@ const renderedSamples = hasSamples ? await renderSamples(data.samples) : [];
           href={l.href}
           target="_blank"
           rel="noopener noreferrer"
-          class="aas-lift rounded-lg bg-[var(--aas-tint)] px-3 py-1.5 text-[var(--aas-text)] no-underline"
+          class="aas-lift rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] px-3 py-1.5 text-[var(--aas-text)] no-underline"
         >
           {l.label} <span class="text-[var(--aas-muted)]">&nearr;</span>
         </a>
@@ -84,6 +84,21 @@ const renderedSamples = hasSamples ? await renderSamples(data.samples) : [];
     released={stats?.releasedAt?.slice(0, 10)}
     class="mt-5"
   />
+
+  {
+    data.tags.length > 0 && (
+      <div class="mt-4 flex flex-wrap gap-x-3 gap-y-1 text-xs text-[var(--aas-muted)]">
+        {data.tags.map((tag) => (
+          <a
+            href={getRelativeLocaleUrl(lang, `tags/${tag}/`)}
+            class="no-underline opacity-80 hover:text-[var(--aas-accent)] hover:opacity-100"
+          >
+            #{tag}
+          </a>
+        ))}
+      </div>
+    )
+  }
 </header>
 
 {/* Full-width content; the TOC is a fixed right rail, out of this flow. */}
@@ -162,11 +177,12 @@ const renderedSamples = hasSamples ? await renderSamples(data.samples) : [];
   const active = document.querySelector<HTMLElement>('[data-tab][aria-selected="true"]');
   if (active?.dataset.tab) syncToc(active.dataset.tab);
 
-  // Code tab: show the selected version's internal headings.
-  const select = document.querySelector<HTMLSelectElement>('[data-sample-select]');
+  // Code tab: show the selected version's internal headings (CodeSamples emits
+  // `aas:sample` when the version changes).
   const tocBlocks = Array.from(document.querySelectorAll<HTMLElement>('[data-sample-toc]'));
-  select?.addEventListener('change', () => {
-    tocBlocks.forEach((b) => b.classList.toggle('hidden', b.dataset.sampleToc !== select.value));
+  document.addEventListener('aas:sample', (e) => {
+    const idx = String((e as CustomEvent<{ index: number }>).detail.index);
+    tocBlocks.forEach((b) => b.classList.toggle('hidden', b.dataset.sampleToc !== idx));
     spy();
   });
 

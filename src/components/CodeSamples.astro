@@ -12,15 +12,39 @@ const t = useTranslations(lang);
 ---
 
 <div class="aas-samples" data-samples>
-  <label class="flex items-center gap-2 text-sm text-[var(--aas-muted)]">
+  <div class="flex items-center gap-2 text-sm text-[var(--aas-muted)]">
     {t('sample.version')}
-    <select
-      data-sample-select
-      class="rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] px-2 py-1 text-[var(--aas-text)]"
-    >
-      {samples.map((s, i) => <option value={i}>{s.version}</option>)}
-    </select>
-  </label>
+    <details class="aas-vdd" data-samples-dd>
+      <summary
+        class="flex cursor-pointer list-none items-center gap-2 rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] px-3 py-1.5 text-[var(--aas-text)] select-none"
+      >
+        <span data-sample-current>{samples[0]?.version}</span>
+        <span aria-hidden="true" class="text-[var(--aas-muted)]">▾</span>
+      </summary>
+      <ul
+        class="absolute left-0 z-10 mt-1 min-w-[13rem] overflow-hidden rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] py-1 shadow-lg"
+      >
+        {
+          samples.map((s, i) => (
+            <li>
+              <button
+                type="button"
+                data-sample-option={i}
+                data-sample-version={s.version}
+                aria-current={i === 0 ? 'true' : 'false'}
+                class="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-[var(--aas-muted)] hover:bg-[var(--aas-tint)] aria-[current=true]:font-semibold aria-[current=true]:text-[var(--aas-text)]"
+              >
+                {s.version}
+                <span data-check aria-hidden="true" class="opacity-0">
+                  ✓
+                </span>
+              </button>
+            </li>
+          ))
+        }
+      </ul>
+    </details>
+  </div>
 
   <div class="mt-4 space-y-4">
     {
@@ -46,6 +70,15 @@ const t = useTranslations(lang);
 </div>
 
 <style>
+  .aas-vdd {
+    position: relative;
+  }
+  .aas-vdd > summary::-webkit-details-marker {
+    display: none;
+  }
+  .aas-vdd [data-sample-option][aria-current='true'] [data-check] {
+    opacity: 1;
+  }
   /* Shiki emits its own background; pad it and keep corners rounded. */
   .aas-code :global(pre.shiki) {
     margin: 0;
@@ -57,13 +90,28 @@ const t = useTranslations(lang);
 
 <script>
   document.querySelectorAll<HTMLElement>('[data-samples]').forEach((root) => {
-    const select = root.querySelector<HTMLSelectElement>('[data-sample-select]');
+    const dd = root.querySelector<HTMLDetailsElement>('[data-samples-dd]');
+    const current = root.querySelector<HTMLElement>('[data-sample-current]');
+    const options = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-sample-option]'));
     const panels = Array.from(root.querySelectorAll<HTMLElement>('[data-sample-panel]'));
-    select?.addEventListener('change', () => {
-      panels.forEach((p) =>
-        p.classList.toggle('hidden', p.dataset.samplePanel !== select.value),
+
+    function apply(index: string) {
+      panels.forEach((p) => p.classList.toggle('hidden', p.dataset.samplePanel !== index));
+      options.forEach((o) =>
+        o.setAttribute('aria-current', String(o.dataset.sampleOption === index)),
       );
+      const opt = options.find((o) => o.dataset.sampleOption === index);
+      if (current && opt) current.textContent = opt.dataset.sampleVersion ?? '';
+      dd?.removeAttribute('open');
       (window as unknown as { __aasRenderMermaid?: () => void }).__aasRenderMermaid?.();
-    });
+      document.dispatchEvent(new CustomEvent('aas:sample', { detail: { index: Number(index) } }));
+    }
+
+    options.forEach((o) => o.addEventListener('click', () => apply(o.dataset.sampleOption!)));
+
+    // External request (e.g. a #s<n>-... deep link from DetailTabs).
+    document.addEventListener('aas:select-sample', (e) =>
+      apply(String((e as CustomEvent<{ index: number }>).detail.index)),
+    );
   });
 </script>

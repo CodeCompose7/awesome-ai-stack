@@ -101,11 +101,7 @@ const tabClass =
       // Sample-heading ids look like `s<index>-...`; select that version first.
       const m = raw.match(/^s(\d+)-/);
       if (m) {
-        const sel = document.querySelector<HTMLSelectElement>('[data-sample-select]');
-        if (sel) {
-          sel.value = m[1];
-          sel.dispatchEvent(new Event('change'));
-        }
+        document.dispatchEvent(new CustomEvent('aas:select-sample', { detail: { index: Number(m[1]) } }));
       }
       document.getElementById(raw)?.scrollIntoView();
     }
