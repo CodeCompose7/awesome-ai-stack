@@ -211,6 +211,21 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
 
 {hasSamples && <MermaidLoader />}
 
+{/* Restore collapsed file-tree folders from localStorage before first paint
+    (placed after every tree in the DOM, so no expand→collapse flash). */}
+{hasProject && (
+  <script is:inline>
+    (function () {
+      try {
+        var collapsed = new Set(JSON.parse(localStorage.getItem('aas:tree-collapsed') || '[]'));
+        document.querySelectorAll('details.aas-tree-dir').forEach(function (d) {
+          if (collapsed.has(d.dataset.treeFolder + '::' + d.dataset.treeDir)) d.removeAttribute('open');
+        });
+      } catch (e) {}
+    })();
+  </script>
+)}
+
 <script>
   const rail = document.querySelector<HTMLElement>('[data-toc-rail]');
 
@@ -274,6 +289,34 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
   rail
     ?.querySelector('[data-back-to-top]')
     ?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+  // Persist file-tree folder collapse to localStorage. The same folder shows
+  // twice (inline list + rail), so toggling one mirrors the other. The initial
+  // closed state is applied flash-free by the inline script above.
+  const TREE_KEY = 'aas:tree-collapsed';
+  const treeDirs = Array.from(document.querySelectorAll<HTMLDetailsElement>('details.aas-tree-dir'));
+  const treeKey = (d: HTMLDetailsElement) => `${d.dataset.treeFolder}::${d.dataset.treeDir}`;
+  const loadCollapsed = (): Set<string> => {
+    try {
+      return new Set(JSON.parse(localStorage.getItem(TREE_KEY) || '[]'));
+    } catch {
+      return new Set();
+    }
+  };
+  treeDirs.forEach((d) =>
+    d.addEventListener('toggle', () => {
+      const key = treeKey(d);
+      const set = loadCollapsed();
+      d.open ? set.delete(key) : set.add(key);
+      try {
+        localStorage.setItem(TREE_KEY, JSON.stringify([...set]));
+      } catch {}
+      // Mirror the other copy of this folder (guard prevents a toggle loop).
+      treeDirs.forEach((o) => {
+        if (o !== d && treeKey(o) === key && o.open !== d.open) o.open = d.open;
+      });
+    }),
+  );
 </script>
 
 {
