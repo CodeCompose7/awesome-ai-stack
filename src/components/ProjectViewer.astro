@@ -106,6 +106,50 @@ const t = useTranslations(lang);
       </div>
     ))
   }
+
+  {/* Pre-paint: restore the selected example/file from the URL with inline
+      display styles (applied before the stylesheet and the module script run),
+      so the chosen file shows immediately instead of flashing the first one.
+      The module script below clears these once it takes over. */}
+  <script is:inline>
+    (function () {
+      var root = document.currentScript.parentElement;
+      var params = new URLSearchParams(location.search);
+      var ex = params.get('ex');
+      var file = params.get('file');
+      if (!ex && !file) return;
+
+      var panels = Array.prototype.slice.call(root.querySelectorAll('[data-project-panel]'));
+      var active = null;
+      if (ex) {
+        panels.forEach(function (p) {
+          if (p.dataset.projectFolder === ex) active = p;
+        });
+        if (active && panels.length > 1) {
+          panels.forEach(function (p) {
+            p.style.display = p === active ? 'block' : 'none';
+          });
+          var current = root.querySelector('[data-project-current]');
+          root.querySelectorAll('[data-project-option]').forEach(function (o) {
+            var on = o.dataset.projectFolder === ex;
+            o.setAttribute('aria-current', String(on));
+            if (on && current) current.textContent = o.dataset.projectName || '';
+          });
+        }
+      }
+      if (!active) active = panels[0];
+      if (!file || !active) return;
+
+      var fpanels = Array.prototype.slice.call(active.querySelectorAll('[data-file-panel]'));
+      if (!fpanels.some((fp) => fp.dataset.filePath === file)) return;
+      fpanels.forEach(function (fp) {
+        fp.style.display = fp.dataset.filePath === file ? 'block' : 'none';
+      });
+      active.querySelectorAll('[data-file]').forEach(function (b) {
+        b.setAttribute('aria-current', String(b.dataset.filePath === file));
+      });
+    })();
+  </script>
 </div>
 
 <style>
@@ -154,7 +198,10 @@ const t = useTranslations(lang);
       if (!fileBtns.length) return;
       const btn = fileBtns.find((b) => b.dataset.filePath === file) ?? fileBtns[0];
       const sel = btn.dataset.filePath ?? null;
-      filePanels.forEach((fp) => fp.classList.toggle('hidden', fp.dataset.filePath !== sel));
+      filePanels.forEach((fp) => {
+        fp.style.removeProperty('display'); // clear the pre-paint inline style
+        fp.classList.toggle('hidden', fp.dataset.filePath !== sel);
+      });
       fileBtns.forEach((b) => b.setAttribute('aria-current', String(b === btn)));
       if (write) writeUrl(panel.dataset.projectFolder ?? null, sel);
     }
@@ -163,7 +210,10 @@ const t = useTranslations(lang);
       const panel = projPanels.find((p) => p.dataset.projectFolder === folder) ?? projPanels[0];
       if (!panel) return;
       const opt = projOptions.find((o) => o.dataset.projectFolder === panel.dataset.projectFolder);
-      projPanels.forEach((p) => p.classList.toggle('hidden', p !== panel));
+      projPanels.forEach((p) => {
+        p.style.removeProperty('display'); // clear the pre-paint inline style
+        p.classList.toggle('hidden', p !== panel);
+      });
       projOptions.forEach((o) => o.setAttribute('aria-current', String(o === opt)));
       if (projCurrent && opt) projCurrent.textContent = opt.dataset.projectName ?? '';
       projDD?.removeAttribute('open');
