@@ -36,10 +36,10 @@ docker run --rm --env-file .env aas-langgraph \
 ## Docker로 실행 (DooD를 쓰는 devcontainer에서)
 
 호스트 Docker 데몬과 통신하는 dev container(Docker-outside-of-Docker)에서는 위의
-포그라운드 `docker run`이 아무것도 출력하지 않고 exit 0으로 끝납니다 — 컨테이너
+포그라운드 `docker run`이 아무것도 출력하지 않고 exit 0으로 끝납니다. 컨테이너
 stdio에 클라이언트가 attach된 상태에서 `litellm`을 import하는 순간 프로세스가 강제
-종료되기 때문입니다(OOM이 **아니며**, 플래그·`setsid`·컨테이너 내부 리다이렉트로도
-피할 수 없습니다). **detached**로 실행하고 로그를 따라가세요:
+종료되기 때문인데, OOM이 **아니고** 플래그·`setsid`·컨테이너 내부 리다이렉트로도 피할
+수 없습니다. **detached**로 실행하고 로그를 따라가세요:
 
 ```bash
 cd samples/langgraph_1
