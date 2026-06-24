@@ -10,6 +10,64 @@ tags: [tracing, eval, monitoring, analytics]
 language: TypeScript
 license: MIT
 pricing: [open-source, free-tier, paid]
+samples:
+  - version: "TypeScript · trace"
+    lang: ts
+    diagram: |
+      flowchart LR
+        run[agent run] --> trace[trace]
+        trace --> gen[generation span]
+        trace --> tool[tool span]
+        trace --> ui[(Langfuse UI)]
+    code: |
+      import { Langfuse } from 'langfuse';
+
+      const langfuse = new Langfuse(); // reads LANGFUSE_* env vars
+
+      const trace = langfuse.trace({ name: 'support-agent', userId: 'u_123' });
+
+      const gen = trace.generation({
+        name: 'plan',
+        model: 'claude-opus-4-8',
+        input: 'How do I reset my password?',
+      });
+
+      // ... call the model ...
+      gen.end({ output: 'Tell the user to use the reset link.' });
+
+      await langfuse.flushAsync();
+    description: |
+      ### When to use
+      Reach for the SDK when you want fine-grained tracing, creating each step as
+      an explicit span.
+
+      ### How it flows
+      Nest model and tool spans under a trace, then flush to send them to
+      Langfuse.
+  - version: "Python · @observe"
+    lang: python
+    diagram: |
+      flowchart LR
+        fn["@observe function"] --> span[auto span]
+        span --> ui[(Langfuse UI)]
+    code: |
+      from langfuse import observe, get_client
+
+      @observe()  # wraps the call in a trace/span automatically
+      def plan(question: str) -> str:
+          # ... call the model ...
+          return "Tell the user to use the reset link."
+
+      plan("How do I reset my password?")
+      get_client().flush()  # send buffered events before exit
+    description: |
+      ### When to use
+      Reach for the decorator when you want easy, function-level
+      auto-instrumentation.
+
+      ### How it flows
+      `@observe` wraps the function call in a span automatically and sends its
+      inputs/outputs to Langfuse.
 ---
 
 ## Overview
@@ -17,28 +75,16 @@ pricing: [open-source, free-tier, paid]
 Agents fail in ways that are hard to see from logs alone.  
 Langfuse records each run as a **trace** of nested spans (model calls, tool calls, retrievals) so you can inspect latency, cost, and the exact prompts/outputs at every step — then attach scores and evals on top.
 
-## Sample: trace an agent step
-
-Install with `pnpm add langfuse`, then:
-
-```ts
-import { Langfuse } from 'langfuse';
-
-const langfuse = new Langfuse(); // reads LANGFUSE_* env vars
-
-const trace = langfuse.trace({ name: 'support-agent', userId: 'u_123' });
-
-const gen = trace.generation({
-  name: 'plan',
-  model: 'claude-opus-4-8',
-  input: 'How do I reset my password?',
-});
-
-// ... call the model ...
-gen.end({ output: 'Tell the user to use the reset link.' });
-
-await langfuse.flushAsync();
+```mermaid
+flowchart LR
+  run[agent run] --> trace[trace]
+  trace --> gen[generation span]
+  trace --> tool[tool span]
+  trace --> ui[(Langfuse UI)]
 ```
+
+The **Code samples** tab shows the TypeScript SDK and the Python decorator —
+pick from the selector to compare.
 
 ## When to use it
 
