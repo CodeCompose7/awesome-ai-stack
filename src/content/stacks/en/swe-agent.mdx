@@ -12,6 +12,30 @@ license: MIT
 pricing: [open-source]
 deprecated: true
 related: [mini-swe-agent]
+samples:
+  - version: "CLI · sweagent run"
+    lang: bash
+    diagram: |
+      flowchart LR
+        issue[GitHub issue] --> agent[SWE-agent]
+        agent -->|ACI commands| repo[(sandboxed repo)]
+        repo -->|test results| agent
+        agent --> patch[patch to review]
+    code: |
+      pip install sweagent
+
+      sweagent run \
+        --agent.model.name=claude-opus-4-8 \
+        --env.repo.github_url=https://github.com/owner/repo \
+        --problem_statement.github_url=https://github.com/owner/repo/issues/123
+    description: |
+      ### When to use
+      Reach for it when the unit of work is a GitHub issue and you want a
+      benchmarkable, automated bug-fixing loop.
+
+      ### How it flows
+      SWE-agent clones the repo into a sandbox, plans edits, runs tests, and
+      emits a patch you can review before applying.
 ---
 
 > **Maintenance-only.** SWE-agent has been superseded by
@@ -24,19 +48,15 @@ related: [mini-swe-agent]
 SWE-agent gives a language model a purpose-built **agent–computer interface** (ACI) — commands to view, edit, and test files in a repository — and lets it work through a GitHub issue end to end.  
 It's a reference implementation behind many strong SWE-bench results and a clean base for issue-fixing agents.
 
-## Sample: fix an issue from the CLI
-
-```bash
-pip install sweagent
-
-sweagent run \
-  --agent.model.name=claude-opus-4-8 \
-  --env.repo.github_url=https://github.com/owner/repo \
-  --problem_statement.github_url=https://github.com/owner/repo/issues/123
+```mermaid
+flowchart LR
+  issue[GitHub issue] --> agent[SWE-agent]
+  agent -->|ACI commands| repo[(sandboxed repo)]
+  repo -->|test results| agent
+  agent --> patch[patch to review]
 ```
 
-SWE-agent clones the repo into a sandbox, plans edits, runs tests, and emits a
-patch you can review before applying.
+The **Code samples** tab has the CLI usage.
 
 ## When to use it
 

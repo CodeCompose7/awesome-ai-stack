@@ -12,6 +12,30 @@ license: MIT
 pricing: [open-source]
 deprecated: true
 related: [mini-swe-agent]
+samples:
+  - version: "CLI · sweagent run"
+    lang: bash
+    diagram: |
+      flowchart LR
+        issue[GitHub issue] --> agent[SWE-agent]
+        agent -->|ACI commands| repo[(sandboxed repo)]
+        repo -->|test results| agent
+        agent --> patch[patch to review]
+    code: |
+      pip install sweagent
+
+      sweagent run \
+        --agent.model.name=claude-opus-4-8 \
+        --env.repo.github_url=https://github.com/owner/repo \
+        --problem_statement.github_url=https://github.com/owner/repo/issues/123
+    description: |
+      ### 언제 쓰나
+      작업 단위가 GitHub 이슈이고, 벤치마크 가능한 자동 버그 수정 루프를 원할 때
+      쓰세요.
+
+      ### 흐름
+      SWE-agent가 저장소를 샌드박스에 클론하고, 편집을 계획하고, 테스트를 실행한
+      뒤, 적용 전에 검토할 수 있는 패치를 만듭니다.
 ---
 
 > **유지보수 전용.** SWE-agent는 [mini-SWE-agent](../mini-swe-agent/)로 대체되었습니다 —
@@ -23,19 +47,15 @@ related: [mini-swe-agent]
 SWE-agent는 언어 모델에 전용 **에이전트–컴퓨터 인터페이스**(ACI) — 저장소의 파일을 보고, 편집하고, 테스트하는 명령들 — 를 제공해 GitHub 이슈를 처음부터 끝까지 처리하게 합니다.  
 다수의 강력한 SWE-bench 결과 뒤에 있는 참조 구현이며, 이슈 해결 에이전트를 만드는 깔끔한 출발점입니다.
 
-## 샘플: CLI로 이슈 해결
-
-```bash
-pip install sweagent
-
-sweagent run \
-  --agent.model.name=claude-opus-4-8 \
-  --env.repo.github_url=https://github.com/owner/repo \
-  --problem_statement.github_url=https://github.com/owner/repo/issues/123
+```mermaid
+flowchart LR
+  issue[GitHub issue] --> agent[SWE-agent]
+  agent -->|ACI commands| repo[(sandboxed repo)]
+  repo -->|test results| agent
+  agent --> patch[patch to review]
 ```
 
-SWE-agent는 저장소를 샌드박스에 클론하고, 편집을 계획하고, 테스트를 실행한
-뒤, 적용 전에 검토할 수 있는 패치를 만들어냅니다.
+**코드 샘플** 탭에 CLI 사용 예시가 있습니다.
 
 ## 언제 쓰면 좋은가
 
