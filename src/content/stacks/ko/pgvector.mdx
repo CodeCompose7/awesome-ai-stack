@@ -8,6 +8,61 @@ tags: [embeddings, rag, postgres, similarity-search]
 language: SQL / C
 license: PostgreSQL
 pricing: [open-source]
+projects:
+  - folder: pgvector_1
+    related: [langgraph, litellm]
+samples:
+  - version: "Schema · vector column"
+    lang: sql
+    diagram: |
+      flowchart LR
+        text[text] -->|embedding model| vec[vector]
+        vec --> pg[(Postgres + pgvector)]
+        q[query vector] -->|<=> cosine| pg
+        pg --> top[top-k rows]
+    code: |
+      CREATE EXTENSION IF NOT EXISTS vector;
+
+      CREATE TABLE memories (
+        id        bigserial PRIMARY KEY,
+        body      text,
+        embedding vector(1536)        -- match your embedding model's dimensions
+      );
+
+      -- Nearest-neighbour search using cosine distance (<=>):
+      SELECT body
+      FROM memories
+      ORDER BY embedding <=> $1
+      LIMIT 5;
+    description: |
+      ### 언제 쓰나
+      관계형 데이터 옆에 임베딩을 저장하고 SQL로 유사도 검색을 하고 싶을 때
+      쓰세요.
+
+      ### 흐름
+      임베딩 모델이 텍스트를 벡터로 바꾸고, `<=>`(코사인 거리) 연산자로 최근접
+      이웃을 정렬해 조회합니다.
+    note: 실제로 돌려보려면 구현 샘플 탭의 pgvector_1을 보세요 — Postgres와 앱을 docker compose로 띄웁니다.
+  - version: "Index · HNSW"
+    lang: sql
+    diagram: |
+      flowchart LR
+        rows[(many rows)] --> idx[HNSW index]
+        q[query] --> idx
+        idx --> approx[approx top-k]
+    code: |
+      -- For large tables, add an approximate index to keep queries fast.
+      CREATE INDEX ON memories USING hnsw (embedding vector_cosine_ops);
+
+      -- Same query as before — now answered with the index.
+      SELECT body FROM memories ORDER BY embedding <=> $1 LIMIT 5;
+    description: |
+      ### 언제 쓰나
+      테이블이 커져 정확 검색(full scan)이 느려질 때 근사 인덱스를 추가하세요.
+
+      ### 흐름
+      `hnsw` 인덱스가 근사 최근접 이웃 그래프를 만들어, 약간의 정확도를 내주고
+      쿼리를 크게 빠르게 합니다.
 ---
 
 ## 개요
@@ -15,30 +70,16 @@ pricing: [open-source]
 `pgvector`는 PostgreSQL에 `vector` 컬럼 타입과 유사도 연산자를 추가합니다.  
 이미 Postgres를 운영 중이라면, 에이전트에 장기 기억이나 RAG 검색을 붙이는 가장 마찰 없는 방법입니다 — 추가로 운영할 서비스가 없습니다.
 
-## 샘플: 임베딩 저장과 조회
-
-```sql
-CREATE EXTENSION IF NOT EXISTS vector;
-
-CREATE TABLE memories (
-  id    bigserial PRIMARY KEY,
-  body  text,
-  embedding vector(1536)        -- 임베딩 모델의 차원 수에 맞추세요
-);
-
--- 코사인 거리(<=>)를 이용한 최근접 이웃 검색:
-SELECT body
-FROM memories
-ORDER BY embedding <=> $1
-LIMIT 5;
+```mermaid
+flowchart LR
+  text[text] -->|embedding model| vec[vector]
+  vec --> pg[(Postgres + pgvector)]
+  q[query vector] -->|<=> cosine| pg
+  pg --> top[top-k rows]
 ```
 
-테이블이 커지면 근사 인덱스(`hnsw` 또는 `ivfflat`)를 추가해 쿼리 속도를
-유지하세요:
-
-```sql
-CREATE INDEX ON memories USING hnsw (embedding vector_cosine_ops);
-```
+**코드 샘플** 탭에는 스키마·조회와 인덱스 예시가 있습니다 —
+선택기에서 비교해 보세요.
 
 ## 언제 쓰면 좋은가
 
