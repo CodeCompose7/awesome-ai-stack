@@ -28,6 +28,7 @@ const codes = Object.keys(languages) as Lang[];
         <li>
           <a
             data-lang-link
+            data-lang-code={code}
             href={getRelativeLocaleUrl(code, path)}
             class:list={[
               'block px-3 py-1.5 no-underline hover:bg-[var(--aas-bg)]',
@@ -67,5 +68,17 @@ const codes = Object.keys(languages) as Lang[];
     };
     sync();
     dd.addEventListener('toggle', () => dd.open && sync());
+
+    // Remember an explicit language choice so the root-home auto-detect
+    // (BaseLayout) respects it instead of overriding on the next visit.
+    links.forEach((a) =>
+      a.addEventListener('click', () => {
+        try {
+          localStorage.setItem('aas:lang', a.dataset.langCode ?? '');
+        } catch {
+          /* ignore */
+        }
+      }),
+    );
   });
 </script>
