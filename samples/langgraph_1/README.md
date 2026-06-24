@@ -33,10 +33,20 @@ docker run --rm --env-file .env aas-langgraph \
   "What is 24 * 7, and is the result prime?"
 ```
 
-> **Blank output?** `litellm` pulls in a large dependency stack (`openai`,
-> `tiktoken`, …); on a memory-starved Docker VM the container can be killed
-> mid-import and print nothing. Give Docker ≥4 GB (Docker Desktop → Settings →
-> Resources → Memory), or run locally (below).
+## Run with Docker (in a devcontainer with DooD)
+
+In a dev container that talks to the host Docker daemon (Docker-outside-of-Docker),
+the foreground `docker run` above prints nothing and exits 0 — the process is
+hard-killed as `litellm` is imported while a client is attached to the
+container's stdio (it is **not** an OOM, and no flag, `setsid`, or in-container
+redirect avoids it). Run **detached** and follow the logs instead:
+
+```bash
+cd samples/langgraph_1
+docker build -t aas-langgraph .
+docker logs -f "$(docker run -d --env-file .env aas-langgraph \
+  "What is 24 * 7, and is the result prime?")"
+```
 
 ## Run locally
 
