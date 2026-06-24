@@ -1,0 +1,130 @@
+---
+import '../styles/global.css';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { useTranslations, type Lang } from '../i18n/ui';
+import LanguageSwitcher from '../components/LanguageSwitcher.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  lang: Lang;
+  /** Locale-relative path of this page, e.g. '' (home) or 'stacks/litellm/'. */
+  path: string;
+  /** Wider container — used by detail pages that have a right-rail TOC. */
+  wide?: boolean;
+}
+
+const { title, lang, path, wide = false } = Astro.props;
+const t = useTranslations(lang);
+const description = Astro.props.description ?? t('site.tagline');
+const container = wide ? 'max-w-6xl' : 'max-w-5xl';
+
+const home = getRelativeLocaleUrl(lang, '');
+const base = import.meta.env.BASE_URL;
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href={`${base.replace(/\/$/, '')}/favicon.svg`} />
+    {/* Set the theme before first paint to avoid a flash of the wrong theme. */}
+    <script is:inline>
+      (function () {
+        try {
+          var pref = localStorage.getItem('theme') || 'system';
+          var dark =
+            pref === 'dark' ||
+            (pref === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body class="min-h-screen">
+    <header class="border-b border-[var(--aas-border)]">
+      <div class:list={['mx-auto flex items-center justify-between px-5 py-4', container]}>
+        <a href={home} class="text-lg font-bold tracking-tight no-underline">
+          ⚡ awesome-agent-stack
+        </a>
+        <nav class="flex items-center gap-4 text-sm text-[var(--aas-muted)]">
+          <a href={`${home}#categories`} class="no-underline hover:text-[var(--aas-text)]">
+            {t('nav.browse')}
+          </a>
+          <a
+            href={getRelativeLocaleUrl(lang, 'blog/')}
+            class="no-underline hover:text-[var(--aas-text)]"
+          >
+            {t('nav.blog')}
+          </a>
+          <a
+            href="https://github.com/codecompose7/awesome-agent-stack"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="no-underline hover:text-[var(--aas-text)]">GitHub</a
+          >
+          <ThemeToggle lang={lang} />
+          <LanguageSwitcher lang={lang} path={path} />
+        </nav>
+      </div>
+    </header>
+
+    <main class:list={['mx-auto px-5 py-10', container]}>
+      <slot />
+    </main>
+
+    <footer
+      class="border-t border-[var(--aas-border)] py-8 text-center text-sm text-[var(--aas-muted)]"
+    >
+      <p>
+        {t('footer.builtWith')}
+        <a
+          href="https://astro.build"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-[var(--aas-accent)]">Astro</a
+        >. {
+          t('footer.contribute')
+        }
+      </p>
+    </footer>
+
+    <script>
+      // Clicking a heading's "#" anchor copies that section's URL to the
+      // clipboard (and updates the address bar) instead of just navigating.
+      document.addEventListener('click', (e) => {
+        const anchor = (e.target as HTMLElement).closest<HTMLAnchorElement>('a.aas-anchor');
+        if (!anchor) return;
+        e.preventDefault();
+        const hash = anchor.getAttribute('href') ?? '';
+        const url = location.origin + location.pathname + location.search + hash;
+        history.replaceState(null, '', hash);
+        navigator.clipboard?.writeText(url).catch(() => {});
+        anchor.classList.add('copied');
+        setTimeout(() => anchor.classList.remove('copied'), 1200);
+      });
+
+      // Close any open <details> dropdown when clicking outside it (or on Esc).
+      // The file-tree folders (.aas-tree-dir) are not dropdowns — leave them be.
+      document.addEventListener('click', (e) => {
+        const target = e.target as Node;
+        document
+          .querySelectorAll<HTMLDetailsElement>('details[open]:not(.aas-tree-dir)')
+          .forEach((d) => {
+            if (!d.contains(target)) d.open = false;
+          });
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape')
+          document
+            .querySelectorAll<HTMLDetailsElement>('details[open]:not(.aas-tree-dir)')
+            .forEach((d) => (d.open = false));
+      });
+    </script>
+  </body>
+</html>

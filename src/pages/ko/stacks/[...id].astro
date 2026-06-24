@@ -1,0 +1,23 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import StackDetail from '../../../components/StackDetail.astro';
+import { getStacks, slugOf } from '../../../lib/stacks';
+
+export const getStaticPaths = (async () => {
+  const entries = await getStacks('ko');
+  return entries.map((entry) => ({ params: { id: slugOf(entry) }, props: { entry } }));
+}) satisfies GetStaticPaths;
+
+const { entry } = Astro.props;
+const slug = slugOf(entry);
+---
+
+<BaseLayout
+  title={`${entry.data.name} — awesome-agent-stack`}
+  description={entry.data.description}
+  lang="ko"
+  path={`stacks/${slug}/`}
+>
+  <StackDetail entry={entry} lang="ko" />
+</BaseLayout>

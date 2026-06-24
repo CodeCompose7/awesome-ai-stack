@@ -1,0 +1,43 @@
+---
+name: mini-SWE-agent
+logo: /logos/mini-swe-agent.svg
+category: coding-agents
+description: The minimal successor to SWE-agent — a ~100-line core that autonomously resolves GitHub issues, as performant but far simpler.
+website: https://mini-swe-agent.com
+repo: https://github.com/SWE-agent/mini-swe-agent
+docs: https://mini-swe-agent.com/latest/
+tags: [github-issues, swe-bench, autonomous, python]
+language: Python
+license: MIT
+pricing: [open-source]
+related: [swe-agent]
+featured: true
+---
+
+## Overview
+
+mini-SWE-agent is the streamlined successor to [SWE-agent](../swe-agent/). It
+keeps the same idea — let a model read, edit, and run code to fix a GitHub
+issue — but strips the agent loop down to roughly **100 lines**: no special
+tools, just shell commands. It's simpler to read, hack on, and deploy while
+staying competitive on SWE-bench.
+
+## Sample: run a task
+
+```bash
+pip install mini-swe-agent
+
+# Interactive in the current repo:
+mini
+
+# Or give it a one-off task and model:
+mini -m claude-opus-4-8 -t "Fix the failing test in tests/test_parser.py"
+```
+
+The agent proposes shell commands, runs them in your environment, and iterates
+until the task is done.
+
+## When to use it
+
+Prefer mini-SWE-agent over SWE-agent for new work: it's the actively developed
+path, and its tiny core makes it easy to understand and customize.

@@ -1,0 +1,53 @@
+---
+name: LangSmith
+logo: /logos/langsmith.svg
+category: observability
+description: LLM·에이전트 앱의 트레이싱·평가·모니터링을 위한 LangChain의 호스팅 플랫폼 (LangChain 없이도 사용 가능).
+website: https://www.langchain.com/langsmith
+docs: https://docs.smith.langchain.com
+tags: [tracing, eval, monitoring, prompts]
+language: SaaS / SDK
+license: proprietary
+pricing: [free-tier, paid]
+---
+
+## 개요
+
+LangSmith는 LLM 앱의 운영 측면을 담당하는 LangChain의 호스팅 플랫폼입니다.
+모든 모델·도구 호출을 트레이싱하고, 데이터셋에 대해 평가를 실행하며,
+프롬프트를 관리·버전 관리하고, 프로덕션에서 비용과 지연을 모니터링합니다.
+LangChain/LangGraph와 긴밀히 통합되지만 SDK를 통해 어떤 스택과도 함께 쓸 수
+있습니다.
+
+## 샘플: 함수 트레이싱
+
+`LANGSMITH_TRACING=true`와 `LANGSMITH_API_KEY`를 설정하고 `pnpm add langsmith`로
+설치한 뒤, 아무 함수나 `traceable`로 감싸면 됩니다:
+
+```ts
+import { traceable } from 'langsmith/traceable';
+import Anthropic from '@anthropic-ai/sdk';
+
+const client = new Anthropic();
+
+const plan = traceable(
+  async (input: string) => {
+    const res = await client.messages.create({
+      model: 'claude-opus-4-8',
+      max_tokens: 256,
+      messages: [{ role: 'user', content: input }],
+    });
+    return res.content;
+  },
+  { name: 'plan', run_type: 'chain' },
+);
+
+await plan('How do I reset my password?'); // LangSmith에 트레이스로 나타납니다
+```
+
+## 언제 쓰면 좋은가
+
+관리형의, 필요한 기능이 모두 갖춰진 관측성·평가 플랫폼을 원할 때 — 특히 이미
+LangChain 생태계를 쓰고 있다면 LangSmith를 선택하세요.
+
+함께 보기: [Langfuse vs LangSmith](../../blog/langfuse-vs-langsmith/).

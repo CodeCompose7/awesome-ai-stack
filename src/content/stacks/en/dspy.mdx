@@ -1,0 +1,42 @@
+---
+name: DSPy
+logo: /logos/dspy.svg
+category: frameworks
+description: Program — don't prompt — language models; declare modules and let DSPy compile and optimize the prompts.
+website: https://dspy.ai
+repo: https://github.com/stanfordnlp/dspy
+docs: https://dspy.ai/learn/
+tags: [prompt-optimization, modular, stanford, python]
+language: Python
+license: MIT
+pricing: [open-source]
+---
+
+## Overview
+
+DSPy (from Stanford NLP) lets you write LM pipelines as **declarative Python
+modules** with typed signatures (`question -> answer`) instead of hand-tuned
+prompt strings. Optimizers ("teleprompters") then compile those modules —
+searching prompts and few-shot examples against a metric — so quality improves
+without manual prompt fiddling.
+
+## Sample: a self-optimizing predictor
+
+```python
+import dspy
+
+dspy.configure(lm=dspy.LM("anthropic/claude-opus-4-8"))
+
+# A signature declares the task; DSPy fills in the prompt.
+qa = dspy.ChainOfThought("question -> answer")
+
+result = qa(question="Why is the sky blue?")
+print(result.answer)
+
+# Later: compile `qa` with an optimizer + metric to auto-improve the prompt.
+```
+
+## When to use it
+
+Choose DSPy when you'd rather optimize a pipeline against a metric than maintain
+brittle prompt strings — especially for multi-stage reasoning or RAG systems.

@@ -1,0 +1,76 @@
+---
+interface Props {
+  name: string;
+  /** Optional logo image (URL or /public path). Falls back to a category icon. */
+  logo?: string;
+  category?: string;
+  size?: number;
+  class?: string;
+}
+
+const { name, logo, category, size = 44, class: className } = Astro.props;
+
+// Lucide-style line icons per category (inner SVG markup; 24×24 viewBox).
+const icons: Record<string, string> = {
+  frameworks:
+    '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/>',
+  'coding-agents':
+    '<polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/>',
+  'llm-providers':
+    '<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/>',
+  'vector-stores':
+    '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/>',
+  observability: '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
+  default:
+    '<path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
+};
+const icon = (category && icons[category]) || icons.default;
+
+// A `logo` is an image when it's a URL or a /public path; otherwise it's an
+// emoji/text glyph (e.g. "🚅"). Anything else falls back to the category icon.
+const base = import.meta.env.BASE_URL;
+const isImage = !!logo && (/^https?:\/\//.test(logo) || logo.startsWith('/'));
+const logoSrc = isImage
+  ? /^https?:\/\//.test(logo!)
+    ? logo
+    : base.replace(/\/$/, '') + '/' + logo!.replace(/^\//, '')
+  : undefined;
+const emoji = logo && !isImage ? logo : undefined;
+
+const boxStyle = `width:${size}px;height:${size}px`;
+const iconSize = Math.round(size * 0.52);
+const tileClass =
+  'flex shrink-0 items-center justify-center rounded-lg border border-[var(--aas-border)] bg-[var(--aas-tint)] text-[var(--aas-muted)]';
+---
+
+{
+  isImage ? (
+    <img
+      src={logoSrc}
+      alt={name}
+      width={size}
+      height={size}
+      loading="lazy"
+      class:list={['shrink-0 rounded-lg object-contain', className]}
+      style={boxStyle}
+    />
+  ) : emoji ? (
+    <span class:list={[tileClass, className]} style={boxStyle} aria-hidden="true">
+      <span style={`font-size:${Math.round(size * 0.52)}px;line-height:1`}>{emoji}</span>
+    </span>
+  ) : (
+    <span class:list={[tileClass, className]} style={boxStyle} aria-hidden="true">
+      <svg
+        width={iconSize}
+        height={iconSize}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        set:html={icon}
+      />
+    </span>
+  )
+}

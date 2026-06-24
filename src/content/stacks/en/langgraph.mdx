@@ -1,0 +1,111 @@
+---
+name: LangGraph
+logo: /logos/langgraph.svg
+category: frameworks
+description: Graph-based orchestration for stateful, multi-step agents with branching, loops, and human-in-the-loop.
+website: https://www.langchain.com/langgraph
+repo: https://github.com/langchain-ai/langgraph
+docs: https://langchain-ai.github.io/langgraph/
+tags: [orchestration, state-machine, multi-agent, python]
+language: Python / JS
+license: MIT
+pricing: [open-source]
+projects:
+  - folder: langgraph_1
+    related: [litellm, langchain]
+  - folder: langgraph_2
+    related: [litellm, langchain]
+featured: true
+samples:
+  - version: "1.x · Graph API"
+    lang: python
+    diagram: |
+      flowchart LR
+        START([START]) --> think[think]
+        think -->|steps < 3| think
+        think -->|done| FIN([END])
+    code: |
+      from langgraph.graph import StateGraph, START, END
+      from typing import TypedDict
+
+      class State(TypedDict):
+          input: str
+          steps: int
+
+      def think(state: State) -> State:
+          return {"input": state["input"], "steps": state["steps"] + 1}
+
+      def should_continue(state: State) -> str:
+          return "think" if state["steps"] < 3 else END
+
+      graph = StateGraph(State)
+      graph.add_node("think", think)
+      graph.add_edge(START, "think")
+      graph.add_conditional_edges("think", should_continue)
+
+      app = graph.compile()
+      print(app.invoke({"input": "hello", "steps": 0}))
+    description: |
+      ### When to use
+      The **graph API** is explicit: you declare nodes and the edges between
+      them. Reach for it when you need branching, retries, or checkpointed state.
+
+      ### How it flows
+      A `conditional edge` loops back to `think` until the stop condition, then
+      routes to `END`.
+    note: For a runnable build of this pattern, see langgraph_2 in the Implementation tab — a real ReAct loop using litellm and tools.
+  - version: "1.x · Functional API"
+    lang: python
+    diagram: |
+      flowchart LR
+        IN([invoke]) --> task[task: think]
+        task -->|loop x3| task
+        task --> OUT([return])
+    code: |
+      from langgraph.func import entrypoint, task
+
+      @task
+      def think(value: int) -> int:
+          return value + 1
+
+      @entrypoint()
+      def app(value: int):
+          for _ in range(3):
+              value = think(value).result()
+          return value
+
+      print(app.invoke(0))
+    description: |
+      ### When to use
+      The **functional API** wraps plain functions with `@task` and an
+      `@entrypoint`. Use it when you don't need an explicit graph.
+
+      ### How it flows
+      Control flow is just Python — the `for` loop calls `think` three times,
+      then returns.
+---
+
+## Overview
+
+LangGraph models an agent as a **graph of nodes** connected by edges. Each node
+is a step (call the model, run a tool, update memory); edges decide what runs
+next. Because state is explicit, you get durable execution, loops, branching,
+and human-in-the-loop pauses that are hard to express with a plain while-loop.
+
+```mermaid
+flowchart TD
+  State[(State)] -.-> think
+  subgraph Graph
+    think[node: think] --> cond{conditional edge}
+    cond -->|continue| think
+    cond -->|end| done([END])
+  end
+```
+
+The **Code samples** tab shows the same idea written two ways — pick the API
+version from the selector to compare.
+
+## When to use it
+
+Pick LangGraph when an agent needs cycles, retries, or checkpointed state across
+many steps — anything more structured than a single linear prompt chain.

@@ -1,0 +1,65 @@
+---
+import { pricingLabels, licenseLabel, useTranslations, type Lang } from '../i18n/ui';
+import { formatStars } from '../lib/github';
+import StarIcon from './StarIcon.astro';
+
+interface Props {
+  lang: Lang;
+  pricing: string[];
+  license?: string;
+  language?: string;
+  stars?: number | null;
+  version?: string | null;
+  released?: string | null; // YYYY-MM-DD of the latest release
+  deprecated?: boolean;
+  class?: string;
+}
+
+const { lang, pricing, license, language, stars, version, released, deprecated, class: className } =
+  Astro.props;
+const t = useTranslations(lang);
+const hasAny =
+  deprecated ||
+  pricing.length > 0 ||
+  license ||
+  language ||
+  typeof stars === 'number' ||
+  version ||
+  released;
+
+// Filled "surface" chips with a faint outline; a touch taller for presence.
+const chip = 'aas-chip rounded-lg px-2.5 py-1';
+---
+
+{
+  hasAny && (
+    <div class:list={['flex flex-wrap items-center gap-1.5 text-xs', className]}>
+      {deprecated && (
+        <span class="aas-deprecated rounded-lg px-2.5 py-1 font-medium">{t('meta.deprecated')}</span>
+      )}
+      {typeof stars === 'number' && (
+        <span class:list={['inline-flex items-center gap-1', chip]}>
+          <StarIcon class="text-[var(--aas-text)]" />
+          {formatStars(stars)}
+        </span>
+      )}
+      {version && <span class:list={['font-mono', chip]}>{version}</span>}
+      {released && (
+        <span title={t('meta.released')} class:list={['inline-flex items-center gap-1', chip]}>
+          <span aria-hidden="true">↻</span>
+          {released}
+        </span>
+      )}
+      {language && <span class={chip}>{language}</span>}
+      {pricing.map((p) => (
+        <span class="aas-pricing rounded-lg px-2.5 py-1">{pricingLabels[lang][p] ?? p}</span>
+      ))}
+      {license && (
+        <span class:list={['inline-flex items-center gap-1', chip]}>
+          <span aria-hidden="true">⚖</span>
+          {licenseLabel(lang, license)}
+        </span>
+      )}
+    </div>
+  )
+}

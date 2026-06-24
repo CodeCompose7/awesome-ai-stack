@@ -1,0 +1,346 @@
+---
+import { render } from 'astro:content';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { categoryMap } from '../data/categories';
+import { useTranslations, type Lang } from '../i18n/ui';
+import { getStacks, slugOf, type StackEntry } from '../lib/stacks';
+import { getArticlesForTool, articleSlugOf } from '../lib/articles';
+import ToolAvatar from './ToolAvatar.astro';
+import ToolMeta from './ToolMeta.astro';
+import DetailTabs from './DetailTabs.astro';
+import CodeSamples from './CodeSamples.astro';
+import MermaidLoader from './MermaidLoader.astro';
+import RelatedTools from './RelatedTools.astro';
+import ProjectViewer from './ProjectViewer.astro';
+import ProjectRelatedTools, { type RelatedTool } from './ProjectRelatedTools.astro';
+import ProjectFileList from './ProjectFileList.astro';
+import Toc from './Toc.astro';
+import { getRepoStats } from '../lib/github';
+import { renderSamples } from '../lib/samples';
+import { renderProjects } from '../lib/project';
+
+interface Props {
+  entry: StackEntry;
+  lang: Lang;
+}
+
+const { entry, lang } = Astro.props;
+const t = useTranslations(lang);
+const { Content, headings } = await render(entry);
+const data = entry.data;
+const category = categoryMap.get(data.category);
+
+// Right-rail table of contents: body headings, h2–h3 only.
+const tocItems = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
+
+// Backlinks: writing that references this tool (computed reverse lookup).
+const relatedArticles = await getArticlesForTool(lang, slugOf(entry));
+
+// Live GitHub stats (build-time), with the manual `version` as fallback.
+const stats = await getRepoStats(data.repo);
+const displayVersion = stats?.version ?? data.version;
+
+const links = [
+  data.website && { label: t('detail.website'), href: data.website },
+  data.repo && { label: t('detail.repository'), href: data.repo },
+  data.docs && { label: t('detail.docs'), href: data.docs },
+].filter(Boolean) as { label: string; href: string }[];
+
+const hasSamples = data.samples.length > 0;
+const renderedSamples = hasSamples ? await renderSamples(data.samples) : [];
+
+// Real runnable mini-projects (samples/<folder>/) listed in frontmatter. Each
+// entry is a bare folder name or { folder, related: [slugs] }; normalize both.
+const projectSpecs = data.projects.map((p) =>
+  typeof p === 'string' ? { folder: p, related: [] as string[] } : { folder: p.folder, related: p.related },
+);
+const projects = projectSpecs.length
+  ? await renderProjects(projectSpecs.map((p) => p.folder), lang)
+  : [];
+const hasProject = projects.length > 0;
+const hasTabs = hasSamples || hasProject;
+
+// Resolve each project's related tool slugs against the stacks collection. A
+// known slug links to its page; an unknown one shows as "not in our catalog".
+const relatedByFolder = new Map(projectSpecs.map((p) => [p.folder, p.related]));
+const allStacks = hasProject ? await getStacks(lang) : [];
+const stackBySlug = new Map(allStacks.map((s) => [slugOf(s), s]));
+function resolveTool(slug: string): RelatedTool {
+  const e = stackBySlug.get(slug);
+  if (!e) return { slug, name: slug, registered: false };
+  return {
+    slug,
+    name: e.data.name,
+    registered: true,
+    logo: e.data.logo,
+    category: e.data.category,
+    deprecated: e.data.deprecated,
+  };
+}
+// The right rail's impl block carries, per example: its related tools plus its
+// file list (the file list lives here on ≥2xl screens, inline otherwise).
+const projectRail = projects.map((p) => ({
+  folder: p.folder,
+  files: p.files,
+  headings: p.headings,
+  tools: (relatedByFolder.get(p.folder) ?? []).map(resolveTool),
+}));
+const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools]));
+---
+
+<a href={getRelativeLocaleUrl(lang, '')} class="text-sm text-[var(--aas-accent)] no-underline"
+  >&larr; {t('detail.allTools')}</a
+>
+
+<header class="mt-4 pb-6">
+  <div class="flex items-center gap-4">
+    <ToolAvatar name={data.name} logo={data.logo} category={data.category} size={56} />
+    <div>
+      {category && <p class="text-sm text-[var(--aas-muted)]">{category.label[lang]}</p>}
+      <h1 class="text-3xl font-bold tracking-tight">{data.name}</h1>
+    </div>
+  </div>
+  <p class="mt-3 max-w-2xl text-lg text-[var(--aas-muted)]">{data.description}</p>
+
+  <div class="mt-4 flex flex-wrap gap-2 text-sm">
+    {
+      links.map((l) => (
+        <a
+          href={l.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="aas-lift rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] px-3 py-1.5 text-[var(--aas-text)] no-underline"
+        >
+          {l.label} <span class="text-[var(--aas-muted)]">&nearr;</span>
+        </a>
+      ))
+    }
+  </div>
+
+  <ToolMeta
+    lang={lang}
+    pricing={data.pricing}
+    license={data.license}
+    language={data.language}
+    stars={stats?.stars}
+    version={displayVersion}
+    released={stats?.releasedAt?.slice(0, 10)}
+    deprecated={data.deprecated}
+    class="mt-5"
+  />
+
+  {
+    data.tags.length > 0 && (
+      <div class="mt-4 flex flex-wrap gap-x-3 gap-y-1 text-xs text-[var(--aas-muted)]">
+        {data.tags.map((tag) => (
+          <a
+            href={getRelativeLocaleUrl(lang, `tags/${tag}/`)}
+            class="no-underline opacity-80 hover:text-[var(--aas-accent)] hover:opacity-100"
+          >
+            #{tag}
+          </a>
+        ))}
+      </div>
+    )
+  }
+</header>
+
+<RelatedTools lang={lang} slugs={data.related} />
+
+{/* Full-width content; the TOC is a fixed right rail, out of this flow. */}
+<div class="mt-8 min-w-0">
+  {
+    hasTabs ? (
+      <DetailTabs
+        overviewLabel={t('tab.overview')}
+        codeLabel={hasSamples ? t('tab.code') : undefined}
+        implLabel={hasProject ? t('tab.impl') : undefined}
+      >
+        <article slot="overview" class="prose max-w-none">
+          <Content />
+        </article>
+        {hasSamples && (
+          <div slot="code">
+            <CodeSamples samples={renderedSamples} lang={lang} />
+          </div>
+        )}
+        {hasProject && (
+          <div slot="impl">
+            <ProjectViewer lang={lang} projects={projects} related={relatedToolsByFolder} />
+          </div>
+        )}
+      </DetailTabs>
+    ) : (
+      <article class="prose max-w-none">
+        <Content />
+      </article>
+    )
+  }
+</div>
+
+{/* Fixed right-rail TOC: follows scroll, swaps with the active tab, and hides
+    near the footer. */}
+<aside class="aas-toc-rail" data-toc-rail>
+  <div class="aas-toc-scroll">
+    <div data-toc="overview">
+      <Toc items={tocItems} title={t('toc.onThisPage')} />
+    </div>
+    {
+      hasSamples && (
+        <div data-toc="code" class="hidden">
+          {renderedSamples.map((s, i) => (
+            <div data-sample-toc={i} class:list={[i === 0 ? '' : 'hidden']}>
+              <Toc items={s.headings} title={t('toc.onThisPage')} />
+            </div>
+          ))}
+        </div>
+      )
+    }
+    {
+      hasProject && (
+        <div data-toc="impl" class="hidden">
+          {projectRail.map((pr, i) => (
+            <div data-project-related={pr.folder} class:list={[i === 0 ? '' : 'hidden', 'space-y-5']}>
+              <Toc items={pr.headings} title={t('toc.onThisPage')} />
+              <ProjectRelatedTools lang={lang} tools={pr.tools} />
+              <ProjectFileList lang={lang} folder={pr.folder} files={pr.files} />
+            </div>
+          ))}
+        </div>
+      )
+    }
+  </div>
+  <button type="button" class="aas-toc-top" data-back-to-top>↑ {t('top.label')}</button>
+</aside>
+
+{(hasSamples || hasProject) && <MermaidLoader />}
+
+{/* Restore collapsed file-tree folders from localStorage before first paint
+    (placed after every tree in the DOM, so no expand→collapse flash). */}
+{hasProject && (
+  <script is:inline>
+    (function () {
+      try {
+        var collapsed = new Set(JSON.parse(localStorage.getItem('aas:tree-collapsed') || '[]'));
+        document.querySelectorAll('details.aas-tree-dir').forEach(function (d) {
+          if (collapsed.has(d.dataset.treeFolder + '::' + d.dataset.treeDir)) d.removeAttribute('open');
+        });
+      } catch (e) {}
+    })();
+  </script>
+)}
+
+<script>
+  const rail = document.querySelector<HTMLElement>('[data-toc-rail]');
+
+  // Swap the rail's TOC with the active tab.
+  const syncToc = (id: string) =>
+    rail
+      ?.querySelectorAll<HTMLElement>('[data-toc]')
+      .forEach((el) => el.classList.toggle('hidden', el.dataset.toc !== id));
+
+  // Scroll-spy: highlight the section nearest the top of the viewport.
+  function spy() {
+    if (!rail) return;
+    const links = Array.from(rail.querySelectorAll<HTMLAnchorElement>('a[href^="#"]'));
+    let activeId: string | null = null;
+    for (const a of links) {
+      const id = a.getAttribute('href')!.slice(1);
+      const h = document.getElementById(id);
+      if (h && h.offsetParent !== null && h.getBoundingClientRect().top <= 140) activeId = id;
+    }
+    links.forEach((a) =>
+      a.setAttribute('aria-current', String(a.getAttribute('href')!.slice(1) === activeId)),
+    );
+  }
+
+  document.addEventListener('aas:tabchange', (e) => {
+    syncToc((e as CustomEvent<{ id: string }>).detail.id);
+    spy();
+  });
+
+  const active = document.querySelector<HTMLElement>('[data-tab][aria-selected="true"]');
+  if (active?.dataset.tab) syncToc(active.dataset.tab);
+
+  // Impl tab: the rail's related-tools block depends on the selected example.
+  const syncProjectRelated = (folder: string) =>
+    rail
+      ?.querySelectorAll<HTMLElement>('[data-project-related]')
+      .forEach((b) => b.classList.toggle('hidden', b.dataset.projectRelated !== folder));
+
+  document.addEventListener('aas:project', (e) => {
+    syncProjectRelated((e as CustomEvent<{ folder: string }>).detail.folder);
+    spy();
+  });
+
+  // Initial example (ProjectViewer may have restored one from the URL already).
+  const activeProj = document.querySelector<HTMLElement>('[data-project-panel]:not(.hidden)');
+  if (activeProj?.dataset.projectFolder) syncProjectRelated(activeProj.dataset.projectFolder);
+
+  // Code tab: show the selected version's internal headings (CodeSamples emits
+  // `aas:sample` when the version changes).
+  const tocBlocks = Array.from(document.querySelectorAll<HTMLElement>('[data-sample-toc]'));
+  document.addEventListener('aas:sample', (e) => {
+    const idx = String((e as CustomEvent<{ index: number }>).detail.index);
+    tocBlocks.forEach((b) => b.classList.toggle('hidden', b.dataset.sampleToc !== idx));
+    spy();
+  });
+
+  window.addEventListener('scroll', spy, { passive: true });
+  spy();
+
+  // Back-to-top, pinned at the bottom of the rail.
+  rail
+    ?.querySelector('[data-back-to-top]')
+    ?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+  // Persist file-tree folder collapse to localStorage. The same folder shows
+  // twice (inline list + rail), so toggling one mirrors the other. The initial
+  // closed state is applied flash-free by the inline script above.
+  const TREE_KEY = 'aas:tree-collapsed';
+  const treeDirs = Array.from(document.querySelectorAll<HTMLDetailsElement>('details.aas-tree-dir'));
+  const treeKey = (d: HTMLDetailsElement) => `${d.dataset.treeFolder}::${d.dataset.treeDir}`;
+  const loadCollapsed = (): Set<string> => {
+    try {
+      return new Set(JSON.parse(localStorage.getItem(TREE_KEY) || '[]'));
+    } catch {
+      return new Set();
+    }
+  };
+  treeDirs.forEach((d) =>
+    d.addEventListener('toggle', () => {
+      const key = treeKey(d);
+      const set = loadCollapsed();
+      d.open ? set.delete(key) : set.add(key);
+      try {
+        localStorage.setItem(TREE_KEY, JSON.stringify([...set]));
+      } catch {}
+      // Mirror the other copy of this folder (guard prevents a toggle loop).
+      treeDirs.forEach((o) => {
+        if (o !== d && treeKey(o) === key && o.open !== d.open) o.open = d.open;
+      });
+    }),
+  );
+</script>
+
+{
+  relatedArticles.length > 0 && (
+    <aside class="mt-10 border-t border-[var(--aas-border)] pt-6">
+      <h2 class="text-sm font-semibold tracking-wide text-[var(--aas-muted)] uppercase">
+        {t('detail.relatedWriting')}
+      </h2>
+      <ul class="mt-3 space-y-2">
+        {relatedArticles.map((a) => (
+          <li>
+            <a
+              href={getRelativeLocaleUrl(lang, `blog/${articleSlugOf(a)}/`)}
+              class="text-[var(--aas-accent)] no-underline hover:underline"
+            >
+              {a.data.title}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </aside>
+  )
+}
