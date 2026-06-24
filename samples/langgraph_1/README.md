@@ -36,10 +36,12 @@ docker run --rm --env-file .env aas-langgraph \
 ## Run with Docker (in a devcontainer with DooD)
 
 In a dev container that talks to the host Docker daemon (Docker-outside-of-Docker),
-the foreground `docker run` above prints nothing and exits 0 — the process is
-hard-killed as `litellm` is imported while a client is attached to the
-container's stdio (it is **not** an OOM, and no flag, `setsid`, or in-container
-redirect avoids it). Run **detached** and follow the logs instead:
+the foreground `docker run` above often prints nothing and exits 0 — but the run
+itself succeeds. The agent runs to completion and Docker captures all of its
+output; only the live **attached** stream drops it over the VM boundary. You can
+confirm this: `docker logs` on the same container shows the full output, the
+container exits 0, and it is **not** an OOM. Run **detached** and follow the logs
+instead:
 
 ```bash
 cd samples/langgraph_1
