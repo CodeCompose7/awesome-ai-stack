@@ -2,8 +2,9 @@
 # Based on Microsoft's devcontainer Node image (includes git, zsh, common tooling).
 FROM mcr.microsoft.com/devcontainers/javascript-node:24
 
-# Enable pnpm via Corepack (bundled with Node)
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Enable pnpm via Corepack (bundled with Node). Pinned to match package.json's
+# packageManager field so the dev container and CI use the same pnpm.
+RUN corepack enable && corepack prepare pnpm@11.7.0 --activate
 
 # Astro dev server default port
 EXPOSE 4321

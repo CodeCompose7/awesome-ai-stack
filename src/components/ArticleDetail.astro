@@ -2,7 +2,9 @@
 import { render } from 'astro:content';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { getStacks, slugOf } from '../lib/stacks';
+import { categoryMap } from '../data/categories';
 import { useTranslations, type Lang } from '../i18n/ui';
+import ToolAvatar from './ToolAvatar.astro';
 import type { ArticleEntry } from '../lib/articles';
 
 interface Props {
@@ -16,15 +18,13 @@ const { Content } = await render(entry);
 const data = entry.data;
 const dateStr = data.date.toISOString().slice(0, 10);
 
-// Forward links: resolve referenced tool slugs to their localized name + url.
+// Forward links: resolve referenced tool slugs to their stack entries so they
+// render as the same cards used by the "related tools" section.
 const stacks = await getStacks(lang);
-const nameBySlug = new Map(stacks.map((s) => [slugOf(s), s.data.name]));
+const bySlug = new Map(stacks.map((s) => [slugOf(s), s]));
 const referenced = data.tools
-  .filter((slug) => nameBySlug.has(slug))
-  .map((slug) => ({
-    name: nameBySlug.get(slug)!,
-    href: getRelativeLocaleUrl(lang, `stacks/${slug}/`),
-  }));
+  .map((slug) => bySlug.get(slug))
+  .filter(Boolean) as NonNullable<ReturnType<typeof bySlug.get>>[];
 ---
 
 <a href={getRelativeLocaleUrl(lang, 'blog/')} class="text-sm text-[var(--aas-accent)] no-underline"
@@ -38,17 +38,30 @@ const referenced = data.tools
 
   {
     referenced.length > 0 && (
-      <div class="mt-4">
+      <div class="mt-5">
         <span class="text-xs tracking-wide text-[var(--aas-muted)] uppercase">
           {t('article.referencedTools')}
         </span>
-        <div class="mt-2 flex flex-wrap gap-2">
-          {referenced.map((tool) => (
+        <div class="mt-2 grid gap-3 sm:grid-cols-2">
+          {referenced.map((e) => (
             <a
-              href={tool.href}
-              class="aas-lift rounded-lg border border-[var(--aas-border)] px-3 py-1.5 text-sm text-[var(--aas-accent)] no-underline"
+              href={getRelativeLocaleUrl(lang, `stacks/${slugOf(e)}/`)}
+              class="aas-lift flex items-center gap-3 rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-3 no-underline"
             >
-              {tool.name}
+              <ToolAvatar name={e.data.name} logo={e.data.logo} category={e.data.category} size={36} />
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="truncate font-semibold text-[var(--aas-text)]">{e.data.name}</span>
+                  {e.data.deprecated && (
+                    <span class="aas-deprecated shrink-0 rounded px-1.5 py-0.5 text-[0.65rem]">
+                      {t('meta.deprecated')}
+                    </span>
+                  )}
+                </div>
+                <div class="truncate text-xs text-[var(--aas-muted)]">
+                  {categoryMap.get(e.data.category)?.label[lang]}
+                </div>
+              </div>
             </a>
           ))}
         </div>
