@@ -150,8 +150,16 @@ function gitIgnored(paths: string[]): Set<string> {
   }
 }
 
-/** Read + render the sample projects in the given `samples/<folder>/` list. */
-export async function renderProjects(folders: string[]): Promise<RenderedProject[]> {
+/** A README file in the project, with an optional locale suffix:
+ *  README.md (default) or README.<lang>.md (e.g. README.ko.md). */
+const README_RE = /^readme(?:\.([a-z]{2}))?\.md$/i;
+
+/**
+ * Read + render the sample projects in the given `samples/<folder>/` list.
+ * For each project the README is localized: `README.<lang>.md` is used when it
+ * exists, otherwise the plain `README.md` is the fallback.
+ */
+export async function renderProjects(folders: string[], lang: string): Promise<RenderedProject[]> {
   const hl = await getHighlighter();
   const escapeHtml = (s: string) =>
     s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -187,17 +195,27 @@ export async function renderProjects(folders: string[]): Promise<RenderedProject
     const shown = raw.filter((f) => !ignored.has(join(dir, f.path)));
     if (!shown.length) continue;
 
+    // Pick the README for the current language: README.<lang>.md, else the
+    // plain README.md. All README variants are kept out of the file tree.
+    const readmes = shown.filter((f) => README_RE.test(f.path));
+    const readme =
+      readmes.find((f) => f.path.toLowerCase() === `readme.${lang}.md`) ??
+      readmes.find((f) => f.path.toLowerCase() === 'readme.md') ??
+      readmes[0];
+
     let readmeHtml: string | undefined;
     let headings: ProjectHeading[] = [];
     let name = folder;
+    if (readme) {
+      ({ html: readmeHtml, headings } = renderReadme(md, readme.content, folder));
+      name = readme.content.match(/^#\s+(.+?)\s*$/m)?.[1] ?? folder;
+    }
+
     const files: ProjectFile[] = [];
-    for (const f of shown.sort((a, b) => priority(a.path) - priority(b.path) || a.path.localeCompare(b.path))) {
-      if (/^readme\.md$/i.test(f.path)) {
-        ({ html: readmeHtml, headings } = renderReadme(md, f.content, folder));
-        name = f.content.match(/^#\s+(.+?)\s*$/m)?.[1] ?? folder;
-      } else {
-        files.push({ path: f.path, html: highlight(hl, f.content, langFor(f.name)) });
-      }
+    for (const f of shown
+      .filter((f) => !README_RE.test(f.path))
+      .sort((a, b) => priority(a.path) - priority(b.path) || a.path.localeCompare(b.path))) {
+      files.push({ path: f.path, html: highlight(hl, f.content, langFor(f.name)) });
     }
     out.push({ folder, name, readmeHtml, headings, files, folderUrl: `${REPO}/tree/main/samples/${folder}` });
   }

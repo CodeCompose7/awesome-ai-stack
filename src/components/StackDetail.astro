@@ -54,7 +54,9 @@ const renderedSamples = hasSamples ? await renderSamples(data.samples) : [];
 const projectSpecs = data.projects.map((p) =>
   typeof p === 'string' ? { folder: p, related: [] as string[] } : { folder: p.folder, related: p.related },
 );
-const projects = projectSpecs.length ? await renderProjects(projectSpecs.map((p) => p.folder)) : [];
+const projects = projectSpecs.length
+  ? await renderProjects(projectSpecs.map((p) => p.folder), lang)
+  : [];
 const hasProject = projects.length > 0;
 const hasTabs = hasSamples || hasProject;
 
