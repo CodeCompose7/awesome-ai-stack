@@ -35,7 +35,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           node-version: 24
-          package-manager: pnpm@latest
+          # Pinned to match package.json's packageManager field / the dev container.
+          package-manager: pnpm@11.7.0
 
   deploy:
     needs: build
