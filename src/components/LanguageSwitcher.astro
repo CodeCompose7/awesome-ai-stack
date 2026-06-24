@@ -27,6 +27,7 @@ const codes = Object.keys(languages) as Lang[];
       codes.map((code) => (
         <li>
           <a
+            data-lang-link
             href={getRelativeLocaleUrl(code, path)}
             class:list={[
               'block px-3 py-1.5 no-underline hover:bg-[var(--aas-bg)]',
@@ -51,3 +52,20 @@ const codes = Object.keys(languages) as Lang[];
     display: none;
   }
 </style>
+
+<script>
+  // Carry the current query + hash (selected tab/example/file/section) over to
+  // the other language, so switching keeps you on the same view. The links are
+  // server-rendered without that client-side state, so refresh it when the
+  // dropdown opens (also keeps real hrefs, so open-in-new-tab works too).
+  document.querySelectorAll<HTMLDetailsElement>('.aas-lang').forEach((dd) => {
+    const links = Array.from(dd.querySelectorAll<HTMLAnchorElement>('[data-lang-link]'));
+    const bases = links.map((a) => a.getAttribute('href') ?? '');
+    const sync = () => {
+      const extra = location.search + location.hash;
+      links.forEach((a, i) => a.setAttribute('href', bases[i] + extra));
+    };
+    sync();
+    dd.addEventListener('toggle', () => dd.open && sync());
+  });
+</script>
