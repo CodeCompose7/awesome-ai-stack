@@ -11,6 +11,49 @@ language: TypeScript
 license: Apache-2.0
 pricing: [open-source]
 featured: true
+samples:
+  - version: "Install · VS Code"
+    lang: bash
+    diagram: |
+      flowchart LR
+        task[task] --> plan[Cline: plan]
+        plan -->|approve each step| act[edit files / run commands]
+        act --> done[done]
+    code: |
+      # Install the extension from the CLI (or search "Cline" in the Extensions panel)
+      code --install-extension saoudrizwan.claude-dev
+    description: |
+      ### When to use
+      Reach for it when you want an agent inside the editor with human-in-the-loop
+      approvals.
+
+      ### How it flows
+      Cline proposes a plan, then edits files and runs commands with your approval
+      at each step.
+    note: After installing, open the Cline panel, pick a provider (e.g. Anthropic) and model, and paste your API key.
+  - version: "MCP · server config"
+    lang: json
+    diagram: |
+      flowchart LR
+        cline[Cline] -->|MCP| server[MCP server]
+        server --> tools[external tools]
+    code: |
+      {
+        "mcpServers": {
+          "filesystem": {
+            "command": "npx",
+            "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/dir"]
+          }
+        }
+      }
+    description: |
+      ### When to use
+      Register an MCP server when you want to give Cline external tools such as
+      filesystem or search.
+
+      ### How it flows
+      Add a command under `mcpServers` and Cline can call the tools that server
+      exposes.
 ---
 
 ## Overview
@@ -19,16 +62,16 @@ Cline (formerly Claude Dev) is a VS Code extension that turns the editor into an
 It proposes a plan, then — with your approval at each step — creates and edits files, runs terminal commands, and can use external tools via the Model Context Protocol (MCP).  
 You bring your own API key.
 
-## Sample: install and point it at a model
-
-```bash
-# Install the extension from the CLI (or search "Cline" in the Extensions panel)
-code --install-extension saoudrizwan.claude-dev
+```mermaid
+flowchart LR
+  task[task] --> plan[Cline: plan]
+  plan -->|approve each step| act[edit files / run commands]
+  act -->|MCP| tools[external tools]
+  act --> done[done]
 ```
 
-Then open the Cline panel, choose **Anthropic** as the provider, paste your API
-key, and select a model such as `claude-opus-4-8`. Describe a task ("add a
-health-check endpoint and a test") and approve each step as it works.
+The **Code samples** tab shows installing it and configuring an MCP server —
+pick from the selector to compare.
 
 ## When to use it
 
