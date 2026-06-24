@@ -96,7 +96,16 @@ const t = useTranslations(lang);
     const options = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-sample-option]'));
     const panels = Array.from(root.querySelectorAll<HTMLElement>('[data-sample-panel]'));
 
-    function apply(index: string) {
+    // The selected version lives in ?v= (0 is the default, so it's omitted).
+    const V_PARAM = 'v';
+    function writeV(index: string) {
+      const url = new URL(location.href);
+      if (index === '0') url.searchParams.delete(V_PARAM);
+      else url.searchParams.set(V_PARAM, index);
+      history.replaceState(null, '', url.pathname + url.search + url.hash);
+    }
+
+    function apply(index: string, write: boolean) {
       panels.forEach((p) => p.classList.toggle('hidden', p.dataset.samplePanel !== index));
       options.forEach((o) =>
         o.setAttribute('aria-current', String(o.dataset.sampleOption === index)),
@@ -106,13 +115,25 @@ const t = useTranslations(lang);
       dd?.removeAttribute('open');
       (window as unknown as { __aasRenderMermaid?: () => void }).__aasRenderMermaid?.();
       document.dispatchEvent(new CustomEvent('aas:sample', { detail: { index: Number(index) } }));
+      if (write) writeV(index);
     }
 
-    options.forEach((o) => o.addEventListener('click', () => apply(o.dataset.sampleOption!)));
+    options.forEach((o) => o.addEventListener('click', () => apply(o.dataset.sampleOption!, true)));
 
     // External request (e.g. a #s<n>-... deep link from DetailTabs).
     document.addEventListener('aas:select-sample', (e) =>
-      apply(String((e as CustomEvent<{ index: number }>).detail.index)),
+      apply(String((e as CustomEvent<{ index: number }>).detail.index), true),
     );
+
+    // Restore the version from ?v= on load.
+    const v = new URLSearchParams(location.search).get(V_PARAM);
+    if (v && options.some((o) => o.dataset.sampleOption === v)) apply(v, false);
+
+    // Reflect the current version when the code tab becomes active (0 → drop ?v).
+    document.addEventListener('aas:tabchange', (e) => {
+      if ((e as CustomEvent<{ id: string }>).detail.id !== 'code') return;
+      const cur = options.find((o) => o.getAttribute('aria-current') === 'true');
+      if (cur) writeV(cur.dataset.sampleOption!);
+    });
   });
 </script>

@@ -251,5 +251,21 @@ const t = useTranslations(lang);
     if (multi && params.get(PARAM_EX)) selectProject(params.get(PARAM_EX), false);
     const active = projPanels.find((p) => !p.classList.contains('hidden')) ?? projPanels[0];
     if (active && params.get(PARAM_FILE)) selectFile(active, params.get(PARAM_FILE), false);
+
+    // Reflect the current example/file in the URL whenever the impl tab becomes
+    // active, so even a default (un-clicked) impl view is shareable/restorable.
+    // DetailTabs broadcasts the initial tab on a microtask, so this also fires
+    // when impl is the landing tab.
+    function reflectSelection() {
+      const panel = projPanels.find((p) => !p.classList.contains('hidden')) ?? projPanels[0];
+      const folder = panel?.dataset.projectFolder ?? null;
+      const file =
+        fileButtonsFor(folder ?? '').find((b) => b.getAttribute('aria-current') === 'true')?.dataset
+          .filePath ?? null;
+      writeUrl(folder, file);
+    }
+    document.addEventListener('aas:tabchange', (e) => {
+      if ((e as CustomEvent<{ id: string }>).detail.id === 'impl') reflectSelection();
+    });
   });
 </script>

@@ -49,27 +49,29 @@ const tabClass =
     )
   }
 
-  {/* Pre-paint: pick the tab from the hash using inline display styles, which
-      apply before the stylesheet loads (so it works in dev too). */}
+  {/* Pre-paint: pick the tab from ?tab= (or a legacy hash / the tab-owned
+      params) using inline display styles, which apply before the stylesheet
+      loads (so it works in dev too). */}
   <script is:inline>
     (function () {
       var root = document.currentScript.parentElement;
       var hash = decodeURIComponent(location.hash.slice(1));
       var params = new URLSearchParams(location.search);
-      var hasImplTab = false;
-      root.querySelectorAll('[data-tab]').forEach(function (t) {
-        if (t.dataset.tab === 'impl') hasImplTab = true;
-      });
-      var wantsImpl = (params.has('ex') || params.has('file')) && hasImplTab;
-
-      var panels = root.querySelectorAll('[data-panel]');
-      var target = null;
-      if (hash && hash !== 'overview') {
+      var has = function (id) {
+        var found = false;
         root.querySelectorAll('[data-tab]').forEach(function (t) {
-          if (t.dataset.tab === hash) target = hash;
+          if (t.dataset.tab === id) found = true;
         });
+        return found;
+      };
+
+      var target = null;
+      var pt = params.get('tab');
+      if (pt && has(pt)) target = pt;
+      if (!target && hash && hash !== 'overview') {
+        if (has(hash)) target = hash; // legacy #<tabid>
         if (!target) {
-          panels.forEach(function (p) {
+          root.querySelectorAll('[data-panel]').forEach(function (p) {
             if (target) return;
             try {
               var esc = window.CSS && CSS.escape ? CSS.escape(hash) : hash;
@@ -78,10 +80,13 @@ const tabClass =
           });
         }
       }
-      // The impl tab owns ?ex=/?file=, so honour those even with a stale hash.
-      if (!target && wantsImpl) target = 'impl';
+      if (!target) {
+        // Tabs own their params: ?ex/?file → impl, ?v → code.
+        if ((params.has('ex') || params.has('file')) && has('impl')) target = 'impl';
+        else if (params.has('v') && has('code')) target = 'code';
+      }
       if (!target || target === 'overview') return;
-      panels.forEach(function (p) {
+      root.querySelectorAll('[data-panel]').forEach(function (p) {
         p.style.display = p.dataset.panel === target ? 'block' : 'none';
       });
       root.querySelectorAll('[data-tab]').forEach(function (t) {
@@ -100,33 +105,59 @@ const tabClass =
 </style>
 
 <script>
+  // The selected tab lives in ?tab=; each tab also owns its own params, listed
+  // here so switching tabs can drop the others' (e.g. impl's ?ex/?file must not
+  // linger on the code tab). The hash is only ever a scroll anchor.
+  const TAB_PARAM = 'tab';
+  const OWNED: Record<string, string[]> = { code: ['v'], impl: ['ex', 'file'] };
+
+  function stripForeign(url: URL, id: string) {
+    for (const [tab, ps] of Object.entries(OWNED))
+      if (tab !== id) ps.forEach((p) => url.searchParams.delete(p));
+  }
+
   document.querySelectorAll<HTMLElement>('[data-tabs]').forEach((root) => {
     const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-tab]'));
     const panels = Array.from(root.querySelectorAll<HTMLElement>('[data-panel]'));
     const tabIds = tabs.map((t) => t.dataset.tab);
 
-    function show(id: string, updateHash: boolean) {
+    function applyTab(id: string) {
       tabs.forEach((t) => t.setAttribute('aria-selected', String(t.dataset.tab === id)));
       panels.forEach((p) => {
         p.style.removeProperty('display'); // clear the pre-paint inline style
         p.classList.toggle('hidden', p.dataset.panel !== id);
       });
-      document.dispatchEvent(new CustomEvent('aas:tabchange', { detail: { id } }));
-      (window as unknown as { __aasRenderMermaid?: () => void }).__aasRenderMermaid?.();
-      if (updateHash) history.replaceState(null, '', '#' + id);
+      // Defer the broadcast to a microtask so child components (ProjectViewer,
+      // CodeSamples) have registered their listeners and can reflect their own
+      // params into the URL — even for the initial tab.
+      queueMicrotask(() => {
+        document.dispatchEvent(new CustomEvent('aas:tabchange', { detail: { id } }));
+        (window as unknown as { __aasRenderMermaid?: () => void }).__aasRenderMermaid?.();
+      });
     }
 
-    tabs.forEach((tab) => tab.addEventListener('click', () => show(tab.dataset.tab!, true)));
+    // Clicking a tab: set ?tab=, drop other tabs' params, drop the scroll hash.
+    tabs.forEach((tab) =>
+      tab.addEventListener('click', () => {
+        const id = tab.dataset.tab!;
+        const url = new URL(location.href);
+        if (id === 'overview') url.searchParams.delete(TAB_PARAM);
+        else url.searchParams.set(TAB_PARAM, id);
+        stripForeign(url, id);
+        history.replaceState(null, '', url.pathname + url.search);
+        applyTab(id);
+      }),
+    );
 
-    // Restore the tab from the URL hash: a tab id, or a hash pointing at an
-    // element inside a panel (e.g. a sample heading). The impl tab also owns the
-    // ?ex=/?file= params, so those select it even when the hash is stale/missing
-    // (e.g. a shared link whose README anchor no longer exists). Else → Overview.
+    // Resolve the initial tab: ?tab=, then a legacy #<tabid> / #<anchor>, then
+    // the tab-owned params (?ex/?file → impl, ?v → code). Else → Overview.
     const raw = decodeURIComponent(location.hash.slice(1));
     const params = new URLSearchParams(location.search);
-    const wantsImpl = (params.has('ex') || params.has('file')) && tabIds.includes('impl');
     let initial = 'overview';
-    if (tabIds.includes(raw)) {
+    const paramTab = params.get(TAB_PARAM);
+    if (paramTab && tabIds.includes(paramTab)) {
+      initial = paramTab;
+    } else if (tabIds.includes(raw)) {
       initial = raw;
     } else if (raw) {
       for (const p of panels) {
@@ -141,13 +172,32 @@ const tabClass =
         }
       }
     }
-    if (initial === 'overview' && wantsImpl) initial = 'impl';
-    show(initial, false);
-    if (initial !== 'overview' && raw && !tabIds.includes(raw)) {
+    if (initial === 'overview') {
+      if ((params.has('ex') || params.has('file')) && tabIds.includes('impl')) initial = 'impl';
+      else if (params.has('v') && tabIds.includes('code')) initial = 'code';
+    }
+
+    applyTab(initial);
+
+    // Normalize the URL to the ?tab= form (drop a legacy tab-only hash, strip
+    // params owned by other tabs) without adding a history entry.
+    {
+      const url = new URL(location.href);
+      if (initial === 'overview') url.searchParams.delete(TAB_PARAM);
+      else url.searchParams.set(TAB_PARAM, initial);
+      stripForeign(url, initial);
+      if (tabIds.includes(raw)) url.hash = ''; // hash was just the tab id
+      const next = url.pathname + url.search + url.hash;
+      if (next !== location.pathname + location.search + location.hash)
+        history.replaceState(null, '', next);
+    }
+
+    // Deep-link scroll: select the sample for a #s<n>- hash (unless ?v= already
+    // chose one) and scroll the section into view.
+    if (raw && !tabIds.includes(raw)) {
       const m = raw.match(/^s(\d+)-/);
-      if (m) {
+      if (m && !params.has('v'))
         document.dispatchEvent(new CustomEvent('aas:select-sample', { detail: { index: Number(m[1]) } }));
-      }
       document.getElementById(raw)?.scrollIntoView();
     }
   });
