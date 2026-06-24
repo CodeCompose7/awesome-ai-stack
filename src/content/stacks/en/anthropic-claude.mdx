@@ -9,6 +9,9 @@ tags: [llm, tool-use, reasoning, api]
 language: API
 license: proprietary
 pricing: [paid]
+projects:
+  - folder: anthropic-claude_1
+    related: []
 featured: true
 samples:
   - version: "TypeScript · tool use"
@@ -58,6 +61,7 @@ samples:
       ### How it flows
       Claude returns a `tool_use` block; you run the tool and send the result
       back as a `tool_result` to continue the loop.
+    note: For a runnable build of this loop, see anthropic-claude_1 in the Implementation tab.
   - version: "Python · messages"
     lang: python
     diagram: |
