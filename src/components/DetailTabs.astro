@@ -55,21 +55,31 @@ const tabClass =
     (function () {
       var root = document.currentScript.parentElement;
       var hash = decodeURIComponent(location.hash.slice(1));
-      if (!hash || hash === 'overview') return;
+      var params = new URLSearchParams(location.search);
+      var hasImplTab = false;
+      root.querySelectorAll('[data-tab]').forEach(function (t) {
+        if (t.dataset.tab === 'impl') hasImplTab = true;
+      });
+      var wantsImpl = (params.has('ex') || params.has('file')) && hasImplTab;
+
       var panels = root.querySelectorAll('[data-panel]');
       var target = null;
-      root.querySelectorAll('[data-tab]').forEach(function (t) {
-        if (t.dataset.tab === hash) target = hash;
-      });
-      if (!target) {
-        panels.forEach(function (p) {
-          if (target) return;
-          try {
-            var esc = window.CSS && CSS.escape ? CSS.escape(hash) : hash;
-            if (p.querySelector('#' + esc)) target = p.dataset.panel;
-          } catch (e) {}
+      if (hash && hash !== 'overview') {
+        root.querySelectorAll('[data-tab]').forEach(function (t) {
+          if (t.dataset.tab === hash) target = hash;
         });
+        if (!target) {
+          panels.forEach(function (p) {
+            if (target) return;
+            try {
+              var esc = window.CSS && CSS.escape ? CSS.escape(hash) : hash;
+              if (p.querySelector('#' + esc)) target = p.dataset.panel;
+            } catch (e) {}
+          });
+        }
       }
+      // The impl tab owns ?ex=/?file=, so honour those even with a stale hash.
+      if (!target && wantsImpl) target = 'impl';
       if (!target || target === 'overview') return;
       panels.forEach(function (p) {
         p.style.display = p.dataset.panel === target ? 'block' : 'none';
@@ -109,8 +119,12 @@ const tabClass =
     tabs.forEach((tab) => tab.addEventListener('click', () => show(tab.dataset.tab!, true)));
 
     // Restore the tab from the URL hash: a tab id, or a hash pointing at an
-    // element inside a panel (e.g. a sample heading). Everything else → Overview.
+    // element inside a panel (e.g. a sample heading). The impl tab also owns the
+    // ?ex=/?file= params, so those select it even when the hash is stale/missing
+    // (e.g. a shared link whose README anchor no longer exists). Else → Overview.
     const raw = decodeURIComponent(location.hash.slice(1));
+    const params = new URLSearchParams(location.search);
+    const wantsImpl = (params.has('ex') || params.has('file')) && tabIds.includes('impl');
     let initial = 'overview';
     if (tabIds.includes(raw)) {
       initial = raw;
@@ -127,6 +141,7 @@ const tabClass =
         }
       }
     }
+    if (initial === 'overview' && wantsImpl) initial = 'impl';
     show(initial, false);
     if (initial !== 'overview' && raw && !tabIds.includes(raw)) {
       const m = raw.match(/^s(\d+)-/);
