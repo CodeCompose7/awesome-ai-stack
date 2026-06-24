@@ -10,6 +10,77 @@ language: API
 license: proprietary
 pricing: [paid]
 featured: true
+samples:
+  - version: "TypeScript · tool use"
+    lang: ts
+    diagram: |
+      flowchart LR
+        user[user message] --> claude[Claude]
+        claude -->|tool_use| tool[run tool]
+        tool -->|tool_result| claude
+        claude --> answer[final answer]
+    code: |
+      import Anthropic from '@anthropic-ai/sdk';
+
+      const client = new Anthropic(); // reads ANTHROPIC_API_KEY
+
+      const tools = [
+        {
+          name: 'get_weather',
+          description: 'Get the current weather for a city',
+          input_schema: {
+            type: 'object',
+            properties: { city: { type: 'string' } },
+            required: ['city'],
+          },
+        },
+      ] as const;
+
+      const message = await client.messages.create({
+        model: 'claude-opus-4-8',
+        max_tokens: 1024,
+        tools,
+        messages: [{ role: 'user', content: 'What should I wear in Seoul today?' }],
+      });
+
+      // When Claude wants a tool, it returns a `tool_use` block. Run the tool,
+      // then send the result back as a `tool_result` to continue the loop.
+      for (const block of message.content) {
+        if (block.type === 'tool_use') {
+          console.log('call', block.name, block.input);
+        }
+      }
+    description: |
+      ### 언제 쓰나
+      모델이 함수를 호출해 외부 동작을 하게 하고 싶을 때 도구 사용을 쓰세요.
+
+      ### 흐름
+      Claude가 `tool_use` 블록을 반환하면 도구를 실행하고, 결과를 `tool_result`로
+      다시 보내 루프를 이어갑니다.
+  - version: "Python · messages"
+    lang: python
+    diagram: |
+      flowchart LR
+        msg[messages.create] --> claude[Claude]
+        claude --> text[text reply]
+    code: |
+      from anthropic import Anthropic
+
+      client = Anthropic()  # reads ANTHROPIC_API_KEY
+
+      message = client.messages.create(
+          model="claude-opus-4-8",
+          max_tokens=1024,
+          messages=[{"role": "user", "content": "Summarize Claude in one line."}],
+      )
+      print(message.content[0].text)
+    description: |
+      ### 언제 쓰나
+      파이썬에서 간단한 한 번의 메시지 호출이 필요할 때 쓰세요.
+
+      ### 흐름
+      `messages.create`가 모델 응답을 반환하고, 텍스트는 `content[0].text`에
+      담겨 있습니다.
 ---
 
 ## 개요
@@ -23,42 +94,16 @@ Claude는 Anthropic의 프런티어 모델 제품군입니다.
 - `claude-sonnet-4-6` — 대량 트래픽 에이전트에 비용/지연이 균형 잡힌 선택
 - `claude-haiku-4-5-20251001` — 단순 하위 작업에 가장 빠르고 저렴
 
-## 샘플: 도구를 사용하는 에이전트 한 턴
-
-`pnpm add @anthropic-ai/sdk`로 SDK를 설치한 뒤:
-
-```ts
-import Anthropic from '@anthropic-ai/sdk';
-
-const client = new Anthropic(); // ANTHROPIC_API_KEY 환경변수를 읽습니다
-
-const tools = [
-  {
-    name: 'get_weather',
-    description: 'Get the current weather for a city',
-    input_schema: {
-      type: 'object',
-      properties: { city: { type: 'string' } },
-      required: ['city'],
-    },
-  },
-] as const;
-
-const message = await client.messages.create({
-  model: 'claude-opus-4-8',
-  max_tokens: 1024,
-  tools,
-  messages: [{ role: 'user', content: 'What should I wear in Seoul today?' }],
-});
-
-// Claude가 도구를 쓰려 하면 `tool_use` 블록을 반환합니다. 해당 도구를 실행한 뒤
-// 결과를 `tool_result`로 다시 보내 루프를 이어갑니다.
-for (const block of message.content) {
-  if (block.type === 'tool_use') {
-    console.log('call', block.name, block.input);
-  }
-}
+```mermaid
+flowchart LR
+  user[user message] --> claude[Claude]
+  claude -->|tool_use| tool[run tool]
+  tool -->|tool_result| claude
+  claude --> answer[final answer]
 ```
+
+**코드 샘플** 탭에는 TypeScript와 Python 예시가 있습니다 —
+선택기에서 비교해 보세요.
 
 ## 언제 쓰면 좋은가
 

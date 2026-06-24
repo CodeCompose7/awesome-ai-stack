@@ -10,6 +10,78 @@ language: API
 license: proprietary
 pricing: [paid]
 featured: true
+samples:
+  - version: "TypeScript · tool use"
+    lang: ts
+    diagram: |
+      flowchart LR
+        user[user message] --> claude[Claude]
+        claude -->|tool_use| tool[run tool]
+        tool -->|tool_result| claude
+        claude --> answer[final answer]
+    code: |
+      import Anthropic from '@anthropic-ai/sdk';
+
+      const client = new Anthropic(); // reads ANTHROPIC_API_KEY
+
+      const tools = [
+        {
+          name: 'get_weather',
+          description: 'Get the current weather for a city',
+          input_schema: {
+            type: 'object',
+            properties: { city: { type: 'string' } },
+            required: ['city'],
+          },
+        },
+      ] as const;
+
+      const message = await client.messages.create({
+        model: 'claude-opus-4-8',
+        max_tokens: 1024,
+        tools,
+        messages: [{ role: 'user', content: 'What should I wear in Seoul today?' }],
+      });
+
+      // When Claude wants a tool, it returns a `tool_use` block. Run the tool,
+      // then send the result back as a `tool_result` to continue the loop.
+      for (const block of message.content) {
+        if (block.type === 'tool_use') {
+          console.log('call', block.name, block.input);
+        }
+      }
+    description: |
+      ### When to use
+      Reach for tool use when you want the model to call functions and take
+      external actions.
+
+      ### How it flows
+      Claude returns a `tool_use` block; you run the tool and send the result
+      back as a `tool_result` to continue the loop.
+  - version: "Python · messages"
+    lang: python
+    diagram: |
+      flowchart LR
+        msg[messages.create] --> claude[Claude]
+        claude --> text[text reply]
+    code: |
+      from anthropic import Anthropic
+
+      client = Anthropic()  # reads ANTHROPIC_API_KEY
+
+      message = client.messages.create(
+          model="claude-opus-4-8",
+          max_tokens=1024,
+          messages=[{"role": "user", "content": "Summarize Claude in one line."}],
+      )
+      print(message.content[0].text)
+    description: |
+      ### When to use
+      Reach for this when you need a simple one-shot message call from Python.
+
+      ### How it flows
+      `messages.create` returns the model's reply; the text lives in
+      `content[0].text`.
 ---
 
 ## Overview
@@ -23,42 +95,16 @@ Common model ids (use the latest/most capable for new agents):
 - `claude-sonnet-4-6` — balanced cost/latency for high-volume agents
 - `claude-haiku-4-5-20251001` — fastest/cheapest for simple sub-tasks
 
-## Sample: a tool-using agent turn
-
-Install the SDK with `pnpm add @anthropic-ai/sdk`, then:
-
-```ts
-import Anthropic from '@anthropic-ai/sdk';
-
-const client = new Anthropic(); // reads ANTHROPIC_API_KEY
-
-const tools = [
-  {
-    name: 'get_weather',
-    description: 'Get the current weather for a city',
-    input_schema: {
-      type: 'object',
-      properties: { city: { type: 'string' } },
-      required: ['city'],
-    },
-  },
-] as const;
-
-const message = await client.messages.create({
-  model: 'claude-opus-4-8',
-  max_tokens: 1024,
-  tools,
-  messages: [{ role: 'user', content: 'What should I wear in Seoul today?' }],
-});
-
-// When Claude wants a tool, it returns a `tool_use` block. Run the tool,
-// then send the result back as a `tool_result` to continue the loop.
-for (const block of message.content) {
-  if (block.type === 'tool_use') {
-    console.log('call', block.name, block.input);
-  }
-}
+```mermaid
+flowchart LR
+  user[user message] --> claude[Claude]
+  claude -->|tool_use| tool[run tool]
+  tool -->|tool_result| claude
+  claude --> answer[final answer]
 ```
+
+The **Code samples** tab shows TypeScript and Python examples — pick from the
+selector to compare.
 
 ## When to use it
 
