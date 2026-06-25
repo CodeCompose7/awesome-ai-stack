@@ -14,15 +14,7 @@ cd samples/pgvector_1
 docker compose up --build
 ```
 
-예상 출력:
-
-```text
-nearest to 'cat' by cosine distance:
-  cat        0.0000  (query)
-  kitten     0.0129
-  rocket     0.8901
-  airplane   0.9901
-```
+여기서는 `.env`가 필요 없습니다 — compose가 `DATABASE_URL`을 자동으로 설정합니다.
 
 `docker-compose.yml`의 질의어(`command: ["cat"]`)를 바꿔 보세요 — `rocket`으로
 하면 이웃이 바뀝니다.
@@ -53,3 +45,18 @@ python app.py cat
 ```
 
 `.env`는 gitignore 처리되어 있고, `.env.sample`만 커밋됩니다.
+
+---
+
+## 실행 결과
+
+> LLM 샘플과 달리 이 샘플은 **결정적**입니다 — toy 벡터가 고정이라 매번 같은
+> 출력이 나옵니다.
+
+```text
+nearest to 'cat' by cosine distance:
+  cat        0.0000  (query)
+  kitten     0.0129
+  rocket     0.8901
+  airplane   0.9901
+```

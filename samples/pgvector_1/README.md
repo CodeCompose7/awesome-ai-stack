@@ -15,15 +15,8 @@ cd samples/pgvector_1
 docker compose up --build
 ```
 
-Expected output:
-
-```text
-nearest to 'cat' by cosine distance:
-  cat        0.0000  (query)
-  kitten     0.0129
-  rocket     0.8901
-  airplane   0.9901
-```
+No `.env` is needed here — compose sets `DATABASE_URL` to the bundled database
+automatically.
 
 Change the query word in `docker-compose.yml` (`command: ["cat"]`) — try
 `rocket` to see the neighbours flip.
@@ -54,3 +47,18 @@ python app.py cat
 ```
 
 `.env` is gitignored — only `.env.sample` is committed.
+
+---
+
+## Example run
+
+> Unlike the LLM samples, this one is **deterministic** — the toy vectors are
+> fixed, so the output is identical every run.
+
+```text
+nearest to 'cat' by cosine distance:
+  cat        0.0000  (query)
+  kitten     0.0129
+  rocket     0.8901
+  airplane   0.9901
+```
