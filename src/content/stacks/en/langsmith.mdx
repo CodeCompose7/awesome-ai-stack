@@ -9,6 +9,9 @@ tags: [tracing, eval, monitoring, prompts]
 language: SaaS / SDK
 license: proprietary
 pricing: [free-tier, paid]
+projects:
+  - folder: langsmith_1
+    related: [anthropic-claude]
 samples:
   - version: "TypeScript · traceable"
     lang: ts
@@ -72,6 +75,7 @@ samples:
       ### How it flows
       `@traceable` sends each function run to LangSmith; you only set the env
       vars.
+    note: For a runnable trace round-trip (send the run, then read it back), see langsmith_1 in the Implementation tab.
 ---
 
 ## Overview
