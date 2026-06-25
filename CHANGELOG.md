@@ -10,6 +10,56 @@
 실행 가능한 예제(`samples/`)를 한국어·영어로 제공하고 GitHub Pages로 배포됩니다.
 1.0.0은 카탈로그·상세 페이지·예제·다국어를 갖춘 첫 정식 릴리스를 뜻합니다.
 
+## 1.1.0 - 2026-06-25
+
+거의 모든 스택에 코드 샘플과 **실행 가능한 구현 샘플**을 붙이고, 로컬 Ollama 모델을
+지원하며, 각 구현 샘플 README에 실제 실행 결과를 기록했습니다.
+
+### 추가됨 1.1.0
+
+- **구현 샘플 8종 신설** — `litellm_1`·`dspy_1`·`pgvector_1`·`mini-swe-agent_1`·
+  `anthropic-claude_1`·`openhands_1`·`langfuse_1`·`langsmith_1`. 모두 Docker 또는
+  docker-compose로 바로 실행되며 DooD 환경에서 동작을 검증
+  - `openhands_1` — OpenHands Agent SDK의 로컬 워크스페이스로 중첩 Docker 샌드박스
+    없이 헤드리스 실행
+  - `langfuse_1` — docker-compose로 Langfuse 전체 스택(Postgres·ClickHouse·Redis·
+    MinIO·web·worker)을 띄우고 `LANGFUSE_INIT_*`로 키를 부트스트랩, 트레이스를 API로
+    다시 읽어 왕복 검증
+  - `langsmith_1` — `@traceable`로 호출을 트레이싱하고 SDK로 run을 다시 읽어 검증
+  - `pgvector_1` — compose로 pgvector Postgres를 띄워 코사인 거리 최근접 이웃 조회
+- **코드 샘플 탭 확충** — 그동안 비어 있던 스택들(LiteLLM·DSPy·pgvector·Anthropic
+  Claude·mini-SWE-agent·SWE-agent·Cline·Langfuse·LangSmith·OpenHands)에 버전별 코드
+  샘플과 다이어그램 추가
+- **Ollama(로컬 모델) 지원** — litellm 라우팅 샘플 전체에 `ollama_chat/<model>`
+  MODEL 옵션과 `OLLAMA_API_BASE` 추가. DooD에서는 `host.docker.internal`로 호스트
+  Ollama에 접속하고, 도구 호출에는 chat 엔드포인트(`ollama_chat/`)가 필요함을 안내
+- **구현 샘플 README의 "실행 결과" 섹션** — 실제 실행 출력을 기록. LLM 샘플은 매번
+  결과가 달라질 수 있음을, pgvector는 결정적임을 함께 명시
+
+### 변경됨 1.1.0
+
+- litellm가 3.14를 지원하지 않아 샘플 베이스 이미지를 `python:3.12-slim` →
+  `python:3.13-slim`으로 상향
+- 모든 스택 개요(개요/Overview)를 문장별 줄바꿈(두 칸 공백 하드 브레이크)으로 통일
+- mini-SWE-agent 구현 샘플의 import 시작 배너를 `MSWEA_SILENT_STARTUP`으로 숨김
+
+### 수정됨 1.1.0
+
+- **Ollama 도구 호출이 빈 출력으로 끝나던 문제** — `ollama/`(generate 엔드포인트)를
+  `ollama_chat/`(chat 엔드포인트)로 바꿔 함수 호출이 동작. langgraph 샘플은 thinking
+  모델의 리스트 content에서 텍스트만 추출하도록 보정
+- `langgraph_1`의 DooD 설명을 다른 샘플과 동일하게 정정 — hard-kill 오해 대신 attach
+  스트림 드롭으로 기술
+- 한국어 README의 문장 끝 `).` 회피(가이드 준수)와 LangSmith 환경변수 표 정렬 경고를
+  리스트로 해소
+- 한/영 콘텐츠 정합 — langfuse-vs-langsmith 가격 행의 Langfuse 셀을 영문에 맞춰 '무료
+  클라우드 티어'로 정정
+
+### 문서 1.1.0
+
+- `docs/markdown-style.md`에 단락 내 줄바꿈(두 칸 공백 하드 브레이크) 규칙 추가
+- `pgvector_1`은 compose가 `DATABASE_URL`을 주입하므로 `.env`가 불필요함을 명시
+
 ## 1.0.1 - 2026-06-24
 
 루트 홈에서 브라우저 언어를 감지해 제공 언어로 안내합니다.
