@@ -10,6 +10,9 @@ tags: [tracing, eval, monitoring, analytics]
 language: TypeScript
 license: MIT
 pricing: [open-source, free-tier, paid]
+projects:
+  - folder: langfuse_1
+    related: [anthropic-claude]
 samples:
   - version: "TypeScript · trace"
     lang: ts
@@ -68,6 +71,7 @@ samples:
       ### How it flows
       `@observe` wraps the function call in a span automatically and sends its
       inputs/outputs to Langfuse.
+    note: For a runnable, self-hosted trace round-trip, see langfuse_1 in the Implementation tab.
 ---
 
 ## Overview
