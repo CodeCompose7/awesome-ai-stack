@@ -21,15 +21,16 @@ cp .env.sample .env
 | Anthropic Claude  | `claude-opus-4-8`         | `ANTHROPIC_API_KEY` |
 | OpenAI            | `gpt-4o`                  | `OPENAI_API_KEY`    |
 | Google AI Studio  | `gemini/gemini-2.5-flash` | `GEMINI_API_KEY`    |
-| Ollama (local)    | `ollama/qwen3:8b`         | `OLLAMA_API_BASE`   |
+| Ollama (local)    | `ollama/qwen3.5:9b`       | `OLLAMA_API_BASE`   |
 
 `.env` is gitignored — only `.env.sample` is committed.
 
-**Ollama (local models):** set `MODEL=ollama/<model>` (e.g. `ollama/qwen3:8b`,
-after `ollama pull qwen3:8b`) and point `OLLAMA_API_BASE` at the server — no API
-key needed. In a devcontainer with DooD the container reaches the host's Ollama
-at `http://host.docker.internal:11434`; running locally use
-`http://localhost:11434`. Tool-calling needs a local model that supports tools (e.g. `qwen3`); some models (e.g. `gemma`) emit tool calls as plain text and won't loop.
+**Ollama (local models):** first pull the model on the host —
+`ollama pull qwen3.5:9b` (or `ollama run qwen3.5:9b`). Then set
+`MODEL=ollama/qwen3.5:9b` and point `OLLAMA_API_BASE` at the server — no API key
+needed. In a devcontainer with DooD the container reaches the host's Ollama at
+`http://host.docker.internal:11434`; running locally use
+`http://localhost:11434`. Tool-calling samples are sensitive to the local model: smaller ones may emit tool calls as plain text (e.g. `gemma`) or return empty output (e.g. `qwen3.5:9b`, a thinking model), so the loop may not complete — a cloud model is more reliable here.
 
 ## Run with Docker
 

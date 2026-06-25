@@ -20,13 +20,14 @@ cp .env.sample .env
 | Anthropic Claude  | `claude-opus-4-8`         | `ANTHROPIC_API_KEY` |
 | OpenAI            | `gpt-4o`                  | `OPENAI_API_KEY`    |
 | Google AI Studio  | `gemini/gemini-2.5-flash` | `GEMINI_API_KEY`    |
-| Ollama (local)    | `ollama/qwen3:8b`         | `OLLAMA_API_BASE`   |
+| Ollama (local)    | `ollama/qwen3.5:9b`       | `OLLAMA_API_BASE`   |
 
 `.env`는 gitignore 처리되어 있고, `.env.sample`만 커밋됩니다.
 
-**Ollama (로컬 모델):** `MODEL=ollama/<model>`로 설정하고(예: `ollama/qwen3:8b`,
-먼저 `ollama pull qwen3:8b`) `OLLAMA_API_BASE`를 서버 주소로 지정하세요 — API 키는
-필요 없습니다. DooD를 쓰는 devcontainer에서는 컨테이너가 호스트의 Ollama에
+**Ollama (로컬 모델):** 먼저 호스트에서 모델을 받아두세요 —
+`ollama pull qwen3.5:9b`(또는 `ollama run qwen3.5:9b`)를 실행합니다. 그다음
+`MODEL=ollama/qwen3.5:9b`로 설정하고 `OLLAMA_API_BASE`를 서버 주소로 지정하세요 — API
+키는 필요 없습니다. DooD를 쓰는 devcontainer에서는 컨테이너가 호스트의 Ollama에
 `http://host.docker.internal:11434`로 접근하고, 로컬 실행 시에는
 `http://localhost:11434`를 씁니다.
 
