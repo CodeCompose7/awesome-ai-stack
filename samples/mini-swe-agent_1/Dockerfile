@@ -8,6 +8,10 @@ ENV PYTHONUNBUFFERED=1
 # mini-SWE-agent's cost tracking would raise instead of running.
 ENV MSWEA_COST_TRACKING=ignore_errors
 
+# Silence the package's import-time banner (version + v2 migration notice) so the
+# agent's output starts clean. It is just an informational notice, not a warning.
+ENV MSWEA_SILENT_STARTUP=1
+
 WORKDIR /app
 
 COPY requirements.txt .
