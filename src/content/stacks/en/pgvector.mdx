@@ -8,38 +8,79 @@ tags: [embeddings, rag, postgres, similarity-search]
 language: SQL / C
 license: PostgreSQL
 pricing: [open-source]
+projects:
+  - folder: pgvector_1
+    related: [langgraph, litellm]
+samples:
+  - version: "Schema · vector column"
+    lang: sql
+    diagram: |
+      flowchart LR
+        text[text] -->|embedding model| vec[vector]
+        vec --> pg[(Postgres + pgvector)]
+        q[query vector] -->|<=> cosine| pg
+        pg --> top[top-k rows]
+    code: |
+      CREATE EXTENSION IF NOT EXISTS vector;
+
+      CREATE TABLE memories (
+        id        bigserial PRIMARY KEY,
+        body      text,
+        embedding vector(1536)        -- match your embedding model's dimensions
+      );
+
+      -- Nearest-neighbour search using cosine distance (<=>):
+      SELECT body
+      FROM memories
+      ORDER BY embedding <=> $1
+      LIMIT 5;
+    description: |
+      ### When to use
+      Reach for it when you want embeddings stored next to your relational data
+      and similarity search in plain SQL.
+
+      ### How it flows
+      An embedding model turns text into a vector; the `<=>` (cosine distance)
+      operator orders rows by nearest neighbour.
+    note: For a runnable build, see pgvector_1 in the Implementation tab — it brings up Postgres and the app with docker compose.
+  - version: "Index · HNSW"
+    lang: sql
+    diagram: |
+      flowchart LR
+        rows[(many rows)] --> idx[HNSW index]
+        q[query] --> idx
+        idx --> approx[approx top-k]
+    code: |
+      -- For large tables, add an approximate index to keep queries fast.
+      CREATE INDEX ON memories USING hnsw (embedding vector_cosine_ops);
+
+      -- Same query as before — now answered with the index.
+      SELECT body FROM memories ORDER BY embedding <=> $1 LIMIT 5;
+    description: |
+      ### When to use
+      Add an approximate index once a table grows large enough that an exact
+      full scan gets slow.
+
+      ### How it flows
+      The `hnsw` index builds an approximate nearest-neighbour graph, trading a
+      little recall for a big speedup.
 ---
 
 ## Overview
 
-`pgvector` adds a `vector` column type and similarity operators to PostgreSQL.
-If your stack already runs Postgres, it is the lowest-friction way to give an
-agent long-term memory or RAG retrieval — no extra service to operate.
+`pgvector` adds a `vector` column type and similarity operators to PostgreSQL.  
+If your stack already runs Postgres, it is the lowest-friction way to give an agent long-term memory or RAG retrieval — no extra service to operate.
 
-## Sample: store and query embeddings
-
-```sql
-CREATE EXTENSION IF NOT EXISTS vector;
-
-CREATE TABLE memories (
-  id    bigserial PRIMARY KEY,
-  body  text,
-  embedding vector(1536)        -- match your embedding model's dimensions
-);
-
--- Nearest-neighbour search using cosine distance (<=>):
-SELECT body
-FROM memories
-ORDER BY embedding <=> $1
-LIMIT 5;
+```mermaid
+flowchart LR
+  text[text] -->|embedding model| vec[vector]
+  vec --> pg[(Postgres + pgvector)]
+  q[query vector] -->|<=> cosine| pg
+  pg --> top[top-k rows]
 ```
 
-For large tables add an approximate index (`hnsw` or `ivfflat`) to keep queries
-fast:
-
-```sql
-CREATE INDEX ON memories USING hnsw (embedding vector_cosine_ops);
-```
+The **Code samples** tab shows the schema/query and the index — pick from the
+selector to compare.
 
 ## When to use it
 

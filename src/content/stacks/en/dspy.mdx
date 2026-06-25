@@ -10,31 +10,87 @@ tags: [prompt-optimization, modular, stanford, python]
 language: Python
 license: MIT
 pricing: [open-source]
+projects:
+  - folder: dspy_1
+    related: [litellm, anthropic-claude]
+samples:
+  - version: "Module · ChainOfThought"
+    lang: python
+    diagram: |
+      flowchart LR
+        sig["question -> answer"] --> cot[ChainOfThought]
+        cot --> lm[(LM via LiteLLM)]
+        lm --> ans[answer]
+    code: |
+      import dspy
+
+      dspy.configure(lm=dspy.LM("anthropic/claude-opus-4-8"))
+
+      # The signature "question -> answer" is the whole spec; DSPy writes the prompt.
+      qa = dspy.ChainOfThought("question -> answer")
+
+      result = qa(question="Why is the sky blue?")
+      print(result.answer)
+    description: |
+      ### When to use
+      Reach for a module when you'd rather declare the task as a signature than
+      hand-write a prompt string. `ChainOfThought` adds a reasoning step before
+      the answer.
+
+      ### How it flows
+      DSPy builds the prompt from the signature, calls the LM through LiteLLM,
+      then fills in the `answer` field.
+    note: For a runnable build of this module, see dspy_1 in the Implementation tab.
+  - version: "Optimizer · BootstrapFewShot"
+    lang: python
+    diagram: |
+      flowchart LR
+        train[(trainset)] --> opt[BootstrapFewShot]
+        qa[ChainOfThought] --> opt
+        opt -->|metric| tuned[compiled module]
+    code: |
+      import dspy
+      from dspy.teleprompt import BootstrapFewShot
+
+      dspy.configure(lm=dspy.LM("anthropic/claude-opus-4-8"))
+
+      qa = dspy.ChainOfThought("question -> answer")
+
+      # A few labeled examples to optimize against.
+      trainset = [
+          dspy.Example(question="2+2?", answer="4").with_inputs("question"),
+          dspy.Example(question="Capital of France?", answer="Paris").with_inputs("question"),
+      ]
+
+      def exact_match(example, pred, trace=None):
+          return example.answer.lower() in pred.answer.lower()
+
+      # Search few-shot demos that maximize the metric, then compile a tuned module.
+      tuned = BootstrapFewShot(metric=exact_match).compile(qa, trainset=trainset)
+    description: |
+      ### When to use
+      Reach for an optimizer when you'd rather tune a pipeline against a metric
+      than hand-tune prompts.
+
+      ### How it flows
+      `BootstrapFewShot` searches few-shot demos that maximize the metric on the
+      trainset, producing a compiled module.
 ---
 
 ## Overview
 
-DSPy (from Stanford NLP) lets you write LM pipelines as **declarative Python
-modules** with typed signatures (`question -> answer`) instead of hand-tuned
-prompt strings. Optimizers ("teleprompters") then compile those modules —
-searching prompts and few-shot examples against a metric — so quality improves
-without manual prompt fiddling.
+DSPy (from Stanford NLP) lets you write LM pipelines as **declarative Python modules** with typed signatures (`question -> answer`) instead of hand-tuned prompt strings.  
+Optimizers ("teleprompters") then compile those modules — searching prompts and few-shot examples against a metric — so quality improves without manual prompt fiddling.
 
-## Sample: a self-optimizing predictor
-
-```python
-import dspy
-
-dspy.configure(lm=dspy.LM("anthropic/claude-opus-4-8"))
-
-# A signature declares the task; DSPy fills in the prompt.
-qa = dspy.ChainOfThought("question -> answer")
-
-result = qa(question="Why is the sky blue?")
-print(result.answer)
-
-# Later: compile `qa` with an optimizer + metric to auto-improve the prompt.
+```mermaid
+flowchart LR
+  sig["question -> answer"] --> module[DSPy module]
+  module --> lm[(LM via LiteLLM)]
+  lm --> out[answer]
 ```
+
+The **Code samples** tab shows declaring a module and compiling it with an
+optimizer — pick from the selector to compare.
 
 ## When to use it
 

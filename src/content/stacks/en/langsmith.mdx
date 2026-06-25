@@ -9,40 +9,88 @@ tags: [tracing, eval, monitoring, prompts]
 language: SaaS / SDK
 license: proprietary
 pricing: [free-tier, paid]
+projects:
+  - folder: langsmith_1
+    related: [anthropic-claude]
+samples:
+  - version: "TypeScript · traceable"
+    lang: ts
+    diagram: |
+      flowchart LR
+        fn["traceable(fn)"] --> run[run]
+        run --> ls[(LangSmith)]
+    code: |
+      import { traceable } from 'langsmith/traceable';
+      import Anthropic from '@anthropic-ai/sdk';
+
+      const client = new Anthropic();
+
+      const plan = traceable(
+        async (input: string) => {
+          const res = await client.messages.create({
+            model: 'claude-opus-4-8',
+            max_tokens: 256,
+            messages: [{ role: 'user', content: input }],
+          });
+          return res.content;
+        },
+        { name: 'plan', run_type: 'chain' },
+      );
+
+      await plan('How do I reset my password?'); // appears as a trace in LangSmith
+    description: |
+      ### When to use
+      Wrap an existing function with `traceable` when you want to add tracing to
+      code you already have.
+
+      ### How it flows
+      Set `LANGSMITH_TRACING=true` and `LANGSMITH_API_KEY`, and every run of the
+      wrapped function shows up as a trace in LangSmith.
+  - version: "Python · @traceable"
+    lang: python
+    diagram: |
+      flowchart LR
+        fn["@traceable function"] --> run[run]
+        run --> ls[(LangSmith)]
+    code: |
+      from anthropic import Anthropic
+      from langsmith import traceable
+
+      client = Anthropic()
+
+      @traceable(run_type="chain", name="plan")
+      def plan(question: str):
+          res = client.messages.create(
+              model="claude-opus-4-8",
+              max_tokens=256,
+              messages=[{"role": "user", "content": question}],
+          )
+          return res.content
+
+      plan("How do I reset my password?")  # appears as a trace in LangSmith
+    description: |
+      ### When to use
+      Reach for the decorator when you want one-line instrumentation from Python.
+
+      ### How it flows
+      `@traceable` sends each function run to LangSmith; you only set the env
+      vars.
+    note: For a runnable trace round-trip (send the run, then read it back), see langsmith_1 in the Implementation tab.
 ---
 
 ## Overview
 
-LangSmith is LangChain's hosted platform for the operational side of LLM apps:
-trace every model and tool call, run evaluations against datasets, manage and
-version prompts, and monitor cost and latency in production. It integrates
-tightly with LangChain/LangGraph but works with any stack via its SDK.
+LangSmith is LangChain's hosted platform for the operational side of LLM apps: trace every model and tool call, run evaluations against datasets, manage and version prompts, and monitor cost and latency in production.  
+It integrates tightly with LangChain/LangGraph but works with any stack via its SDK.
 
-## Sample: trace a function
-
-Set `LANGSMITH_TRACING=true` and `LANGSMITH_API_KEY`, install with
-`pnpm add langsmith`, then wrap any function with `traceable`:
-
-```ts
-import { traceable } from 'langsmith/traceable';
-import Anthropic from '@anthropic-ai/sdk';
-
-const client = new Anthropic();
-
-const plan = traceable(
-  async (input: string) => {
-    const res = await client.messages.create({
-      model: 'claude-opus-4-8',
-      max_tokens: 256,
-      messages: [{ role: 'user', content: input }],
-    });
-    return res.content;
-  },
-  { name: 'plan', run_type: 'chain' },
-);
-
-await plan('How do I reset my password?'); // appears as a trace in LangSmith
+```mermaid
+flowchart LR
+  fn["traceable(fn)"] --> run[run]
+  run --> ls[(LangSmith)]
 ```
+
+The **Code samples** tab shows TypeScript and Python examples — pick from the
+selector to compare.
 
 ## When to use it
 

@@ -2,48 +2,94 @@
 name: LangSmith
 logo: /logos/langsmith.svg
 category: observability
-description: LLM·에이전트 앱의 트레이싱·평가·모니터링을 위한 LangChain의 호스팅 플랫폼 (LangChain 없이도 사용 가능).
+description: LLM·에이전트 앱의 트레이싱·평가·모니터링을 위한 LangChain의 호스팅 플랫폼 (LangChain 없이도 사용 가능)
 website: https://www.langchain.com/langsmith
 docs: https://docs.smith.langchain.com
 tags: [tracing, eval, monitoring, prompts]
 language: SaaS / SDK
 license: proprietary
 pricing: [free-tier, paid]
+projects:
+  - folder: langsmith_1
+    related: [anthropic-claude]
+samples:
+  - version: "TypeScript · traceable"
+    lang: ts
+    diagram: |
+      flowchart LR
+        fn["traceable(fn)"] --> run[run]
+        run --> ls[(LangSmith)]
+    code: |
+      import { traceable } from 'langsmith/traceable';
+      import Anthropic from '@anthropic-ai/sdk';
+
+      const client = new Anthropic();
+
+      const plan = traceable(
+        async (input: string) => {
+          const res = await client.messages.create({
+            model: 'claude-opus-4-8',
+            max_tokens: 256,
+            messages: [{ role: 'user', content: input }],
+          });
+          return res.content;
+        },
+        { name: 'plan', run_type: 'chain' },
+      );
+
+      await plan('How do I reset my password?'); // appears as a trace in LangSmith
+    description: |
+      ### 언제 쓰나
+      기존 함수에 트레이싱을 덧붙이고 싶을 때 `traceable`로 감싸세요.
+
+      ### 흐름
+      `LANGSMITH_TRACING=true`와 `LANGSMITH_API_KEY`를 설정하면 감싼 함수의 모든
+      실행이 LangSmith에 트레이스로 나타납니다.
+  - version: "Python · @traceable"
+    lang: python
+    diagram: |
+      flowchart LR
+        fn["@traceable function"] --> run[run]
+        run --> ls[(LangSmith)]
+    code: |
+      from anthropic import Anthropic
+      from langsmith import traceable
+
+      client = Anthropic()
+
+      @traceable(run_type="chain", name="plan")
+      def plan(question: str):
+          res = client.messages.create(
+              model="claude-opus-4-8",
+              max_tokens=256,
+              messages=[{"role": "user", "content": question}],
+          )
+          return res.content
+
+      plan("How do I reset my password?")  # appears as a trace in LangSmith
+    description: |
+      ### 언제 쓰나
+      파이썬에서 데코레이터 한 줄로 함수를 계측하고 싶을 때 쓰세요.
+
+      ### 흐름
+      `@traceable`이 함수 실행을 LangSmith로 보내며, 환경변수만 설정하면 됩니다.
+    note: 트레이스를 보내고 run을 다시 읽어오는 실행 예는 구현 샘플 탭의 langsmith_1을 보세요.
 ---
 
 ## 개요
 
-LangSmith는 LLM 앱의 운영 측면을 담당하는 LangChain의 호스팅 플랫폼입니다.
-모든 모델·도구 호출을 트레이싱하고, 데이터셋에 대해 평가를 실행하며,
-프롬프트를 관리·버전 관리하고, 프로덕션에서 비용과 지연을 모니터링합니다.
-LangChain/LangGraph와 긴밀히 통합되지만 SDK를 통해 어떤 스택과도 함께 쓸 수
-있습니다.
+LangSmith는 LLM 앱의 운영 측면을 담당하는 LangChain의 호스팅 플랫폼입니다.  
+모든 모델·도구 호출을 트레이싱하고, 데이터셋에 대해 평가를 실행하며, 프롬프트를 관리·버전 관리하고, 프로덕션에서 비용과 지연을 모니터링합니다.  
+LangChain/LangGraph와 긴밀히 통합되지만 SDK를 통해 어떤 스택과도 함께 쓸 수 있습니다.
 
-## 샘플: 함수 트레이싱
-
-`LANGSMITH_TRACING=true`와 `LANGSMITH_API_KEY`를 설정하고 `pnpm add langsmith`로
-설치한 뒤, 아무 함수나 `traceable`로 감싸면 됩니다:
-
-```ts
-import { traceable } from 'langsmith/traceable';
-import Anthropic from '@anthropic-ai/sdk';
-
-const client = new Anthropic();
-
-const plan = traceable(
-  async (input: string) => {
-    const res = await client.messages.create({
-      model: 'claude-opus-4-8',
-      max_tokens: 256,
-      messages: [{ role: 'user', content: input }],
-    });
-    return res.content;
-  },
-  { name: 'plan', run_type: 'chain' },
-);
-
-await plan('How do I reset my password?'); // LangSmith에 트레이스로 나타납니다
+```mermaid
+flowchart LR
+  fn["traceable(fn)"] --> run[run]
+  run --> ls[(LangSmith)]
 ```
+
+**코드 샘플** 탭에는 TypeScript와 Python 예시가 있습니다 —
+선택기에서 비교해 보세요.
 
 ## 언제 쓰면 좋은가
 

@@ -11,31 +11,86 @@ language: Python
 license: MIT
 pricing: [open-source]
 related: [swe-agent]
+projects:
+  - folder: mini-swe-agent_1
+    related: [litellm]
 featured: true
+samples:
+  - version: "CLI · mini"
+    lang: bash
+    diagram: |
+      flowchart LR
+        task[task] --> agent[mini]
+        agent -->|bash command| shell[(your shell)]
+        shell -->|output| agent
+        agent --> done([submit])
+    code: |
+      pip install mini-swe-agent
+
+      # Interactive, in the current repo:
+      mini
+
+      # Or a one-off task with an explicit model:
+      mini -m claude-opus-4-8 -t "Fix the failing test in tests/test_parser.py"
+    description: |
+      ### When to use
+      Reach for the CLI when you want to run the agent straight from a terminal.
+
+      ### How it flows
+      The agent proposes a bash command, runs it in your shell, observes the
+      output, and iterates until the task is done.
+  - version: "Python · DefaultAgent"
+    lang: python
+    diagram: |
+      flowchart LR
+        model[LitellmTextbasedModel] --> agent[DefaultAgent]
+        env[LocalEnvironment] --> agent
+        agent -->|run task| loop[bash loop]
+    code: |
+      import yaml
+      from minisweagent import package_dir
+      from minisweagent.agents.default import DefaultAgent
+      from minisweagent.environments.local import LocalEnvironment
+      from minisweagent.models.litellm_textbased_model import LitellmTextbasedModel
+
+      config = yaml.safe_load((package_dir / "config" / "default.yaml").read_text())["agent"]
+
+      # The default config asks for a ```mswea_bash_command fence, so pair it
+      # with the text-based model. MODEL is routed through LiteLLM.
+      agent = DefaultAgent(
+          LitellmTextbasedModel(model_name="anthropic/claude-opus-4-8"),
+          LocalEnvironment(),
+          **config,
+      )
+      result = agent.run("Print the result of 2 + 2, then submit.")
+      print(result["exit_status"], result.get("submission", ""))
+    description: |
+      ### When to use
+      Reach for the Python binding when you want to embed the agent in your own
+      program.
+
+      ### How it flows
+      DefaultAgent ties the model, environment, and config together, runs the
+      loop, and returns the exit_status and submission when it ends.
+    note: For a runnable build, see mini-swe-agent_1 in the Implementation tab — use a capable model.
 ---
 
 ## Overview
 
-mini-SWE-agent is the streamlined successor to [SWE-agent](../swe-agent/). It
-keeps the same idea — let a model read, edit, and run code to fix a GitHub
-issue — but strips the agent loop down to roughly **100 lines**: no special
-tools, just shell commands. It's simpler to read, hack on, and deploy while
-staying competitive on SWE-bench.
+mini-SWE-agent is the streamlined successor to [SWE-agent](../swe-agent/).  
+It keeps the same idea — let a model read, edit, and run code to fix a GitHub issue — but strips the agent loop down to roughly **100 lines**: no special tools, just shell commands.  
+It's simpler to read, hack on, and deploy while staying competitive on SWE-bench.
 
-## Sample: run a task
-
-```bash
-pip install mini-swe-agent
-
-# Interactive in the current repo:
-mini
-
-# Or give it a one-off task and model:
-mini -m claude-opus-4-8 -t "Fix the failing test in tests/test_parser.py"
+```mermaid
+flowchart LR
+  task[task] --> agent[mini-SWE-agent]
+  agent -->|bash command| shell[(shell)]
+  shell -->|output| agent
+  agent --> done([submit])
 ```
 
-The agent proposes shell commands, runs them in your environment, and iterates
-until the task is done.
+The **Code samples** tab shows two ways to use it — the CLI and the Python
+binding; pick from the selector to compare.
 
 ## When to use it
 

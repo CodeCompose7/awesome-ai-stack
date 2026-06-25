@@ -10,34 +10,84 @@ tags: [gateway, multi-provider, proxy, python]
 language: Python
 license: MIT
 pricing: [open-source]
+projects:
+  - folder: litellm_1
+    related: [anthropic-claude, langgraph]
 featured: true
+samples:
+  - version: "SDK · completion()"
+    lang: python
+    diagram: |
+      flowchart LR
+        app[your code] -->|completion| litellm[LiteLLM]
+        litellm --> prov[(any provider)]
+    code: |
+      from litellm import completion
+
+      # One call shape for every provider — switch by editing only the model string.
+      resp = completion(
+          model="anthropic/claude-opus-4-8",
+          messages=[{"role": "user", "content": "Summarize litellm in one line."}],
+      )
+      print(resp.choices[0].message.content)
+    description: |
+      ### When to use
+      Reach for the SDK when you just want one provider-agnostic call. Switch
+      providers by editing only the model string.
+
+      ### How it flows
+      LiteLLM translates the OpenAI-style request into the target provider's API
+      and normalizes the response back.
+    note: For a runnable build of this call, see litellm_1 in the Implementation tab.
+  - version: "Router · fallbacks"
+    lang: python
+    diagram: |
+      flowchart LR
+        app[your code] --> router[Router]
+        router -->|primary| A[claude-opus-4-8]
+        router -.->|on error| B[gpt-4o]
+    code: |
+      from litellm import Router
+
+      # Try the primary model; if it errors, fall back to the next one.
+      router = Router(
+          model_list=[
+              {"model_name": "primary", "litellm_params": {"model": "anthropic/claude-opus-4-8"}},
+              {"model_name": "backup",  "litellm_params": {"model": "openai/gpt-4o"}},
+          ],
+          fallbacks=[{"primary": ["backup"]}],
+      )
+
+      resp = router.completion(
+          model="primary",
+          messages=[{"role": "user", "content": "ping"}],
+      )
+      print(resp.choices[0].message.content)
+    description: |
+      ### When to use
+      Reach for the Router when availability matters. It falls back to another
+      model when the primary fails, and load-balances across deployments.
+
+      ### How it flows
+      If the `primary` call fails, the Router follows the `fallbacks` map and
+      retries on `backup`.
 ---
 
 ## Overview
 
-LiteLLM is a thin abstraction over many model providers (Anthropic, OpenAI,
-Bedrock, Vertex, local models, …) exposing a single OpenAI-compatible call.
-Beyond the SDK, its **proxy server** acts as an LLM gateway: load balancing,
-automatic fallbacks, retries, budgets, and per-key cost tracking — so agents
-can swap models without code changes.
+LiteLLM is a thin abstraction over many model providers (Anthropic, OpenAI, Bedrock, Vertex, local models, …) exposing a single OpenAI-compatible call.  
+Beyond the SDK, its **proxy server** acts as an LLM gateway: load balancing, automatic fallbacks, retries, budgets, and per-key cost tracking — so agents can swap models without code changes.
 
-## Sample: one interface, any provider
-
-```python
-from litellm import completion
-import os
-
-os.environ["ANTHROPIC_API_KEY"] = "sk-ant-..."
-
-resp = completion(
-    model="anthropic/claude-opus-4-8",
-    messages=[{"role": "user", "content": "Summarize litellm in one line."}],
-)
-print(resp.choices[0].message.content)
-
-# Switch providers by changing only the model string, e.g.:
-#   model="openai/gpt-4o"  or  model="bedrock/anthropic.claude-3-5-sonnet"
+```mermaid
+flowchart LR
+  agent[agent code] -->|OpenAI-style call| litellm[LiteLLM]
+  litellm --> claude[Anthropic]
+  litellm --> openai[OpenAI]
+  litellm --> gemini[Gemini]
 ```
+
+The **Code samples** tab shows two ways to use LiteLLM — pick the SDK call or
+the Router fallback from the selector to compare.
 
 ## When to use it
 

@@ -10,37 +10,84 @@ tags: [tracing, eval, monitoring, analytics]
 language: TypeScript
 license: MIT
 pricing: [open-source, free-tier, paid]
+projects:
+  - folder: langfuse_1
+    related: [anthropic-claude]
+samples:
+  - version: "TypeScript · trace"
+    lang: ts
+    diagram: |
+      flowchart LR
+        run[agent run] --> trace[trace]
+        trace --> gen[generation span]
+        trace --> tool[tool span]
+        trace --> ui[(Langfuse UI)]
+    code: |
+      import { Langfuse } from 'langfuse';
+
+      const langfuse = new Langfuse(); // reads LANGFUSE_* env vars
+
+      const trace = langfuse.trace({ name: 'support-agent', userId: 'u_123' });
+
+      const gen = trace.generation({
+        name: 'plan',
+        model: 'claude-opus-4-8',
+        input: 'How do I reset my password?',
+      });
+
+      // ... call the model ...
+      gen.end({ output: 'Tell the user to use the reset link.' });
+
+      await langfuse.flushAsync();
+    description: |
+      ### 언제 쓰나
+      각 단계를 직접 스팬으로 만들어 세밀하게 트레이싱하고 싶을 때 SDK를 쓰세요.
+
+      ### 흐름
+      트레이스 아래에 모델·도구 스팬을 중첩하고, 종료 시 flush로 Langfuse에
+      전송합니다.
+  - version: "Python · @observe"
+    lang: python
+    diagram: |
+      flowchart LR
+        fn["@observe function"] --> span[auto span]
+        span --> ui[(Langfuse UI)]
+    code: |
+      from langfuse import observe, get_client
+
+      @observe()  # wraps the call in a trace/span automatically
+      def plan(question: str) -> str:
+          # ... call the model ...
+          return "Tell the user to use the reset link."
+
+      plan("How do I reset my password?")
+      get_client().flush()  # send buffered events before exit
+    description: |
+      ### 언제 쓰나
+      함수 단위로 손쉽게 자동 계측하고 싶을 때 데코레이터를 쓰세요.
+
+      ### 흐름
+      `@observe`가 함수 호출을 감싸 스팬을 자동 생성하고, 입력·출력을 Langfuse로
+      보냅니다.
+    note: self-host로 트레이스를 왕복 검증하는 실행 예는 구현 샘플 탭의 langfuse_1을 보세요.
 ---
 
 ## 개요
 
-에이전트는 로그만으로는 파악하기 어려운 방식으로 실패합니다. Langfuse는 각
-실행을 중첩된 스팬(모델 호출, 도구 호출, 검색)의 **트레이스**로 기록해, 모든
-단계의 지연·비용·정확한 프롬프트/출력을 들여다볼 수 있게 합니다. 그 위에
-점수와 평가를 덧붙일 수 있습니다.
+에이전트는 로그만으로는 파악하기 어려운 방식으로 실패합니다.  
+Langfuse는 각 실행을 중첩된 스팬(모델 호출, 도구 호출, 검색)의 **트레이스**로 기록해, 모든 단계의 지연·비용·정확한 프롬프트/출력을 들여다볼 수 있게 합니다.  
+그 위에 점수와 평가를 덧붙일 수 있습니다.
 
-## 샘플: 에이전트 한 단계 트레이싱
-
-`pnpm add langfuse`로 설치한 뒤:
-
-```ts
-import { Langfuse } from 'langfuse';
-
-const langfuse = new Langfuse(); // LANGFUSE_* 환경변수를 읽습니다
-
-const trace = langfuse.trace({ name: 'support-agent', userId: 'u_123' });
-
-const gen = trace.generation({
-  name: 'plan',
-  model: 'claude-opus-4-8',
-  input: 'How do I reset my password?',
-});
-
-// ... 모델 호출 ...
-gen.end({ output: 'Tell the user to use the reset link.' });
-
-await langfuse.flushAsync();
+```mermaid
+flowchart LR
+  run[agent run] --> trace[trace]
+  trace --> gen[generation span]
+  trace --> tool[tool span]
+  trace --> ui[(Langfuse UI)]
 ```
+
+**코드 샘플** 탭에는 TypeScript SDK와 Python 데코레이터 예시가 있습니다 —
+선택기에서 비교해 보세요.
 
 ## 언제 쓰면 좋은가
 

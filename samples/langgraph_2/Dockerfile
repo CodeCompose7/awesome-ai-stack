@@ -1,5 +1,5 @@
 # Minimal image for the from-scratch LangGraph sample agent.
-FROM python:3.12-slim
+FROM python:3.13-slim
 
 # Stream stdout/stderr unbuffered so the agent's output appears live.
 ENV PYTHONUNBUFFERED=1

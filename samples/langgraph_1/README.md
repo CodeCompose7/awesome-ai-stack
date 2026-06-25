@@ -21,8 +21,16 @@ cp .env.sample .env
 | Anthropic Claude  | `claude-opus-4-8`         | `ANTHROPIC_API_KEY` |
 | OpenAI            | `gpt-4o`                  | `OPENAI_API_KEY`    |
 | Google AI Studio  | `gemini/gemini-2.5-flash` | `GEMINI_API_KEY`    |
+| Ollama (local)    | `ollama_chat/qwen3.5:9b`  | `OLLAMA_API_BASE`   |
 
 `.env` is gitignored — only `.env.sample` is committed.
+
+**Ollama (local models):** first pull the model on the host —
+`ollama pull qwen3.5:9b` (or `ollama run qwen3.5:9b`). Then set
+`MODEL=ollama_chat/qwen3.5:9b` and point `OLLAMA_API_BASE` at the server — no API key
+needed. In a devcontainer with DooD the container reaches the host's Ollama at
+`http://host.docker.internal:11434`; running locally use
+`http://localhost:11434`. Tool-calling needs Ollama's chat endpoint, so use the `ollama_chat/` prefix shown above (not `ollama/`) — with `ollama/` the model returns empty output and no tool calls. The local model must also support tools (`gemma`, for one, does not).
 
 ## Run with Docker
 
@@ -36,10 +44,12 @@ docker run --rm --env-file .env aas-langgraph \
 ## Run with Docker (in a devcontainer with DooD)
 
 In a dev container that talks to the host Docker daemon (Docker-outside-of-Docker),
-the foreground `docker run` above prints nothing and exits 0 — the process is
-hard-killed as `litellm` is imported while a client is attached to the
-container's stdio (it is **not** an OOM, and no flag, `setsid`, or in-container
-redirect avoids it). Run **detached** and follow the logs instead:
+the foreground `docker run` above often prints nothing and exits 0 — but the run
+itself succeeds. The agent runs to completion and Docker captures all of its
+output; only the live **attached** stream drops it over the VM boundary. You can
+confirm this: `docker logs` on the same container shows the full output, the
+container exits 0, and it is **not** an OOM. Run **detached** and follow the logs
+instead:
 
 ```bash
 cd samples/langgraph_1
@@ -60,3 +70,15 @@ python app.py "What is 24 * 7, and is the result prime?"
 [Anthropic](https://console.anthropic.com/),
 [OpenAI](https://platform.openai.com/api-keys), or
 [Google AI Studio](https://aistudio.google.com/apikey).
+
+---
+
+## Example run
+
+> Output varies by model and run — LLMs are non-deterministic, so the exact
+> wording (and an agent's steps) differ each time. Below is one run with
+> `claude-opus-4-8`.
+
+```text
+24 * 7 = **168**, and it is **not prime**. (168 is even and has many factors, such as 2, 3, 4, 6, 7, 8, etc.)
+```

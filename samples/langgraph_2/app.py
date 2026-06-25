@@ -99,6 +99,21 @@ def stream_answer(graph, question: str) -> BaseMessage | None:
     return final
 
 
+def message_text(content) -> str:
+    """Flatten an assistant message's content to plain text.
+
+    Cloud models return a string; a local thinking model (via Ollama) returns a
+    list of blocks like [{type: thinking}, {type: text}], so keep only the text.
+    """
+    if isinstance(content, list):
+        return "".join(
+            part.get("text", "")
+            for part in content
+            if isinstance(part, dict) and part.get("type") == "text"
+        )
+    return content
+
+
 def main() -> None:
     question = parse_question(sys.argv[1:])
     graph = build_graph(build_model())
@@ -106,7 +121,7 @@ def main() -> None:
 
     if final is not None:
         print("\n=== answer ===")
-        print(final.content)
+        print(message_text(final.content))
 
 
 if __name__ == "__main__":
