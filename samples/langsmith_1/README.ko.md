@@ -2,9 +2,9 @@
 
 아주 작은 [LangSmith](https://www.langchain.com/langsmith) 데모입니다.
 `@traceable`로 Claude 호출을 감싸 LangSmith에 run으로 보낸 뒤, SDK로 그 run을 다시
-읽어와 출력합니다 — 왕복을 검증합니다("에러 안 났다"가 아니라 실제로 들어갔는지
-확인). LangSmith는 **호스티드 SaaS**라 본인 API 키가 필요합니다(무료 self-host
-없음).
+읽어와 출력합니다 — "에러 안 났다"가 아니라 실제로 들어갔는지 확인하는 왕복
+검증입니다. LangSmith는 **호스티드 SaaS**라 본인 API 키가 필요합니다. 무료
+self-host는 없습니다.
 
 ## 설정
 
@@ -14,12 +14,12 @@ cp .env.sample .env
 # .env 편집: LANGSMITH_API_KEY와 ANTHROPIC_API_KEY 설정
 ```
 
-| 변수                | 설명                                                            |
-| ------------------- | --------------------------------------------------------------- |
-| `LANGSMITH_API_KEY` | [smith.langchain.com](https://smith.langchain.com) → Settings → API Keys |
-| `LANGSMITH_TRACING` | 트레이스를 보내려면 `true`                                      |
-| `LANGSMITH_PROJECT` | run이 쌓일 프로젝트 이름                                        |
-| `ANTHROPIC_API_KEY` | 트레이싱할 Claude 호출용 키                                     |
+`.env`에 설정하세요:
+
+- `LANGSMITH_API_KEY` — [smith.langchain.com](https://smith.langchain.com) → Settings → API Keys에서 발급
+- `LANGSMITH_TRACING` — 트레이스를 보내려면 `true`
+- `LANGSMITH_PROJECT` — run이 쌓일 프로젝트 이름
+- `ANTHROPIC_API_KEY` — 트레이싱할 Claude 호출용 키
 
 EU 계정은 `LANGSMITH_ENDPOINT=https://eu.api.smith.langchain.com`도 설정하세요.
 `.env`는 gitignore 처리되어 있고, `.env.sample`만 커밋됩니다.
@@ -63,7 +63,7 @@ python app.py "How do I reset my password?"
 ## 실행 결과
 
 > 모델과 실행마다 결과가 달라집니다 — LLM은 비결정적이라 모델의 표현은 매번
-> 다릅니다(여기서 보여주는 건 트레이스 왕복 자체입니다). 아래는 `claude-opus-4-8`로
+> 다릅니다 — 여기서 보여주는 건 트레이스 왕복 자체입니다. 아래는 `claude-opus-4-8`로
 > 실행한 한 예입니다.
 
 ```text

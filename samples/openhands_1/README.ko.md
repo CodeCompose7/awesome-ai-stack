@@ -6,7 +6,7 @@ OpenHands Agent SDK로 만든 headless [OpenHands](https://www.all-hands.dev)
 이 컨테이너 안에서 동작하고 — **중첩 Docker 샌드박스가 없습니다** — 전체가 `docker
 run` 한 번으로 끝납니다.
 
-> **무거운 이미지.** OpenHands는 의존성이 큽니다(playwright, jupyter 등). 이미지가
+> **무거운 이미지.** OpenHands는 의존성(playwright, jupyter 등)이 큽니다. 이미지가
 > 수 GB이고 첫 빌드가 느립니다.
 
 ## 설정

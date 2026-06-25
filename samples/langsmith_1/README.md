@@ -14,12 +14,12 @@ cp .env.sample .env
 # edit .env: set LANGSMITH_API_KEY and ANTHROPIC_API_KEY
 ```
 
-| Variable            | What it is                                                      |
-| ------------------- | -------------------------------------------------------------- |
-| `LANGSMITH_API_KEY` | from [smith.langchain.com](https://smith.langchain.com) → Settings → API Keys |
-| `LANGSMITH_TRACING` | `true` to send traces                                          |
-| `LANGSMITH_PROJECT` | project name traces land in                                    |
-| `ANTHROPIC_API_KEY` | key for the Claude call being traced                           |
+Set these in `.env`:
+
+- `LANGSMITH_API_KEY` — from [smith.langchain.com](https://smith.langchain.com) → Settings → API Keys
+- `LANGSMITH_TRACING` — `true` to send traces
+- `LANGSMITH_PROJECT` — project name traces land in
+- `ANTHROPIC_API_KEY` — key for the Claude call being traced
 
 EU accounts also set `LANGSMITH_ENDPOINT=https://eu.api.smith.langchain.com`.
 `.env` is gitignored — only `.env.sample` is committed.

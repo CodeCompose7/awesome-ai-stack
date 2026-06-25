@@ -2,7 +2,7 @@
 
 아주 작은 [Langfuse](https://langfuse.com) 데모입니다. Claude 호출을 Langfuse
 **generation 스팬**으로 감싸 **self-host** Langfuse로 보낸 뒤, 트레이스를 API로
-다시 읽어와 왕복을 검증합니다("에러 안 났다"가 아니라 실제로 들어갔는지 확인). 함께
+다시 읽어와 왕복을 검증합니다 — "에러 안 났다"가 아니라 실제로 들어갔는지 확인합니다. 함께
 들어 있는 docker-compose가 Langfuse 스택 전체를 띄우고 `LANGFUSE_INIT_*`로
 프로젝트와 고정 API 키를 부트스트랩하므로, UI에서 따로 클릭할 게 없습니다.
 
@@ -29,8 +29,8 @@ docker compose up --build
 ```
 
 앱은 Langfuse 마이그레이션이 끝나기를 기다렸다가 호출을 보내고, 다시 읽어온
-트레이스를 출력합니다. UI는 <http://localhost:3000>에서 볼 수 있습니다(로그인
-`demo@example.com` / `demodemodemo`). 끝나면 스택을 내리고 볼륨까지 지우세요:
+트레이스를 출력합니다. UI는 <http://localhost:3000>에서 볼 수 있습니다 — 로그인은
+`demo@example.com` / `demodemodemo`입니다. 끝나면 스택을 내리고 볼륨까지 지우세요:
 
 ```bash
 docker compose down -v
@@ -63,7 +63,7 @@ docker compose down -v
 ## 실행 결과
 
 > 모델과 실행마다 결과가 달라집니다 — LLM은 비결정적이라 모델의 표현은 매번
-> 다릅니다(여기서 보여주는 건 트레이스 왕복 자체입니다). 아래는 `claude-opus-4-8`로
+> 다릅니다 — 여기서 보여주는 건 트레이스 왕복 자체입니다. 아래는 `claude-opus-4-8`로
 > 실행한 한 예입니다.
 
 ```text
