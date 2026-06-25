@@ -45,6 +45,21 @@ def is_prime(n: int) -> bool:
     return True
 
 
+def message_text(content) -> str:
+    """Flatten an assistant message's content to plain text.
+
+    Cloud models return a string; a local thinking model (via Ollama) returns a
+    list of blocks like [{type: thinking}, {type: text}], so keep only the text.
+    """
+    if isinstance(content, list):
+        return "".join(
+            part.get("text", "")
+            for part in content
+            if isinstance(part, dict) and part.get("type") == "text"
+        )
+    return content
+
+
 def main() -> None:
     question = " ".join(sys.argv[1:]) or "What is 24 * 7, and is the result prime?"
 
@@ -53,7 +68,7 @@ def main() -> None:
     agent = create_agent(model, tools=[multiply, is_prime])
 
     result = agent.invoke({"messages": [{"role": "user", "content": question}]})
-    print(result["messages"][-1].content)
+    print(message_text(result["messages"][-1].content))
 
 
 if __name__ == "__main__":

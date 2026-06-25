@@ -21,16 +21,16 @@ cp .env.sample .env
 | Anthropic Claude  | `claude-opus-4-8`         | `ANTHROPIC_API_KEY` |
 | OpenAI            | `gpt-4o`                  | `OPENAI_API_KEY`    |
 | Google AI Studio  | `gemini/gemini-2.5-flash` | `GEMINI_API_KEY`    |
-| Ollama (local)    | `ollama/qwen3.5:9b`       | `OLLAMA_API_BASE`   |
+| Ollama (local)    | `ollama_chat/qwen3.5:9b`  | `OLLAMA_API_BASE`   |
 
 `.env`는 gitignore 처리되어 있고, `.env.sample`만 커밋됩니다.
 
 **Ollama (로컬 모델):** 먼저 호스트에서 모델을 받아두세요 —
 `ollama pull qwen3.5:9b`(또는 `ollama run qwen3.5:9b`)를 실행합니다. 그다음
-`MODEL=ollama/qwen3.5:9b`로 설정하고 `OLLAMA_API_BASE`를 서버 주소로 지정하세요 — API
+`MODEL=ollama_chat/qwen3.5:9b`로 설정하고 `OLLAMA_API_BASE`를 서버 주소로 지정하세요 — API
 키는 필요 없습니다. DooD를 쓰는 devcontainer에서는 컨테이너가 호스트의 Ollama에
 `http://host.docker.internal:11434`로 접근하고, 로컬 실행 시에는
-`http://localhost:11434`를 씁니다. 도구 호출 샘플은 로컬 모델에 민감합니다. 작은 모델은 도구 호출을 일반 텍스트로 내보내거나(예: `gemma`) 빈 출력을 반환해(예: 추론형 모델 `qwen3.5:9b`) 루프가 끝나지 않을 수 있으니, 여기서는 클라우드 모델이 더 안정적입니다.
+`http://localhost:11434`를 씁니다. 도구 호출은 Ollama의 chat 엔드포인트가 필요하므로 위의 `ollama_chat/` prefix를 쓰세요 — `ollama/`가 아닙니다. `ollama/`로는 빈 출력에 도구 호출이 나오지 않습니다. 로컬 모델도 도구를 지원해야 합니다 — 예를 들어 `gemma`는 지원하지 않습니다.
 
 ## Docker로 실행
 
