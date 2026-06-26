@@ -29,8 +29,8 @@ const href = getRelativeLocaleUrl(lang, `stacks/${slug}/`);
 // Live stats from GitHub (build-time), with the manual `version` as fallback.
 const stats = await getRepoStats(repo);
 const displayVersion = stats?.version ?? version;
-// Warn when an open-source project's repo hasn't been pushed to in over a year.
-const stale = pricing.includes('open-source') && isStale(stats?.pushedAt);
+// Warn when an open-source project's latest release is more than a year old.
+const stale = pricing.includes('open-source') && isStale(stats?.releasedAt);
 
 // Data for client-side search / filter / sort (used on the homepage).
 const langTokens = (language ?? '')

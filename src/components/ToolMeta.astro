@@ -29,8 +29,9 @@ const {
   class: className,
 } = Astro.props;
 const t = useTranslations(lang);
-// The stronger "maintenance only" badge supersedes the staleness warning.
-const showStale = stale && !deprecated;
+// "Maintenance only" and the staleness warning are independent signals and may
+// both apply (e.g. a superseded tool whose repo also went quiet).
+const showStale = stale;
 const hasAny =
   deprecated ||
   showStale ||

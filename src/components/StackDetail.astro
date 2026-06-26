@@ -39,8 +39,8 @@ const relatedArticles = await getArticlesForTool(lang, slugOf(entry));
 // Live GitHub stats (build-time), with the manual `version` as fallback.
 const stats = await getRepoStats(data.repo);
 const displayVersion = stats?.version ?? data.version;
-// Warn when an open-source project's repo hasn't been pushed to in over a year.
-const stale = data.pricing.includes('open-source') && isStale(stats?.pushedAt);
+// Warn when an open-source project's latest release is more than a year old.
+const stale = data.pricing.includes('open-source') && isStale(stats?.releasedAt);
 
 const links = [
   data.website && { label: t('detail.website'), href: data.website },
