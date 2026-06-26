@@ -1,0 +1,93 @@
+---
+name: Chroma
+logo: 🌈
+category: vector-stores
+description: RAG를 위한 오픈소스 임베딩 데이터베이스 — 몇 줄로 벡터를 저장하고 유사도로 질의합니다.
+website: https://www.trychroma.com
+repo: https://github.com/chroma-core/chroma
+docs: https://docs.trychroma.com
+tags: [vector-db, embeddings, rag, python]
+language: Python
+license: Apache-2.0
+pricing: [open-source, paid]
+related: [sentence-transformers, pgvector]
+samples:
+  - version: "Python · add & query"
+    lang: python
+    diagram: |
+      flowchart LR
+        docs[documents] --> col[(Chroma collection)]
+        q[query text] --> col
+        col --> top[nearest docs]
+    code: |
+      import chromadb
+
+      client = chromadb.Client()  # in-memory; use PersistentClient to save to disk
+      collection = client.create_collection("memories")
+
+      # Chroma embeds the documents with a built-in model by default.
+      collection.add(
+          ids=["1", "2", "3"],
+          documents=["cats are great pets", "the market fell", "kittens love to play"],
+      )
+
+      res = collection.query(query_texts=["tell me about cats"], n_results=1)
+      print(res["documents"][0])  # -> a cat-related document
+    description: |
+      ### 언제 쓰나
+      RAG용으로 아주 단순한 로컬 벡터 스토어가 필요할 때 Chroma를 쓰세요.
+
+      ### 흐름
+      `add`가 문서를 임베딩해 저장하고(기본 내장 임베더 사용), `query`가 질의를
+      임베딩해 최근접 이웃을 돌려줍니다.
+  - version: "Python · bring your own embeddings"
+    lang: python
+    diagram: |
+      flowchart LR
+        ef[embedding fn] --> col[(Chroma)]
+        docs[documents] --> col
+        q[query] --> col
+        col --> top[nearest docs]
+    code: |
+      import chromadb
+      from chromadb.utils import embedding_functions
+
+      # Use any embedding model — here a local sentence-transformers model.
+      ef = embedding_functions.SentenceTransformerEmbeddingFunction("BAAI/bge-m3")
+
+      client = chromadb.PersistentClient(path="./chroma")  # persists to disk
+      col = client.get_or_create_collection("memories", embedding_function=ef)
+
+      col.add(ids=["1"], documents=["how do I reset my password?"])
+      print(col.query(query_texts=["password help"], n_results=1)["documents"])
+    description: |
+      ### 언제 쓰나
+      모델을 직접 고르고 싶을 때 임베딩 함수(예: sentence-transformers)를 끼워
+      넣으세요.
+
+      ### 흐름
+      Chroma가 add·query 시 임베딩 함수를 호출하고, `PersistentClient`는 벡터를
+      디스크에 보관합니다.
+---
+
+## 개요
+
+Chroma는 오픈소스 임베딩 데이터베이스입니다. 문서를 넣으면 벡터로 저장하고 유사도
+질의에 답합니다 — RAG와 에이전트 메모리의 검색 계층입니다.  
+별도 서버 없이 인프로세스(메모리 또는 디스크)로 동작하고, 확장이 필요하면 매니지드
+클라우드도 제공합니다.
+
+```mermaid
+flowchart LR
+  docs[documents] --> col[(Chroma collection)]
+  q[query text] --> col
+  col --> top[nearest docs]
+```
+
+**코드 샘플** 탭에는 기본 임베더와 직접 지정한 임베딩 함수 예시가 있습니다 —
+선택기에서 골라 비교해 보세요.
+
+## 언제 쓰면 좋은가
+
+한 줄로 시작할 수 있는 가벼운 임베디드 벡터 스토어가 필요할 때, 그리고 기본 임베더로
+부족해지면 임베딩 모델을 직접 끼우고 싶을 때 Chroma를 쓰세요.

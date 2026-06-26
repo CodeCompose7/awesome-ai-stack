@@ -1,0 +1,92 @@
+---
+name: Chroma
+logo: 🌈
+category: vector-stores
+description: Open-source embedding database for RAG — store vectors and query by similarity in a few lines.
+website: https://www.trychroma.com
+repo: https://github.com/chroma-core/chroma
+docs: https://docs.trychroma.com
+tags: [vector-db, embeddings, rag, python]
+language: Python
+license: Apache-2.0
+pricing: [open-source, paid]
+related: [sentence-transformers, pgvector]
+samples:
+  - version: "Python · add & query"
+    lang: python
+    diagram: |
+      flowchart LR
+        docs[documents] --> col[(Chroma collection)]
+        q[query text] --> col
+        col --> top[nearest docs]
+    code: |
+      import chromadb
+
+      client = chromadb.Client()  # in-memory; use PersistentClient to save to disk
+      collection = client.create_collection("memories")
+
+      # Chroma embeds the documents with a built-in model by default.
+      collection.add(
+          ids=["1", "2", "3"],
+          documents=["cats are great pets", "the market fell", "kittens love to play"],
+      )
+
+      res = collection.query(query_texts=["tell me about cats"], n_results=1)
+      print(res["documents"][0])  # -> a cat-related document
+    description: |
+      ### When to use
+      Reach for Chroma when you want a dead-simple local vector store for RAG.
+
+      ### How it flows
+      `add` embeds and stores documents (with a built-in embedder by default);
+      `query` embeds the query and returns nearest neighbours.
+  - version: "Python · bring your own embeddings"
+    lang: python
+    diagram: |
+      flowchart LR
+        ef[embedding fn] --> col[(Chroma)]
+        docs[documents] --> col
+        q[query] --> col
+        col --> top[nearest docs]
+    code: |
+      import chromadb
+      from chromadb.utils import embedding_functions
+
+      # Use any embedding model — here a local sentence-transformers model.
+      ef = embedding_functions.SentenceTransformerEmbeddingFunction("BAAI/bge-m3")
+
+      client = chromadb.PersistentClient(path="./chroma")  # persists to disk
+      col = client.get_or_create_collection("memories", embedding_function=ef)
+
+      col.add(ids=["1"], documents=["how do I reset my password?"])
+      print(col.query(query_texts=["password help"], n_results=1)["documents"])
+    description: |
+      ### When to use
+      Plug in your own embedding function (e.g. sentence-transformers) when you
+      want control over the model.
+
+      ### How it flows
+      Chroma calls the embedding function on add and query; `PersistentClient`
+      keeps the vectors on disk.
+---
+
+## Overview
+
+Chroma is an open-source embedding database: add documents and it stores their vectors, then answers similarity queries — the retrieval layer for RAG and agent memory.  
+It runs in-process (in-memory or on disk) with no separate server to operate, and offers a managed cloud when you need to scale.
+
+```mermaid
+flowchart LR
+  docs[documents] --> col[(Chroma collection)]
+  q[query text] --> col
+  col --> top[nearest docs]
+```
+
+The **Code samples** tab shows the built-in embedder and a bring-your-own
+embedding function — pick from the selector to compare.
+
+## When to use it
+
+Choose Chroma when you want a lightweight, embedded vector store you can start
+with in one line — and bring your own embedding model when you outgrow the
+default.

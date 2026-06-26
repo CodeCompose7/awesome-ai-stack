@@ -1,0 +1,83 @@
+---
+name: Sentence Transformers
+category: vector-stores
+description: Run embedding models locally (e.g. bge-m3) to turn text into vectors for RAG and memory — no API.
+website: https://sbert.net
+repo: https://github.com/UKPLab/sentence-transformers
+docs: https://sbert.net
+tags: [embeddings, rag, local, python]
+language: Python
+license: Apache-2.0
+pricing: [open-source]
+related: [chroma, pgvector]
+samples:
+  - version: "Python · encode"
+    lang: python
+    diagram: |
+      flowchart LR
+        text[text] --> st[SentenceTransformer]
+        st --> vec[vector]
+        vec --> use[store / compare]
+    code: |
+      from sentence_transformers import SentenceTransformer
+
+      # bge-m3 is multilingual and runs on CPU — no API key needed.
+      model = SentenceTransformer("BAAI/bge-m3")
+
+      vectors = model.encode(["how do I reset my password?", "비밀번호 재설정 방법"])
+      print(vectors.shape)  # (2, 1024)
+    description: |
+      ### When to use
+      Reach for it to compute embeddings locally — no provider key, works
+      offline.
+
+      ### How it flows
+      `encode` loads the Hugging Face model and returns a NumPy array of vectors
+      you can store or compare.
+  - version: "Python · similarity search"
+    lang: python
+    diagram: |
+      flowchart LR
+        docs[documents] --> emb[embeddings]
+        q[query] --> qe[query vector]
+        emb --> sim[cosine similarity]
+        qe --> sim
+        sim --> top[best match]
+    code: |
+      from sentence_transformers import SentenceTransformer
+
+      model = SentenceTransformer("BAAI/bge-m3")
+      docs = ["cats are great pets", "the stock market fell", "kittens love to play"]
+      doc_emb = model.encode(docs)
+
+      query = model.encode("tell me about cats")
+      scores = model.similarity(query, doc_emb)[0]  # cosine similarity
+      print(docs[int(scores.argmax())])  # -> a cat-related sentence
+    description: |
+      ### When to use
+      Use the built-in `similarity` for quick semantic search without a vector
+      database.
+
+      ### How it flows
+      Embed the corpus and the query, then rank documents by cosine similarity.
+---
+
+## Overview
+
+Sentence Transformers (SBERT) runs embedding models — like the multilingual `bge-m3` — directly on your machine, turning text into vectors with no API call.  
+It is the local, provider-independent half of a RAG pipeline: generate embeddings here, then store and search them in a vector store.
+
+```mermaid
+flowchart LR
+  text[text] --> st[SentenceTransformer]
+  st --> vec[vector]
+  vec --> store[(vector store)]
+```
+
+The **Code samples** tab shows encoding text and a built-in similarity search —
+pick from the selector to compare.
+
+## When to use it
+
+Choose Sentence Transformers when you want embeddings computed locally — for
+cost, privacy, or offline use — instead of calling a hosted embedding API.

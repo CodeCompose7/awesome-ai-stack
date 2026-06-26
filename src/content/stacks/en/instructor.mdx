@@ -1,0 +1,109 @@
+---
+name: instructor
+category: frameworks
+description: Structured, validated outputs from any LLM — define a Pydantic model and get a typed object back.
+website: https://python.useinstructor.com
+repo: https://github.com/567-labs/instructor
+docs: https://python.useinstructor.com
+tags: [structured-output, pydantic, validation, python]
+language: Python
+license: MIT
+pricing: [open-source]
+related: [litellm, langgraph]
+samples:
+  - version: "Python · response_model"
+    lang: python
+    diagram: |
+      flowchart LR
+        schema[Pydantic model] --> inst[instructor]
+        msg[messages] --> inst
+        inst --> llm[LLM via LiteLLM]
+        llm --> obj[typed object]
+    code: |
+      import instructor
+      from pydantic import BaseModel
+
+
+      class User(BaseModel):
+          name: str
+          age: int
+
+
+      # from_provider routes through LiteLLM, so any provider works by string.
+      client = instructor.from_provider("anthropic/claude-opus-4-8")
+
+      user = client.chat.completions.create(
+          response_model=User,
+          messages=[{"role": "user", "content": "Extract: Alice is 30 years old."}],
+      )
+      print(user.name, user.age)  # -> Alice 30
+    description: |
+      ### When to use
+      Reach for instructor when you need the model's output as a typed object,
+      not free text.
+
+      ### How it flows
+      You pass a Pydantic `response_model`; instructor coaxes the LLM into JSON
+      that matches it, validates, and returns the instance.
+  - version: "Python · validation + retry"
+    lang: python
+    diagram: |
+      flowchart LR
+        call[create] --> llm[LLM]
+        llm --> val{valid?}
+        val -->|no| call
+        val -->|yes| obj[typed object]
+    code: |
+      import instructor
+      from pydantic import BaseModel, field_validator
+
+
+      class Answer(BaseModel):
+          sentiment: str
+
+          @field_validator("sentiment")
+          @classmethod
+          def known(cls, v: str) -> str:
+              if v not in {"positive", "negative", "neutral"}:
+                  raise ValueError("must be positive, negative, or neutral")
+              return v
+
+
+      client = instructor.from_provider("openai/gpt-4o")
+      answer = client.chat.completions.create(
+          response_model=Answer,
+          max_retries=3,  # re-ask the model when validation fails
+          messages=[{"role": "user", "content": "Classify: 'It was fine.'"}],
+      )
+      print(answer.sentiment)
+    description: |
+      ### When to use
+      Use validators with `max_retries` when the output must satisfy rules, not
+      just a shape.
+
+      ### How it flows
+      A failing Pydantic validator is fed back to the model, which retries until
+      it passes or hits the limit.
+---
+
+## Overview
+
+instructor turns an LLM into a typed function: you describe the output with a **Pydantic model** and get a validated Python object back instead of free-form text.  
+It wraps the call — routing through LiteLLM — and reprompts until the response fits your schema, so downstream code can rely on the types.
+
+```mermaid
+flowchart LR
+  schema[Pydantic model] --> inst[instructor]
+  msg[messages] --> inst
+  inst --> llm[LLM via LiteLLM]
+  llm --> obj[typed object]
+```
+
+The **Code samples** tab shows a basic extraction and a validated-with-retry
+example — pick from the selector to compare.
+
+## When to use it
+
+Reach for instructor whenever an LLM's output feeds code that expects structure
+— extraction, classification, routing — and you want validation and retries
+instead of brittle JSON parsing.

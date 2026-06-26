@@ -1,0 +1,86 @@
+---
+name: Google Gemini
+logo: ✨
+category: llm-providers
+description: Google AI Studio API로 쓰는 Gemini 모델 — 긴 컨텍스트, 멀티모달, 무료 티어 제공.
+website: https://aistudio.google.com
+docs: https://ai.google.dev/gemini-api/docs
+tags: [llm, multimodal, long-context, free-tier]
+language: API
+license: proprietary
+pricing: [free-tier, paid]
+related: [litellm]
+samples:
+  - version: "Python · generate"
+    lang: python
+    diagram: |
+      flowchart LR
+        app[your app] --> g[Gemini API]
+        g --> reply[reply]
+    code: |
+      from google import genai
+
+      client = genai.Client()  # reads GEMINI_API_KEY
+
+      resp = client.models.generate_content(
+          model="gemini-2.5-flash",
+          contents="Summarize Gemini in one line.",
+      )
+      print(resp.text)
+    description: |
+      ### 언제 쓰나
+      멀티모달 입력이나 큰 컨텍스트 윈도 같은 Gemini 고유 기능이 필요할 때 네이티브
+      SDK를 쓰세요.
+
+      ### 흐름
+      `generate_content`가 프롬프트를 AI Studio API로 보내고, 응답 텍스트는
+      `resp.text`에 담깁니다.
+  - version: "Python · via LiteLLM"
+    lang: python
+    diagram: |
+      flowchart LR
+        app[your app] --> lite[LiteLLM]
+        lite -->|gemini/| g[Gemini API]
+    code: |
+      from litellm import completion
+
+      # The gemini/ prefix routes to Google AI Studio with your GEMINI_API_KEY.
+      resp = completion(
+          model="gemini/gemini-2.5-flash",
+          messages=[{"role": "user", "content": "Summarize Gemini in one line."}],
+      )
+      print(resp.choices[0].message.content)
+    description: |
+      ### 언제 쓰나
+      에이전트를 제공자 독립적으로 유지하려면 LiteLLM으로 라우팅하세요 — 문자열 하나로
+      모델을 바꿉니다.
+
+      ### 흐름
+      `gemini/<model>`이 LiteLLM에 Google AI Studio 호출을 지시하고, 나머지는
+      OpenAI 스타일 형식 그대로입니다.
+---
+
+## 개요
+
+Gemini는 Google의 프런티어 모델 제품군으로, **AI Studio** API로 접근하며 무료 티어가
+있어 데모의 기본 선택지로 삼기 좋습니다.  
+아주 큰 컨텍스트 윈도와 네이티브 멀티모달 입력(텍스트·이미지·오디오·비디오)을 지원합니다.
+
+자주 쓰는 모델 id:
+
+- `gemini-2.5-flash` — 빠르고 저렴, 넉넉한 무료 티어
+- `gemini-2.5-pro` — 가장 강력, 어려운 추론용
+
+```mermaid
+flowchart LR
+  app[your app] --> g[Gemini API]
+  g --> reply[reply]
+```
+
+**코드 샘플** 탭에는 네이티브 SDK와 LiteLLM 경유 예시가 있습니다 — 선택기에서 골라
+비교해 보세요.
+
+## 언제 쓰면 좋은가
+
+프로토타이핑용 무료 티어, 아주 긴 컨텍스트, 내장 멀티모달 입력이 필요할 때 Gemini를
+쓰고, 이식성을 위해 LiteLLM으로 라우팅하세요.

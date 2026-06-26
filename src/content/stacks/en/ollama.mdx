@@ -1,0 +1,78 @@
+---
+name: Ollama
+logo: 🦙
+category: llm-providers
+description: Run open LLMs locally with one command — an OpenAI-compatible API for offline, private agents.
+website: https://ollama.com
+repo: https://github.com/ollama/ollama
+docs: https://docs.ollama.com
+tags: [local, open-models, self-host, runtime]
+language: Go
+license: MIT
+pricing: [open-source, free]
+related: [litellm]
+samples:
+  - version: "Shell · pull & run"
+    lang: bash
+    diagram: |
+      flowchart LR
+        cli[ollama run] --> srv[Ollama server]
+        srv --> model[(local model)]
+    code: |
+      # Pull a model and chat locally — no API key, runs offline.
+      ollama pull qwen3.5:9b
+      ollama run qwen3.5:9b "Summarize Ollama in one line."
+    description: |
+      ### When to use
+      Reach for the CLI to try a model interactively or pull it before a run.
+
+      ### How it flows
+      `ollama` downloads the model once, then serves it locally on port 11434.
+  - version: "Python · via LiteLLM"
+    lang: python
+    diagram: |
+      flowchart LR
+        app[your app] --> lite[LiteLLM]
+        lite -->|ollama_chat/| srv[Ollama server]
+    code: |
+      import os
+      from litellm import completion
+
+      # ollama_chat/ uses Ollama's /api/chat endpoint, which supports tool calling.
+      resp = completion(
+          model="ollama_chat/qwen3.5:9b",
+          messages=[{"role": "user", "content": "Summarize Ollama in one line."}],
+          api_base=os.environ.get("OLLAMA_API_BASE", "http://localhost:11434"),
+      )
+      print(resp.choices[0].message.content)
+    description: |
+      ### When to use
+      Route Ollama through LiteLLM so the same agent code runs on a local or a
+      cloud model.
+
+      ### How it flows
+      `ollama_chat/<model>` calls the local server; use the chat endpoint
+      (`ollama_chat/`, not `ollama/`) for tool calling.
+    note: In a devcontainer with DooD, set OLLAMA_API_BASE=http://host.docker.internal:11434 to reach the host's Ollama.
+---
+
+## Overview
+
+Ollama runs open-weight models (Llama, Qwen, Gemma, …) on your own machine with a single command, exposing an **OpenAI-compatible API** on `localhost:11434`.  
+It is the local, no-key option for agents: free, private, and offline — and it drops into a LiteLLM-routed app by changing only the model string.
+
+```mermaid
+flowchart LR
+  app[your app] --> srv[Ollama server]
+  srv --> model[(local model)]
+  model --> reply[reply]
+```
+
+The **Code samples** tab shows the CLI and the LiteLLM route — pick from the
+selector to compare.
+
+## When to use it
+
+Reach for Ollama when you want to develop offline, keep data on-device, or avoid
+API costs — and use the `ollama_chat/` prefix through LiteLLM when the agent
+needs tool calling.
