@@ -300,6 +300,75 @@ summary {
   overflow-x: auto;
   margin: 1rem 0;
 }
+/* Hybrid wrapping: soft-wrap shell commands and example output (which are
+   prose-like and run long on mobile) while leaving real source code blocks
+   horizontally scrollable so their indentation/alignment stays intact. The
+   data-lang attribute is set by src/lib/project.ts when rendering READMEs. */
+.prose :where(pre[data-lang='bash'], pre[data-lang='sh'], pre[data-lang='shell'], pre[data-lang='console'], pre[data-lang='text']) {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Copy-to-clipboard button mounted on code blocks (see BaseLayout script).
+   The host is a non-scrolling wrapper so the button stays pinned top-right
+   instead of scrolling away with long code. */
+.aas-copyhost {
+  position: relative;
+}
+.aas-copy-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+  border: 1px solid var(--aas-border);
+  border-radius: 0.4rem;
+  background: color-mix(in srgb, var(--aas-panel) 80%, transparent);
+  color: var(--aas-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+.aas-copyhost:hover .aas-copy-btn,
+.aas-copy-btn:focus-visible {
+  opacity: 1;
+}
+/* Touch devices have no hover — keep the button discoverable. */
+@media (hover: none) {
+  .aas-copy-btn {
+    opacity: 0.65;
+  }
+}
+.aas-copy-btn:hover {
+  color: var(--aas-text);
+  border-color: var(--aas-text);
+}
+.aas-copy-btn.copied {
+  color: #16a34a;
+  border-color: #16a34a;
+  opacity: 1;
+}
+.aas-copy-btn svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+.aas-copy-btn .aas-ico-check {
+  display: none;
+}
+.aas-copy-btn.copied .aas-ico-copy {
+  display: none;
+}
+.aas-copy-btn.copied .aas-ico-check {
+  display: inline;
+}
 
 /* Mermaid diagram container. The styled wrapper is a div we own, so the
    border/radius survive Mermaid replacing the inner <pre> with an <svg>. */

@@ -15,6 +15,7 @@ export interface RepoStats {
   stars: number;
   version?: string;
   releasedAt?: string; // ISO date of the latest release (YYYY-MM-DD usable via slice)
+  pushedAt?: string; // ISO date of the last push to any branch (repo "last updated")
 }
 
 const cache = new Map<string, Promise<RepoStats | null>>();
@@ -33,7 +34,7 @@ try {
   /* no cache yet */
 }
 function strip(c: CachedStats): RepoStats {
-  return { stars: c.stars, version: c.version, releasedAt: c.releasedAt };
+  return { stars: c.stars, version: c.version, releasedAt: c.releasedAt, pushedAt: c.pushedAt };
 }
 function persist() {
   try {
@@ -72,8 +73,9 @@ async function fetchStats(owner: string, repo: string): Promise<RepoStats | null
   try {
     const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, { headers: headers() });
     if (!res.ok) return null;
-    const data = (await res.json()) as { stargazers_count?: number };
+    const data = (await res.json()) as { stargazers_count?: number; pushed_at?: string };
     const stars = typeof data.stargazers_count === 'number' ? data.stargazers_count : 0;
+    const pushedAt = data.pushed_at; // last push to any branch — the repo's real "last touched"
 
     let version: string | undefined;
     let releasedAt: string | undefined;
@@ -102,7 +104,7 @@ async function fetchStats(owner: string, repo: string): Promise<RepoStats | null
         }
       }
     }
-    return { stars, version, releasedAt };
+    return { stars, version, releasedAt, pushedAt };
   } catch {
     return null;
   }
@@ -132,6 +134,20 @@ export function getRepoStats(repoUrl?: string): Promise<RepoStats | null> {
     }
   }
   return cache.get(key)!;
+}
+
+const ONE_YEAR = 365 * ONE_DAY;
+
+/**
+ * True when a repo's last push is more than a year old — a "stale / no recent
+ * updates" signal. `pushedAt` is the GitHub `pushed_at` ISO date. Unknown or
+ * unparseable dates are treated as not-stale (no false warning).
+ */
+export function isStale(pushedAt?: string): boolean {
+  if (!pushedAt) return false;
+  const t = Date.parse(pushedAt);
+  if (Number.isNaN(t)) return false;
+  return Date.now() - t > ONE_YEAR;
 }
 
 /** Compact star count, one decimal in k: 1234 → "1.2k", 35456 → "35.5k". */

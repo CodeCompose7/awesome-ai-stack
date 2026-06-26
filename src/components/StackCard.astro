@@ -1,7 +1,7 @@
 ---
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { pricingLabels, type Lang } from '../i18n/ui';
-import { getRepoStats, formatStars } from '../lib/github';
+import { getRepoStats, formatStars, isStale } from '../lib/github';
 import ToolAvatar from './ToolAvatar.astro';
 import ToolMeta from './ToolMeta.astro';
 import StarIcon from './StarIcon.astro';
@@ -29,6 +29,8 @@ const href = getRelativeLocaleUrl(lang, `stacks/${slug}/`);
 // Live stats from GitHub (build-time), with the manual `version` as fallback.
 const stats = await getRepoStats(repo);
 const displayVersion = stats?.version ?? version;
+// Warn when an open-source project's repo hasn't been pushed to in over a year.
+const stale = pricing.includes('open-source') && isStale(stats?.pushedAt);
 
 // Data for client-side search / filter / sort (used on the homepage).
 const langTokens = (language ?? '')
@@ -74,6 +76,7 @@ const searchText = `${name} ${description} ${tags.join(' ')}`.toLowerCase();
       version={displayVersion}
       released={stats?.releasedAt?.slice(0, 10)}
       deprecated={deprecated}
+      stale={stale}
       class="mt-3"
     />
 
