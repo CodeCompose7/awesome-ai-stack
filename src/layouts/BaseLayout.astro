@@ -81,26 +81,43 @@ const isDefaultHome = path === '' && lang === 'en';
   </head>
   <body class="min-h-screen">
     <header class="border-b border-[var(--aas-border)]">
-      <div class:list={['mx-auto flex items-center justify-between px-5 py-4', container]}>
-        <a href={home} class="text-lg font-bold tracking-tight no-underline">
-          ⚡ awesome-agent-stack
+      <div class:list={['mx-auto flex items-center justify-between gap-3 px-5 py-4', container]}>
+        <a
+          href={home}
+          class="flex min-w-0 items-center gap-1.5 text-base font-bold tracking-tight whitespace-nowrap no-underline sm:text-lg"
+        >
+          <span aria-hidden="true">⚡</span>
+          <span class="truncate">awesome-agent-stack</span>
         </a>
-        <nav class="flex items-center gap-4 text-sm text-[var(--aas-muted)]">
-          <a href={`${home}#categories`} class="no-underline hover:text-[var(--aas-text)]">
-            {t('nav.browse')}
+        {/* On mobile the nav links collapse to icons to fit a narrow header;
+            text labels return at the `sm` breakpoint. */}
+        <nav class="flex shrink-0 items-center gap-3 text-sm text-[var(--aas-muted)] sm:gap-4">
+          <a
+            href={`${home}#categories`}
+            class="flex items-center no-underline hover:text-[var(--aas-text)]"
+            aria-label={t('nav.browse')}
+          >
+            <svg class="sm:hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+            <span class="hidden sm:inline">{t('nav.browse')}</span>
           </a>
           <a
             href={getRelativeLocaleUrl(lang, 'blog/')}
-            class="no-underline hover:text-[var(--aas-text)]"
+            class="flex items-center no-underline hover:text-[var(--aas-text)]"
+            aria-label={t('nav.blog')}
           >
-            {t('nav.blog')}
+            <svg class="sm:hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+            <span class="hidden sm:inline">{t('nav.blog')}</span>
           </a>
           <a
             href="https://github.com/codecompose7/awesome-agent-stack"
             target="_blank"
             rel="noopener noreferrer"
-            class="no-underline hover:text-[var(--aas-text)]">GitHub</a
+            class="flex items-center no-underline hover:text-[var(--aas-text)]"
+            aria-label="GitHub"
           >
+            <svg class="sm:hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C4 2 3 2 3 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 2 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+            <span class="hidden sm:inline">GitHub</span>
+          </a>
           <ThemeToggle lang={lang} />
           <LanguageSwitcher lang={lang} path={path} />
         </nav>

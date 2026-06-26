@@ -42,7 +42,7 @@ const searchText = `${name} ${description} ${tags.join(' ')}`.toLowerCase();
    (its ::after covers the whole card), while tag links sit above it (z-10) so
    they remain individually clickable. */}
 <div
-  class="aas-lift relative flex gap-3 rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-5"
+  class="aas-lift relative flex flex-col gap-3 rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-5 sm:flex-row"
   data-tool
   data-name={name}
   data-search={searchText}
@@ -94,9 +94,10 @@ const searchText = `${name} ${description} ${tags.join(' ')}`.toLowerCase();
     }
   </div>
 
-  {/* Right column: key facts (stars + pricing), stacked. Out of the content
-     column so the number of chips never changes the description position. */}
-  <div class="flex shrink-0 flex-col items-end gap-1.5 text-xs">
+  {/* Key facts (stars + pricing). On desktop they sit in a right-hand column so
+     the chip count never shifts the description; on mobile they drop below the
+     content as a row instead of stealing width from the title/description. */}
+  <div class="flex shrink-0 gap-1.5 text-xs sm:flex-col sm:items-end">
     {
       typeof stats?.stars === 'number' && (
         <span class="aas-chip inline-flex items-center gap-1 rounded-lg px-2.5 py-1">

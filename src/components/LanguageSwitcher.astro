@@ -15,9 +15,11 @@ const codes = Object.keys(languages) as Lang[];
 
 <details class="aas-lang">
   <summary
-    class="flex cursor-pointer list-none items-center gap-1 rounded-lg border border-[var(--aas-border)] px-2.5 py-1 text-[var(--aas-text)] select-none"
+    class="flex cursor-pointer list-none items-center gap-1 rounded-lg border border-[var(--aas-border)] px-2.5 py-1 whitespace-nowrap text-[var(--aas-text)] select-none"
   >
-    {languages[lang]}
+    {/* Compact language code on mobile; full name from the `sm` breakpoint up. */}
+    <span class="sm:hidden">{lang.toUpperCase()}</span>
+    <span class="hidden sm:inline">{languages[lang]}</span>
     <ChevronDown class="text-[var(--aas-muted)]" />
   </summary>
   <ul
