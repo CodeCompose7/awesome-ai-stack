@@ -84,10 +84,12 @@ const isDefaultHome = path === '' && lang === 'en';
       <div class:list={['mx-auto flex items-center justify-between gap-3 px-5 py-4', container]}>
         <a
           href={home}
+          aria-label="awesome-agent-stack"
           class="flex min-w-0 items-center gap-1.5 text-base font-bold tracking-tight whitespace-nowrap no-underline sm:text-lg"
         >
           <span aria-hidden="true">⚡</span>
-          <span class="truncate">awesome-agent-stack</span>
+          {/* Below 600px only the bolt remains, so the narrow header never truncates the wordmark. */}
+          <span class="hidden truncate min-[600px]:inline">awesome-agent-stack</span>
         </a>
         {/* On mobile the nav links collapse to icons to fit a narrow header;
             text labels return at the `sm` breakpoint. */}
