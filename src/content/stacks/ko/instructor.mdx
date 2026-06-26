@@ -1,0 +1,114 @@
+---
+name: instructor
+logo: /logos/instructor-mono.svg
+category: frameworks
+description: 어떤 LLM에서든 구조화·검증된 출력을 받습니다 — Pydantic 모델을 정의하면 타입이 있는 객체로 돌려줍니다.
+website: https://python.useinstructor.com
+repo: https://github.com/567-labs/instructor
+docs: https://python.useinstructor.com
+tags: [structured-output, pydantic, validation, python]
+language: Python
+license: MIT
+pricing: [open-source]
+related: [litellm, langgraph]
+projects:
+  - folder: instructor_1
+    related: [litellm]
+samples:
+  - version: "Python · response_model"
+    lang: python
+    diagram: |
+      flowchart LR
+        schema[Pydantic model] --> inst[instructor]
+        msg[messages] --> inst
+        inst --> llm[LLM via LiteLLM]
+        llm --> obj[typed object]
+    code: |
+      import instructor
+      from pydantic import BaseModel
+
+
+      class User(BaseModel):
+          name: str
+          age: int
+
+
+      # from_provider routes through LiteLLM, so any provider works by string.
+      client = instructor.from_provider("anthropic/claude-opus-4-8")
+
+      user = client.chat.completions.create(
+          response_model=User,
+          messages=[{"role": "user", "content": "Extract: Alice is 30 years old."}],
+      )
+      print(user.name, user.age)  # -> Alice 30
+    description: |
+      ### 언제 쓰나
+      모델 출력을 자유 텍스트가 아니라 타입이 있는 객체로 받아야 할 때 instructor를
+      쓰세요.
+
+      ### 흐름
+      Pydantic `response_model`을 넘기면 instructor가 모델을 그 스키마에 맞는 JSON으로
+      유도하고, 검증한 뒤 인스턴스를 돌려줍니다.
+  - version: "Python · validation + retry"
+    lang: python
+    diagram: |
+      flowchart LR
+        call[create] --> llm[LLM]
+        llm --> val{valid?}
+        val -->|no| call
+        val -->|yes| obj[typed object]
+    code: |
+      import instructor
+      from pydantic import BaseModel, field_validator
+
+
+      class Answer(BaseModel):
+          sentiment: str
+
+          @field_validator("sentiment")
+          @classmethod
+          def known(cls, v: str) -> str:
+              if v not in {"positive", "negative", "neutral"}:
+                  raise ValueError("must be positive, negative, or neutral")
+              return v
+
+
+      client = instructor.from_provider("openai/gpt-4o")
+      answer = client.chat.completions.create(
+          response_model=Answer,
+          max_retries=3,  # re-ask the model when validation fails
+          messages=[{"role": "user", "content": "Classify: 'It was fine.'"}],
+      )
+      print(answer.sentiment)
+    description: |
+      ### 언제 쓰나
+      출력이 단순한 형태뿐 아니라 규칙까지 만족해야 할 때, 검증기와 `max_retries`를
+      함께 쓰세요.
+
+      ### 흐름
+      Pydantic 검증기가 실패하면 그 오류가 모델에 다시 전달되고, 통과하거나 한도에
+      도달할 때까지 재시도합니다.
+---
+
+## 개요
+
+instructor는 LLM을 타입이 있는 함수처럼 만듭니다. 출력을 **Pydantic 모델**로
+기술하면 자유 텍스트 대신 검증된 파이썬 객체를 돌려줍니다.  
+호출을 감싸 — LiteLLM으로 라우팅하며 — 응답이 스키마에 맞을 때까지 다시 요청하므로,
+이후 코드가 타입을 신뢰할 수 있습니다.
+
+```mermaid
+flowchart LR
+  schema[Pydantic model] --> inst[instructor]
+  msg[messages] --> inst
+  inst --> llm[LLM via LiteLLM]
+  llm --> obj[typed object]
+```
+
+**코드 샘플** 탭에는 기본 추출과 검증·재시도 예시가 있습니다 — 선택기에서 골라
+비교해 보세요.
+
+## 언제 쓰면 좋은가
+
+LLM 출력이 구조를 기대하는 코드로 이어질 때 — 추출·분류·라우팅 — 깨지기 쉬운 JSON
+파싱 대신 검증과 재시도를 원한다면 instructor를 쓰세요.

@@ -1,0 +1,3 @@
+# Local config — keep the committed template only
+.env
+!.env.sample

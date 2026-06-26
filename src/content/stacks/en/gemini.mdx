@@ -1,0 +1,88 @@
+---
+name: Google Gemini
+logo: /logos/gemini.png
+category: llm-providers
+description: Google's Gemini models via the AI Studio API — long context, multimodal, with a free tier.
+website: https://aistudio.google.com
+docs: https://ai.google.dev/gemini-api/docs
+tags: [llm, multimodal, long-context, free-tier]
+language: API
+license: proprietary
+pricing: [free-tier, paid]
+related: [litellm]
+projects:
+  - folder: gemini_1
+    related: []
+samples:
+  - version: "Python · generate"
+    lang: python
+    diagram: |
+      flowchart LR
+        app[your app] --> g[Gemini API]
+        g --> reply[reply]
+    code: |
+      from google import genai
+
+      client = genai.Client()  # reads GEMINI_API_KEY
+
+      resp = client.models.generate_content(
+          model="gemini-2.5-flash",
+          contents="Summarize Gemini in one line.",
+      )
+      print(resp.text)
+    description: |
+      ### When to use
+      Reach for the native SDK when you want Gemini-specific features like
+      multimodal inputs or the large context window.
+
+      ### How it flows
+      `generate_content` sends the prompt to the AI Studio API; the reply text is
+      on `resp.text`.
+  - version: "Python · via LiteLLM"
+    lang: python
+    diagram: |
+      flowchart LR
+        app[your app] --> lite[LiteLLM]
+        lite -->|gemini/| g[Gemini API]
+    code: |
+      from litellm import completion
+
+      # The gemini/ prefix routes to Google AI Studio with your GEMINI_API_KEY.
+      resp = completion(
+          model="gemini/gemini-2.5-flash",
+          messages=[{"role": "user", "content": "Summarize Gemini in one line."}],
+      )
+      print(resp.choices[0].message.content)
+    description: |
+      ### When to use
+      Route through LiteLLM to keep your agent provider-agnostic — swap models by
+      changing one string.
+
+      ### How it flows
+      `gemini/<model>` tells LiteLLM to call Google AI Studio; the rest of the
+      call is the OpenAI-style shape.
+---
+
+## Overview
+
+Gemini is Google's family of frontier models, reachable through the **AI Studio** API with a free tier that makes it an easy default for demos.  
+It offers very large context windows and native multimodal inputs (text, images, audio, video).
+
+Common model ids:
+
+- `gemini-2.5-flash` — fast and cheap, generous free tier
+- `gemini-2.5-pro` — most capable, for harder reasoning
+
+```mermaid
+flowchart LR
+  app[your app] --> g[Gemini API]
+  g --> reply[reply]
+```
+
+The **Code samples** tab shows the native SDK and the LiteLLM route — pick from
+the selector to compare.
+
+## When to use it
+
+Reach for Gemini when you want a free tier to prototype with, very long context,
+or built-in multimodal input — and route it through LiteLLM to stay portable.

@@ -36,6 +36,10 @@ const logoSrc = isImage
     : base.replace(/\/$/, '') + '/' + logo!.replace(/^\//, '')
   : undefined;
 const emoji = logo && !isImage ? logo : undefined;
+// A `-mono` suffix (e.g. `/logos/instructor-mono.svg`) marks a single-colour
+// logo: render it as a mask tinted with the theme text colour so it stays
+// visible in both light and dark — including the manual theme toggle.
+const isMono = isImage && /-mono\.[a-z0-9]+$/i.test(logo!);
 
 const boxStyle = `width:${size}px;height:${size}px`;
 const iconSize = Math.round(size * 0.52);
@@ -44,7 +48,13 @@ const tileClass =
 ---
 
 {
-  isImage ? (
+  isMono ? (
+    <span class:list={[tileClass, className]} style={boxStyle} aria-hidden="true">
+      <span
+        style={`display:block;width:${iconSize}px;height:${iconSize}px;background-color:var(--aas-text);-webkit-mask:url("${logoSrc}") center/contain no-repeat;mask:url("${logoSrc}") center/contain no-repeat`}
+      />
+    </span>
+  ) : isImage ? (
     <img
       src={logoSrc}
       alt={name}

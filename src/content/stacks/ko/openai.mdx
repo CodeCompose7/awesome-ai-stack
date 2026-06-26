@@ -1,0 +1,90 @@
+---
+name: OpenAI
+logo: /logos/openai.webp
+category: llm-providers
+description: OpenAI API로 쓰는 GPT 모델 — 함수 호출, 구조화 출력, 그리고 사실상 표준이 된 API 형식.
+website: https://openai.com
+repo: https://github.com/openai/openai-python
+docs: https://platform.openai.com/docs
+tags: [llm, function-calling, structured-output, api]
+language: API
+license: proprietary
+pricing: [paid]
+related: [litellm]
+projects:
+  - folder: openai_1
+    related: []
+samples:
+  - version: "Python · chat completions"
+    lang: python
+    diagram: |
+      flowchart LR
+        app[your app] --> oai[OpenAI API]
+        oai --> reply[reply]
+    code: |
+      from openai import OpenAI
+
+      client = OpenAI()  # reads OPENAI_API_KEY
+
+      resp = client.chat.completions.create(
+          model="gpt-4o",
+          messages=[{"role": "user", "content": "Summarize OpenAI in one line."}],
+      )
+      print(resp.choices[0].message.content)
+    description: |
+      ### 언제 쓰나
+      OpenAI 고유 기능이나 막 출시된 최신 모델이 필요할 때 네이티브 SDK를 쓰세요.
+
+      ### 흐름
+      `chat.completions.create`가 choices를 돌려주고, 텍스트는
+      `choices[0].message.content`에 있습니다.
+  - version: "Python · via LiteLLM"
+    lang: python
+    diagram: |
+      flowchart LR
+        app[your app] --> lite[LiteLLM]
+        lite -->|openai/| oai[OpenAI API]
+    code: |
+      from litellm import completion
+
+      # The openai/ prefix routes to OpenAI with your OPENAI_API_KEY.
+      resp = completion(
+          model="openai/gpt-4o",
+          messages=[{"role": "user", "content": "Summarize OpenAI in one line."}],
+      )
+      print(resp.choices[0].message.content)
+    description: |
+      ### 언제 쓰나
+      에이전트를 제공자 독립적으로 유지하려면 LiteLLM으로 라우팅하세요 — 같은 호출
+      형식이 모든 제공자에 통합니다.
+
+      ### 흐름
+      LiteLLM이 OpenAI의 요청·응답을 그대로 반영하므로 `openai/<model>`은 거의
+      통과(passthrough)에 가깝습니다.
+---
+
+## 개요
+
+OpenAI API는 GPT 모델을 제공하며, 지금 생태계 대부분이 따르는 **chat completions**
+형식을 대중화했습니다.  
+함수 호출과 구조화 출력을 일급으로 지원하고, 어떤 제공자보다 넓은 도구·통합
+생태계를 갖췄습니다.
+
+자주 쓰는 모델 id:
+
+- `gpt-4o` — 대표 멀티모달 모델
+- `gpt-4o-mini` — 대량 작업용으로 빠르고 저렴
+
+```mermaid
+flowchart LR
+  app[your app] --> oai[OpenAI API]
+  oai --> reply[reply]
+```
+
+**코드 샘플** 탭에는 네이티브 SDK와 LiteLLM 경유 예시가 있습니다 — 선택기에서 골라
+비교해 보세요.
+
+## 언제 쓰면 좋은가
+
+넓은 생태계 지원과 성숙한 함수 호출이 필요할 때 OpenAI를 쓰고, 나중에 제공자를 바꿀
+수 있도록 LiteLLM으로 라우팅하세요.

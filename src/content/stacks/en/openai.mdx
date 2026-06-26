@@ -1,0 +1,89 @@
+---
+name: OpenAI
+logo: /logos/openai.webp
+category: llm-providers
+description: OpenAI's GPT models via the API — function calling, structured outputs, and the de-facto API shape.
+website: https://openai.com
+repo: https://github.com/openai/openai-python
+docs: https://platform.openai.com/docs
+tags: [llm, function-calling, structured-output, api]
+language: API
+license: proprietary
+pricing: [paid]
+related: [litellm]
+projects:
+  - folder: openai_1
+    related: []
+samples:
+  - version: "Python · chat completions"
+    lang: python
+    diagram: |
+      flowchart LR
+        app[your app] --> oai[OpenAI API]
+        oai --> reply[reply]
+    code: |
+      from openai import OpenAI
+
+      client = OpenAI()  # reads OPENAI_API_KEY
+
+      resp = client.chat.completions.create(
+          model="gpt-4o",
+          messages=[{"role": "user", "content": "Summarize OpenAI in one line."}],
+      )
+      print(resp.choices[0].message.content)
+    description: |
+      ### When to use
+      Reach for the native SDK when you want OpenAI-specific features or the
+      latest models the day they ship.
+
+      ### How it flows
+      `chat.completions.create` returns choices; the text is on
+      `choices[0].message.content`.
+  - version: "Python · via LiteLLM"
+    lang: python
+    diagram: |
+      flowchart LR
+        app[your app] --> lite[LiteLLM]
+        lite -->|openai/| oai[OpenAI API]
+    code: |
+      from litellm import completion
+
+      # The openai/ prefix routes to OpenAI with your OPENAI_API_KEY.
+      resp = completion(
+          model="openai/gpt-4o",
+          messages=[{"role": "user", "content": "Summarize OpenAI in one line."}],
+      )
+      print(resp.choices[0].message.content)
+    description: |
+      ### When to use
+      Route through LiteLLM to keep your agent provider-agnostic — the same call
+      shape works for every provider.
+
+      ### How it flows
+      LiteLLM mirrors OpenAI's request/response, so `openai/<model>` is a
+      near-passthrough.
+---
+
+## Overview
+
+OpenAI's API serves the GPT models and popularized the **chat completions** shape that most of the ecosystem now mirrors.  
+It has first-class function calling and structured outputs, and the broadest tooling/integration support of any provider.
+
+Common model ids:
+
+- `gpt-4o` — flagship multimodal model
+- `gpt-4o-mini` — fast and cheap for high-volume work
+
+```mermaid
+flowchart LR
+  app[your app] --> oai[OpenAI API]
+  oai --> reply[reply]
+```
+
+The **Code samples** tab shows the native SDK and the LiteLLM route — pick from
+the selector to compare.
+
+## When to use it
+
+Reach for OpenAI when you want broad ecosystem support and mature function
+calling — and route it through LiteLLM so you can swap providers later.
