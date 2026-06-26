@@ -10,6 +10,40 @@
 실행 가능한 예제(`samples/`)를 한국어·영어로 제공하고 GitHub Pages로 배포됩니다.
 1.0.0은 카탈로그·상세 페이지·예제·다국어를 갖춘 첫 정식 릴리스를 뜻합니다.
 
+## 1.2.0 - 2026-06-26
+
+카탈로그에 스택 6종과 각각의 실행 가능한 구현 샘플을 추가하고, 실제 로고를 입혔으며,
+모바일 레이아웃을 정리했습니다.
+
+### 추가됨 1.2.0
+
+- **새 스택 6종** — instructor·Sentence Transformers·Chroma·Google Gemini·OpenAI·
+  Ollama. 카탈로그가 11개에서 17개가 됐고, 기존 형식(개요·코드 샘플 탭·다이어그램·언제
+  쓰나)에 맞춰 한/영으로 작성
+  - 구조화 출력 instructor, 임베딩 Sentence Transformers, 벡터 DB Chroma,
+    프로바이더 Gemini·OpenAI·Ollama
+- **구현 샘플 6종** — `instructor_1`·`sentence-transformers_1`·`chroma_1`·`gemini_1`·
+  `openai_1`·`ollama_1`. 모두 Docker로 실행되며 DooD로 동작 검증
+  - 프로바이더(openai·gemini)는 네이티브 SDK, `ollama_1`은 LiteLLM `ollama_chat/`로
+    로컬 모델 호출
+  - `instructor_1`은 `from_litellm`으로 Pydantic 검증 출력, `chroma_1`·
+    `sentence-transformers_1`은 키 없이 로컬 임베딩(결정적 출력)
+- **실제 로고 적용** — 6개 스택에 로고 파일을 입혀 이모지·모노그램을 대체
+
+### 변경됨 1.2.0
+
+- **모바일 헤더** — 좁은 폭에서 nav 라벨을 아이콘으로 바꾸고(데스크톱은 텍스트 유지),
+  600px 미만에선 로고 워드마크를 숨겨 ⚡만 표시, 언어 전환기는 짧은 코드(KO·EN)로
+- **카드 레이아웃** — 1000px 미만에서 세로로 쌓아 스타·가격 칩을 본문 아래로 내려
+  제목·설명이 폭을 온전히 쓰게 함. 1000px 이상은 기존 우측 컬럼 유지
+- 새 샘플의 의존성 floor를 현재 메이저로 상향 — openai 2.x·google-genai 2.x·
+  chromadb 1.x·sentence-transformers 5.x 등
+
+### 수정됨 1.2.0
+
+- **단색 로고가 다크 테마에서 보이지 않던 문제** — 파일명 `-mono` 규칙으로 마스크
+  처리해 테마 전경색(라이트=어둡게, 다크=밝게)으로 칠함. instructor 로고에 적용
+
 ## 1.1.0 - 2026-06-25
 
 거의 모든 스택에 코드 샘플과 **실행 가능한 구현 샘플**을 붙이고, 로컬 Ollama 모델을
