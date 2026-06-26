@@ -19,6 +19,6 @@ const { id } = Astro.props;
 const node = categoryMap.get(id)!;
 ---
 
-<BaseLayout title={`${node.label.en} — awesome-agent-stack`} lang="en" path={`categories/${id}/`} wide>
+<BaseLayout title={`${node.label.en} — awesome-agent-stack`} lang="en" path={`categories/${id}/`}>
   <CategoryIndex lang="en" id={id} />
 </BaseLayout>
