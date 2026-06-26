@@ -1,0 +1,80 @@
+---
+name: Arize Phoenix
+logo: /logos/arize-phoenix.png
+category: observability
+description: 오픈소스 LLM·에이전트 관측성 — self-host 가능한 OpenTelemetry 트레이싱과 평가.
+website: https://arize.com/phoenix/
+repo: https://github.com/Arize-ai/phoenix
+docs: https://arize.com/docs/phoenix
+tags: [tracing, eval, observability, opentelemetry]
+language: Python
+license: Elastic-2.0
+pricing: [open-source, paid]
+related: [langfuse, langsmith]
+projects:
+  - folder: arize-phoenix_1
+    related: [litellm]
+samples:
+  - version: "Python · trace"
+    lang: python
+    diagram: |
+      flowchart LR
+        app[agent] -->|OTel spans| px[(Phoenix)]
+        px --> ui[traces + evals]
+    code: |
+      from phoenix.otel import register
+
+      # Send OpenTelemetry traces to a Phoenix instance (local or self-hosted).
+      register(project_name="my-agent", auto_instrument=True)
+
+      # Any instrumented call (OpenAI, LiteLLM, LangChain, ...) now lands as a span.
+      from litellm import completion
+      completion(model="gpt-4o", messages=[{"role": "user", "content": "hi"}])
+    description: |
+      ### 언제 쓰나
+      직접 돌릴 수 있는 OpenTelemetry 기반 트레이싱과 각 단계를 들여다볼 UI가 필요할 때
+      Phoenix를 쓰세요.
+
+      ### 흐름
+      `register(auto_instrument=True)`가 지원 라이브러리를 패치해 LLM·도구 호출을
+      Phoenix로 스팬으로 내보냅니다.
+  - version: "Shell · run Phoenix"
+    lang: bash
+    diagram: |
+      flowchart LR
+        serve[phoenix serve] --> ui[localhost:6006]
+    code: |
+      # Run a local Phoenix server — the UI is at http://localhost:6006.
+      pip install arize-phoenix
+      phoenix serve
+
+      # ...or with Docker:
+      docker run -p 6006:6006 arizephoenix/phoenix
+    description: |
+      ### 언제 쓰나
+      개발 중 계정 없이 쓰는 사설 트레이싱 백엔드가 필요할 때 Phoenix를 self-host
+      하세요.
+
+      ### 흐름
+      서버가 앱이 내보낸 스팬을 모아 트레이스를, 그리고 데이터셋·평가를 UI로
+      보여줍니다.
+---
+
+## 개요
+
+Phoenix는 Arize의 오픈소스 LLM·에이전트 관측성 도구로, **OpenTelemetry** 위에 만들어졌습니다.  
+각 실행을 중첩 스팬(모델 호출·도구 호출·검색)으로 추적하고, 그 위에 데이터셋과 평가를 더합니다 — 계정 없이 모두 self-host 가능합니다.
+
+```mermaid
+flowchart LR
+  app[agent] -->|OTel spans| px[(Phoenix)]
+  px --> ui[traces + evals]
+```
+
+**코드 샘플** 탭에는 앱을 계측하는 예시와 로컬 Phoenix 서버 실행 예시가 있습니다 —
+선택기에서 골라 비교해 보세요.
+
+## 언제 쓰면 좋은가
+
+로컬이나 self-host로 돌릴 수 있는 개방형 OpenTelemetry 기반 트레이싱·평가가 필요할 때
+Phoenix를 쓰세요 — 오픈소스 쪽에서 Langfuse와 가까운 짝입니다.

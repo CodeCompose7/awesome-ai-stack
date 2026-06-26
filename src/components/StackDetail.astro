@@ -15,7 +15,7 @@ import ProjectViewer from './ProjectViewer.astro';
 import ProjectRelatedTools, { type RelatedTool } from './ProjectRelatedTools.astro';
 import ProjectFileList from './ProjectFileList.astro';
 import Toc from './Toc.astro';
-import { getRepoStats } from '../lib/github';
+import { getRepoStats, isStale } from '../lib/github';
 import { renderSamples } from '../lib/samples';
 import { renderProjects } from '../lib/project';
 
@@ -39,6 +39,8 @@ const relatedArticles = await getArticlesForTool(lang, slugOf(entry));
 // Live GitHub stats (build-time), with the manual `version` as fallback.
 const stats = await getRepoStats(data.repo);
 const displayVersion = stats?.version ?? data.version;
+// Warn when an open-source project's latest release is more than a year old.
+const stale = data.pricing.includes('open-source') && isStale(stats?.releasedAt);
 
 const links = [
   data.website && { label: t('detail.website'), href: data.website },
@@ -126,6 +128,7 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
     version={displayVersion}
     released={stats?.releasedAt?.slice(0, 10)}
     deprecated={data.deprecated}
+    stale={stale}
     class="mt-5"
   />
 

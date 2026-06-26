@@ -161,6 +161,67 @@ const isDefaultHome = path === '' && lang === 'en';
         setTimeout(() => anchor.classList.remove('copied'), 1200);
       });
 
+      // Mount a copy-to-clipboard button on every code block: README/overview
+      // prose (.prose pre), the file viewer (.aas-projfile), and the Code tab
+      // (.aas-code). The button is pinned to a non-scrolling host so it stays in
+      // place on long, horizontally-scrolling code.
+      (function mountCopyButtons() {
+        const koLang = document.documentElement.lang === 'ko';
+        const LABEL = koLang ? '코드 복사' : 'Copy code';
+        const DONE = koLang ? '복사됨' : 'Copied';
+        const COPY_ICON =
+          '<svg class="aas-ico-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="13" height="13" x="9" y="9" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+        const CHECK_ICON =
+          '<svg class="aas-ico-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+
+        function wrap(el: Element): HTMLElement {
+          const w = document.createElement('div');
+          w.className = 'aas-copyhost';
+          el.parentNode?.insertBefore(w, el);
+          w.appendChild(el);
+          return w;
+        }
+
+        function mount(source: HTMLElement, host: HTMLElement) {
+          if (host.querySelector(':scope > .aas-copy-btn')) return; // already mounted
+          host.classList.add('aas-copyhost');
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'aas-copy-btn';
+          btn.setAttribute('aria-label', LABEL);
+          btn.title = LABEL;
+          btn.innerHTML = COPY_ICON + CHECK_ICON;
+          let timer = 0;
+          btn.addEventListener('click', () => {
+            const text = source.innerText.replace(/\n$/, '');
+            navigator.clipboard?.writeText(text).then(() => {
+              btn.classList.add('copied');
+              btn.setAttribute('aria-label', DONE);
+              window.clearTimeout(timer);
+              timer = window.setTimeout(() => {
+                btn.classList.remove('copied');
+                btn.setAttribute('aria-label', LABEL);
+              }, 1400);
+            });
+          });
+          host.appendChild(btn);
+        }
+
+        // Prose code blocks (READMEs, overviews, articles): wrap each <pre>.
+        document
+          .querySelectorAll<HTMLElement>('.prose pre:not(.mermaid)')
+          .forEach((pre) => mount(pre, wrap(pre)));
+        // Code tab: the .aas-code div is the scroll container — wrap it.
+        document
+          .querySelectorAll<HTMLElement>('.aas-code')
+          .forEach((el) => mount(el, wrap(el)));
+        // File viewer: anchor the button on the figure (above the scroll area).
+        document.querySelectorAll<HTMLElement>('.aas-projfile').forEach((el) => {
+          const fig = el.closest('figure');
+          mount(el, (fig as HTMLElement) ?? wrap(el));
+        });
+      })();
+
       // Close any open <details> dropdown when clicking outside it (or on Esc).
       // The file-tree folders (.aas-tree-dir) are not dropdowns — leave them be.
       document.addEventListener('click', (e) => {

@@ -1,0 +1,71 @@
+---
+name: Aider
+logo: /logos/aider.svg
+category: coding-agents
+description: AI pair programming in your terminal — edits your code and auto-commits each change to git.
+website: https://aider.chat
+repo: https://github.com/Aider-AI/aider
+docs: https://aider.chat
+tags: [coding, terminal, git, pair-programming]
+language: Python
+license: Apache-2.0
+pricing: [open-source]
+related: [openhands, cline, litellm]
+samples:
+  - version: "Shell · interactive"
+    lang: bash
+    diagram: |
+      flowchart LR
+        you[you] --> aider[Aider]
+        aider --> model[model]
+        model --> diff[edit + git commit]
+    code: |
+      python -m pip install aider-chat
+
+      export ANTHROPIC_API_KEY=...
+      # Pair-program on a file; --model is a LiteLLM-style name, any provider works.
+      aider --model anthropic/claude-opus-4-8 app.py
+    description: |
+      ### When to use
+      Reach for Aider for hands-on, conversational edits in the terminal with a
+      clean git history.
+
+      ### How it flows
+      Aider sends your request plus the relevant files to the model, applies the
+      diff, and commits each change.
+  - version: "Shell · one-shot"
+    lang: bash
+    diagram: |
+      flowchart LR
+        msg[--message] --> aider[Aider]
+        aider --> commit[one edit + commit]
+    code: |
+      # Non-interactive: make a single change and exit.
+      aider --model openai/gpt-4o --message "add a docstring to main()" app.py
+    description: |
+      ### When to use
+      Use `--message` to script a single edit — handy in tasks or CI.
+
+      ### How it flows
+      Aider runs one turn against the named files, commits the result, and exits.
+---
+
+## Overview
+
+Aider is "AI pair programming in your terminal": you chat about a change and it edits the files directly.  
+It is git-native — every change is auto-committed with a sensible message, so the history stays clean and any edit is easy to undo.
+
+```mermaid
+flowchart LR
+  you[you] --> aider[Aider]
+  aider --> model[model]
+  model --> diff[edit + git commit]
+```
+
+The **Code samples** tab shows an interactive session and a scripted one-shot
+edit — pick from the selector to compare.
+
+## When to use it
+
+Reach for Aider when you want fast, conversational edits to an existing
+repository with disciplined, reversible git history — and any model via LiteLLM.

@@ -1,0 +1,97 @@
+---
+name: Mem0
+logo: /logos/mem0-mono.svg
+category: vector-stores
+description: Memory layer for agents — extracts and recalls facts across sessions, not raw chat logs.
+website: https://mem0.ai
+repo: https://github.com/mem0ai/mem0
+docs: https://docs.mem0.ai
+tags: [memory, rag, personalization, python]
+language: Python
+license: Apache-2.0
+pricing: [open-source, paid]
+related: [qdrant, chroma, langgraph]
+projects:
+  - folder: mem0_1
+    related: [openai]
+samples:
+  - version: "Python · add & search"
+    lang: python
+    diagram: |
+      flowchart LR
+        msg[messages] --> mem0[Mem0]
+        mem0 --> store[(vector store)]
+        q[query] --> mem0
+        mem0 --> facts[relevant memories]
+    code: |
+      from mem0 import Memory
+
+      m = Memory()  # an LLM extracts facts; a vector store recalls them
+
+      m.add("I prefer window seats and vegetarian meals.", user_id="alice")
+
+      hits = m.search("what are alice's travel preferences?", user_id="alice")
+      for h in hits["results"]:
+          print(h["memory"])
+    description: |
+      ### When to use
+      Reach for Mem0 when an agent needs durable, per-user memory that survives
+      across sessions.
+
+      ### How it flows
+      `add` distils messages into compact facts and stores them; `search` returns
+      the memories relevant to a query.
+  - version: "Python · recall into a prompt"
+    lang: python
+    diagram: |
+      flowchart LR
+        q[query] --> mem0[Mem0]
+        mem0 --> ctx[memories]
+        ctx --> llm[LLM]
+        llm --> reply[reply]
+    code: |
+      from mem0 import Memory
+      from litellm import completion
+
+      m = Memory()
+      m.add("Alice is allergic to peanuts.", user_id="alice")
+
+      # Pull relevant memories and prepend them to the prompt.
+      memories = m.search("food", user_id="alice")["results"]
+      context = "\n".join(f"- {x['memory']}" for x in memories)
+
+      resp = completion(
+          model="anthropic/claude-opus-4-8",
+          messages=[{"role": "user", "content": f"Known facts:\n{context}\n\nSuggest a snack."}],
+      )
+      print(resp.choices[0].message.content)
+    description: |
+      ### When to use
+      Inject recalled memories into the prompt so the model personalises its
+      answer.
+
+      ### How it flows
+      Search Mem0 for relevant facts, format them, and prepend them to the
+      model call.
+---
+
+## Overview
+
+Mem0 is a memory layer that gives agents long-term, per-user recall.  
+Instead of storing raw conversation chunks, it runs an extraction step that distils messages into compact facts, then retrieves the relevant ones when you search — a different shape of problem than plain vector retrieval.
+
+```mermaid
+flowchart LR
+  msg[messages] --> mem0[Mem0]
+  mem0 --> store[(vector store)]
+  q[query] --> mem0
+  mem0 --> facts[relevant memories]
+```
+
+The **Code samples** tab shows storing and searching memories, then folding them
+into a prompt — pick from the selector to compare.
+
+## When to use it
+
+Choose Mem0 when an agent should remember user preferences and facts across
+sessions, rather than re-reading the whole history every turn.

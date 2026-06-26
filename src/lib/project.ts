@@ -31,7 +31,11 @@ function getHighlighter() {
 }
 function highlight(hl: Highlighter, code: string, lang: string): string {
   const l = hl.getLoadedLanguages().includes(lang) ? lang : 'text';
-  return hl.codeToHtml(code, { lang: l, theme: THEME });
+  // Tag the <pre> with its language so CSS can soft-wrap shell/output blocks
+  // (bash, text…) while leaving real source code horizontally scrollable.
+  return hl
+    .codeToHtml(code, { lang: l, theme: THEME })
+    .replace(/^<pre/, `<pre data-lang="${l}"`);
 }
 
 export interface ProjectFile {

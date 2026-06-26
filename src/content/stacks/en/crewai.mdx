@@ -1,0 +1,102 @@
+---
+name: CrewAI
+logo: /logos/crewai.png
+category: frameworks
+description: Role-based multi-agent orchestration — assemble a crew of agents with goals and tasks.
+website: https://www.crewai.com
+repo: https://github.com/crewAIInc/crewAI
+docs: https://docs.crewai.com
+tags: [multi-agent, orchestration, crew, python]
+language: Python
+license: MIT
+pricing: [open-source, paid]
+related: [langgraph, litellm]
+projects:
+  - folder: crewai_1
+    related: []
+samples:
+  - version: "Python · one agent"
+    lang: python
+    diagram: |
+      flowchart LR
+        agents[agents] --> crew[Crew]
+        tasks[tasks] --> crew
+        crew --> out[result]
+    code: |
+      from crewai import Agent, Task, Crew
+
+      # llm is a provider/model string; CrewAI uses native providers (crewai[anthropic]).
+      researcher = Agent(
+          role="Researcher",
+          goal="Explain tools clearly and briefly",
+          backstory="A concise technical writer.",
+          llm="anthropic/claude-opus-4-8",
+      )
+
+      task = Task(
+          description="Summarize what CrewAI does in one sentence.",
+          expected_output="a single sentence",
+          agent=researcher,
+      )
+
+      crew = Crew(agents=[researcher], tasks=[task])
+      print(crew.kickoff())
+    description: |
+      ### When to use
+      Reach for CrewAI when you want role-specialized agents collaborating on
+      tasks toward a goal.
+
+      ### How it flows
+      You declare agents (role/goal) and tasks, group them in a Crew, and
+      `kickoff` runs the tasks.
+  - version: "Python · multi-agent"
+    lang: python
+    diagram: |
+      flowchart LR
+        r[Researcher] --> w[Writer]
+        w --> out[tweet]
+    code: |
+      from crewai import Agent, Task, Crew, Process
+
+      researcher = Agent(role="Researcher", goal="Find key facts",
+                         backstory="Thorough.", llm="openai/gpt-4o")
+      writer = Agent(role="Writer", goal="Write a tweet",
+                     backstory="Punchy.", llm="openai/gpt-4o")
+
+      facts = Task(description="List 3 facts about vector databases.",
+                   expected_output="3 bullets", agent=researcher)
+      tweet = Task(description="Turn the facts into one tweet.",
+                   expected_output="a tweet", agent=writer)
+
+      crew = Crew(agents=[researcher, writer], tasks=[facts, tweet],
+                  process=Process.sequential)
+      print(crew.kickoff())
+    description: |
+      ### When to use
+      Use several agents in sequence when one hands work to the next (research
+      then write).
+
+      ### How it flows
+      A sequential process runs each task in order, passing context from one
+      agent to the next.
+---
+
+## Overview
+
+CrewAI assembles a **crew** of role-specialized agents that collaborate on tasks toward a goal.  
+Each agent has a role, goal, and backstory; you hand the crew a list of tasks and `kickoff` runs them — sequentially or in parallel.
+
+```mermaid
+flowchart LR
+  agents[agents] --> crew[Crew]
+  tasks[tasks] --> crew
+  crew --> out[result]
+```
+
+The **Code samples** tab shows a single agent and a multi-agent sequence — pick
+from the selector to compare.
+
+## When to use it
+
+Choose CrewAI when the work splits naturally across roles (researcher, writer,
+reviewer) and you want a high-level way to wire their collaboration.

@@ -1,0 +1,70 @@
+---
+name: Aider
+logo: /logos/aider.svg
+category: coding-agents
+description: 터미널에서 하는 AI 페어 프로그래밍 — 코드를 편집하고 변경마다 git에 자동 커밋합니다.
+website: https://aider.chat
+repo: https://github.com/Aider-AI/aider
+docs: https://aider.chat
+tags: [coding, terminal, git, pair-programming]
+language: Python
+license: Apache-2.0
+pricing: [open-source]
+related: [openhands, cline, litellm]
+samples:
+  - version: "Shell · interactive"
+    lang: bash
+    diagram: |
+      flowchart LR
+        you[you] --> aider[Aider]
+        aider --> model[model]
+        model --> diff[edit + git commit]
+    code: |
+      python -m pip install aider-chat
+
+      export ANTHROPIC_API_KEY=...
+      # Pair-program on a file; --model is a LiteLLM-style name, any provider works.
+      aider --model anthropic/claude-opus-4-8 app.py
+    description: |
+      ### 언제 쓰나
+      깨끗한 git 히스토리를 유지하며 터미널에서 대화형으로 직접 편집하고 싶을 때
+      Aider를 쓰세요.
+
+      ### 흐름
+      Aider가 요청과 관련 파일을 모델에 보내 diff를 적용하고, 변경마다 커밋합니다.
+  - version: "Shell · one-shot"
+    lang: bash
+    diagram: |
+      flowchart LR
+        msg[--message] --> aider[Aider]
+        aider --> commit[one edit + commit]
+    code: |
+      # Non-interactive: make a single change and exit.
+      aider --model openai/gpt-4o --message "add a docstring to main()" app.py
+    description: |
+      ### 언제 쓰나
+      한 번의 편집을 스크립트로 돌릴 때 `--message`를 쓰세요 — 작업이나 CI에 유용합니다.
+
+      ### 흐름
+      지정한 파일에 대해 한 턴을 실행하고 결과를 커밋한 뒤 종료합니다.
+---
+
+## 개요
+
+Aider는 "터미널에서 하는 AI 페어 프로그래밍"입니다. 변경을 대화로 설명하면 파일을 직접 편집합니다.  
+git 친화적이라 모든 변경이 적절한 메시지와 함께 자동 커밋되므로, 히스토리가 깔끔하게 유지되고 어떤 편집이든 되돌리기 쉽습니다.
+
+```mermaid
+flowchart LR
+  you[you] --> aider[Aider]
+  aider --> model[model]
+  model --> diff[edit + git commit]
+```
+
+**코드 샘플** 탭에는 대화형 세션과 스크립트형 단발 편집 예시가 있습니다 —
+선택기에서 골라 비교해 보세요.
+
+## 언제 쓰면 좋은가
+
+기존 저장소를 빠르게 대화형으로 편집하면서 절제되고 되돌릴 수 있는 git 히스토리를
+원할 때 — 그리고 LiteLLM으로 어떤 모델이든 — Aider를 쓰세요.

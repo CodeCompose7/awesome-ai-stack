@@ -1,0 +1,88 @@
+---
+name: Pydantic AI
+logo: /logos/pydantic-ai.svg
+category: frameworks
+description: Type-safe agent framework from the Pydantic team — structured, validated results with any model.
+website: https://ai.pydantic.dev
+repo: https://github.com/pydantic/pydantic-ai
+docs: https://ai.pydantic.dev
+tags: [agents, structured-output, pydantic, python]
+language: Python
+license: MIT
+pricing: [open-source]
+related: [instructor, litellm]
+projects:
+  - folder: pydantic-ai_1
+    related: []
+samples:
+  - version: "Python · agent"
+    lang: python
+    diagram: |
+      flowchart LR
+        prompt[prompt] --> agent[Agent]
+        agent --> model[model]
+        model --> out[result]
+    code: |
+      from pydantic_ai import Agent
+
+      # Model id is "provider:model" — swap providers by changing the string.
+      agent = Agent("anthropic:claude-opus-4-8", system_prompt="Be concise.")
+
+      result = agent.run_sync("Summarize Pydantic AI in one sentence.")
+      print(result.output)
+    description: |
+      ### When to use
+      Reach for it when you want a small, typed agent that feels like writing
+      ordinary Python.
+
+      ### How it flows
+      `run_sync` calls the model and returns a result; the reply is on
+      `result.output`.
+  - version: "Python · structured output"
+    lang: python
+    diagram: |
+      flowchart LR
+        prompt[prompt] --> agent[Agent]
+        agent --> obj[typed object]
+    code: |
+      from pydantic import BaseModel
+      from pydantic_ai import Agent
+
+
+      class Place(BaseModel):
+          city: str
+          country: str
+
+
+      agent = Agent("openai:gpt-4o", output_type=Place)
+      result = agent.run_sync("Where is the Eiffel Tower?")
+      print(result.output)  # Place(city='Paris', country='France')
+    description: |
+      ### When to use
+      Pass an `output_type` when the agent's result should be a validated object,
+      not free text.
+
+      ### How it flows
+      Pydantic AI constrains and validates the model output against your model,
+      returning the typed instance.
+---
+
+## Overview
+
+Pydantic AI is an agent framework from the team behind Pydantic, built around **typed, validated** results.  
+You give an `Agent` a model and (optionally) an `output_type`, and it returns plain Python objects you can trust — across OpenAI, Anthropic, Gemini, and more.
+
+```mermaid
+flowchart LR
+  prompt[prompt] --> agent[Agent]
+  agent --> model[model]
+  model --> out[typed result]
+```
+
+The **Code samples** tab shows a plain agent and a structured-output agent —
+pick from the selector to compare.
+
+## When to use it
+
+Choose Pydantic AI when you want an agent that fits a Python codebase — typed
+results, dependency injection, and validation — rather than a heavier framework.
