@@ -11,6 +11,9 @@ language: Python
 license: MIT
 pricing: [open-source, paid]
 related: [langgraph, litellm]
+projects:
+  - folder: crewai_1
+    related: []
 samples:
   - version: "Python · one agent"
     lang: python
@@ -22,7 +25,7 @@ samples:
     code: |
       from crewai import Agent, Task, Crew
 
-      # llm is a LiteLLM-style string, so any provider works by changing it.
+      # llm is a provider/model string; CrewAI uses native providers (crewai[anthropic]).
       researcher = Agent(
           role="Researcher",
           goal="Explain tools clearly and briefly",

@@ -1,0 +1,18 @@
+# A self-hosted Phoenix + an app that traces one LLM call into it.
+#   docker compose up --build
+services:
+  phoenix:
+    image: arizephoenix/phoenix:latest
+    ports:
+      - "6006:6006"
+
+  app:
+    build: .
+    depends_on:
+      - phoenix
+    environment:
+      PHOENIX_COLLECTOR_ENDPOINT: http://phoenix:6006
+      MODEL: anthropic/claude-opus-4-8
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    # The prompt to trace — override on the command line if you like.
+    command: ["Summarize Arize Phoenix in one line."]

@@ -1,0 +1,5 @@
+arize-phoenix>=17.0
+arize-phoenix-otel>=0.16
+openinference-instrumentation-litellm>=0.1.34
+litellm>=1.80
+python-dotenv>=1.2
