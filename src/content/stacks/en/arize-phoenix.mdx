@@ -1,0 +1,76 @@
+---
+name: Arize Phoenix
+category: observability
+description: Open-source LLM and agent observability — OpenTelemetry tracing and evals you can self-host.
+website: https://phoenix.arize.com
+repo: https://github.com/Arize-ai/phoenix
+docs: https://arize.com/docs/phoenix
+tags: [tracing, eval, observability, opentelemetry]
+language: Python
+license: Elastic-2.0
+pricing: [open-source, paid]
+related: [langfuse, langsmith]
+samples:
+  - version: "Python · trace"
+    lang: python
+    diagram: |
+      flowchart LR
+        app[agent] -->|OTel spans| px[(Phoenix)]
+        px --> ui[traces + evals]
+    code: |
+      from phoenix.otel import register
+
+      # Send OpenTelemetry traces to a Phoenix instance (local or self-hosted).
+      register(project_name="my-agent", auto_instrument=True)
+
+      # Any instrumented call (OpenAI, LiteLLM, LangChain, ...) now lands as a span.
+      from litellm import completion
+      completion(model="gpt-4o", messages=[{"role": "user", "content": "hi"}])
+    description: |
+      ### When to use
+      Reach for Phoenix when you want OpenTelemetry-native tracing you can run
+      yourself, with a UI to inspect each step.
+
+      ### How it flows
+      `register(auto_instrument=True)` patches supported libraries so their LLM
+      and tool calls are exported to Phoenix as spans.
+  - version: "Shell · run Phoenix"
+    lang: bash
+    diagram: |
+      flowchart LR
+        serve[phoenix serve] --> ui[localhost:6006]
+    code: |
+      # Run a local Phoenix server — the UI is at http://localhost:6006.
+      pip install arize-phoenix
+      phoenix serve
+
+      # ...or with Docker:
+      docker run -p 6006:6006 arizephoenix/phoenix
+    description: |
+      ### When to use
+      Self-host Phoenix for a private, no-account tracing backend during
+      development.
+
+      ### How it flows
+      The server collects spans your app exports and renders traces, plus
+      datasets and evals, in the UI.
+---
+
+## Overview
+
+Phoenix is Arize's open-source observability tool for LLM and agent apps, built on **OpenTelemetry**.  
+It traces each run as nested spans (model calls, tool calls, retrievals), and adds datasets and evaluations on top — all self-hostable with no account.
+
+```mermaid
+flowchart LR
+  app[agent] -->|OTel spans| px[(Phoenix)]
+  px --> ui[traces + evals]
+```
+
+The **Code samples** tab shows instrumenting an app and running a local Phoenix
+server — pick from the selector to compare.
+
+## When to use it
+
+Choose Phoenix when you want open, OpenTelemetry-native tracing and evals you can
+run locally or self-host — a close peer to Langfuse on the open-source side.

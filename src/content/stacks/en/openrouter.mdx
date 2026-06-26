@@ -1,0 +1,87 @@
+---
+name: OpenRouter
+category: llm-providers
+description: One OpenAI-compatible API to 300+ models across providers, with routing and fallbacks.
+website: https://openrouter.ai
+docs: https://openrouter.ai/docs
+tags: [gateway, multi-provider, routing, api]
+language: API
+license: proprietary
+pricing: [free-tier, paid]
+related: [litellm, openai]
+samples:
+  - version: "Python · via LiteLLM"
+    lang: python
+    diagram: |
+      flowchart LR
+        app[your app] --> lite[LiteLLM]
+        lite -->|openrouter/| or[OpenRouter]
+        or --> models[(300+ models)]
+    code: |
+      from litellm import completion
+
+      # openrouter/<vendor>/<model> routes through OpenRouter with OPENROUTER_API_KEY.
+      resp = completion(
+          model="openrouter/anthropic/claude-opus-4-8",
+          messages=[{"role": "user", "content": "Summarize OpenRouter in one line."}],
+      )
+      print(resp.choices[0].message.content)
+    description: |
+      ### When to use
+      Route through LiteLLM to reach any OpenRouter model with the same call
+      shape as every other provider.
+
+      ### How it flows
+      The `openrouter/` prefix tells LiteLLM to send the request to OpenRouter,
+      which forwards it to the chosen model.
+  - version: "Python · OpenAI SDK"
+    lang: python
+    diagram: |
+      flowchart LR
+        app[your app] --> or[OpenRouter]
+        or --> a[Anthropic]
+        or --> o[OpenAI]
+        or --> g[others]
+    code: |
+      import os
+      from openai import OpenAI
+
+      # OpenRouter is OpenAI-compatible — point the base_url at it.
+      client = OpenAI(
+          base_url="https://openrouter.ai/api/v1",
+          api_key=os.environ["OPENROUTER_API_KEY"],
+      )
+      resp = client.chat.completions.create(
+          model="anthropic/claude-opus-4-8",
+          messages=[{"role": "user", "content": "Summarize OpenRouter in one line."}],
+      )
+      print(resp.choices[0].message.content)
+    description: |
+      ### When to use
+      Use the OpenAI SDK directly when a tool already speaks OpenAI and you just
+      want to redirect it.
+
+      ### How it flows
+      OpenRouter mirrors the OpenAI API, so only the `base_url` and key change.
+---
+
+## Overview
+
+OpenRouter is a gateway that exposes 300+ models from many providers behind one **OpenAI-compatible** API and key.  
+It adds routing, automatic fallbacks, and unified billing, so an agent can reach Claude, GPT, Gemini, Llama, and more without juggling separate accounts.
+
+```mermaid
+flowchart LR
+  app[your app] --> or[OpenRouter]
+  or --> a[Anthropic]
+  or --> o[OpenAI]
+  or --> g[others]
+```
+
+The **Code samples** tab shows the LiteLLM route and the OpenAI SDK route — pick
+from the selector to compare.
+
+## When to use it
+
+Reach for OpenRouter when you want a single key and endpoint across many
+providers — to compare models, add fallbacks, or avoid managing each account.

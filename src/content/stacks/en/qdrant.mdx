@@ -1,0 +1,90 @@
+---
+name: Qdrant
+category: vector-stores
+description: High-performance open-source vector database for similarity search and agent memory.
+website: https://qdrant.tech
+repo: https://github.com/qdrant/qdrant
+docs: https://qdrant.tech/documentation
+tags: [vector-db, embeddings, rag, rust]
+language: Rust
+license: Apache-2.0
+pricing: [open-source, free-tier, paid]
+related: [chroma, pgvector, sentence-transformers]
+samples:
+  - version: "Python · add & query"
+    lang: python
+    diagram: |
+      flowchart LR
+        docs[documents] --> q[(Qdrant)]
+        query[query] --> q
+        q --> top[nearest points]
+    code: |
+      from qdrant_client import QdrantClient
+
+      client = QdrantClient(":memory:")  # in-memory; use url="http://localhost:6333"
+      # qdrant-client[fastembed] embeds the documents with a built-in model.
+      client.add("docs", documents=[
+          "Cats are independent pets that purr.",
+          "A rocket is propelled by ejecting exhaust.",
+      ])
+
+      hits = client.query("docs", query_text="tell me about cats", limit=1)
+      print(hits[0].document)
+    description: |
+      ### When to use
+      Reach for the high-level client + fastembed when you want a vector store
+      that embeds for you.
+
+      ### How it flows
+      `add` embeds and stores the documents; `query` embeds the query and returns
+      nearest neighbours.
+  - version: "Python · explicit vectors"
+    lang: python
+    diagram: |
+      flowchart LR
+        vec[your vectors] --> coll[(collection)]
+        q[query vector] --> coll
+        coll --> top[top-k]
+    code: |
+      from qdrant_client import QdrantClient, models
+
+      client = QdrantClient(url="http://localhost:6333")
+      client.create_collection(
+          "docs",
+          vectors_config=models.VectorParams(size=4, distance=models.Distance.COSINE),
+      )
+      client.upsert("docs", points=[
+          models.PointStruct(id=1, vector=[0.1, 0.2, 0.3, 0.4], payload={"text": "hello"}),
+      ])
+
+      hits = client.query_points("docs", query=[0.1, 0.2, 0.3, 0.4], limit=1).points
+      print(hits[0].payload)
+    description: |
+      ### When to use
+      Manage vectors yourself when an embedding model already produces them
+      elsewhere in your pipeline.
+
+      ### How it flows
+      Create a collection with a distance metric, upsert points with payloads,
+      then query by a vector for the nearest points.
+---
+
+## Overview
+
+Qdrant is a fast, open-source vector database written in Rust, built for similarity search at scale.  
+It stores embeddings with JSON payloads and rich filtering, making it a common retrieval and long-term-memory layer for RAG and agents.
+
+```mermaid
+flowchart LR
+  docs[documents] --> q[(Qdrant)]
+  query[query] --> q
+  q --> top[nearest points]
+```
+
+The **Code samples** tab shows the built-in embedder and a bring-your-own-vectors
+flow — pick from the selector to compare.
+
+## When to use it
+
+Choose Qdrant when you want a dedicated vector store with strong performance and
+payload filtering — self-hosted with Docker or on Qdrant Cloud.

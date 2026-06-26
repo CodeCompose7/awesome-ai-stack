@@ -1,0 +1,90 @@
+---
+name: Mem0
+category: vector-stores
+description: 에이전트를 위한 메모리 레이어 — 원본 대화 로그가 아니라 사실을 추출해 세션을 넘어 기억합니다.
+website: https://mem0.ai
+repo: https://github.com/mem0ai/mem0
+docs: https://docs.mem0.ai
+tags: [memory, rag, personalization, python]
+language: Python
+license: Apache-2.0
+pricing: [open-source, paid]
+related: [qdrant, chroma, langgraph]
+samples:
+  - version: "Python · add & search"
+    lang: python
+    diagram: |
+      flowchart LR
+        msg[messages] --> mem0[Mem0]
+        mem0 --> store[(vector store)]
+        q[query] --> mem0
+        mem0 --> facts[relevant memories]
+    code: |
+      from mem0 import Memory
+
+      m = Memory()  # an LLM extracts facts; a vector store recalls them
+
+      m.add("I prefer window seats and vegetarian meals.", user_id="alice")
+
+      hits = m.search("what are alice's travel preferences?", user_id="alice")
+      for h in hits["results"]:
+          print(h["memory"])
+    description: |
+      ### 언제 쓰나
+      에이전트가 세션을 넘어 지속되는 사용자별 기억이 필요할 때 Mem0를 쓰세요.
+
+      ### 흐름
+      `add`가 메시지를 간결한 사실로 추려 저장하고, `search`가 질의에 관련된 기억을
+      돌려줍니다.
+  - version: "Python · recall into a prompt"
+    lang: python
+    diagram: |
+      flowchart LR
+        q[query] --> mem0[Mem0]
+        mem0 --> ctx[memories]
+        ctx --> llm[LLM]
+        llm --> reply[reply]
+    code: |
+      from mem0 import Memory
+      from litellm import completion
+
+      m = Memory()
+      m.add("Alice is allergic to peanuts.", user_id="alice")
+
+      # Pull relevant memories and prepend them to the prompt.
+      memories = m.search("food", user_id="alice")["results"]
+      context = "\n".join(f"- {x['memory']}" for x in memories)
+
+      resp = completion(
+          model="anthropic/claude-opus-4-8",
+          messages=[{"role": "user", "content": f"Known facts:\n{context}\n\nSuggest a snack."}],
+      )
+      print(resp.choices[0].message.content)
+    description: |
+      ### 언제 쓰나
+      불러온 기억을 프롬프트에 넣어 모델이 답을 개인화하게 하고 싶을 때 쓰세요.
+
+      ### 흐름
+      Mem0에서 관련 사실을 검색해 형식을 맞춘 뒤 모델 호출 앞에 붙입니다.
+---
+
+## 개요
+
+Mem0는 에이전트에 장기·사용자별 기억을 주는 메모리 레이어입니다.  
+원본 대화 청크를 저장하는 대신, 메시지를 간결한 사실로 추려내는 추출 단계를 거치고 검색 시 관련된 것만 가져옵니다 — 단순 벡터 검색과는 결이 다른 문제입니다.
+
+```mermaid
+flowchart LR
+  msg[messages] --> mem0[Mem0]
+  mem0 --> store[(vector store)]
+  q[query] --> mem0
+  mem0 --> facts[relevant memories]
+```
+
+**코드 샘플** 탭에는 기억을 저장·검색하고 그것을 프롬프트에 넣는 예시가 있습니다 —
+선택기에서 골라 비교해 보세요.
+
+## 언제 쓰면 좋은가
+
+매 턴 전체 히스토리를 다시 읽는 대신, 에이전트가 사용자 선호와 사실을 세션을 넘어
+기억해야 할 때 Mem0를 쓰세요.

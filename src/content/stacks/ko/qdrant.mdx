@@ -1,0 +1,89 @@
+---
+name: Qdrant
+category: vector-stores
+description: 유사도 검색과 에이전트 메모리를 위한 고성능 오픈소스 벡터 데이터베이스.
+website: https://qdrant.tech
+repo: https://github.com/qdrant/qdrant
+docs: https://qdrant.tech/documentation
+tags: [vector-db, embeddings, rag, rust]
+language: Rust
+license: Apache-2.0
+pricing: [open-source, free-tier, paid]
+related: [chroma, pgvector, sentence-transformers]
+samples:
+  - version: "Python · add & query"
+    lang: python
+    diagram: |
+      flowchart LR
+        docs[documents] --> q[(Qdrant)]
+        query[query] --> q
+        q --> top[nearest points]
+    code: |
+      from qdrant_client import QdrantClient
+
+      client = QdrantClient(":memory:")  # in-memory; use url="http://localhost:6333"
+      # qdrant-client[fastembed] embeds the documents with a built-in model.
+      client.add("docs", documents=[
+          "Cats are independent pets that purr.",
+          "A rocket is propelled by ejecting exhaust.",
+      ])
+
+      hits = client.query("docs", query_text="tell me about cats", limit=1)
+      print(hits[0].document)
+    description: |
+      ### 언제 쓰나
+      임베딩까지 대신 해주는 벡터 스토어를 원할 때 고수준 클라이언트 + fastembed를
+      쓰세요.
+
+      ### 흐름
+      `add`가 문서를 임베딩해 저장하고, `query`가 질의를 임베딩해 최근접 이웃을
+      돌려줍니다.
+  - version: "Python · explicit vectors"
+    lang: python
+    diagram: |
+      flowchart LR
+        vec[your vectors] --> coll[(collection)]
+        q[query vector] --> coll
+        coll --> top[top-k]
+    code: |
+      from qdrant_client import QdrantClient, models
+
+      client = QdrantClient(url="http://localhost:6333")
+      client.create_collection(
+          "docs",
+          vectors_config=models.VectorParams(size=4, distance=models.Distance.COSINE),
+      )
+      client.upsert("docs", points=[
+          models.PointStruct(id=1, vector=[0.1, 0.2, 0.3, 0.4], payload={"text": "hello"}),
+      ])
+
+      hits = client.query_points("docs", query=[0.1, 0.2, 0.3, 0.4], limit=1).points
+      print(hits[0].payload)
+    description: |
+      ### 언제 쓰나
+      파이프라인 다른 곳에서 이미 임베딩이 만들어진다면 벡터를 직접 관리하세요.
+
+      ### 흐름
+      거리 메트릭으로 컬렉션을 만들고 페이로드와 함께 포인트를 upsert한 뒤, 벡터로
+      질의해 최근접 포인트를 얻습니다.
+---
+
+## 개요
+
+Qdrant는 Rust로 작성된 빠른 오픈소스 벡터 데이터베이스로, 대규모 유사도 검색을 위해 만들어졌습니다.  
+임베딩을 JSON 페이로드·풍부한 필터링과 함께 저장해, RAG와 에이전트의 검색·장기 기억 계층으로 흔히 쓰입니다.
+
+```mermaid
+flowchart LR
+  docs[documents] --> q[(Qdrant)]
+  query[query] --> q
+  q --> top[nearest points]
+```
+
+**코드 샘플** 탭에는 내장 임베더 방식과 직접 벡터를 다루는 방식이 있습니다 —
+선택기에서 골라 비교해 보세요.
+
+## 언제 쓰면 좋은가
+
+강력한 성능과 페이로드 필터링을 갖춘 전용 벡터 스토어가 필요할 때 — Docker로
+self-host하거나 Qdrant Cloud에서 — Qdrant를 쓰세요.

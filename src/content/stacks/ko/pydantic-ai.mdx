@@ -1,0 +1,82 @@
+---
+name: Pydantic AI
+category: frameworks
+description: Pydantic 팀이 만든 타입 안전 에이전트 프레임워크 — 어떤 모델로든 구조화·검증된 결과를 돌려줍니다.
+website: https://ai.pydantic.dev
+repo: https://github.com/pydantic/pydantic-ai
+docs: https://ai.pydantic.dev
+tags: [agents, structured-output, pydantic, python]
+language: Python
+license: MIT
+pricing: [open-source]
+related: [instructor, litellm]
+samples:
+  - version: "Python · agent"
+    lang: python
+    diagram: |
+      flowchart LR
+        prompt[prompt] --> agent[Agent]
+        agent --> model[model]
+        model --> out[result]
+    code: |
+      from pydantic_ai import Agent
+
+      # Model id is "provider:model" — swap providers by changing the string.
+      agent = Agent("anthropic:claude-opus-4-8", system_prompt="Be concise.")
+
+      result = agent.run_sync("Summarize Pydantic AI in one sentence.")
+      print(result.output)
+    description: |
+      ### 언제 쓰나
+      평범한 파이썬을 쓰는 느낌의 작고 타입이 있는 에이전트가 필요할 때 쓰세요.
+
+      ### 흐름
+      `run_sync`가 모델을 호출해 결과를 돌려주고, 응답은 `result.output`에 있습니다.
+  - version: "Python · structured output"
+    lang: python
+    diagram: |
+      flowchart LR
+        prompt[prompt] --> agent[Agent]
+        agent --> obj[typed object]
+    code: |
+      from pydantic import BaseModel
+      from pydantic_ai import Agent
+
+
+      class Place(BaseModel):
+          city: str
+          country: str
+
+
+      agent = Agent("openai:gpt-4o", output_type=Place)
+      result = agent.run_sync("Where is the Eiffel Tower?")
+      print(result.output)  # Place(city='Paris', country='France')
+    description: |
+      ### 언제 쓰나
+      에이전트 결과가 자유 텍스트가 아니라 검증된 객체여야 할 때 `output_type`을
+      넘기세요.
+
+      ### 흐름
+      Pydantic AI가 모델 출력을 모델에 맞춰 제약·검증하고 타입이 있는 인스턴스를
+      돌려줍니다.
+---
+
+## 개요
+
+Pydantic AI는 Pydantic을 만든 팀의 에이전트 프레임워크로, **타입이 있고 검증된** 결과를 중심으로 설계됐습니다.  
+`Agent`에 모델과 (선택적으로) `output_type`을 주면 신뢰할 수 있는 파이썬 객체를 돌려줍니다 — OpenAI·Anthropic·Gemini 등 어디서든.
+
+```mermaid
+flowchart LR
+  prompt[prompt] --> agent[Agent]
+  agent --> model[model]
+  model --> out[typed result]
+```
+
+**코드 샘플** 탭에는 일반 에이전트와 구조화 출력 에이전트 예시가 있습니다 —
+선택기에서 골라 비교해 보세요.
+
+## 언제 쓰면 좋은가
+
+무거운 프레임워크보다 파이썬 코드베이스에 잘 맞는 에이전트 — 타입 결과·의존성
+주입·검증 — 가 필요할 때 Pydantic AI를 쓰세요.

@@ -1,0 +1,87 @@
+---
+name: OpenRouter
+category: llm-providers
+description: 여러 제공자의 300개 이상 모델을 하나의 OpenAI 호환 API로 — 라우팅·폴백 포함.
+website: https://openrouter.ai
+docs: https://openrouter.ai/docs
+tags: [gateway, multi-provider, routing, api]
+language: API
+license: proprietary
+pricing: [free-tier, paid]
+related: [litellm, openai]
+samples:
+  - version: "Python · via LiteLLM"
+    lang: python
+    diagram: |
+      flowchart LR
+        app[your app] --> lite[LiteLLM]
+        lite -->|openrouter/| or[OpenRouter]
+        or --> models[(300+ models)]
+    code: |
+      from litellm import completion
+
+      # openrouter/<vendor>/<model> routes through OpenRouter with OPENROUTER_API_KEY.
+      resp = completion(
+          model="openrouter/anthropic/claude-opus-4-8",
+          messages=[{"role": "user", "content": "Summarize OpenRouter in one line."}],
+      )
+      print(resp.choices[0].message.content)
+    description: |
+      ### 언제 쓰나
+      다른 모든 제공자와 같은 호출 형식으로 OpenRouter의 어떤 모델이든 쓰려면 LiteLLM으로
+      라우팅하세요.
+
+      ### 흐름
+      `openrouter/` prefix가 LiteLLM에 OpenRouter로 보내라고 지시하고, OpenRouter가
+      선택한 모델로 전달합니다.
+  - version: "Python · OpenAI SDK"
+    lang: python
+    diagram: |
+      flowchart LR
+        app[your app] --> or[OpenRouter]
+        or --> a[Anthropic]
+        or --> o[OpenAI]
+        or --> g[others]
+    code: |
+      import os
+      from openai import OpenAI
+
+      # OpenRouter is OpenAI-compatible — point the base_url at it.
+      client = OpenAI(
+          base_url="https://openrouter.ai/api/v1",
+          api_key=os.environ["OPENROUTER_API_KEY"],
+      )
+      resp = client.chat.completions.create(
+          model="anthropic/claude-opus-4-8",
+          messages=[{"role": "user", "content": "Summarize OpenRouter in one line."}],
+      )
+      print(resp.choices[0].message.content)
+    description: |
+      ### 언제 쓰나
+      이미 OpenAI 형식을 쓰는 도구를 그냥 OpenRouter로 돌리고 싶을 때 OpenAI SDK를
+      바로 쓰세요.
+
+      ### 흐름
+      OpenRouter가 OpenAI API를 그대로 반영하므로 `base_url`과 키만 바꾸면 됩니다.
+---
+
+## 개요
+
+OpenRouter는 여러 제공자의 300개 이상 모델을 하나의 **OpenAI 호환** API와 키 뒤에 노출하는 게이트웨이입니다.  
+라우팅·자동 폴백·통합 과금을 더해, 에이전트가 계정을 따로 관리하지 않고 Claude·GPT·Gemini·Llama 등에 접근할 수 있습니다.
+
+```mermaid
+flowchart LR
+  app[your app] --> or[OpenRouter]
+  or --> a[Anthropic]
+  or --> o[OpenAI]
+  or --> g[others]
+```
+
+**코드 샘플** 탭에는 LiteLLM 경유와 OpenAI SDK 경유 예시가 있습니다 — 선택기에서
+골라 비교해 보세요.
+
+## 언제 쓰면 좋은가
+
+여러 제공자에 걸쳐 키와 엔드포인트 하나만 쓰고 싶을 때 — 모델 비교, 폴백 추가, 계정
+관리 회피 — OpenRouter를 쓰세요.
