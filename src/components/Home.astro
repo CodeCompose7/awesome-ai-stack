@@ -1,7 +1,8 @@
 ---
+import { getRelativeLocaleUrl } from 'astro:i18n';
 import StackCard from './StackCard.astro';
 import ChevronDown from './ChevronDown.astro';
-import { categories } from '../data/categories';
+import { rootCategories, descendantIds } from '../data/categories';
 import { getStacks, slugOf } from '../lib/stacks';
 import { useTranslations, pricingLabels, licenseLabel, type Lang } from '../i18n/ui';
 
@@ -14,10 +15,13 @@ const t = useTranslations(lang);
 const entries = await getStacks(lang);
 
 // Default order is alphabetical (matches the client's default sort, so no flash).
-const byCategory = (categoryId: string) =>
-  entries
-    .filter((e) => e.data.category === categoryId)
+// Group by top-level category, rolling up every subcategory in its subtree.
+const byCategory = (categoryId: string) => {
+  const ids = new Set(descendantIds(categoryId));
+  return entries
+    .filter((e) => ids.has(e.data.category))
     .sort((a, b) => a.data.name.localeCompare(b.data.name));
+};
 
 // Filter facet options, derived from the data.
 const pricingOrder = ['open-source', 'free-tier', 'paid', 'free'];
@@ -144,13 +148,21 @@ const menuClass =
 
 <section class="mt-8 space-y-12">
   {
-    categories.map((cat) => {
+    rootCategories.map((cat) => {
       const items = byCategory(cat.id);
       if (items.length === 0) return null;
       return (
         <div data-section>
           <div class="pb-1">
-            <h2 class="text-2xl font-semibold">{cat.label[lang]}</h2>
+            <h2 class="text-2xl font-semibold">
+              <a
+                href={getRelativeLocaleUrl(lang, `categories/${cat.id}/`)}
+                class="text-[var(--aas-text)] no-underline hover:text-[var(--aas-accent)]"
+              >
+                {cat.label[lang]}
+                <span class="text-[var(--aas-muted)]"> &nearr;</span>
+              </a>
+            </h2>
             <p class="mt-1 text-sm text-[var(--aas-muted)]">{cat.description[lang]}</p>
           </div>
           <div class="mt-5 grid gap-4 sm:grid-cols-2" data-grid>

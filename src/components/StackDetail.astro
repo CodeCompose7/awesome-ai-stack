@@ -1,12 +1,13 @@
 ---
 import { render } from 'astro:content';
 import { getRelativeLocaleUrl } from 'astro:i18n';
-import { categoryMap } from '../data/categories';
+import { pathOf } from '../data/categories';
 import { useTranslations, type Lang } from '../i18n/ui';
 import { getStacks, slugOf, type StackEntry } from '../lib/stacks';
 import { getArticlesForTool, articleSlugOf } from '../lib/articles';
 import ToolAvatar from './ToolAvatar.astro';
 import ToolMeta from './ToolMeta.astro';
+import Breadcrumb from './Breadcrumb.astro';
 import DetailTabs from './DetailTabs.astro';
 import CodeSamples from './CodeSamples.astro';
 import MermaidLoader from './MermaidLoader.astro';
@@ -28,7 +29,14 @@ const { entry, lang } = Astro.props;
 const t = useTranslations(lang);
 const { Content, headings } = await render(entry);
 const data = entry.data;
-const category = categoryMap.get(data.category);
+// Breadcrumb: All tools › category › subcategory… (each segment linked).
+const crumbs = [
+  { label: t('detail.allTools'), href: getRelativeLocaleUrl(lang, '') },
+  ...pathOf(data.category).map((c) => ({
+    label: c.label[lang],
+    href: getRelativeLocaleUrl(lang, `categories/${c.id}/`),
+  })),
+];
 
 // Right-rail table of contents: body headings, h2–h3 only.
 const tocItems = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
@@ -90,15 +98,12 @@ const projectRail = projects.map((p) => ({
 const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools]));
 ---
 
-<a href={getRelativeLocaleUrl(lang, '')} class="text-sm text-[var(--aas-accent)] no-underline"
-  >&larr; {t('detail.allTools')}</a
->
+<Breadcrumb segments={crumbs} />
 
 <header class="mt-4 pb-6">
   <div class="flex items-center gap-4">
     <ToolAvatar name={data.name} logo={data.logo} category={data.category} size={56} />
     <div>
-      {category && <p class="text-sm text-[var(--aas-muted)]">{category.label[lang]}</p>}
       <h1 class="text-3xl font-bold tracking-tight">{data.name}</h1>
     </div>
   </div>

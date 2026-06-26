@@ -1,5 +1,6 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import type { Lang } from '../i18n/ui';
+import { descendantIds } from '../data/categories';
 
 export type StackEntry = CollectionEntry<'stacks'>;
 
@@ -26,4 +27,16 @@ export async function getAllTags(lang: Lang): Promise<string[]> {
 export async function getStacksByTag(lang: Lang, tag: string): Promise<StackEntry[]> {
   const stacks = await getStacks(lang);
   return stacks.filter((s) => s.data.tags.includes(tag));
+}
+
+/**
+ * Entries in a locale that belong to a category node or any of its
+ * subcategories (subtree roll-up), sorted alphabetically by name.
+ */
+export async function getStacksByCategory(lang: Lang, id: string): Promise<StackEntry[]> {
+  const ids = new Set(descendantIds(id));
+  const stacks = await getStacks(lang);
+  return stacks
+    .filter((s) => ids.has(s.data.category))
+    .sort((a, b) => a.data.name.localeCompare(b.data.name));
 }
