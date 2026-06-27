@@ -478,11 +478,6 @@ summary {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
-@media (min-width: 1280px) {
-  :root[data-view='gallery'] [data-grid] {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-}
 /* A taller, refined portrait tile: logo stacked over the name, a short
    description, then the stars + open-source chip pinned to a hairline footer. */
 :root[data-view='gallery'] [data-tool] {
