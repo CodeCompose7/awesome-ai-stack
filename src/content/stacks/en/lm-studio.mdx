@@ -1,0 +1,47 @@
+---
+name: LM Studio
+category: llm-local
+description: Desktop app to discover, run, and serve local LLMs with an OpenAI-compatible server.
+website: https://lmstudio.ai
+docs: https://lmstudio.ai/docs
+tags: [llm, local, desktop, gguf]
+language: App
+license: proprietary
+pricing: [free-tier, paid]
+related: [ollama, vllm, litellm]
+samples:
+  - version: "Shell · local server"
+    lang: bash
+    code: |
+      # In the LM Studio app: download a model, then start the local server.
+      # It exposes an OpenAI-compatible API at http://localhost:1234/v1
+      curl http://localhost:1234/v1/chat/completions \
+        -H "Content-Type: application/json" \
+        -d '{"model": "local-model",
+             "messages": [{"role": "user", "content": "Say hello."}]}'
+    description: |
+      ### When to use
+      Use LM Studio when you want a friendly desktop UI to browse and run local
+      models, plus a drop-in OpenAI-compatible endpoint for your code.
+---
+
+## Overview
+
+LM Studio is a desktop application (macOS, Windows, Linux) for discovering, downloading, and running local LLMs in GGUF and MLX formats, with a chat UI and a built-in server.  
+The server is OpenAI-compatible, so your existing code — or LiteLLM — can point at `localhost` instead of a cloud provider. It is free for personal and commercial use.
+
+```mermaid
+flowchart LR
+  hub[model catalog] --> lms[LM Studio]
+  lms --> chat[chat UI]
+  lms --> server[(OpenAI-compatible server)]
+  server --> app[your app]
+```
+
+The **Code samples** tab shows calling the local server.
+
+## When to use it
+
+Choose LM Studio when you want the easiest way to run models locally with a GUI
+— browsing, downloading, and serving — rather than a CLI runtime like Ollama or
+a GPU serving engine like vLLM.

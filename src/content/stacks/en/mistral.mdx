@@ -1,0 +1,48 @@
+---
+name: Mistral AI
+category: llm-foundation
+description: European model lab with strong open-weight models and a hosted API (La Plateforme).
+website: https://mistral.ai
+docs: https://docs.mistral.ai
+tags: [llm, open-weights, api, europe]
+language: API
+license: proprietary
+pricing: [free-tier, paid]
+related: [litellm, openrouter]
+samples:
+  - version: "Python · via LiteLLM"
+    lang: python
+    code: |
+      from litellm import completion
+
+      # MISTRAL_API_KEY in the environment (La Plateforme has a free tier).
+      resp = completion(
+          model="mistral/mistral-large-latest",
+          messages=[{"role": "user", "content": "Say hello in one short sentence."}],
+      )
+      print(resp.choices[0].message.content)
+    description: |
+      ### When to use
+      Reach for Mistral when you want competitive quality at low cost, EU data
+      residency, or the option to self-host its open-weight models.
+---
+
+## Overview
+
+Mistral AI is a European foundation-model lab known for releasing strong open-weight models (Mistral, Mixtral, Codestral) alongside its hosted API, La Plateforme.  
+The API is OpenAI-shaped and has a free experimentation tier, while the open-weight models can be downloaded and self-hosted.
+
+```mermaid
+flowchart LR
+  prompt[prompt] --> api[(La Plateforme)]
+  api --> resp[completion]
+  weights[open weights] --> self[self-host option]
+```
+
+The **Code samples** tab shows a LiteLLM-routed call.
+
+## When to use it
+
+Choose Mistral when you want a cost-effective frontier alternative with EU data
+residency, or when the flexibility to self-host the same family of open-weight
+models matters.

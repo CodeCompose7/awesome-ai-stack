@@ -1,0 +1,46 @@
+---
+name: Groq
+category: llm-foundation
+description: 전용 LPU 하드웨어에서 오픈 모델을 돌리는 초고속 추론 API.
+website: https://groq.com
+docs: https://console.groq.com/docs
+tags: [llm, inference, fast, api]
+language: API
+license: proprietary
+pricing: [free-tier, paid]
+related: [litellm, openrouter, ollama]
+samples:
+  - version: "Python · via LiteLLM"
+    lang: python
+    code: |
+      from litellm import completion
+
+      # GROQ_API_KEY in the environment. Groq serves open models (Llama, etc.)
+      # on its LPU hardware — the same OpenAI-style call, just very fast.
+      resp = completion(
+          model="groq/llama-3.3-70b-versatile",
+          messages=[{"role": "user", "content": "Say hello in one short sentence."}],
+      )
+      print(resp.choices[0].message.content)
+    description: |
+      ### 언제 쓰나
+      지연이 중요한 상황 — 토큰 처리 속도가 병목인 대화형 에이전트와 채팅에 쓰세요.
+---
+
+## 개요
+
+Groq는 자체 LPU 하드웨어에서 오픈소스 모델을 구동하는 추론 제공자로, 현존 최고 수준의 토큰 처리 속도를 제공합니다.  
+OpenAI 호환 API와 넉넉한 무료 개발자 티어를 제공해, LiteLLM이나 OpenAI SDK로 기존 코드에 그대로 끼워 넣을 수 있습니다.
+
+```mermaid
+flowchart LR
+  prompt[prompt] --> groq[(Groq LPU)]
+  groq --> fast[very fast tokens]
+```
+
+**코드 샘플** 탭에서 LiteLLM 경유 호출을 보여줍니다.
+
+## 언제 쓰면 좋은가
+
+속도가 최우선이고 오픈 모델(Llama·Qwen 등)이 과제에 맞을 때 — 특히 추론 단계마다
+처리량이 시간을 좌우하는 실시간 에이전트에 Groq를 고르세요.

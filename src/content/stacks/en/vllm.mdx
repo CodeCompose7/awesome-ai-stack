@@ -1,0 +1,49 @@
+---
+name: vLLM
+category: llm-local
+description: High-throughput serving engine for running open LLMs with an OpenAI-compatible API.
+website: https://docs.vllm.ai
+repo: https://github.com/vllm-project/vllm
+docs: https://docs.vllm.ai
+tags: [llm, serving, inference, python]
+language: Python
+license: Apache-2.0
+pricing: [open-source]
+related: [ollama, litellm]
+samples:
+  - version: "Shell · serve & call"
+    lang: bash
+    code: |
+      # Serve an open model with an OpenAI-compatible API (needs a GPU).
+      vllm serve meta-llama/Llama-3.1-8B-Instruct
+
+      # Then call it exactly like the OpenAI API:
+      curl http://localhost:8000/v1/chat/completions \
+        -H "Content-Type: application/json" \
+        -d '{"model": "meta-llama/Llama-3.1-8B-Instruct",
+             "messages": [{"role": "user", "content": "Say hello."}]}'
+    description: |
+      ### When to use
+      Use vLLM to self-host open models at scale — its paged-attention engine
+      maximizes throughput on your own GPUs.
+---
+
+## Overview
+
+vLLM is a high-throughput, memory-efficient inference and serving engine for LLMs, best known for PagedAttention and continuous batching.  
+It serves open models behind an OpenAI-compatible API, so anything that speaks OpenAI — including LiteLLM — can call your self-hosted endpoint.
+
+```mermaid
+flowchart LR
+  model[open model] --> vllm[(vLLM server)]
+  req[OpenAI-style request] --> vllm
+  vllm --> resp[completion]
+```
+
+The **Code samples** tab shows serving a model and calling it over HTTP.
+
+## When to use it
+
+Choose vLLM when you run open models on your own GPUs and need maximum
+throughput and concurrency — production self-hosted inference rather than a
+desktop or single-stream local runtime.
