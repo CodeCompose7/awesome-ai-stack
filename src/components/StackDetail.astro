@@ -160,6 +160,35 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
       </div>
     )
   }
+
+  {
+    data.pricingNote && (
+      <div class="mt-4 max-w-2xl rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] px-3.5 py-2.5 text-sm text-[var(--aas-muted)]">
+        <span class="font-medium text-[var(--aas-text)]">{t('detail.pricing')}</span>
+        <span class="ml-1.5">{data.pricingNote}</span>
+        {(data.pricingSource || data.pricingCheckedAt) && (
+          <span class="mt-1 block text-xs">
+            {data.pricingSource && (
+              <a
+                href={data.pricingSource}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-[var(--aas-accent)] no-underline hover:underline"
+              >
+                {t('detail.source')} &nearr;
+              </a>
+            )}
+            {data.pricingCheckedAt && (
+              <span>
+                {data.pricingSource ? ' · ' : ''}
+                {t('detail.asOf')} {data.pricingCheckedAt}
+              </span>
+            )}
+          </span>
+        )}
+      </div>
+    )
+  }
 </header>
 
 <RelatedTools lang={lang} slugs={data.related} />
