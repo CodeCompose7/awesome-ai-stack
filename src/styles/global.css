@@ -493,6 +493,10 @@ summary {
   align-items: flex-start;
   gap: 0.6rem;
 }
+:root[data-view='gallery'] [data-card-head] h3 {
+  font-size: 1.0625rem;
+  font-weight: 700;
+}
 :root[data-view='gallery'] [data-card-meta],
 :root[data-view='gallery'] [data-card-tags] {
   display: none;
@@ -504,13 +508,19 @@ summary {
   line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
+  opacity: 0.8;
 }
-/* Footer: stars + open-source chip, just spaced below the content. */
+/* Footer: stars + open-source chip, just spaced below the content. The chips
+   drop their borders for a soft, tinted-pill look in this view. */
 :root[data-view='gallery'] [data-card-foot] {
   flex-direction: row;
   align-items: center;
   margin-top: 0.85rem;
+}
+:root[data-view='gallery'] [data-card-foot] > span {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--aas-text) 6%, transparent);
 }
 /* Lift the content above the blurred backdrop. */
 :root[data-view='gallery'] [data-card-body],
