@@ -53,14 +53,12 @@ html {
 /* Neutral chip surface — a subtle tint that reads on any background (page or
    the panel-colored cards), so no outline is needed. */
 .aas-chip {
-  background: color-mix(in srgb, var(--aas-text) 2.5%, transparent);
-  border: 1px solid color-mix(in srgb, var(--aas-text) 7%, transparent);
+  background: color-mix(in srgb, var(--aas-text) 5%, transparent);
   color: var(--aas-muted);
 }
 /* Deprecated / maintenance-only badge — amber warning surface. */
 .aas-deprecated {
   background: color-mix(in srgb, #d97706 16%, transparent);
-  border: 1px solid color-mix(in srgb, #d97706 35%, transparent);
   color: #b45309;
 }
 :root[data-theme='dark'] .aas-deprecated {
@@ -69,7 +67,6 @@ html {
 /* "No updates in 1+ year" — same amber warning weight as deprecated. */
 .aas-stale {
   background: color-mix(in srgb, #d97706 16%, transparent);
-  border: 1px solid color-mix(in srgb, #d97706 35%, transparent);
   color: #b45309;
 }
 :root[data-theme='dark'] .aas-stale {
@@ -77,8 +74,7 @@ html {
 }
 /* "No updates in 6+ months" — a milder, lower-contrast caution (softer yellow). */
 .aas-aging {
-  background: color-mix(in srgb, #ca8a04 9%, transparent);
-  border: 1px solid color-mix(in srgb, #ca8a04 22%, transparent);
+  background: color-mix(in srgb, #ca8a04 12%, transparent);
   color: #a16207;
 }
 :root[data-theme='dark'] .aas-aging {
@@ -86,14 +82,12 @@ html {
 }
 /* Pricing chip: a soft accent-tinted surface with a faint accent outline. */
 .aas-pricing {
-  background: color-mix(in srgb, var(--aas-accent) 12%, transparent);
-  border: 1px solid color-mix(in srgb, var(--aas-accent) 28%, transparent);
+  background: color-mix(in srgb, var(--aas-accent) 13%, transparent);
   color: var(--aas-accent);
 }
 /* "Completely free" pricing chip — a positive green to stand out from paid tiers. */
 .aas-free {
-  background: color-mix(in srgb, #16a34a 14%, transparent);
-  border: 1px solid color-mix(in srgb, #16a34a 32%, transparent);
+  background: color-mix(in srgb, #16a34a 15%, transparent);
   color: #15803d;
 }
 :root[data-theme='dark'] .aas-free {
