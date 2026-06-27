@@ -23,6 +23,8 @@
     (Browser Use·Stagehand), 코드 샌드박스(E2B), 도구 연동(Composio)
   - 가드레일(신설): Guardrails AI·NeMo Guardrails
   - 음성 에이전트(신설): Pipecat·LiveKit Agents
+- **구현 샘플 2종** — `guardrails-ai_1`은 LLM 출력을 Pydantic 스키마로 검증하고,
+  `nemo-guardrails_1`은 Colang 레일로 응답을 제어합니다. 둘 다 Docker로 실행하며 동작 검증
 - **가격 탭** — 도구 상세에 가격 탭을 신설. 짧은 안내문과 함께 플랜·가격·비고를 표로
   보여주고, 출처 링크와 확인 기준일을 표기. 유료·클라우드 도구 22종에 플랜별 표를 넣고,
   API 제공자는 모델별 입력/출력 요율로 정리
