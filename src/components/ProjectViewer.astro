@@ -14,6 +14,14 @@ interface Props {
 
 const { lang, projects, related } = Astro.props;
 const t = useTranslations(lang);
+
+// Split the rendered README into its leading <h1> inner content (used as a
+// clickable header) and the body (collapsible under it).
+function splitReadme(html?: string): { titleInner?: string; body?: string } {
+  if (!html) return {};
+  const m = html.match(/^\s*<h1[^>]*>([\s\S]*?)<\/h1>([\s\S]*)$/);
+  return m ? { titleInner: m[1], body: m[2] } : { body: html };
+}
 ---
 
 <div data-projects>
@@ -52,7 +60,9 @@ const t = useTranslations(lang);
   }
 
   {
-    projects.map((p, pi) => (
+    projects.map((p, pi) => {
+      const readme = splitReadme(p.readmeHtml);
+      return (
       <div data-project-panel={pi} data-project-folder={p.folder} class:list={[pi === 0 ? '' : 'hidden', projects.length > 1 ? 'mt-4' : '']}>
         <div class="flex flex-wrap items-center justify-between gap-3">
           <p class="text-sm text-[var(--aas-muted)]">{t('project.intro')}</p>
@@ -66,7 +76,26 @@ const t = useTranslations(lang);
           </a>
         </div>
 
-        {p.readmeHtml && <div class="prose mt-5 max-w-none" set:html={p.readmeHtml} />}
+        {readme.titleInner && (
+          <div class="mt-5" data-readme>
+            <button
+              type="button"
+              data-readme-toggle
+              aria-expanded="true"
+              aria-label={t('project.readmeToggle')}
+              class="flex w-full items-center justify-between gap-3 text-left"
+            >
+              <span
+                class="text-2xl font-bold tracking-tight text-[var(--aas-text)]"
+                set:html={readme.titleInner}
+              />
+              <ChevronDown class="aas-readme-chevron shrink-0 text-[var(--aas-muted)] transition-transform" />
+            </button>
+            {readme.body && (
+              <div class="prose mt-3 max-w-none" data-readme-body set:html={readme.body} />
+            )}
+          </div>
+        )}
 
         {p.files.length > 0 && (
           <div class="mt-6 lg:grid lg:grid-cols-[13rem_minmax(0,1fr)] lg:items-start lg:gap-4 2xl:block">
@@ -94,8 +123,24 @@ const t = useTranslations(lang);
           </div>
         )}
       </div>
-    ))
+      );
+    })
   }
+
+  {/* Pre-paint: collapse the README before paint if the saved preference says so. */}
+  <script is:inline>
+    (function () {
+      try {
+        if (localStorage.getItem('aas:readme-collapsed') !== '1') return;
+        document.currentScript.parentElement.querySelectorAll('[data-readme]').forEach(function (r) {
+          var btn = r.querySelector('[data-readme-toggle]');
+          var body = r.querySelector('[data-readme-body]');
+          if (btn) btn.setAttribute('aria-expanded', 'false');
+          if (body) body.hidden = true;
+        });
+      } catch (e) {}
+    })();
+  </script>
 
   {/* Pre-paint: restore the selected example/file from the URL with inline
       display styles (applied before the stylesheet and the module script run),
@@ -156,6 +201,10 @@ const t = useTranslations(lang);
     margin: 0;
     padding: 1rem 1.1rem;
     overflow-x: auto;
+  }
+  /* README toggle: rotate the chevron when collapsed. */
+  [data-readme-toggle][aria-expanded='false'] .aas-readme-chevron {
+    transform: rotate(-90deg);
   }
 </style>
 
@@ -268,4 +317,40 @@ const t = useTranslations(lang);
       if ((e as CustomEvent<{ id: string }>).detail.id === 'impl') reflectSelection();
     });
   });
+</script>
+
+<script>
+  // Collapsible README, remembered in localStorage (one preference for all
+  // implementation samples). The inline pre-paint above applies it before paint;
+  // this binds the toggle and keeps every README in sync.
+  const README_KEY = 'aas:readme-collapsed';
+  const isReadmeCollapsed = () => {
+    try {
+      return localStorage.getItem(README_KEY) === '1';
+    } catch {
+      return false;
+    }
+  };
+  function applyReadme(collapsed: boolean) {
+    document.querySelectorAll<HTMLElement>('[data-readme]').forEach((r) => {
+      r.querySelector<HTMLButtonElement>('[data-readme-toggle]')?.setAttribute(
+        'aria-expanded',
+        String(!collapsed),
+      );
+      const body = r.querySelector<HTMLElement>('[data-readme-body]');
+      if (body) body.hidden = collapsed;
+    });
+  }
+  applyReadme(isReadmeCollapsed());
+  document.querySelectorAll<HTMLButtonElement>('[data-readme-toggle]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const collapsed = !isReadmeCollapsed();
+      try {
+        localStorage.setItem(README_KEY, collapsed ? '1' : '0');
+      } catch {
+        /* private mode — best effort */
+      }
+      applyReadme(collapsed);
+    }),
+  );
 </script>

@@ -616,3 +616,10 @@ summary {
 :root[data-view='gallery'] [data-tool] [data-pricing-tag]:not([data-pricing-tag='open-source']) {
   display: none;
 }
+
+/* Markdown horizontal rules — a light hairline, not the heavy UA default. */
+.prose :where(hr) {
+  border: 0;
+  border-top: 1px solid var(--aas-border);
+  margin: 1.75rem 0;
+}
