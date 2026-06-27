@@ -1,0 +1,44 @@
+---
+name: Roo Code
+category: coding-ide
+description: 모드와 MCP를 지원하는 VS Code용 오픈소스 자율 코딩 에이전트.
+website: https://roocode.com
+repo: https://github.com/RooCodeInc/Roo-Code
+docs: https://docs.roocode.com
+tags: [coding, ide, vscode, mcp]
+language: TypeScript
+license: Apache-2.0
+pricing: [open-source]
+related: [cline, aider]
+samples:
+  - version: "Shell · install the extension"
+    lang: bash
+    code: |
+      # Install from the VS Code Marketplace, then open the Roo Code panel.
+      code --install-extension RooVeterinaryInc.roo-cline
+      # Add your provider key in the panel, pick a mode (Code / Architect / Ask),
+      # then describe the task — Roo Code plans, edits files, and runs commands.
+    description: |
+      ### 언제 쓰나
+      전환 가능한 모드와 MCP 도구를 갖춘 에디터 내장 자율 에이전트를, 자신의 모델
+      키로 쓰고 싶을 때.
+---
+
+## 개요
+
+Roo Code는 VS Code용 오픈소스 에이전트형 코딩 확장(Cline의 커뮤니티 포크)으로, 프로젝트를 읽고 파일을 수정하며 명령을 실행합니다.  
+전환 가능한 **모드**(Code·Architect·Ask 및 커스텀)와 MCP 도구 지원을 더했으며, 모델에 구애받지 않습니다.
+
+```mermaid
+flowchart LR
+  task[task] --> roo[Roo Code]
+  roo --> mode[mode: Code / Architect / Ask]
+  roo --> model[(your model)]
+  roo --> act[edit files · run commands]
+  act --> roo
+```
+
+## 언제 쓰면 좋은가
+
+동작을 모드와 MCP로 세밀하게 제어하는, 무료 에디터 내장 자율 에이전트를 원할 때 —
+호스팅형 IDE 에이전트의 셀프호스트 대안으로 Roo Code를 고르세요.

@@ -1,0 +1,45 @@
+---
+name: Roo Code
+category: coding-ide
+description: Open-source autonomous coding agent for VS Code with modes and MCP support.
+website: https://roocode.com
+repo: https://github.com/RooCodeInc/Roo-Code
+docs: https://docs.roocode.com
+tags: [coding, ide, vscode, mcp]
+language: TypeScript
+license: Apache-2.0
+pricing: [open-source]
+related: [cline, aider]
+samples:
+  - version: "Shell · install the extension"
+    lang: bash
+    code: |
+      # Install from the VS Code Marketplace, then open the Roo Code panel.
+      code --install-extension RooVeterinaryInc.roo-cline
+      # Add your provider key in the panel, pick a mode (Code / Architect / Ask),
+      # then describe the task — Roo Code plans, edits files, and runs commands.
+    description: |
+      ### When to use
+      Use Roo Code when you want an in-editor autonomous agent with switchable
+      modes and MCP tools, bringing your own model key.
+---
+
+## Overview
+
+Roo Code is an open-source, agentic coding extension for VS Code (a community fork of Cline) that reads your project, edits files, and runs commands.  
+It adds switchable **modes** (Code, Architect, Ask, and custom) and MCP tool support, and is model-agnostic.
+
+```mermaid
+flowchart LR
+  task[task] --> roo[Roo Code]
+  roo --> mode[mode: Code / Architect / Ask]
+  roo --> model[(your model)]
+  roo --> act[edit files · run commands]
+  act --> roo
+```
+
+## When to use it
+
+Choose Roo Code when you want a free, in-editor autonomous agent with fine
+control over behavior via modes and MCP — a self-hosted alternative to hosted
+IDE agents.

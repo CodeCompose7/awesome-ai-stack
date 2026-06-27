@@ -1,0 +1,45 @@
+---
+name: Goose
+category: coding-cli
+description: Block's open-source, extensible coding agent for the terminal and desktop.
+website: https://block.github.io/goose
+repo: https://github.com/block/goose
+docs: https://block.github.io/goose/docs/quickstart
+tags: [coding, terminal, mcp, rust]
+language: Rust
+license: Apache-2.0
+pricing: [open-source]
+related: [aider, cline, openhands]
+samples:
+  - version: "Shell · run a task"
+    lang: bash
+    code: |
+      # Install the Goose CLI (see docs for your platform), then point it at a task.
+      # It plans, edits files, and runs commands, extensible via MCP servers.
+      goose session            # start an interactive session
+      goose run -t "Add a CHANGELOG.md summarizing the last 10 commits."
+    description: |
+      ### When to use
+      Reach for Goose when you want a local, model-agnostic agent that you
+      extend with MCP tools — in the terminal or its desktop app.
+---
+
+## Overview
+
+Goose is an open-source coding agent from Block that runs locally and executes real tasks — editing files, running commands, and calling tools through the Model Context Protocol.  
+It is model-agnostic (bring your own LLM key) and ships as both a CLI and a desktop app.
+
+```mermaid
+flowchart LR
+  task[task] --> goose[Goose]
+  goose --> mcp[MCP tools]
+  goose --> edit[edit + run]
+  edit --> goose
+  goose --> done[result]
+```
+
+## When to use it
+
+Choose Goose when you want a self-hosted, extensible agent that automates
+developer tasks with your own model and MCP-based tools, without a hosted
+service in the loop.

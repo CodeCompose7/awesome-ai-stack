@@ -1,0 +1,47 @@
+---
+name: Continue
+category: coding-ide
+description: VS Code·JetBrains용 오픈소스 AI 코드 어시스턴트 — 자동완성·채팅·에이전트.
+website: https://continue.dev
+repo: https://github.com/continuedev/continue
+docs: https://docs.continue.dev
+tags: [coding, ide, autocomplete, vscode]
+language: TypeScript
+license: Apache-2.0
+pricing: [open-source]
+related: [cline, aider]
+samples:
+  - version: "YAML · configure a model"
+    lang: yaml
+    code: |
+      # ~/.continue/config.yaml — point Continue at a model, then chat and edit
+      # inline in your IDE. Bring your own provider key.
+      models:
+        - name: Claude Opus 4.8
+          provider: anthropic
+          model: claude-opus-4-8
+          apiKey: ${ANTHROPIC_API_KEY}
+          roles: [chat, edit, apply]
+    description: |
+      ### 언제 쓰나
+      자신의 모델·컨텍스트·설정으로 완전히 제어하는 IDE 내장 자동완성과 채팅을
+      원할 때.
+---
+
+## 개요
+
+Continue는 VS Code와 JetBrains 안에서 동작하는 오픈소스 AI 코딩 어시스턴트로, 인라인 자동완성·채팅·에이전트형 편집을 제공합니다.  
+모델에 구애받지 않고 간단한 파일로 설정하므로, 제공자를 직접 고르고 키와 컨텍스트를 로컬에 둡니다.
+
+```mermaid
+flowchart LR
+  editor[your IDE] --> continue[Continue]
+  continue --> model[(your model)]
+  model --> continue
+  continue --> edit[autocomplete · chat · edits]
+```
+
+## 언제 쓰면 좋은가
+
+에디터에 내장된, 커스터마이즈 가능한 오픈소스 어시스턴트를 원할 때 — 자신의
+모델과 규칙을 쓰는, 닫힌 자동완성 도구의 셀프호스트 대안으로 Continue를 고르세요.

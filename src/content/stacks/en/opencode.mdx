@@ -1,0 +1,44 @@
+---
+name: opencode
+category: coding-cli
+description: SST's open-source, model-agnostic terminal coding agent with a TUI.
+website: https://opencode.ai
+repo: https://github.com/sst/opencode
+docs: https://opencode.ai/docs
+tags: [coding, terminal, tui, typescript]
+language: TypeScript
+license: MIT
+pricing: [open-source]
+related: [aider, cline]
+samples:
+  - version: "Shell · run in a project"
+    lang: bash
+    code: |
+      # Install, then launch in your project directory.
+      npm i -g opencode-ai     # or: curl -fsSL https://opencode.ai/install | bash
+      cd your-project
+      opencode                 # launches the TUI — describe the change you want
+    description: |
+      ### When to use
+      Reach for opencode when you want a polished terminal UI agent that is
+      model-agnostic and editor-independent.
+---
+
+## Overview
+
+opencode is an open-source coding agent for the terminal from the SST team, built around a fast TUI and a client/server design.  
+It is model-agnostic — use any provider — and works alongside whatever editor you already have.
+
+```mermaid
+flowchart LR
+  task[task in TUI] --> oc[opencode]
+  oc --> model[(your model)]
+  oc --> edit[edit + run]
+  edit --> oc
+  oc --> review[review diffs]
+```
+
+## When to use it
+
+Choose opencode when you want a terminal-first coding agent with a strong TUI
+and no editor lock-in, driving your own model from the command line.
