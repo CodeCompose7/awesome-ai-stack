@@ -60,6 +60,22 @@ export async function getStacksByTag(lang: Lang, tag: string): Promise<StackEntr
   return stacks.filter((s) => s.data.tags.includes(tag));
 }
 
+/** Unique vendor url-slugs across a locale's stacks (for /vendors/<slug>). */
+export async function getAllVendors(lang: Lang): Promise<string[]> {
+  const stacks = await getStacks(lang);
+  const set = new Set<string>();
+  for (const s of stacks) if (s.data.vendor) set.add(slugifyName(s.data.vendor));
+  return [...set].sort();
+}
+
+/** Entries in a locale whose vendor slugifies to `slug`, sorted by name. */
+export async function getStacksByVendor(lang: Lang, slug: string): Promise<StackEntry[]> {
+  const stacks = await getStacks(lang);
+  return stacks
+    .filter((s) => s.data.vendor && slugifyName(s.data.vendor) === slug)
+    .sort((a, b) => a.data.name.localeCompare(b.data.name));
+}
+
 /**
  * Entries in a locale that belong to a category node or any of its
  * subcategories (subtree roll-up), sorted alphabetically by name.

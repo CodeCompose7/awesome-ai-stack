@@ -12,6 +12,7 @@ interface Props {
   lang: Lang;
   name: string;
   formerNames?: string[];
+  vendor?: string;
   description: string;
   tags: string[];
   pricing: string[];
@@ -25,7 +26,7 @@ interface Props {
   deprecated?: boolean;
 }
 
-const { slug, lang, name, formerNames = [], description, tags, pricing, license, language, category, logo, logoDark, repo, version, deprecated } =
+const { slug, lang, name, formerNames = [], vendor, description, tags, pricing, license, language, category, logo, logoDark, repo, version, deprecated } =
   Astro.props;
 const t = useTranslations(lang);
 const href = getRelativeLocaleUrl(lang, `stacks/${slug}/`);
@@ -91,6 +92,7 @@ const searchText = `${name} ${description} ${tags.join(' ')}`.toLowerCase();
             {name}
           </a>
         </h3>
+        {vendor && <p class="truncate text-xs text-[var(--aas-muted)]">{vendor}</p>}
         {formerNames.length > 0 && (
           <p class="truncate text-xs text-[var(--aas-muted)]">
             {t('meta.formerly')} {formerNames[0]}

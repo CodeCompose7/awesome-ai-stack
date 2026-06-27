@@ -1,19 +1,19 @@
 ---
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import StackCard from './StackCard.astro';
-import { getStacksByTag, slugOf } from '../lib/stacks';
+import { getStacksByVendor, slugOf } from '../lib/stacks';
 import { useTranslations, type Lang } from '../i18n/ui';
 
 interface Props {
   lang: Lang;
-  tag: string;
+  vendor: string; // url slug
 }
 
-const { lang, tag } = Astro.props;
+const { lang, vendor } = Astro.props;
 const t = useTranslations(lang);
-const entries = (await getStacksByTag(lang, tag)).sort((a, b) =>
-  a.data.name.localeCompare(b.data.name),
-);
+const entries = await getStacksByVendor(lang, vendor);
+// The display name is whatever the entries wrote (e.g. "Hugging Face").
+const vendorName = entries[0]?.data.vendor ?? vendor;
 ---
 
 <section class="py-6">
@@ -21,7 +21,7 @@ const entries = (await getStacksByTag(lang, tag)).sort((a, b) =>
     >&larr; {t('tag.allTools')}</a
   >
   <h1 class="mt-3 text-3xl font-bold tracking-tight">
-    <span class="text-[var(--aas-muted)]">{t('tag.heading')}</span> #{tag}
+    <span class="text-[var(--aas-muted)]">{t('vendor.heading')}</span> {vendorName}
   </h1>
 </section>
 
