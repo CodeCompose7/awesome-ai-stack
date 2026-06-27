@@ -134,6 +134,41 @@ const menuClass =
     >
       {t('filter.clear')}
     </button>
+
+    {/* Density toggle: standard cards vs compact gallery (saved in localStorage) */}
+    <div
+      data-view-group
+      role="group"
+      aria-label={t('view.label')}
+      class="inline-flex items-center gap-0.5 rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] p-0.5"
+    >
+      <button
+        type="button"
+        data-view-btn="grid"
+        aria-label={t('view.standard')}
+        title={t('view.standard')}
+        class="aas-viewbtn rounded-md p-1.5 text-[var(--aas-muted)]"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="7" rx="1" />
+          <rect x="3" y="13" width="18" height="7" rx="1" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        data-view-btn="gallery"
+        aria-label={t('view.gallery')}
+        title={t('view.gallery')}
+        class="aas-viewbtn rounded-md p-1.5 text-[var(--aas-muted)]"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="7" height="7" rx="1" />
+          <rect x="14" y="3" width="7" height="7" rx="1" />
+          <rect x="3" y="14" width="7" height="7" rx="1" />
+          <rect x="14" y="14" width="7" height="7" rx="1" />
+        </svg>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -300,5 +335,30 @@ const menuClass =
 
     readUrl();
     apply(false); // restore from URL without rewriting it
+  }
+</script>
+
+<script>
+  // Listing density toggle. The choice is saved in localStorage and applied as
+  // [data-view] on <html> (also set pre-paint in BaseLayout to avoid a flash).
+  const group = document.querySelector<HTMLElement>('[data-view-group]');
+  if (group) {
+    const btns = Array.from(group.querySelectorAll<HTMLButtonElement>('[data-view-btn]'));
+    const current = () =>
+      document.documentElement.dataset.view === 'gallery' ? 'gallery' : 'grid';
+    const sync = () =>
+      btns.forEach((b) => b.setAttribute('aria-current', String(b.dataset.viewBtn === current())));
+    btns.forEach((b) =>
+      b.addEventListener('click', () => {
+        const v = b.dataset.viewBtn!;
+        if (v === 'gallery') document.documentElement.dataset.view = 'gallery';
+        else delete document.documentElement.dataset.view;
+        try {
+          localStorage.setItem('aas:view', v);
+        } catch (e) {}
+        sync();
+      }),
+    );
+    sync();
   }
 </script>

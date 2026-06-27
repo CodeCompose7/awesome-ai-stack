@@ -78,6 +78,16 @@ const isDefaultHome = path === '' && lang === 'en';
         } catch (e) {}
       })();
     </script>
+    {/* Listing density (standard / gallery), persisted in localStorage. Set
+        before paint so the saved gallery layout doesn't flash from standard. */}
+    <script is:inline>
+      (function () {
+        try {
+          if (localStorage.getItem('aas:view') === 'gallery')
+            document.documentElement.dataset.view = 'gallery';
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body class="min-h-screen">
     <header class="border-b border-[var(--aas-border)]">

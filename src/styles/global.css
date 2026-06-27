@@ -459,3 +459,54 @@ summary {
 .prose :where(tbody tr:nth-child(even)) {
   background: color-mix(in srgb, var(--aas-panel) 45%, transparent);
 }
+
+/* ── Listing density: gallery (compact mini-cards) ───────────────────────────
+   Toggled by [data-view='gallery'] on <html> (persisted in localStorage). A
+   denser grid plus a stripped-down card — logo, name, stars, pricing, and a
+   short clamped description; the meta row and keyword tags are hidden. */
+:root[data-view='gallery'] [data-grid] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+@media (min-width: 640px) {
+  :root[data-view='gallery'] [data-grid] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  :root[data-view='gallery'] [data-grid] {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+:root[data-view='gallery'] [data-tool] {
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.85rem;
+}
+:root[data-view='gallery'] [data-card-meta],
+:root[data-view='gallery'] [data-card-tags] {
+  display: none;
+}
+:root[data-view='gallery'] [data-card-desc] {
+  margin-top: 0.25rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.8125rem;
+}
+/* Stars + pricing chips sit as a compact row under the content. */
+:root[data-view='gallery'] [data-tool] > div:last-child {
+  flex-direction: row;
+  align-items: center;
+}
+
+/* Density toggle buttons (standard / gallery). */
+.aas-viewbtn:hover {
+  color: var(--aas-text);
+}
+.aas-viewbtn[aria-current='true'] {
+  background: var(--aas-tint);
+  color: var(--aas-text);
+}
