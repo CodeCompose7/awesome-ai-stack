@@ -1,45 +1,30 @@
 ---
-name: Roo Code
-category: coding-ide
-description: Open-source autonomous coding agent for VS Code with modes and MCP support.
-website: https://roocode.com
-repo: https://github.com/RooCodeInc/Roo-Code
-docs: https://docs.roocode.com
-tags: [coding, ide, vscode, mcp]
-language: TypeScript
-license: Apache-2.0
-pricing: [open-source]
-related: [cline, aider]
-samples:
-  - version: "Shell · install the extension"
-    lang: bash
-    code: |
-      # Install from the VS Code Marketplace, then open the Roo Code panel.
-      code --install-extension RooVeterinaryInc.roo-cline
-      # Add your provider key in the panel, pick a mode (Code / Architect / Ask),
-      # then describe the task — Roo Code plans, edits files, and runs commands.
-    description: |
-      ### When to use
-      Use Roo Code when you want an in-editor autonomous agent with switchable
-      modes and MCP tools, bringing your own model key.
+name: Roomote
+formerNames: [Roo Code]
+category: coding-autonomous
+description: Cloud autonomous coding agent that runs tasks end to end across Slack, GitHub, and Linear.
+website: https://roomote.dev
+docs: https://roomote.dev
+tags: [coding, autonomous, cloud, agent]
+license: proprietary
+pricing: [paid]
+related: [openhands, swe-agent, cline]
 ---
 
 ## Overview
 
-Roo Code is an open-source, agentic coding extension for VS Code (a community fork of Cline) that reads your project, edits files, and runs commands.  
-It adds switchable **modes** (Code, Architect, Ask, and custom) and MCP tool support, and is model-agnostic.
+Roomote is a cloud-based autonomous coding agent from the team behind Roo Code. You hand it a task — in Slack, GitHub, or Linear — and it plans, edits, runs, and verifies the change end to end, returning a ready-to-review pull request.  
+It is the successor to the Roo Code VS Code extension, which the team sunset in 2026 to focus on cloud agents that work outside the editor.
 
 ```mermaid
 flowchart LR
-  task[task] --> roo[Roo Code]
-  roo --> mode[mode: Code / Architect / Ask]
-  roo --> model[(your model)]
-  roo --> act[edit files · run commands]
-  act --> roo
+  task[task in Slack / GitHub / Linear] --> roomote[Roomote]
+  roomote --> work[plan · edit · run · verify]
+  work --> pr[ready-to-review PR]
 ```
 
 ## When to use it
 
-Choose Roo Code when you want a free, in-editor autonomous agent with fine
-control over behavior via modes and MCP — a self-hosted alternative to hosted
-IDE agents.
+Choose Roomote when you want an autonomous agent that picks up a task from the
+tools you already use and returns finished, verified work — rather than an
+in-editor assistant. It runs in the cloud on paid per-instance plans.
