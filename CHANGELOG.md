@@ -10,6 +10,55 @@
 실행 가능한 예제(`samples/`)를 한국어·영어로 제공하고 GitHub Pages로 배포됩니다.
 1.0.0은 카탈로그·상세 페이지·예제·다국어를 갖춘 첫 정식 릴리스를 뜻합니다.
 
+## 1.4.0 - 2026-06-27
+
+카탈로그를 21종 늘려 45개로 키우고(서브카테고리·구현 샘플 포함), 가격·이름 변경·로고·
+필터 등 카탈로그 메타데이터와 UI를 대폭 보강했습니다.
+
+### 추가됨 1.4.0
+
+- **새 스택 21종** — 5개 카테고리에 한/영으로 추가해 카탈로그가 24개에서 45개로
+  - frameworks: LlamaIndex·AutoGen·OpenAI Agents SDK·smolagents·Agno
+  - coding-agents: Goose·Continue·opencode·Roomote
+  - llm-providers: Groq·vLLM·Mistral AI·LM Studio
+  - vector-stores: Weaviate·Milvus·LanceDB·Zep
+  - observability: Helicone·Ragas·DeepEval·Opik
+- **서브카테고리 신설** — frameworks에 RAG·데이터 프레임워크(`framework-rag`),
+  observability를 트레이싱·모니터링과 평가로 분리
+- **구현 샘플 9종** — `lancedb_1`·`milvus_1`(키 없이 임베디드), `agno_1`·
+  `openai-agents-sdk_1`·`autogen_1`·`smolagents_1`·`llamaindex_1`, `ragas_1`·
+  `deepeval_1`. 모두 Docker로 실행하며 DooD로 동작 검증
+- **"6개월 이상 업데이트 없음" 경고 태그** — 1년 이상보다 약한 단계로, 오픈소스 도구의
+  마지막 릴리스 날짜 기준
+- **"완전 무료" 가격 태그** — 오픈소스이면서 유료나 무료 티어가 없는 도구에 표시
+- **"최신 업데이트" 필터** — 단일 선택으로 최근 N개월 이내만 보기(그보다 오래된 것 제외)
+- **이름 변경 표시** — `formerNames` 필드. 카드엔 직전 이름, 상세 페이지엔 전체 이전 이름.
+  이전 이름 URL은 새 이름으로 자동 리다이렉트(언어별)
+- **테마별 로고·흰 타일** — `logoDark`로 다크 변형 전환, 파일명 `-wbg`로 흰 배경 타일.
+  새 스택들에 로고 적용
+
+### 변경됨 1.4.0
+
+- **Roo Code → Roomote 리브랜딩** — VS Code 확장을 종료하고 유료 클라우드 에이전트로
+  피벗. 카테고리를 자율 SWE로, 가격을 유료로 갱신
+- **가격 태그 정정** — 매니지드 클라우드 티어를 반영. ollama·chroma·mem0·openhands·
+  langgraph·arize-phoenix·crewai에 free-tier와 paid, litellm에 paid 추가
+- **CLAUDE.md를 `.claude/`로 이동** — 저장소 루트 정리
+- **planning.md 정리** — 완료 항목을 빼고 남은 백로그를 표로
+
+### 수정됨 1.4.0
+
+- **뒤로가기 애니메이션 스크롤 제거** — 전역 `scroll-behavior: smooth`가 뒤로/앞으로
+  스크롤 복원까지 애니메이션해 목록 복귀가 어지럽던 문제. 의도된 부드러운 스크롤은
+  JS에서 그대로 유지
+- **모바일 hover 들러붙음** — 터치에서 탭하면 카드·버튼의 lift 효과가 유지되던 문제를
+  `@media (hover: hover)`로 게이팅
+- **탭 없는 페이지의 Mermaid 미로딩** — 샘플·구현 탭이 없는 페이지(Roomote)에서 개요의
+  다이어그램이 로드되지 않던 문제
+- **Mermaid 라벨 파싱 깨짐** — 가운뎃점(·)이 다이어그램 파싱을 깨뜨려 슬래시로 교체
+- **DeepEval 웹사이트 주소**를 deepeval.com으로 정정
+- **AutoGen을 유지보수 전용으로 표시** — Microsoft가 신규 개발에는 Agent Framework를 권장
+
 ## 1.3.0 - 2026-06-26
 
 카탈로그에 스택 7종과 실행 가능한 구현 샘플 6종을 더하고, 카테고리 계층(서브카테고리)과
