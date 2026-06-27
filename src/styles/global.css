@@ -487,6 +487,7 @@ summary {
   padding: 1rem;
   min-height: 12.5rem;
   overflow: hidden; /* clip the scaled backdrop to the card's rounded corners */
+  isolation: isolate; /* contain the z-index:-1 backdrop within the card */
 }
 :root[data-view='gallery'] [data-card-head] {
   flex-direction: column;
@@ -522,14 +523,9 @@ summary {
   border-color: transparent;
   background: color-mix(in srgb, var(--aas-text) 6%, transparent);
 }
-/* Lift the content above the blurred backdrop. */
-:root[data-view='gallery'] [data-card-body],
-:root[data-view='gallery'] [data-card-foot] {
-  position: relative;
-  z-index: 1;
-}
-
-/* The blurred-logo backdrop. Hidden outside the gallery view. */
+/* The blurred-logo backdrop. Hidden outside the gallery view. Kept at z-index:-1
+   (behind the static content) so the name's full-card link overlay still covers
+   the description — clicking anywhere on the card navigates. */
 .aas-gallery-bg {
   display: none;
 }
@@ -538,7 +534,7 @@ summary {
   position: absolute;
   inset: 0 0 auto 0;
   height: 60%;
-  z-index: 0;
+  z-index: -1;
   background-position: center 35%;
   background-repeat: no-repeat;
   background-size: cover;
