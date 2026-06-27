@@ -78,12 +78,13 @@ const isDefaultHome = path === '' && lang === 'en';
         } catch (e) {}
       })();
     </script>
-    {/* Listing density (standard / gallery), persisted in localStorage. Set
-        before paint so the saved gallery layout doesn't flash from standard. */}
+    {/* Listing density (standard / gallery), persisted in localStorage. Gallery
+        is the default; only an explicit 'grid' choice falls back to standard.
+        Set before paint so the layout doesn't flash. */}
     <script is:inline>
       (function () {
         try {
-          if (localStorage.getItem('aas:view') === 'gallery')
+          if (localStorage.getItem('aas:view') !== 'grid')
             document.documentElement.dataset.view = 'gallery';
         } catch (e) {}
       })();
