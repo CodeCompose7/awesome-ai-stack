@@ -15,32 +15,6 @@ AI 에이전트 생태계에서 카탈로그(`src/content/stacks`)에 추가할 
   접미사로 다크 테마에 대응.
 - 가능하면 LiteLLM-first + 실행 가능한 Docker 샘플(`samples/<slug>_1`)도 함께.
 
-## 추후 추가 — 기존 카테고리 보강
-
-| 도구 | 카테고리 | 한 줄 | 출처 |
-| --- | --- | --- | --- |
-| LlamaIndex | frameworks | 데이터 프레임워크·RAG 오케스트레이션 | <https://github.com/run-llama/llama_index> |
-| AutoGen (MS) | frameworks | 멀티에이전트 대화 프레임워크 | <https://github.com/microsoft/autogen> |
-| OpenAI Agents SDK | frameworks | OpenAI 공식 경량 에이전트 SDK | <https://github.com/openai/openai-agents-python> |
-| smolagents (HF) | frameworks | 코드 실행 중심 경량 에이전트 | <https://github.com/huggingface/smolagents> |
-| Agno | frameworks | 고성능 멀티에이전트 런타임 | <https://github.com/agno-agi/agno> |
-| Goose (Block) | coding-agents | 로컬 확장형 코딩 에이전트 | <https://github.com/block/goose> |
-| Continue | coding-agents | 오픈소스 IDE 자동완성·에이전트 | <https://github.com/continuedev/continue> |
-| opencode (SST) | coding-agents | 터미널 코딩 에이전트 | <https://github.com/sst/opencode> |
-| Roo Code | coding-agents | VS Code 자율 코딩 에이전트 | <https://github.com/RooCodeInc/Roo-Code> |
-| Groq | llm-providers | 초고속 LPU 추론 API | <https://groq.com> |
-| vLLM | llm-providers | 고처리량 LLM 서빙 엔진 | <https://github.com/vllm-project/vllm> |
-| Mistral AI | llm-providers | 오픈 웨이트 모델·API | <https://mistral.ai> |
-| LM Studio | llm-providers | 로컬 모델 데스크톱 앱 | <https://lmstudio.ai> |
-| Weaviate | vector-stores | 오픈소스 벡터 DB | <https://github.com/weaviate/weaviate> |
-| Milvus | vector-stores | 대규모 분산 벡터 DB | <https://github.com/milvus-io/milvus> |
-| LanceDB | vector-stores | 임베디드 벡터 DB | <https://github.com/lancedb/lancedb> |
-| Zep | vector-stores | 에이전트 메모리 레이어 | <https://github.com/getzep/zep> |
-| Helicone | observability | LLM 관측·게이트웨이 | <https://github.com/Helicone/helicone> |
-| Ragas | observability | RAG 평가 프레임워크 | <https://github.com/explodinggradients/ragas> |
-| DeepEval | observability | LLM 평가·유닛테스트 | <https://github.com/confident-ai/deepeval> |
-| Opik (Comet) | observability | LLM 트레이싱·평가 | <https://github.com/comet-ml/opik> |
-
 ## 추후 추가 — 새 카테고리 필요
 
 새 영역이라 `categories.ts`에 카테고리 항목을 먼저 추가해야 한다.
