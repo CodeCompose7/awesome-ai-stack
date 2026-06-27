@@ -12,6 +12,9 @@ const stacks = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/stacks' }),
   schema: z.object({
     name: z.string(),
+    // Prior names after a rename/rebrand, newest first. The card shows just the
+    // most recent (formerNames[0]); the detail page shows all of them.
+    formerNames: z.array(z.string()).default([]),
     category: z.string(),
     description: z.string(),
     logo: z.string().optional(), // optional image URL/path; otherwise a monogram is shown

@@ -1,6 +1,6 @@
 ---
 import { getRelativeLocaleUrl } from 'astro:i18n';
-import { pricingLabels, type Lang } from '../i18n/ui';
+import { pricingLabels, useTranslations, type Lang } from '../i18n/ui';
 import { getRepoStats, formatStars, stalenessOf } from '../lib/github';
 import { pricingTags, COMPLETELY_FREE } from '../lib/pricing';
 import ToolAvatar from './ToolAvatar.astro';
@@ -11,6 +11,7 @@ interface Props {
   slug: string;
   lang: Lang;
   name: string;
+  formerNames?: string[];
   description: string;
   tags: string[];
   pricing: string[];
@@ -23,8 +24,9 @@ interface Props {
   deprecated?: boolean;
 }
 
-const { slug, lang, name, description, tags, pricing, license, language, category, logo, repo, version, deprecated } =
+const { slug, lang, name, formerNames = [], description, tags, pricing, license, language, category, logo, repo, version, deprecated } =
   Astro.props;
+const t = useTranslations(lang);
 const href = getRelativeLocaleUrl(lang, `stacks/${slug}/`);
 
 // Live stats from GitHub (build-time), with the manual `version` as fallback.
@@ -66,11 +68,18 @@ const searchText = `${name} ${description} ${tags.join(' ')}`.toLowerCase();
   <div class="flex min-w-0 flex-1 flex-col">
     <div class="flex min-w-0 items-center gap-3">
       <ToolAvatar name={name} logo={logo} category={category} size={40} />
-      <h3 class="truncate text-base font-semibold text-[var(--aas-text)]">
-        <a href={href} class="no-underline after:absolute after:inset-0 after:content-['']">
-          {name}
-        </a>
-      </h3>
+      <div class="min-w-0">
+        <h3 class="truncate text-base font-semibold text-[var(--aas-text)]">
+          <a href={href} class="no-underline after:absolute after:inset-0 after:content-['']">
+            {name}
+          </a>
+        </h3>
+        {formerNames.length > 0 && (
+          <p class="truncate text-xs text-[var(--aas-muted)]">
+            {t('meta.formerly')} {formerNames[0]}
+          </p>
+        )}
+      </div>
     </div>
 
     <p class="mt-2 text-sm leading-relaxed text-[var(--aas-muted)]">{description}</p>
