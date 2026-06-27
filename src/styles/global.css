@@ -478,16 +478,15 @@ summary {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
-/* A taller, refined portrait tile: logo stacked over the name, a short
-   description, then the stars + open-source chip pinned to a hairline footer. */
+/* A taller, refined portrait tile: an enlarged, blurred copy of the logo as an
+   ambient backdrop behind the header, then a short description and the stars +
+   open-source chip below. */
 :root[data-view='gallery'] [data-tool] {
   flex-direction: column;
   gap: 0;
   padding: 1rem;
   min-height: 12.5rem;
-}
-:root[data-view='gallery'] [data-tool] > div:first-child {
-  flex: 1 1 auto;
+  overflow: hidden; /* clip the scaled backdrop to the card's rounded corners */
 }
 :root[data-view='gallery'] [data-card-head] {
   flex-direction: column;
@@ -508,10 +507,37 @@ summary {
   font-size: 0.8125rem;
 }
 /* Footer: stars + open-source chip, just spaced below the content. */
-:root[data-view='gallery'] [data-tool] > div:last-child {
+:root[data-view='gallery'] [data-card-foot] {
   flex-direction: row;
   align-items: center;
   margin-top: 0.85rem;
+}
+/* Lift the content above the blurred backdrop. */
+:root[data-view='gallery'] [data-card-body],
+:root[data-view='gallery'] [data-card-foot] {
+  position: relative;
+  z-index: 1;
+}
+
+/* The blurred-logo backdrop. Hidden outside the gallery view. */
+.aas-gallery-bg {
+  display: none;
+}
+:root[data-view='gallery'] .aas-gallery-bg {
+  display: block;
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 60%;
+  z-index: 0;
+  background-position: center 35%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  filter: blur(22px) saturate(1.25);
+  transform: scale(1.6);
+  opacity: 0.5;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 50%, transparent);
+  mask-image: linear-gradient(to bottom, #000 50%, transparent);
 }
 
 /* Density toggle buttons (standard / gallery). */

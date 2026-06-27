@@ -30,6 +30,16 @@ const { slug, lang, name, formerNames = [], description, tags, pricing, license,
 const t = useTranslations(lang);
 const href = getRelativeLocaleUrl(lang, `stacks/${slug}/`);
 
+// Resolved logo URL (for the blurred backdrop in the gallery view). Only image
+// logos qualify; monograms/emoji have nothing to blur.
+const base = import.meta.env.BASE_URL;
+const isImageLogo = !!logo && (/^https?:\/\//.test(logo) || logo.startsWith('/'));
+const logoUrl = !isImageLogo
+  ? undefined
+  : /^https?:\/\//.test(logo!)
+    ? logo!
+    : base.replace(/\/$/, '') + '/' + logo!.replace(/^\//, '');
+
 // Live stats from GitHub (build-time), with the manual `version` as fallback.
 const stats = await getRepoStats(repo);
 const displayVersion = stats?.version ?? version;
@@ -65,8 +75,14 @@ const searchText = `${name} ${description} ${tags.join(' ')}`.toLowerCase();
   data-date={stats?.releasedAt?.slice(0, 10) ?? ''}
   data-updatemonths={updateMonths}
 >
+  {/* Gallery view only: an enlarged, blurred copy of the logo as an ambient
+     backdrop behind the header (hidden in the standard view via CSS). */}
+  {logoUrl && (
+    <div class="aas-gallery-bg" aria-hidden="true" style={`background-image:url("${logoUrl}")`} />
+  )}
+
   {/* Left column: the content. Grows; chips on the right don't push it down. */}
-  <div class="flex min-w-0 flex-1 flex-col">
+  <div class="flex min-w-0 flex-1 flex-col" data-card-body>
     <div class="flex min-w-0 items-center gap-3" data-card-head>
       <ToolAvatar name={name} logo={logo} logoDark={logoDark} category={category} size={40} />
       <div class="min-w-0">
@@ -124,7 +140,7 @@ const searchText = `${name} ${description} ${tags.join(' ')}`.toLowerCase();
   {/* Key facts (stars + pricing). On desktop they sit in a right-hand column so
      the chip count never shifts the description; on mobile they drop below the
      content as a row instead of stealing width from the title/description. */}
-  <div class="flex shrink-0 gap-1.5 text-xs min-[1000px]:flex-col min-[1000px]:items-end">
+  <div class="flex shrink-0 gap-1.5 text-xs min-[1000px]:flex-col min-[1000px]:items-end" data-card-foot>
     {
       typeof stats?.stars === 'number' && (
         <span class="aas-chip inline-flex items-center gap-1 rounded-lg px-2.5 py-1">
