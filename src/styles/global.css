@@ -488,16 +488,6 @@ summary {
   overflow: hidden; /* clip the scaled backdrop to the card's rounded corners */
   isolation: isolate; /* contain the z-index:-1 backdrop within the card */
 }
-/* The content block (logo + title + description) is a fixed height, and the
-   title and description share one line grid (1.4rem). So the title and
-   description TOGETHER fill a constant space: a 1-line title leaves the
-   description 3 lines, a 2-line title leaves it 2 — no per-element gaps, and
-   truncation always lands on a line boundary. */
-:root[data-view='gallery'] [data-card-body] {
-  flex: none;
-  height: 9.3rem;
-  min-height: 0;
-}
 :root[data-view='gallery'] [data-card-head] {
   flex-direction: column;
   align-items: flex-start;
@@ -519,25 +509,25 @@ summary {
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  line-height: 1.4rem;
+  line-height: 1.3;
 }
 :root[data-view='gallery'] [data-card-meta],
 :root[data-view='gallery'] [data-card-tags] {
   display: none;
 }
 :root[data-view='gallery'] [data-card-desc] {
-  margin-top: 0.6rem;
-  /* Fill the space the title leaves, on the same 1.4rem line grid; overflow
-     clips at a line boundary (no mid-line cut). line-clamp caps it at 3. */
-  flex: 1 1 auto;
-  min-height: 0;
+  margin-top: 0.55rem;
+  /* Up to 3 lines, ellipsised; reserve 3 lines via `lh` so every card is the
+     same height. Using `lh` (not a fixed rem) keeps it correct if the font or
+     line-height changes — line-clamp always truncates at a line boundary. */
   display: -webkit-box;
   -webkit-line-clamp: 3;
   line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   font-size: 0.78rem;
-  line-height: 1.4rem;
+  line-height: 1.2rem;
+  min-height: 3lh;
   /* Fade via colour, not opacity — opacity would create a stacking context and
      lift the description above the card's full-card link overlay. */
   color: color-mix(in srgb, var(--aas-muted) 78%, transparent);
