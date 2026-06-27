@@ -78,8 +78,9 @@ function splitReadme(html?: string): { titleInner?: string; body?: string } {
 
         {readme.titleInner && (
           <div class="mt-5" data-readme>
+            <p class="text-sm text-[var(--aas-muted)]">{p.date}</p>
             <span
-              class="block text-2xl font-bold tracking-tight text-[var(--aas-text)]"
+              class="mt-1 block text-2xl font-bold tracking-tight text-[var(--aas-text)]"
               set:html={readme.titleInner}
             />
             <button
@@ -93,7 +94,22 @@ function splitReadme(html?: string): { titleInner?: string; body?: string } {
               <span data-readme-label-collapse>{t('project.readmeCollapse')}</span>
             </button>
             {readme.body && (
-              <div class="prose mt-3 max-w-none" data-readme-body set:html={readme.body} />
+              <Fragment>
+                <div class="prose mt-3 max-w-none" data-readme-body set:html={readme.body} />
+                {/* Second collapse control at the end of a long README. Hidden when
+                    collapsed (the top button handles expanding), so there's never
+                    two "expand" buttons. */}
+                <button
+                  type="button"
+                  data-readme-toggle
+                  data-readme-bottom
+                  aria-expanded="true"
+                  class="mt-3 inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-sm text-[var(--aas-muted)] hover:bg-[var(--aas-tint)] hover:text-[var(--aas-text)]"
+                >
+                  <ChevronDown class="rotate-180" />
+                  {t('project.readmeCollapse')}
+                </button>
+              </Fragment>
             )}
           </div>
         )}
@@ -134,9 +150,10 @@ function splitReadme(html?: string): { titleInner?: string; body?: string } {
       try {
         if (localStorage.getItem('aas:readme-collapsed') !== '1') return;
         document.currentScript.parentElement.querySelectorAll('[data-readme]').forEach(function (r) {
-          var btn = r.querySelector('[data-readme-toggle]');
+          r.querySelectorAll('[data-readme-toggle]').forEach(function (btn) {
+            btn.setAttribute('aria-expanded', 'false');
+          });
           var body = r.querySelector('[data-readme-body]');
-          if (btn) btn.setAttribute('aria-expanded', 'false');
           if (body) body.hidden = true;
         });
       } catch (e) {}
@@ -209,6 +226,11 @@ function splitReadme(html?: string): { titleInner?: string; body?: string } {
   }
   [data-readme-toggle][aria-expanded='true'] [data-readme-label-expand],
   [data-readme-toggle][aria-expanded='false'] [data-readme-label-collapse] {
+    display: none;
+  }
+  /* The bottom collapse button only exists while expanded, so a collapsed README
+     never shows two "expand" controls. */
+  [data-readme-bottom][aria-expanded='false'] {
     display: none;
   }
 </style>
@@ -338,9 +360,8 @@ function splitReadme(html?: string): { titleInner?: string; body?: string } {
   };
   function applyReadme(collapsed: boolean) {
     document.querySelectorAll<HTMLElement>('[data-readme]').forEach((r) => {
-      r.querySelector<HTMLButtonElement>('[data-readme-toggle]')?.setAttribute(
-        'aria-expanded',
-        String(!collapsed),
+      r.querySelectorAll<HTMLButtonElement>('[data-readme-toggle]').forEach((btn) =>
+        btn.setAttribute('aria-expanded', String(!collapsed)),
       );
       const body = r.querySelector<HTMLElement>('[data-readme-body]');
       if (body) body.hidden = collapsed;
