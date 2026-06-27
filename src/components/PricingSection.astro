@@ -1,0 +1,41 @@
+---
+// A "Pricing" section appended to the end of the Overview body (inside .prose),
+// matching the other body headings. Driven by the frontmatter pricing fields.
+import { useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  note?: string;
+  source?: string;
+  checkedAt?: string;
+}
+const { lang, note, source, checkedAt } = Astro.props;
+const t = useTranslations(lang);
+---
+
+{
+  note && (
+    <Fragment>
+      <h2 id="pricing">
+        <a class="aas-anchor" href="#pricing" aria-label="Copy link to section" />
+        {t('detail.pricing')}
+      </h2>
+      <p>{note}</p>
+      {(source || checkedAt) && (
+        <p class="text-sm text-[var(--aas-muted)]">
+          {source && (
+            <a href={source} target="_blank" rel="noopener noreferrer">
+              {t('detail.source')} &nearr;
+            </a>
+          )}
+          {checkedAt && (
+            <Fragment>
+              {source ? ' · ' : ''}
+              {t('detail.asOf')} {checkedAt}
+            </Fragment>
+          )}
+        </p>
+      )}
+    </Fragment>
+  )
+}

@@ -8,6 +8,7 @@ import { getArticlesForTool, articleSlugOf } from '../lib/articles';
 import ToolAvatar from './ToolAvatar.astro';
 import ToolMeta from './ToolMeta.astro';
 import Breadcrumb from './Breadcrumb.astro';
+import PricingSection from './PricingSection.astro';
 import DetailTabs from './DetailTabs.astro';
 import CodeSamples from './CodeSamples.astro';
 import MermaidLoader from './MermaidLoader.astro';
@@ -41,8 +42,12 @@ const crumbs = [
   })),
 ];
 
-// Right-rail table of contents: body headings, h2–h3 only.
-const tocItems = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
+// Right-rail table of contents: body headings, h2–h3 only, plus the appended
+// Pricing section when present.
+const tocItems = [
+  ...headings.filter((h) => h.depth >= 2 && h.depth <= 3),
+  ...(data.pricingNote ? [{ slug: 'pricing', text: t('detail.pricing'), depth: 2 }] : []),
+];
 
 // Backlinks: writing that references this tool (computed reverse lookup).
 const relatedArticles = await getArticlesForTool(lang, slugOf(entry));
@@ -161,34 +166,6 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
     )
   }
 
-  {
-    data.pricingNote && (
-      <div class="mt-4 max-w-2xl rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] px-3.5 py-2.5 text-sm text-[var(--aas-muted)]">
-        <span class="font-medium text-[var(--aas-text)]">{t('detail.pricing')}</span>
-        <span class="ml-1.5">{data.pricingNote}</span>
-        {(data.pricingSource || data.pricingCheckedAt) && (
-          <span class="mt-1 block text-xs">
-            {data.pricingSource && (
-              <a
-                href={data.pricingSource}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="text-[var(--aas-accent)] no-underline hover:underline"
-              >
-                {t('detail.source')} &nearr;
-              </a>
-            )}
-            {data.pricingCheckedAt && (
-              <span>
-                {data.pricingSource ? ' · ' : ''}
-                {t('detail.asOf')} {data.pricingCheckedAt}
-              </span>
-            )}
-          </span>
-        )}
-      </div>
-    )
-  }
 </header>
 
 <RelatedTools lang={lang} slugs={data.related} />
@@ -204,6 +181,12 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
       >
         <article slot="overview" class="prose max-w-none">
           <Content />
+          <PricingSection
+            lang={lang}
+            note={data.pricingNote}
+            source={data.pricingSource}
+            checkedAt={data.pricingCheckedAt}
+          />
         </article>
         {hasSamples && (
           <div slot="code">
@@ -219,6 +202,12 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
     ) : (
       <article class="prose max-w-none">
         <Content />
+        <PricingSection
+          lang={lang}
+          note={data.pricingNote}
+          source={data.pricingSource}
+          checkedAt={data.pricingCheckedAt}
+        />
       </article>
     )
   }
