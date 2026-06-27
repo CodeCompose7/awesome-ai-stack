@@ -2,9 +2,11 @@
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import StackCard from './StackCard.astro';
 import Breadcrumb from './Breadcrumb.astro';
+import FilterControls from './FilterControls.astro';
 import { categoryMap, childrenOf, pathOf } from '../data/categories';
 import { getStacksByCategory, slugOf, type StackEntry } from '../lib/stacks';
-import { useTranslations, type Lang } from '../i18n/ui';
+import { pricingTags } from '../lib/pricing';
+import { useTranslations, pricingLabels, licenseLabel, type Lang } from '../i18n/ui';
 
 interface Props {
   lang: Lang;
@@ -34,6 +36,40 @@ const childGroups = await Promise.all(
   children.map(async (c) => ({ cat: c, items: await getStacksByCategory(lang, c.id) })),
 );
 
+// Filter facets, derived from every tool shown on this page (direct + subtrees).
+const allEntries = [...direct, ...childGroups.flatMap((g) => g.items)];
+const pricingOrder = ['completely-free', 'open-source', 'free-tier', 'paid', 'free'];
+const usedPricing = new Set<string>(allEntries.flatMap((e) => pricingTags(e.data.pricing)));
+const langSet = new Set(
+  allEntries.flatMap((e) =>
+    (e.data.language ?? '')
+      .split('/')
+      .map((s) => s.trim())
+      .filter(Boolean),
+  ),
+);
+const facets = [
+  {
+    key: 'pricing',
+    label: t('detail.pricing'),
+    options: pricingOrder
+      .filter((p) => usedPricing.has(p))
+      .map((p) => ({ value: p, label: pricingLabels[lang][p] ?? p })),
+  },
+  {
+    key: 'license',
+    label: t('detail.license'),
+    options: [...new Set(allEntries.map((e) => e.data.license).filter(Boolean))]
+      .sort()
+      .map((l) => ({ value: l as string, label: licenseLabel(lang, l as string) })),
+  },
+  {
+    key: 'language',
+    label: t('detail.language'),
+    options: [...langSet].sort().map((l) => ({ value: l, label: l })),
+  },
+];
+
 const cardProps = (e: StackEntry) => ({
   slug: slugOf(e),
   lang,
@@ -61,13 +97,20 @@ const cardProps = (e: StackEntry) => ({
   </p>
 </section>
 
+{/* Search · filter · sort controls (client-side, URL-synced) */}
+<div class="mb-8">
+  <FilterControls lang={lang} facets={facets} />
+</div>
+
 {/* Tools sitting directly on this node (no subcategory). */}
 {
   direct.length > 0 && (
-    <div class="mt-2 grid gap-4 sm:grid-cols-2">
-      {direct.map((e) => (
-        <StackCard {...cardProps(e)} />
-      ))}
+    <div data-section>
+      <div class="grid gap-4 sm:grid-cols-2" data-grid>
+        {direct.map((e) => (
+          <StackCard {...cardProps(e)} />
+        ))}
+      </div>
     </div>
   )
 }
@@ -78,7 +121,7 @@ const cardProps = (e: StackEntry) => ({
     childGroups
       .filter((g) => g.items.length > 0)
       .map((g) => (
-        <div>
+        <div data-section>
           <div class="pb-1">
             <h2 class="text-2xl font-semibold">
               <a href={catUrl(g.cat.id)} class="text-[var(--aas-text)] no-underline hover:text-[var(--aas-accent)]">
@@ -88,7 +131,7 @@ const cardProps = (e: StackEntry) => ({
             </h2>
             <p class="mt-1 text-sm text-[var(--aas-muted)]">{g.cat.description[lang]}</p>
           </div>
-          <div class="mt-5 grid gap-4 sm:grid-cols-2">
+          <div class="mt-5 grid gap-4 sm:grid-cols-2" data-grid>
             {g.items.map((e) => (
               <StackCard {...cardProps(e)} />
             ))}
