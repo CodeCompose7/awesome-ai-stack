@@ -87,6 +87,15 @@ html {
   border: 1px solid color-mix(in srgb, var(--aas-accent) 28%, transparent);
   color: var(--aas-accent);
 }
+/* "Completely free" pricing chip — a positive green to stand out from paid tiers. */
+.aas-free {
+  background: color-mix(in srgb, #16a34a 14%, transparent);
+  border: 1px solid color-mix(in srgb, #16a34a 32%, transparent);
+  color: #15803d;
+}
+:root[data-theme='dark'] .aas-free {
+  color: #4ade80;
+}
 
 /* Subtle "lift + shadow" on hover for cards and button-like elements. */
 .aas-lift {

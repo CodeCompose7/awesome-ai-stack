@@ -4,6 +4,8 @@ import StackCard from './StackCard.astro';
 import ChevronDown from './ChevronDown.astro';
 import { rootCategories, descendantIds } from '../data/categories';
 import { getStacks, slugOf } from '../lib/stacks';
+import { getRepoStats, stalenessOf } from '../lib/github';
+import { pricingTags } from '../lib/pricing';
 import { useTranslations, pricingLabels, licenseLabel, type Lang } from '../i18n/ui';
 
 interface Props {
@@ -24,8 +26,20 @@ const byCategory = (categoryId: string) => {
 };
 
 // Filter facet options, derived from the data.
-const pricingOrder = ['open-source', 'free-tier', 'paid', 'free'];
-const usedPricing = new Set<string>(entries.flatMap((e) => e.data.pricing));
+const pricingOrder = ['completely-free', 'open-source', 'free-tier', 'paid', 'free'];
+const usedPricing = new Set<string>(entries.flatMap((e) => pricingTags(e.data.pricing)));
+
+// "Last updated" facet, from each open-source tool's release age. A tool 1y+
+// stale also matches the milder 6m+ option, so stale entries seed both tokens.
+const statsList = await Promise.all(entries.map((e) => getRepoStats(e.data.repo)));
+const usedStaleness = new Set<string>();
+entries.forEach((e, i) => {
+  if (!e.data.pricing.includes('open-source')) return;
+  const s = stalenessOf(statsList[i]?.releasedAt);
+  if (s === 'stale') usedStaleness.add('stale').add('aging');
+  else if (s === 'aging') usedStaleness.add('aging');
+});
+
 const langSet = new Set(
   entries.flatMap((e) =>
     (e.data.language ?? '')
@@ -54,7 +68,15 @@ const facets = [
     label: t('detail.language'),
     options: [...langSet].sort().map((l) => ({ value: l, label: l })),
   },
-];
+  {
+    key: 'updated',
+    label: t('filter.updated'),
+    options: [
+      { value: 'aging', label: t('meta.aging') },
+      { value: 'stale', label: t('meta.stale') },
+    ].filter((o) => usedStaleness.has(o.value)),
+  },
+].filter((f) => f.options.length > 0);
 
 const sortOptions = [
   { key: 'alpha', label: t('sort.alpha') },
@@ -235,6 +257,7 @@ const menuClass =
         pricing: selected('pricing'),
         license: selected('license'),
         language: selected('language'),
+        updated: selected('updated'),
       };
       let total = 0;
       for (const section of sections) {
@@ -248,7 +271,9 @@ const menuClass =
               (card.dataset.pricing ?? '').split('|').some((v) => f.pricing.has(v))) &&
             (!f.license.size || f.license.has(card.dataset.license ?? '')) &&
             (!f.language.size ||
-              (card.dataset.langs ?? '').split('|').some((v) => f.language.has(v)));
+              (card.dataset.langs ?? '').split('|').some((v) => f.language.has(v))) &&
+            (!f.updated.size ||
+              (card.dataset.staleness ?? '').split(' ').some((v) => f.updated.has(v)));
           card.hidden = !ok;
           if (ok) visible++;
         }
@@ -263,7 +288,7 @@ const menuClass =
 
       // Facet count badges + clear-button visibility.
       let anyFilter = q.length > 0 || sort !== 'alpha';
-      for (const facet of ['pricing', 'license', 'language']) {
+      for (const facet of ['pricing', 'license', 'language', 'updated']) {
         const n = selected(facet).size;
         const badge = root!.querySelector<HTMLElement>(`[data-facet-count="${facet}"]`)!;
         badge.textContent = String(n);

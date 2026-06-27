@@ -33,6 +33,7 @@ export const ui = {
     'sort.recent': 'Recently updated',
     'sort.stars': 'Stars',
     'filter.clear': 'Clear',
+    'filter.updated': 'Last updated',
     'results.none': 'No tools match.',
     'detail.allTools': 'All tools',
     'detail.website': 'Website',
@@ -88,6 +89,7 @@ export const ui = {
     'sort.recent': '최근 업데이트순',
     'sort.stars': 'Star순',
     'filter.clear': '초기화',
+    'filter.updated': '최신 업데이트',
     'results.none': '조건에 맞는 도구가 없습니다.',
     'detail.allTools': '전체 도구',
     'detail.website': '웹사이트',
@@ -146,12 +148,14 @@ export function useTranslations(lang: Lang) {
 /** Human labels for the `pricing` frontmatter enum, per locale. */
 export const pricingLabels: Record<Lang, Record<string, string>> = {
   en: {
+    'completely-free': 'Completely free',
     'open-source': 'Open source',
     'free-tier': 'Free tier',
     paid: 'Paid',
     free: 'Free',
   },
   ko: {
+    'completely-free': '완전 무료',
     'open-source': '오픈소스',
     'free-tier': '무료 티어',
     paid: '유료',

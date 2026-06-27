@@ -2,6 +2,7 @@
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { pricingLabels, type Lang } from '../i18n/ui';
 import { getRepoStats, formatStars, stalenessOf } from '../lib/github';
+import { pricingTags, COMPLETELY_FREE } from '../lib/pricing';
 import ToolAvatar from './ToolAvatar.astro';
 import ToolMeta from './ToolMeta.astro';
 import StarIcon from './StarIcon.astro';
@@ -48,11 +49,12 @@ const searchText = `${name} ${description} ${tags.join(' ')}`.toLowerCase();
   data-tool
   data-name={name}
   data-search={searchText}
-  data-pricing={pricing.join('|')}
+  data-pricing={pricingTags(pricing).join('|')}
   data-license={license ?? ''}
   data-langs={langTokens.join('|')}
   data-stars={typeof stats?.stars === 'number' ? String(stats.stars) : ''}
   data-date={stats?.releasedAt?.slice(0, 10) ?? ''}
+  data-staleness={staleness === 'stale' ? 'stale aging' : staleness === 'aging' ? 'aging' : ''}
 >
   {/* Left column: the content. Grows; chips on the right don't push it down. */}
   <div class="flex min-w-0 flex-1 flex-col">
@@ -110,8 +112,12 @@ const searchText = `${name} ${description} ${tags.join(' ')}`.toLowerCase();
       )
     }
     {
-      pricing.map((p) => (
-        <span class="aas-pricing rounded-lg px-2.5 py-1">{pricingLabels[lang][p] ?? p}</span>
+      pricingTags(pricing).map((p) => (
+        <span
+          class:list={[p === COMPLETELY_FREE ? 'aas-free' : 'aas-pricing', 'rounded-lg px-2.5 py-1']}
+        >
+          {pricingLabels[lang][p] ?? p}
+        </span>
       ))
     }
   </div>
