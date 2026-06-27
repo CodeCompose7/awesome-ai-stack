@@ -506,19 +506,17 @@ summary {
 :root[data-view='gallery'] [data-card-desc] {
   margin-top: 0.7rem;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   font-size: 0.8125rem;
 }
-/* Footer: stars + open-source chip, set off by a hairline rule. */
+/* Footer: stars + open-source chip, just spaced below the content. */
 :root[data-view='gallery'] [data-tool] > div:last-child {
   flex-direction: row;
   align-items: center;
   margin-top: 0.85rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--aas-border);
 }
 
 /* Density toggle buttons (standard / gallery). */
