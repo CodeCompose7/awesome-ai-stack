@@ -466,7 +466,7 @@ summary {
    short clamped description; the meta row and keyword tags are hidden. */
 :root[data-view='gallery'] [data-grid] {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.5rem;
+  gap: 0.6rem;
 }
 @media (min-width: 640px) {
   :root[data-view='gallery'] [data-grid] {
@@ -478,17 +478,33 @@ summary {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+@media (min-width: 1280px) {
+  :root[data-view='gallery'] [data-grid] {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+/* A taller, refined portrait tile: logo stacked over the name, a short
+   description, then the stars + open-source chip pinned to a hairline footer. */
 :root[data-view='gallery'] [data-tool] {
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.85rem;
+  gap: 0;
+  padding: 1rem;
+  min-height: 12.5rem;
+}
+:root[data-view='gallery'] [data-tool] > div:first-child {
+  flex: 1 1 auto;
+}
+:root[data-view='gallery'] [data-card-head] {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
 }
 :root[data-view='gallery'] [data-card-meta],
 :root[data-view='gallery'] [data-card-tags] {
   display: none;
 }
 :root[data-view='gallery'] [data-card-desc] {
-  margin-top: 0.25rem;
+  margin-top: 0.7rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -496,10 +512,13 @@ summary {
   overflow: hidden;
   font-size: 0.8125rem;
 }
-/* Stars + pricing chips sit as a compact row under the content. */
+/* Footer: stars + open-source chip, set off by a hairline rule. */
 :root[data-view='gallery'] [data-tool] > div:last-child {
   flex-direction: row;
   align-items: center;
+  margin-top: 0.85rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--aas-border);
 }
 
 /* Density toggle buttons (standard / gallery). */

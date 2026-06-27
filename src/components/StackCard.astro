@@ -67,7 +67,7 @@ const searchText = `${name} ${description} ${tags.join(' ')}`.toLowerCase();
 >
   {/* Left column: the content. Grows; chips on the right don't push it down. */}
   <div class="flex min-w-0 flex-1 flex-col">
-    <div class="flex min-w-0 items-center gap-3">
+    <div class="flex min-w-0 items-center gap-3" data-card-head>
       <ToolAvatar name={name} logo={logo} logoDark={logoDark} category={category} size={40} />
       <div class="min-w-0">
         <h3 class="truncate text-base font-semibold text-[var(--aas-text)]">
