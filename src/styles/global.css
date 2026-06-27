@@ -63,6 +63,24 @@ html {
 :root[data-theme='dark'] .aas-deprecated {
   color: #fbbf24;
 }
+/* "No updates in 1+ year" — same amber warning weight as deprecated. */
+.aas-stale {
+  background: color-mix(in srgb, #d97706 16%, transparent);
+  border: 1px solid color-mix(in srgb, #d97706 35%, transparent);
+  color: #b45309;
+}
+:root[data-theme='dark'] .aas-stale {
+  color: #fbbf24;
+}
+/* "No updates in 6+ months" — a milder, lower-contrast caution (softer yellow). */
+.aas-aging {
+  background: color-mix(in srgb, #ca8a04 9%, transparent);
+  border: 1px solid color-mix(in srgb, #ca8a04 22%, transparent);
+  color: #a16207;
+}
+:root[data-theme='dark'] .aas-aging {
+  color: #facc15;
+}
 /* Pricing chip: a soft accent-tinted surface with a faint accent outline. */
 .aas-pricing {
   background: color-mix(in srgb, var(--aas-accent) 12%, transparent);
