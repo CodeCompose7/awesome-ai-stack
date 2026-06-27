@@ -9,6 +9,37 @@ export function slugOf(entry: StackEntry): string {
   return entry.id.replace(/^[a-z]{2}\//, '');
 }
 
+/** A name → url-safe slug, e.g. "Roo Code" → "roo-code". */
+export function slugifyName(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+/**
+ * Redirect aliases for a locale's stacks: each former name (after a rename)
+ * slugifies to an alias that should redirect to the entry's canonical slug.
+ * Aliases that collide with a real slug or each other are dropped.
+ */
+export async function getStackAliases(lang: Lang): Promise<{ alias: string; target: string }[]> {
+  const stacks = await getStacks(lang);
+  const canonical = new Set(stacks.map(slugOf));
+  const seen = new Set<string>();
+  const out: { alias: string; target: string }[] = [];
+  for (const s of stacks) {
+    const target = slugOf(s);
+    for (const former of s.data.formerNames) {
+      const alias = slugifyName(former);
+      if (!alias || alias === target || canonical.has(alias) || seen.has(alias)) continue;
+      seen.add(alias);
+      out.push({ alias, target });
+    }
+  }
+  return out;
+}
+
 /** All stack entries for one locale (entries live in `stacks/<lang>/*.mdx`). */
 export async function getStacks(lang: Lang): Promise<StackEntry[]> {
   const all = await getCollection('stacks');
