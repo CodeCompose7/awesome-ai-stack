@@ -1,9 +1,12 @@
 ---
-// A "Pricing" section appended to the end of the Overview body (inside .prose),
-// matching the other body headings. A short intro (`note`) sits above an
-// optional plan / price / note table. Driven by the frontmatter pricing fields.
+// A "Pricing" tab body: a short intro (`note`) above an optional plan / price /
+// note table, with the source and the as-of date below. Driven by the
+// frontmatter pricing fields.
+//
+// The freshness chip (aging 6m+, stale 1y+) is computed client-side against the
+// visitor's *current* date — not the build date — so a long-lived static build
+// still flags stale prices. The chip ships hidden and is revealed by the script.
 import { useTranslations, type Lang } from '../i18n/ui';
-import { stalenessOf } from '../lib/github';
 
 interface Tier {
   plan: string;
@@ -20,9 +23,6 @@ interface Props {
 const { lang, note, tiers = [], source, checkedAt } = Astro.props;
 const t = useTranslations(lang);
 const hasTable = tiers.length > 0;
-// Compare the as-of date with the build date: warn once pricing is 6m+ (aging)
-// or 1y+ (stale) old, so it gets re-verified.
-const freshness = stalenessOf(checkedAt);
 ---
 
 {
@@ -64,21 +64,37 @@ const freshness = stalenessOf(checkedAt);
             <Fragment>
               {source ? ' · ' : ''}
               {`${t('detail.asOf')} ${checkedAt}`}
+              <span
+                data-pricing-freshness
+                data-checked={checkedAt}
+                data-aging-label={t('pricing.aging')}
+                data-aging-hint={t('pricing.agingHint')}
+                data-stale-label={t('pricing.stale')}
+                data-stale-hint={t('pricing.staleHint')}
+                class="ml-2 hidden rounded-md px-2 py-0.5 align-middle text-xs font-medium"
+              />
             </Fragment>
-          )}
-          {freshness !== 'fresh' && (
-            <span
-              title={t(freshness === 'stale' ? 'pricing.staleHint' : 'pricing.agingHint')}
-              class:list={[
-                freshness === 'stale' ? 'aas-stale' : 'aas-aging',
-                'ml-2 inline-block rounded-md px-2 py-0.5 text-xs font-medium',
-              ]}
-            >
-              {t(freshness === 'stale' ? 'pricing.stale' : 'pricing.aging')}
-            </span>
           )}
         </p>
       )}
     </Fragment>
   )
 }
+
+<script>
+  // Flag prices that haven't been re-checked recently, relative to the viewer's
+  // current date (so a stale static build still warns). Mirrors stalenessOf().
+  const SIX_MONTHS = 182 * 24 * 60 * 60 * 1000;
+  const ONE_YEAR = 365 * 24 * 60 * 60 * 1000;
+  document.querySelectorAll<HTMLElement>('[data-pricing-freshness]').forEach((el) => {
+    const ts = Date.parse(el.dataset.checked || '');
+    if (Number.isNaN(ts)) return;
+    const age = Date.now() - ts;
+    const kind = age > ONE_YEAR ? 'stale' : age > SIX_MONTHS ? 'aging' : null;
+    if (!kind) return;
+    el.textContent = kind === 'stale' ? el.dataset.staleLabel! : el.dataset.agingLabel!;
+    el.title = kind === 'stale' ? el.dataset.staleHint! : el.dataset.agingHint!;
+    el.classList.add(kind === 'stale' ? 'aas-stale' : 'aas-aging');
+    el.classList.remove('hidden');
+  });
+</script>
