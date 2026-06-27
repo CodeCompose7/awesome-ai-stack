@@ -29,6 +29,9 @@ const { entry, lang } = Astro.props;
 const t = useTranslations(lang);
 const { Content, headings } = await render(entry);
 const data = entry.data;
+// The overview body can contain a Mermaid diagram even with no samples/projects
+// (and thus no tabs), so the loader must not be gated on the tabs alone.
+const overviewHasMermaid = (entry.body ?? '').includes('```mermaid');
 // Breadcrumb: All tools › category › subcategory… (each segment linked).
 const crumbs = [
   { label: t('detail.allTools'), href: getRelativeLocaleUrl(lang, '') },
@@ -226,7 +229,7 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
   <button type="button" class="aas-toc-top" data-back-to-top>↑ {t('top.label')}</button>
 </aside>
 
-{(hasSamples || hasProject) && <MermaidLoader />}
+{(hasSamples || hasProject || overviewHasMermaid) && <MermaidLoader />}
 
 {/* Restore collapsed file-tree folders from localStorage before first paint
     (placed after every tree in the DOM, so no expand→collapse flash). */}
