@@ -22,6 +22,19 @@ function splitReadme(html?: string): { titleInner?: string; body?: string } {
   const m = html.match(/^\s*<h1[^>]*>([\s\S]*?)<\/h1>([\s\S]*)$/);
   return m ? { titleInner: m[1], body: m[2] } : { body: html };
 }
+
+// Format a YYYY-MM-DD date in the locale's own style (ko: 2026년 6월 28일,
+// en: June 28, 2026). Parsed in UTC so the day never shifts at build time.
+function formatDate(iso: string): string {
+  const [y, m, d] = iso.split('-').map(Number);
+  if (!y || !m || !d) return iso;
+  return new Intl.DateTimeFormat(lang === 'ko' ? 'ko-KR' : 'en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(Date.UTC(y, m - 1, d)));
+}
 ---
 
 <div data-projects>
@@ -44,10 +57,13 @@ function splitReadme(html?: string): { titleInner?: string; body?: string } {
                   data-project-folder={p.folder}
                   data-project-name={p.name}
                   aria-current={i === 0 ? 'true' : 'false'}
-                  class="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-[var(--aas-muted)] hover:bg-[var(--aas-tint)] aria-[current=true]:font-semibold aria-[current=true]:text-[var(--aas-text)]"
+                  class="group flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-[var(--aas-muted)] hover:bg-[var(--aas-tint)] aria-[current=true]:text-[var(--aas-text)]"
                 >
-                  {p.name}
-                  <span data-check aria-hidden="true" class="opacity-0">
+                  <span class="min-w-0">
+                    <span class="block truncate group-aria-[current=true]:font-semibold">{p.name}</span>
+                    <span class="block text-xs text-[var(--aas-muted)]">{formatDate(p.date)}</span>
+                  </span>
+                  <span data-check aria-hidden="true" class="shrink-0 opacity-0">
                     ✓
                   </span>
                 </button>
@@ -78,7 +94,7 @@ function splitReadme(html?: string): { titleInner?: string; body?: string } {
 
         {readme.titleInner && (
           <div class="mt-5" data-readme>
-            <p class="text-sm text-[var(--aas-muted)]">{p.date}</p>
+            <p class="text-sm text-[var(--aas-muted)]">{formatDate(p.date)}</p>
             <span
               class="mt-1 block text-2xl font-bold tracking-tight text-[var(--aas-text)]"
               set:html={readme.titleInner}
