@@ -15,6 +15,9 @@ const stacks = defineCollection({
     // Prior names after a rename/rebrand, newest first. The card shows just the
     // most recent (formerNames[0]); the detail page shows all of them.
     formerNames: z.array(z.string()).default([]),
+    // The organization / company / person that makes and maintains the tool
+    // (e.g. "Microsoft"). Powers the per-vendor browse pages at /vendors/<slug>.
+    vendor: z.string().optional(),
     category: z.string(),
     description: z.string(),
     logo: z.string().optional(), // optional image URL/path; otherwise a monogram is shown

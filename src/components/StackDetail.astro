@@ -3,7 +3,7 @@ import { render } from 'astro:content';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { pathOf } from '../data/categories';
 import { useTranslations, type Lang } from '../i18n/ui';
-import { getStacks, slugOf, type StackEntry } from '../lib/stacks';
+import { getStacks, slugOf, slugifyName, type StackEntry } from '../lib/stacks';
 import { getArticlesForTool, articleSlugOf } from '../lib/articles';
 import ToolAvatar from './ToolAvatar.astro';
 import ToolMeta from './ToolMeta.astro';
@@ -111,6 +111,17 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
     <ToolAvatar name={data.name} logo={data.logo} logoDark={data.logoDark} category={data.category} size={56} />
     <div>
       <h1 class="text-3xl font-bold tracking-tight">{data.name}</h1>
+      {data.vendor && (
+        <p class="mt-0.5 text-sm text-[var(--aas-muted)]">
+          {t('vendor.heading')}{' '}
+          <a
+            href={getRelativeLocaleUrl(lang, `vendors/${slugifyName(data.vendor)}/`)}
+            class="text-[var(--aas-accent)] no-underline hover:underline"
+          >
+            {data.vendor}
+          </a>
+        </p>
+      )}
       {data.formerNames.length > 0 && (
         <p class="mt-0.5 text-sm text-[var(--aas-muted)]">
           {t('meta.formerly')} {data.formerNames.join(' · ')}

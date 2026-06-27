@@ -14,6 +14,27 @@ interface Props {
 
 const { lang, projects, related } = Astro.props;
 const t = useTranslations(lang);
+
+// Split the rendered README into its leading <h1> inner content (used as a
+// clickable header) and the body (collapsible under it).
+function splitReadme(html?: string): { titleInner?: string; body?: string } {
+  if (!html) return {};
+  const m = html.match(/^\s*<h1[^>]*>([\s\S]*?)<\/h1>([\s\S]*)$/);
+  return m ? { titleInner: m[1], body: m[2] } : { body: html };
+}
+
+// Format a YYYY-MM-DD date in the locale's own style (ko: 2026년 6월 28일,
+// en: June 28, 2026). Parsed in UTC so the day never shifts at build time.
+function formatDate(iso: string): string {
+  const [y, m, d] = iso.split('-').map(Number);
+  if (!y || !m || !d) return iso;
+  return new Intl.DateTimeFormat(lang === 'ko' ? 'ko-KR' : 'en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(Date.UTC(y, m - 1, d)));
+}
 ---
 
 <div data-projects>
@@ -36,10 +57,13 @@ const t = useTranslations(lang);
                   data-project-folder={p.folder}
                   data-project-name={p.name}
                   aria-current={i === 0 ? 'true' : 'false'}
-                  class="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-[var(--aas-muted)] hover:bg-[var(--aas-tint)] aria-[current=true]:font-semibold aria-[current=true]:text-[var(--aas-text)]"
+                  class="group flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-[var(--aas-muted)] hover:bg-[var(--aas-tint)] aria-[current=true]:text-[var(--aas-text)]"
                 >
-                  {p.name}
-                  <span data-check aria-hidden="true" class="opacity-0">
+                  <span class="min-w-0">
+                    <span class="block truncate group-aria-[current=true]:font-semibold">{p.name}</span>
+                    <span class="block text-xs text-[var(--aas-muted)]">{formatDate(p.date)}</span>
+                  </span>
+                  <span data-check aria-hidden="true" class="shrink-0 opacity-0">
                     ✓
                   </span>
                 </button>
@@ -52,7 +76,9 @@ const t = useTranslations(lang);
   }
 
   {
-    projects.map((p, pi) => (
+    projects.map((p, pi) => {
+      const readme = splitReadme(p.readmeHtml);
+      return (
       <div data-project-panel={pi} data-project-folder={p.folder} class:list={[pi === 0 ? '' : 'hidden', projects.length > 1 ? 'mt-4' : '']}>
         <div class="flex flex-wrap items-center justify-between gap-3">
           <p class="text-sm text-[var(--aas-muted)]">{t('project.intro')}</p>
@@ -66,7 +92,43 @@ const t = useTranslations(lang);
           </a>
         </div>
 
-        {p.readmeHtml && <div class="prose mt-5 max-w-none" set:html={p.readmeHtml} />}
+        {readme.titleInner && (
+          <div class="mt-5" data-readme>
+            <p class="text-sm text-[var(--aas-muted)]">{formatDate(p.date)}</p>
+            <span
+              class="mt-1 block text-2xl font-bold tracking-tight text-[var(--aas-text)]"
+              set:html={readme.titleInner}
+            />
+            <button
+              type="button"
+              data-readme-toggle
+              aria-expanded="true"
+              class="mt-2 inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-sm text-[var(--aas-muted)] hover:bg-[var(--aas-tint)] hover:text-[var(--aas-text)]"
+            >
+              <ChevronDown class="aas-readme-chevron transition-transform" />
+              <span data-readme-label-expand>{t('project.readmeExpand')}</span>
+              <span data-readme-label-collapse>{t('project.readmeCollapse')}</span>
+            </button>
+            {readme.body && (
+              <Fragment>
+                <div class="prose mt-3 max-w-none" data-readme-body set:html={readme.body} />
+                {/* Second collapse control at the end of a long README. Hidden when
+                    collapsed (the top button handles expanding), so there's never
+                    two "expand" buttons. */}
+                <button
+                  type="button"
+                  data-readme-toggle
+                  data-readme-bottom
+                  aria-expanded="true"
+                  class="mt-3 inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-sm text-[var(--aas-muted)] hover:bg-[var(--aas-tint)] hover:text-[var(--aas-text)]"
+                >
+                  <ChevronDown class="rotate-180" />
+                  {t('project.readmeCollapse')}
+                </button>
+              </Fragment>
+            )}
+          </div>
+        )}
 
         {p.files.length > 0 && (
           <div class="mt-6 lg:grid lg:grid-cols-[13rem_minmax(0,1fr)] lg:items-start lg:gap-4 2xl:block">
@@ -94,8 +156,25 @@ const t = useTranslations(lang);
           </div>
         )}
       </div>
-    ))
+      );
+    })
   }
+
+  {/* Pre-paint: collapse the README before paint if the saved preference says so. */}
+  <script is:inline>
+    (function () {
+      try {
+        if (localStorage.getItem('aas:readme-collapsed') !== '1') return;
+        document.currentScript.parentElement.querySelectorAll('[data-readme]').forEach(function (r) {
+          r.querySelectorAll('[data-readme-toggle]').forEach(function (btn) {
+            btn.setAttribute('aria-expanded', 'false');
+          });
+          var body = r.querySelector('[data-readme-body]');
+          if (body) body.hidden = true;
+        });
+      } catch (e) {}
+    })();
+  </script>
 
   {/* Pre-paint: restore the selected example/file from the URL with inline
       display styles (applied before the stylesheet and the module script run),
@@ -156,6 +235,19 @@ const t = useTranslations(lang);
     margin: 0;
     padding: 1rem 1.1rem;
     overflow-x: auto;
+  }
+  /* README toggle: rotate the chevron and swap the label by state. */
+  [data-readme-toggle][aria-expanded='false'] .aas-readme-chevron {
+    transform: rotate(-90deg);
+  }
+  [data-readme-toggle][aria-expanded='true'] [data-readme-label-expand],
+  [data-readme-toggle][aria-expanded='false'] [data-readme-label-collapse] {
+    display: none;
+  }
+  /* The bottom collapse button only exists while expanded, so a collapsed README
+     never shows two "expand" controls. */
+  [data-readme-bottom][aria-expanded='false'] {
+    display: none;
   }
 </style>
 
@@ -268,4 +360,39 @@ const t = useTranslations(lang);
       if ((e as CustomEvent<{ id: string }>).detail.id === 'impl') reflectSelection();
     });
   });
+</script>
+
+<script>
+  // Collapsible README, remembered in localStorage (one preference for all
+  // implementation samples). The inline pre-paint above applies it before paint;
+  // this binds the toggle and keeps every README in sync.
+  const README_KEY = 'aas:readme-collapsed';
+  const isReadmeCollapsed = () => {
+    try {
+      return localStorage.getItem(README_KEY) === '1';
+    } catch {
+      return false;
+    }
+  };
+  function applyReadme(collapsed: boolean) {
+    document.querySelectorAll<HTMLElement>('[data-readme]').forEach((r) => {
+      r.querySelectorAll<HTMLButtonElement>('[data-readme-toggle]').forEach((btn) =>
+        btn.setAttribute('aria-expanded', String(!collapsed)),
+      );
+      const body = r.querySelector<HTMLElement>('[data-readme-body]');
+      if (body) body.hidden = collapsed;
+    });
+  }
+  applyReadme(isReadmeCollapsed());
+  document.querySelectorAll<HTMLButtonElement>('[data-readme-toggle]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const collapsed = !isReadmeCollapsed();
+      try {
+        localStorage.setItem(README_KEY, collapsed ? '1' : '0');
+      } catch {
+        /* private mode — best effort */
+      }
+      applyReadme(collapsed);
+    }),
+  );
 </script>
