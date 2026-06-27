@@ -243,6 +243,32 @@ export const categories: Category[] = [
       en: 'Once an agent runs in production you need to see inside it. These tools trace each step, evaluate output quality, track cost and latency, and help you catch regressions before your users do.',
       ko: '에이전트가 프로덕션에서 돌기 시작하면 내부를 들여다봐야 합니다. 각 단계를 트레이싱하고 출력 품질을 평가하며 비용과 지연을 추적해, 사용자보다 먼저 회귀를 잡아내도록 돕는 도구입니다.',
     },
+    children: [
+      {
+        id: 'observability-tracing',
+        label: { en: 'Tracing & Monitoring', ko: '트레이싱 & 모니터링' },
+        description: {
+          en: 'Capture, inspect, and monitor agent runs step by step.',
+          ko: '에이전트 실행을 단계별로 기록·점검·모니터링.',
+        },
+        detail: {
+          en: 'See inside a running agent — every LLM call, tool use, latency, and cost — with dashboards and alerts to catch regressions in production.',
+          ko: '실행 중인 에이전트의 내부를 본다 — 모든 LLM 호출·도구 사용·지연·비용을 대시보드와 알림으로 추적해 프로덕션 회귀를 잡는다.',
+        },
+      },
+      {
+        id: 'observability-eval',
+        label: { en: 'Evaluation', ko: '평가' },
+        description: {
+          en: 'Score and test LLM and RAG output quality.',
+          ko: 'LLM·RAG 출력 품질을 채점하고 테스트.',
+        },
+        detail: {
+          en: 'Measure whether output is actually good — faithfulness, relevance, correctness — with metrics and test suites you can run in CI.',
+          ko: '출력이 실제로 좋은지 측정한다 — 충실도·관련성·정확성을 지표와 테스트 스위트로, CI에서 실행하도록.',
+        },
+      },
+    ],
   },
 ];
 

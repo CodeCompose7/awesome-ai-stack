@@ -1,0 +1,60 @@
+---
+name: Ragas
+category: observability-eval
+description: RAG 파이프라인과 LLM 애플리케이션을 위한 오픈소스 평가 프레임워크.
+website: https://www.ragas.io
+repo: https://github.com/explodinggradients/ragas
+docs: https://docs.ragas.io
+tags: [evaluation, rag, metrics, python]
+language: Python
+license: Apache-2.0
+pricing: [open-source]
+related: [deepeval, arize-phoenix]
+samples:
+  - version: "Python · evaluate RAG"
+    lang: python
+    diagram: |
+      flowchart LR
+        qa[question · answer · context] --> r[Ragas]
+        r --> judge[(LLM judge)]
+        r --> scores[faithfulness · relevancy]
+    code: |
+      from ragas import evaluate
+      from ragas.metrics import faithfulness, answer_relevancy
+      from datasets import Dataset
+
+      data = Dataset.from_dict({
+          "question": ["What language is Qdrant written in?"],
+          "answer": ["Qdrant is written in Rust."],
+          "contexts": [["Qdrant is a vector database written in Rust."]],
+      })
+      # Metrics use an LLM judge (set OPENAI_API_KEY or configure another).
+      print(evaluate(data, metrics=[faithfulness, answer_relevancy]))
+    description: |
+      ### 언제 쓰나
+      RAG 품질을 채점할 때 — 답이 검색된 컨텍스트에 충실한지, 질문에 관련 있는지
+      측정합니다.
+
+      ### 흐름
+      질문·답·컨텍스트를 주면 Ragas가 레퍼런스 없는 지표(대개 LLM 채점)를 돌려
+      지표별 점수를 반환합니다.
+---
+
+## 개요
+
+Ragas는 RAG 파이프라인과 LLM 애플리케이션을 평가하는 오픈소스 프레임워크로, 충실도(faithfulness)·답 관련성·컨텍스트 정밀도 같은 레퍼런스 없는 지표를 제공합니다.  
+"이 RAG 시스템이 실제로 잘 동작하나?"를, CI에서 추적하고 변경 간 비교할 수 있는 수치로 바꿔줍니다.
+
+```mermaid
+flowchart LR
+  qa[question · answer · context] --> r[Ragas]
+  r --> judge[(LLM judge)]
+  r --> scores[faithfulness · relevancy]
+```
+
+**코드 샘플** 탭에서 최소 RAG 평가를 보여줍니다.
+
+## 언제 쓰면 좋은가
+
+검색 품질이 중요하고 RAG 파이프라인에 대한 객관적·반복 가능한 지표를 원할 때 —
+회귀를 잡고 리트리버·청킹·프롬프트를 비교하기 위해 Ragas를 고르세요.

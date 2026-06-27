@@ -1,0 +1,59 @@
+---
+name: DeepEval
+category: observability-eval
+description: LLM용 Pytest 같은 오픈소스 — 모델·RAG 출력을 지표로 유닛 테스트.
+website: https://www.confident-ai.com
+repo: https://github.com/confident-ai/deepeval
+docs: https://deepeval.com/docs
+tags: [evaluation, testing, metrics, python]
+language: Python
+license: Apache-2.0
+pricing: [open-source, free-tier, paid]
+related: [ragas, langfuse]
+samples:
+  - version: "Python · evaluate a case"
+    lang: python
+    diagram: |
+      flowchart LR
+        case[test case] --> m[metric]
+        m --> judge[(LLM judge)]
+        m --> verdict[score + pass/fail]
+    code: |
+      from deepeval import evaluate
+      from deepeval.metrics import AnswerRelevancyMetric
+      from deepeval.test_case import LLMTestCase
+
+      case = LLMTestCase(
+          input="What language is Qdrant written in?",
+          actual_output="Qdrant is written in Rust.",
+      )
+      # Metrics use an LLM judge (set OPENAI_API_KEY or configure another).
+      evaluate(test_cases=[case], metrics=[AnswerRelevancyMetric()])
+    description: |
+      ### 언제 쓰나
+      유닛 테스트처럼 느껴지는 LLM 평가를 원할 때 — 로컬과 CI에서 돌리는 단언과
+      지표.
+
+      ### 흐름
+      `LLMTestCase`를 만들고 지표(관련성·충실도·환각 등)를 붙이면, `evaluate`가
+      각각을 채점합니다 — 테스트 스위트처럼 통과/실패로.
+---
+
+## 개요
+
+DeepEval은 LLM 테스트를 유닛 테스트처럼 다루는 오픈소스 평가 프레임워크입니다 — "LLM용 Pytest" — 관련성·충실도·환각·편향과 커스텀 기준을 위한 지표 라이브러리를 제공합니다.  
+로컬과 CI에서 돌아가며, 호스팅 대시보드·회귀 추적을 위한 Confident AI 플랫폼과 짝을 이룹니다.
+
+```mermaid
+flowchart LR
+  case[test case] --> m[metric]
+  m --> judge[(LLM judge)]
+  m --> verdict[score + pass/fail]
+```
+
+**코드 샘플** 탭에서 단일 테스트 케이스 채점을 보여줍니다.
+
+## 언제 쓰면 좋은가
+
+평가를 테스트 워크플로에 엮고 싶을 때 — 모델·RAG 출력에 지표 기반 단언을 쓰고 CI를
+그에 맞춰 게이트하며, 그 위에 선택적 호스팅 플랫폼을 얹고 싶을 때 DeepEval을 고르세요.
