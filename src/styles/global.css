@@ -42,7 +42,10 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  /* No global smooth scroll: it makes the browser animate scroll *restoration*
+     on back/forward, which is disorienting when returning to the list. The
+     deliberate smooth scrolls (back-to-top, file selector) pass behavior:
+     'smooth' explicitly in JS, so they still animate. */
   background: var(--aas-bg);
   color: var(--aas-text);
 }
