@@ -1,0 +1,68 @@
+---
+name: Guardrails AI
+logo: /logos/guardrails-ai.png
+category: guardrails
+description: Validate and structure LLM input/output with composable validators from the Guardrails Hub.
+website: https://guardrailsai.com
+repo: https://github.com/guardrails-ai/guardrails
+docs: https://guardrailsai.com/docs
+tags: [guardrails, validation, safety, python]
+language: Python
+license: Apache-2.0
+pricing: [open-source, paid]
+pricingNote: "Framework and the Guardrails Hub are open source (Apache-2.0), free to self-host. Guardrails Pro is a managed enterprise service with custom pricing."
+pricingSource: https://guardrailsai.com/pro
+pricingCheckedAt: "2026-06-27"
+related: [nemo-guardrails, instructor]
+projects:
+  - folder: guardrails-ai_1
+    related: [litellm, openai]
+samples:
+  - version: "Python · validate output"
+    lang: python
+    diagram: |
+      flowchart LR
+        llm[LLM output] --> guard[Guard]
+        guard --> validators[validators]
+        guard --> ok[valid / fixed]
+    code: |
+      from guardrails import Guard, OnFailAction
+      from guardrails.hub import RegexMatch  # guardrails hub install hub://guardrails/regex_match
+
+      guard = Guard().use(
+          RegexMatch,
+          regex=r"\(?\d{3}\)?-? *\d{3}-? *-?\d{4}",
+          on_fail=OnFailAction.EXCEPTION,
+      )
+
+      outcome = guard.validate("123-456-7890")
+      print(outcome.validation_passed)  # -> True
+    description: |
+      ### When to use
+      Reach for Guardrails AI when an LLM's I/O must satisfy rules — no PII,
+      valid JSON, a known format — before it reaches users or downstream code.
+
+      ### How it flows
+      You compose Hub validators onto a `Guard`; `validate` checks the text and
+      either passes, fixes, or raises on failure.
+---
+
+## Overview
+
+Guardrails AI is a Python framework that validates and structures LLM input and output using composable validators pulled from the Guardrails Hub.  
+You build a `Guard` from one or more validators — PII, jailbreak, format, factuality — and it intercepts the model's text to pass, fix, or reject it.
+
+```mermaid
+flowchart LR
+  llm[LLM output] --> guard[Guard]
+  guard --> validators[validators]
+  guard --> ok[valid / fixed]
+```
+
+The **Code samples** tab shows building a Guard from a Hub validator and checking output.
+
+## When to use it
+
+Choose Guardrails AI when LLM I/O must obey concrete rules — strip PII, enforce
+a schema, block jailbreaks — and you want to mix and match ready-made validators
+from the Hub rather than hand-roll checks.

@@ -1,0 +1,70 @@
+---
+name: E2B
+logo: /logos/e2b.jpeg
+category: tool-sandbox
+description: Secure, isolated cloud sandboxes that let AI agents run model-generated code safely.
+website: https://e2b.dev
+repo: https://github.com/e2b-dev/E2B
+docs: https://e2b.dev/docs
+tags: [sandbox, code-execution, agent, python]
+language: Python
+license: Apache-2.0
+pricing: [open-source, free-tier, paid]
+pricingNote: "Open SDK, free to start. Hosted sandboxes are billed per second of running CPU, RAM, and storage."
+pricingTiers:
+  - { plan: "Hobby", price: "Free + usage", note: "$100 credits, 20 concurrent sandboxes, 1h sessions." }
+  - { plan: "Pro", price: "$150/mo + usage", note: "100 concurrent sandboxes, 24h sessions, custom CPU/RAM." }
+  - { plan: "Ultimate", price: "Custom", note: "Tailored rates and enterprise support." }
+pricingSource: https://e2b.dev/pricing
+pricingCheckedAt: "2026-06-27"
+related: [browser-use, openai-agents-sdk]
+samples:
+  - version: "Python · run code"
+    lang: python
+    diagram: |
+      flowchart LR
+        code[LLM code] --> e2b[E2B Sandbox]
+        e2b --> exec[(isolated VM)]
+        e2b --> out[stdout / results]
+    code: |
+      from e2b_code_interpreter import Sandbox
+
+      # Each sandbox is an isolated cloud VM that boots in milliseconds.
+      with Sandbox() as sbx:
+          execution = sbx.run_code("print('hello from a sandbox')")
+          print(execution.logs)
+
+          # State persists across calls within the same sandbox.
+          sbx.run_code("x = 21")
+          result = sbx.run_code("x * 2")
+          print(result.text)  # -> 42
+    description: |
+      ### When to use
+      Reach for E2B when an agent must execute untrusted, model-generated code
+      without risking the host.
+
+      ### How it flows
+      `run_code` ships the snippet to an isolated VM and returns logs, results,
+      and any errors.
+---
+
+## Overview
+
+E2B gives AI agents secure, isolated cloud sandboxes for running model-generated code.  
+Each sandbox is a fast-booting VM, so an agent can execute arbitrary Python, inspect the output, and keep state across calls without ever touching the host.
+
+```mermaid
+flowchart LR
+  code[LLM code] --> e2b[E2B Sandbox]
+  e2b --> exec[(isolated VM)]
+  e2b --> out[stdout / results]
+```
+
+The **Code samples** tab shows spinning up a sandbox and running code in it.
+
+## When to use it
+
+Choose E2B when an agent needs to run code it generated — data analysis, scripts,
+or tool calls — in a throwaway environment that is isolated from your
+infrastructure. The open SDK lets you start locally, and hosted sandboxes scale
+the same code in the cloud.

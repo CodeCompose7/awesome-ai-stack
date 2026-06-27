@@ -1,0 +1,68 @@
+---
+name: NeMo Guardrails
+category: guardrails
+description: LLM 앱을 위한 프로그래밍형 레일 — Colang 흐름으로 대화를 안전하고 주제·정책에 맞게 유지합니다.
+website: https://github.com/NVIDIA/NeMo-Guardrails
+repo: https://github.com/NVIDIA/NeMo-Guardrails
+docs: https://docs.nvidia.com/nemo/guardrails
+tags: [guardrails, safety, dialogue, python]
+language: Python
+license: Apache-2.0
+pricing: [open-source]
+pricingNote: "NVIDIA가 공개한 무료 오픈소스이며, 엔터프라이즈 NeMo 마이크로서비스 플랫폼은 별도 제품입니다."
+pricingSource: https://github.com/NVIDIA/NeMo-Guardrails
+pricingCheckedAt: "2026-06-27"
+related: [guardrails-ai]
+projects:
+  - folder: nemo-guardrails_1
+    related: [openai]
+samples:
+  - version: "Python · add rails"
+    lang: python
+    diagram: |
+      flowchart LR
+        user[user] --> rails[NeMo Guardrails]
+        rails --> policy[Colang rails]
+        rails --> llm[LLM]
+        llm --> safe[on-topic reply]
+    code: |
+      from nemoguardrails import LLMRails, RailsConfig
+
+      # Load config.yml + Colang flows from a directory.
+      config = RailsConfig.from_path("./config")
+      rails = LLMRails(config)
+
+      response = rails.generate(messages=[
+          {"role": "user", "content": "Tell me about your refund policy."},
+      ])
+      print(response["content"])
+    description: |
+      ### 언제 쓰나
+      LLM 앱이 주제와 정책을 벗어나지 않아야 할 때, 모델 앞뒤로 입력·대화·출력 레일을
+      적용하려면 NeMo Guardrails를 쓰세요.
+
+      ### 흐름
+      `RailsConfig`가 Colang 레일을 불러오고, `generate`가 사용자 턴을 레일과 LLM에
+      통과시켜 검증된 주제 내 응답을 돌려줍니다.
+---
+
+## 개요
+
+NeMo Guardrails는 LLM 기반 대화 앱에 프로그래밍형 가드레일을 더하는 오픈소스 툴킷입니다.  
+입력·대화·검색·출력 검사를 Colang으로 정의하면, 라이브러리가 모든 모델 호출 전후에 이를 적용해 응답이 안전하고 주제를 벗어나지 않게 유지합니다.
+
+```mermaid
+flowchart LR
+  user[user] --> rails[NeMo Guardrails]
+  rails --> policy[Colang rails]
+  rails --> llm[LLM]
+  llm --> safe[on-topic reply]
+```
+
+**코드 샘플** 탭에는 설정을 불러와 가드된 응답을 생성하는 예시가 있습니다.
+
+## 언제 쓰면 좋은가
+
+프롬프트 지시에만 기대지 않고 LLM 대화를 프로그래밍 가능하고 테스트 가능하게 제어해야
+할 때 — 주제를 벗어나거나 안전하지 않은 턴을 막고 대화 흐름을 유도하려면 —
+NeMo Guardrails를 선택하세요.

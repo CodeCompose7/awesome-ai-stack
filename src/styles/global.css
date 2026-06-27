@@ -459,3 +459,128 @@ summary {
 .prose :where(tbody tr:nth-child(even)) {
   background: color-mix(in srgb, var(--aas-panel) 45%, transparent);
 }
+
+/* ── Listing density: gallery (compact mini-cards) ───────────────────────────
+   Toggled by [data-view='gallery'] on <html> (persisted in localStorage). A
+   denser grid plus a stripped-down card — logo, name, stars, pricing, and a
+   short clamped description; the meta row and keyword tags are hidden. */
+:root[data-view='gallery'] [data-grid] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+@media (min-width: 640px) {
+  :root[data-view='gallery'] [data-grid] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  :root[data-view='gallery'] [data-grid] {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+/* A taller, refined portrait tile: an enlarged, blurred copy of the logo as an
+   ambient backdrop behind the header, then a short description and the stars +
+   open-source chip below. */
+:root[data-view='gallery'] [data-tool] {
+  flex-direction: column;
+  gap: 0;
+  padding: 1rem;
+  min-height: 12.5rem;
+  overflow: hidden; /* clip the scaled backdrop to the card's rounded corners */
+  isolation: isolate; /* contain the z-index:-1 backdrop within the card */
+}
+:root[data-view='gallery'] [data-card-head] {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+:root[data-view='gallery'] [data-card-head] h3 {
+  font-size: 1.0625rem;
+  font-weight: 700;
+}
+:root[data-view='gallery'] [data-card-meta],
+:root[data-view='gallery'] [data-card-tags] {
+  display: none;
+}
+:root[data-view='gallery'] [data-card-desc] {
+  margin-top: 0.7rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.75rem;
+  /* Fade via colour, not opacity — opacity would create a stacking context and
+     lift the description above the card's full-card link overlay. */
+  color: color-mix(in srgb, var(--aas-muted) 78%, transparent);
+}
+/* Footer: stars + open-source chip, just spaced below the content. The chips
+   drop their borders for a soft, tinted-pill look in this view. */
+:root[data-view='gallery'] [data-card-foot] {
+  flex-direction: row;
+  align-items: center;
+  margin-top: 0.85rem;
+}
+:root[data-view='gallery'] [data-card-foot] > span {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--aas-text) 6%, transparent);
+}
+/* The blurred-logo backdrop. Hidden outside the gallery view. Kept at z-index:-1
+   (behind the static content) so the name's full-card link overlay still covers
+   the description — clicking anywhere on the card navigates. */
+.aas-gallery-bg {
+  display: none;
+}
+:root[data-view='gallery'] .aas-gallery-bg {
+  display: block;
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 60%;
+  z-index: -1;
+  background-position: center 35%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  filter: blur(22px) saturate(1.25);
+  transform: scale(1.6);
+  opacity: 0.32;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 50%, transparent);
+  mask-image: linear-gradient(to bottom, #000 50%, transparent);
+  animation: aas-bg-drift 22s ease-in-out infinite;
+}
+/* A gentle, slow drift so the backdrop feels alive without distracting. */
+@keyframes aas-bg-drift {
+  0%,
+  100% {
+    transform: scale(1.55) translate(-1.5%, -1%);
+  }
+  50% {
+    transform: scale(1.72) translate(1.5%, 1%);
+  }
+}
+/* Stagger neighbouring cards so they don't all drift in lockstep. */
+:root[data-view='gallery'] [data-tool]:nth-child(3n + 2) .aas-gallery-bg {
+  animation-delay: -7s;
+}
+:root[data-view='gallery'] [data-tool]:nth-child(3n + 3) .aas-gallery-bg {
+  animation-delay: -14s;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-view='gallery'] .aas-gallery-bg {
+    animation: none;
+  }
+}
+
+/* Density toggle buttons (standard / gallery). */
+.aas-viewbtn:hover {
+  color: var(--aas-text);
+}
+.aas-viewbtn[aria-current='true'] {
+  background: var(--aas-tint);
+  color: var(--aas-text);
+}
+
+/* Gallery: among the pricing chips, keep only the open-source badge. */
+:root[data-view='gallery'] [data-tool] [data-pricing-tag]:not([data-pricing-tag='open-source']) {
+  display: none;
+}

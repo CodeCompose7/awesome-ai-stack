@@ -1,0 +1,68 @@
+---
+name: E2B
+logo: /logos/e2b.jpeg
+category: tool-sandbox
+description: AI 에이전트가 모델이 생성한 코드를 안전하게 실행하도록 격리된 클라우드 샌드박스를 제공합니다.
+website: https://e2b.dev
+repo: https://github.com/e2b-dev/E2B
+docs: https://e2b.dev/docs
+tags: [sandbox, code-execution, agent, python]
+language: Python
+license: Apache-2.0
+pricing: [open-source, free-tier, paid]
+pricingNote: "오픈 SDK는 무료로 시작할 수 있고, 호스팅 샌드박스는 실행 중인 CPU·RAM·스토리지를 초 단위로 과금합니다."
+pricingTiers:
+  - { plan: "Hobby", price: "무료 + 사용량", note: "크레딧 $100, 동시 샌드박스 20개, 세션 1시간." }
+  - { plan: "Pro", price: "$150/월 + 사용량", note: "동시 샌드박스 100개, 세션 24시간, CPU/RAM 커스텀." }
+  - { plan: "Ultimate", price: "맞춤형", note: "전용 요율과 엔터프라이즈 지원." }
+pricingSource: https://e2b.dev/pricing
+pricingCheckedAt: "2026-06-27"
+related: [browser-use, openai-agents-sdk]
+samples:
+  - version: "Python · run code"
+    lang: python
+    diagram: |
+      flowchart LR
+        code[LLM code] --> e2b[E2B Sandbox]
+        e2b --> exec[(isolated VM)]
+        e2b --> out[stdout / results]
+    code: |
+      from e2b_code_interpreter import Sandbox
+
+      # 각 샌드박스는 밀리초 단위로 부팅되는 격리된 클라우드 VM입니다.
+      with Sandbox() as sbx:
+          execution = sbx.run_code("print('hello from a sandbox')")
+          print(execution.logs)
+
+          # 같은 샌드박스 안에서는 상태가 호출 간에 유지됩니다.
+          sbx.run_code("x = 21")
+          result = sbx.run_code("x * 2")
+          print(result.text)  # -> 42
+    description: |
+      ### 언제 쓰나
+      에이전트가 모델이 생성한 신뢰할 수 없는 코드를 호스트 위험 없이 실행해야 할 때
+      E2B를 선택하세요.
+
+      ### 흐름
+      `run_code`가 코드 조각을 격리된 VM으로 보내고 로그·결과·오류를 돌려줍니다.
+---
+
+## 개요
+
+E2B는 AI 에이전트가 모델이 생성한 코드를 실행하도록 격리된 클라우드 샌드박스를 제공합니다.  
+각 샌드박스는 빠르게 부팅되는 VM이라, 에이전트는 임의의 파이썬을 실행하고 출력을 확인하며 호스트를 건드리지 않고도 호출 간에 상태를 유지할 수 있습니다.
+
+```mermaid
+flowchart LR
+  code[LLM code] --> e2b[E2B Sandbox]
+  e2b --> exec[(isolated VM)]
+  e2b --> out[stdout / results]
+```
+
+**코드 샘플** 탭에는 샌드박스를 띄우고 그 안에서 코드를 실행하는 예시가 있습니다.
+
+## 언제 쓰면 좋은가
+
+에이전트가 직접 생성한 코드 — 데이터 분석, 스크립트, 도구 호출 — 를 인프라와
+분리된 일회용 환경에서 실행해야 할 때 E2B가 잘 맞습니다. 오픈 SDK로 로컬에서
+시작하고, 호스팅 샌드박스로 같은 코드를 클라우드에서 확장할 수 있습니다.

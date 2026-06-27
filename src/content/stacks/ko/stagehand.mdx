@@ -1,0 +1,74 @@
+---
+name: Stagehand
+logo: /logos/stagehand.svg
+category: tool-browser
+description: AI 브라우저 자동화 프레임워크 — 자연어 act·extract·observe로 Playwright를 제어.
+website: https://stagehand.dev
+repo: https://github.com/browserbase/stagehand
+docs: https://docs.stagehand.dev
+tags: [browser, automation, playwright, typescript]
+language: TypeScript
+license: MIT
+pricing: [open-source, free-tier, paid]
+pricingNote: "오픈소스(MIT) 프레임워크라 로컬에서 무료로 돌릴 수 있고, 호스팅형 Browserbase 클라우드는 사용량 기반 요금으로 관리형 브라우저를 더해 줍니다."
+pricingTiers:
+  - { plan: "셀프호스트", price: "$0", note: "자체 Playwright에서 쓰는 MIT 프레임워크." }
+  - { plan: "Browserbase Free", price: "$0", note: "브라우저 1시간, 동시 3개." }
+  - { plan: "Browserbase Developer", price: "$20/월", note: "브라우저 100시간, 이후 시간당 $0.12." }
+  - { plan: "Browserbase Startup", price: "$99/월", note: "브라우저 500시간, 동시 100개." }
+pricingSource: https://www.browserbase.com/pricing
+pricingCheckedAt: "2026-06-27"
+related: [browser-use]
+samples:
+  - version: "TypeScript · act & extract"
+    lang: typescript
+    diagram: |
+      flowchart LR
+        nl[natural language] --> sh[Stagehand]
+        sh --> pw[Playwright]
+        pw --> page[(web page)]
+    code: |
+      import { Stagehand } from "@browserbasehq/stagehand";
+      import { z } from "zod";
+
+      const stagehand = new Stagehand({ env: "LOCAL" });
+      await stagehand.init();
+
+      const page = stagehand.page;
+      await page.goto("https://github.com/browserbase/stagehand");
+      await page.act("click the latest release link");
+
+      const { title } = await page.extract({
+        instruction: "extract the release title",
+        schema: z.object({ title: z.string() }),
+      });
+      console.log(title);
+    description: |
+      ### 언제 쓰나
+      Playwright 스크립트가 셀렉터 때문에 자꾸 깨질 때, 견고한 자연어 단계로
+      대체하고 싶다면 Stagehand가 제격입니다.
+
+      ### 흐름
+      `act`는 지시를 브라우저 동작으로 바꾸고, `extract`는 zod 스키마로 타입이
+      지정된 데이터를 다시 꺼내 줍니다.
+---
+
+## 개요
+
+Stagehand는 Browserbase가 만든 AI 브라우저 자동화 프레임워크로, Playwright 위에 `act`·`extract`·`observe`를 얹습니다.  
+단계를 자연어로 쓰면 Stagehand가 실제 브라우저 동작으로 풀어내며, 페이지가 바뀌어도 스스로 보정합니다.
+
+```mermaid
+flowchart LR
+  nl[natural language] --> sh[Stagehand]
+  sh --> pw[Playwright]
+  pw --> page[(web page)]
+```
+
+**코드 샘플** 탭에는 페이지를 조작하고 zod 스키마로 타입이 지정된 데이터를 추출하는 예시가 있습니다.
+
+## 언제 쓰면 좋은가
+
+깨지기 쉬운 CSS·XPath 셀렉터 때문에 스크래퍼와 에이전트가 자꾸 멈춘다면, 상황에
+맞춰 적응하는 자연어 단계를 원할 때 Stagehand를 고르세요. 로컬에서는 무료로
+돌리고, 관리형으로 확장이 필요하면 Browserbase 클라우드에서 실행하면 됩니다.

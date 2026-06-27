@@ -1,0 +1,70 @@
+---
+name: LiveKit Agents
+logo: /logos/livekit.webp
+category: voice-agents
+description: LiveKit WebRTC 스택 위에서 음성·영상·물리 AI 에이전트를 만드는 실시간 프레임워크입니다.
+website: https://livekit.io
+repo: https://github.com/livekit/agents
+docs: https://docs.livekit.io/agents/
+tags: [voice, webrtc, real-time, python]
+language: Python
+license: Apache-2.0
+pricingNote: "오픈소스 프레임워크라 무료로 셀프호스트할 수 있고, LiveKit Cloud는 사용량 기반 호스팅형 WebRTC 서비스입니다."
+pricing: [open-source, free-tier, paid]
+pricingTiers:
+  - { plan: "Build", price: "$0", note: "세션 1,000분·동시 5개." }
+  - { plan: "Ship", price: "$50/월부터", note: "세션 5,000분·커스텀 음성." }
+  - { plan: "Scale", price: "$500/월부터", note: "세션 5만 분·HIPAA." }
+  - { plan: "Enterprise", price: "문의", note: "볼륨 가격·SSO·SLA." }
+pricingSource: https://livekit.com/pricing
+pricingCheckedAt: "2026-06-27"
+related: [pipecat]
+samples:
+  - version: "Python · voice agent"
+    lang: python
+    diagram: |
+      flowchart LR
+        caller[caller] --> lk[LiveKit room]
+        lk --> agent[Agent: STT → LLM → TTS]
+        agent --> lk
+    code: |
+      from livekit import agents
+      from livekit.agents import AgentServer, AgentSession, Agent, inference
+
+      server = AgentServer()
+
+      @server.rtc_session(agent_name="my-agent")
+      async def entrypoint(ctx: agents.JobContext):
+          session = AgentSession(
+              stt=inference.STT(model="deepgram/nova-3"),
+              llm=inference.LLM(model="openai/chat-latest"),
+              tts=inference.TTS(model="cartesia/sonic-3"),
+          )
+          await session.start(room=ctx.room, agent=Agent())
+    description: |
+      ### 언제 쓰나
+      WebRTC로 동작하는 실시간 음성·영상 에이전트가 필요할 때 LiveKit Agents를
+      쓰세요.
+
+      ### 흐름
+      에이전트가 룸에 참가하고, `AgentSession`이 STT → LLM → TTS를 이어 붙여
+      발신자가 모델과 실시간으로 대화합니다.
+---
+
+## 개요
+
+LiveKit Agents는 LiveKit WebRTC 스택 위에서 음성·영상·물리 AI 에이전트를 만드는 실시간 프레임워크입니다.  
+`AgentSession`이 음성 인식, LLM, 음성 합성을 저지연 파이프라인으로 이어 붙이고, 턴 감지가 내장되어 있어 발신자가 끼어들며 자연스럽게 대화할 수 있습니다.
+
+```mermaid
+flowchart LR
+  caller[caller] --> lk[LiveKit room]
+  lk --> agent[Agent: STT → LLM → TTS]
+  agent --> lk
+```
+
+**코드 샘플** 탭에는 STT·LLM·TTS를 이어 붙인 최소 음성 에이전트 진입점 예시가 있습니다.
+
+## 언제 쓰면 좋은가
+
+턴 기반 텍스트 채팅이 아니라 WebRTC로 동작하는 실시간 음성·영상 대화 에이전트가 필요할 때 LiveKit Agents를 고르세요. 오픈소스 프레임워크를 직접 호스팅하거나, 글로벌 엣지 인프라가 관리되는 LiveKit Cloud에서 운영할 수 있습니다.

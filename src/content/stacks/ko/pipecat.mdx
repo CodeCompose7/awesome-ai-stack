@@ -1,0 +1,72 @@
+---
+name: Pipecat
+logo: /logos/pipecat.svg
+category: voice-agents
+description: 실시간 음성·멀티모달 대화형 에이전트를 위한 오픈소스 파이썬 프레임워크.
+website: https://www.pipecat.ai
+repo: https://github.com/pipecat-ai/pipecat
+docs: https://docs.pipecat.ai
+tags: [voice, real-time, multimodal, python]
+language: Python
+license: BSD-2-Clause
+pricing: [open-source, free-tier, paid]
+pricingNote: "오픈소스이며 직접 호스팅하면 무료다. Pipecat Cloud(Daily 제공)는 사용량 기반 호스팅 옵션이다."
+pricingTiers:
+  - { plan: "Self-host", price: "$0", note: "오픈소스 프레임워크를 직접 호스팅." }
+  - { plan: "Pipecat Cloud", price: "사용량 기반", note: "활성 에이전트 분당 $0.01부터(agent-1x), 예약 용량은 더 저렴." }
+  - { plan: "Enterprise", price: "맞춤형", note: "추론 비용 통합 청구, 예약 인스턴스, 지원." }
+pricingSource: https://www.daily.co/pricing/pipecat-cloud/
+pricingCheckedAt: "2026-06-27"
+related: [livekit-agents]
+samples:
+  - version: "Python · voice pipeline"
+    lang: python
+    diagram: |
+      flowchart LR
+        audio[mic audio] --> stt[STT]
+        stt --> llm[LLM]
+        llm --> tts[TTS]
+        tts --> out[speaker]
+    code: |
+      from pipecat.pipeline.pipeline import Pipeline
+      from pipecat.pipeline.task import PipelineTask
+      from pipecat.services.deepgram.stt import DeepgramSTTService
+      from pipecat.services.openai.llm import OpenAILLMService
+      from pipecat.services.cartesia.tts import CartesiaTTSService
+
+      stt = DeepgramSTTService(api_key=DEEPGRAM_KEY)
+      llm = OpenAILLMService(api_key=OPENAI_KEY)
+      tts = CartesiaTTSService(api_key=CARTESIA_KEY)
+
+      pipeline = Pipeline([
+          transport.input(), stt, llm, tts, transport.output(),
+      ])
+      task = PipelineTask(pipeline)
+    description: |
+      ### 언제 쓰나
+      낮은 지연으로 오디오를 입출력으로 스트리밍하는 실시간 음성 에이전트가
+      필요할 때 Pipecat을 선택한다.
+
+      ### 흐름
+      `Pipeline`이 transport, STT, LLM, TTS를 연결하고, 프레임이 그 사이를
+      흐르며 오디오를 전사·응답·재생한다.
+---
+
+## 개요
+
+Pipecat은 실시간 음성·멀티모달 대화형 에이전트를 만드는 오픈소스 파이썬 프레임워크다.  
+transport, 음성 인식(STT), LLM, 음성 합성(TTS)을 `Pipeline`에 연결하면 Pipecat이 오디오를 프레임으로 스트리밍해 왕복 지연을 낮게 유지한다.
+
+```mermaid
+flowchart LR
+  audio[mic audio] --> stt[STT]
+  stt --> llm[LLM]
+  llm --> tts[TTS]
+  tts --> out[speaker]
+```
+
+**코드 샘플** 탭에는 STT, LLM, TTS 서비스를 Pipecat 파이프라인으로 연결하는 예시가 있습니다.
+
+## 언제 쓰면 좋은가
+
+오디오를 실시간으로 스트리밍하면서 STT, LLM, TTS 제공자를 자유롭게 교체할 수 있는, 벤더 중립적이고 직접 호스팅 가능한 음성 에이전트가 필요하다면 Pipecat이 좋은 선택이다.

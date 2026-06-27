@@ -1,0 +1,76 @@
+---
+name: Composio
+logo: /logos/composio.png
+category: tool-integrations
+description: Connects agents to 1000+ external apps with managed auth and ready-made tool definitions.
+website: https://composio.dev
+repo: https://github.com/ComposioHQ/composio
+docs: https://docs.composio.dev
+tags: [tool-use, integrations, auth, agent]
+language: Python
+license: MIT
+pricing: [open-source, free-tier, paid]
+pricingNote: "The SDK is open source (MIT). The hosted platform handles auth and tool execution, billed per tool call."
+pricingTiers:
+  - { plan: "Totally Free", price: "$0", note: "20k tool calls/mo, community support." }
+  - { plan: "Ridiculously Cheap", price: "$29/mo", note: "200k tool calls/mo, then $0.299/1k." }
+  - { plan: "Serious Business", price: "$229/mo", note: "2M tool calls/mo, then $0.249/1k." }
+  - { plan: "Enterprise", price: "Custom", note: "SLA, SOC 2, VPC/on-prem." }
+pricingSource: https://composio.dev/pricing
+pricingCheckedAt: "2026-06-27"
+related: [langgraph, crewai]
+samples:
+  - version: "Python · use a tool"
+    lang: python
+    diagram: |
+      flowchart LR
+        agent[agent] --> composio[Composio]
+        composio --> apps[(Gmail · GitHub · Slack …)]
+    code: |
+      from composio import Composio
+      from composio_openai import OpenAIProvider
+      from openai import OpenAI
+
+      composio = Composio(provider=OpenAIProvider())
+      client = OpenAI()
+
+      # Fetch ready-made, auth-wired tool definitions for a user.
+      tools = composio.tools.get(user_id="alice", toolkits=["GITHUB"])
+
+      resp = client.chat.completions.create(
+          model="gpt-4o",
+          tools=tools,
+          messages=[{"role": "user", "content": "Star the ComposioHQ/composio repo."}],
+      )
+
+      # Composio runs whatever tool calls the model requested.
+      result = composio.provider.handle_tool_calls(user_id="alice", response=resp)
+      print(result)
+    description: |
+      ### When to use
+      Reach for Composio when an agent needs to act in real apps — email, GitHub,
+      Slack — without you hand-writing each integration or its OAuth flow.
+
+      ### How it flows
+      `tools.get` returns auth-wired tool schemas; the model picks calls and
+      `handle_tool_calls` executes them against the live app.
+---
+
+## Overview
+
+Composio is an integration layer that gives agents real tool access to 1000+ external apps.  
+It ships ready-made tool definitions and handles the managed auth, so the model can read Gmail, open GitHub issues, or post to Slack without bespoke glue code.
+
+```mermaid
+flowchart LR
+  agent[agent] --> composio[Composio]
+  composio --> apps[(Gmail · GitHub · Slack …)]
+```
+
+The **Code samples** tab shows fetching tools for a toolkit and letting an LLM call them.
+
+## When to use it
+
+Choose Composio when an agent must take actions in third-party services and you
+want managed OAuth plus tool schemas instead of building each connector yourself.
+It plugs into frameworks like LangGraph and CrewAI through provider adapters.

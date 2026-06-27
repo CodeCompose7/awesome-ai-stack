@@ -1,0 +1,71 @@
+---
+name: Tavily
+logo: /logos/tavily-mono.png
+category: tool-web
+description: LLM·에이전트를 위한 웹 검색 API — 한 번의 호출로 정제된 랭킹 결과를 RAG에 바로 넣을 수 있게 돌려줍니다.
+website: https://www.tavily.com
+repo: https://github.com/tavily-ai
+docs: https://docs.tavily.com
+tags: [search, web, rag, api]
+language: Python / TypeScript
+license: proprietary
+pricing: [free-tier, paid]
+pricingNote: "크레딧 기반으로, 모든 플랜에 월별 크레딧이 포함되고 초과분은 사용량 과금으로 붙습니다."
+pricingTiers:
+  - { plan: "Researcher", price: "$0", note: "월 API 크레딧 1,000개, 카드 불필요." }
+  - { plan: "Pay As You Go", price: "$0.008/크레딧", note: "무료 크레딧 소진 후 사용량 과금." }
+  - { plan: "Project", price: "월 $30부터", note: "월 크레딧 4,000개부터 확장." }
+  - { plan: "Enterprise", price: "문의", note: "맞춤 볼륨·레이트 리밋·지원." }
+pricingSource: https://www.tavily.com/pricing
+pricingCheckedAt: "2026-06-27"
+related: [firecrawl, exa, langgraph]
+samples:
+  - version: "Python · search"
+    lang: python
+    diagram: |
+      flowchart LR
+        q[query] --> tavily[Tavily]
+        tavily --> web[(web)]
+        tavily --> res[ranked results]
+    code: |
+      from tavily import TavilyClient
+
+      client = TavilyClient(api_key="tvly-YOUR_API_KEY")
+
+      response = client.search(
+          "latest research on retrieval-augmented generation",
+          search_depth="advanced",
+          max_results=5,
+      )
+
+      for r in response["results"]:
+          print(r["title"], "-", r["url"])
+    description: |
+      ### 언제 쓰나
+      에이전트나 RAG 파이프라인이 페이지를 직접 긁어 정제하지 않고도 최신
+      랭킹 웹 결과가 필요할 때 Tavily를 쓰세요.
+
+      ### 흐름
+      `search`가 실시간 웹을 조회해 점수가 매겨진 결과를 돌려주고,
+      `search_depth="advanced"`를 주면 크레딧 2개로 더 깊게 탐색합니다.
+---
+
+## 개요
+
+Tavily는 LLM·에이전트를 위한 웹 검색 API로, 한 번의 호출로 정제된 랭킹 결과를 RAG에 바로 넣을 수 있게 돌려줍니다.  
+원본 HTML을 파싱하는 대신, 점수가 매겨진 스니펫과 출처 URL을 받아 모델에 곧장 넣을 수 있습니다.
+
+```mermaid
+flowchart LR
+  q[query] --> tavily[Tavily]
+  tavily --> web[(web)]
+  tavily --> res[ranked results]
+```
+
+**코드 샘플** 탭에는 기본 검색으로 랭킹 결과를 받아 오는 예시가 있습니다.
+
+## 언제 쓰면 좋은가
+
+에이전트가 최소한의 배관만으로 실시간 웹 지식이 필요할 때 Tavily를 쓰세요.
+가져오기·랭킹·정제를 대신 처리해 주므로, 스크레이퍼와 파서를 직접 유지보수하는
+대신 크레딧을 쓰면 됩니다.

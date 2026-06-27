@@ -1,0 +1,72 @@
+---
+name: Pipecat
+logo: /logos/pipecat.svg
+category: voice-agents
+description: Open-source Python framework for real-time voice and multimodal conversational agents.
+website: https://www.pipecat.ai
+repo: https://github.com/pipecat-ai/pipecat
+docs: https://docs.pipecat.ai
+tags: [voice, real-time, multimodal, python]
+language: Python
+license: BSD-2-Clause
+pricing: [open-source, free-tier, paid]
+pricingNote: "Open source and free to self-host. Pipecat Cloud (by Daily) is the hosted, usage-based option."
+pricingTiers:
+  - { plan: "Self-host", price: "$0", note: "Run the open-source framework yourself." }
+  - { plan: "Pipecat Cloud", price: "Usage-based", note: "From $0.01/active agent-minute (agent-1x), reserved capacity cheaper." }
+  - { plan: "Enterprise", price: "Custom", note: "Bundled inference billing, reserved instances, support." }
+pricingSource: https://www.daily.co/pricing/pipecat-cloud/
+pricingCheckedAt: "2026-06-27"
+related: [livekit-agents]
+samples:
+  - version: "Python · voice pipeline"
+    lang: python
+    diagram: |
+      flowchart LR
+        audio[mic audio] --> stt[STT]
+        stt --> llm[LLM]
+        llm --> tts[TTS]
+        tts --> out[speaker]
+    code: |
+      from pipecat.pipeline.pipeline import Pipeline
+      from pipecat.pipeline.task import PipelineTask
+      from pipecat.services.deepgram.stt import DeepgramSTTService
+      from pipecat.services.openai.llm import OpenAILLMService
+      from pipecat.services.cartesia.tts import CartesiaTTSService
+
+      stt = DeepgramSTTService(api_key=DEEPGRAM_KEY)
+      llm = OpenAILLMService(api_key=OPENAI_KEY)
+      tts = CartesiaTTSService(api_key=CARTESIA_KEY)
+
+      pipeline = Pipeline([
+          transport.input(), stt, llm, tts, transport.output(),
+      ])
+      task = PipelineTask(pipeline)
+    description: |
+      ### When to use
+      Reach for Pipecat when you need a real-time voice agent that streams audio
+      in and out with low latency.
+
+      ### How it flows
+      A `Pipeline` chains a transport, STT, LLM, and TTS; frames stream through it
+      so audio is transcribed, answered, and spoken back.
+---
+
+## Overview
+
+Pipecat is an open-source Python framework for building real-time voice and multimodal conversational agents.  
+You wire a transport, speech-to-text, an LLM, and text-to-speech into a `Pipeline`, and Pipecat streams audio through it as frames so the full round-trip stays low-latency.
+
+```mermaid
+flowchart LR
+  audio[mic audio] --> stt[STT]
+  stt --> llm[LLM]
+  llm --> tts[TTS]
+  tts --> out[speaker]
+```
+
+The **Code samples** tab shows wiring an STT, LLM, and TTS service into a Pipecat pipeline.
+
+## When to use it
+
+Choose Pipecat when you need a vendor-neutral, self-hostable voice agent that streams audio in real time and lets you swap STT, LLM, and TTS providers freely.
