@@ -1,26 +1,54 @@
 ---
 // A "Pricing" section appended to the end of the Overview body (inside .prose),
-// matching the other body headings. Driven by the frontmatter pricing fields.
+// matching the other body headings. A short intro (`note`) sits above an
+// optional plan / price / note table. Driven by the frontmatter pricing fields.
 import { useTranslations, type Lang } from '../i18n/ui';
 
+interface Tier {
+  plan: string;
+  price: string;
+  note?: string;
+}
 interface Props {
   lang: Lang;
   note?: string;
+  tiers?: Tier[];
   source?: string;
   checkedAt?: string;
 }
-const { lang, note, source, checkedAt } = Astro.props;
+const { lang, note, tiers = [], source, checkedAt } = Astro.props;
 const t = useTranslations(lang);
+const hasTable = tiers.length > 0;
 ---
 
 {
-  note && (
+  (note || hasTable) && (
     <Fragment>
       <h2 id="pricing">
         <a class="aas-anchor" href="#pricing" aria-label="Copy link to section" />
         {t('detail.pricing')}
       </h2>
-      <p>{note}</p>
+      {note && <p>{note}</p>}
+      {hasTable && (
+        <table>
+          <thead>
+            <tr>
+              <th>{t('detail.plan')}</th>
+              <th>{t('detail.price')}</th>
+              <th>{t('detail.notes')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tiers.map((tier) => (
+              <tr>
+                <td>{tier.plan}</td>
+                <td>{tier.price}</td>
+                <td>{tier.note}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
       {(source || checkedAt) && (
         <p class="text-sm text-[var(--aas-muted)]">
           {source && (

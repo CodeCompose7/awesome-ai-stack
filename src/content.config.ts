@@ -35,7 +35,10 @@ const stacks = defineCollection({
     pricing: z.array(z.enum(['open-source', 'free-tier', 'paid', 'free'])).default([]),
     // Human-readable pricing summary shown on the detail page, with its source
     // and the date it was last checked. `pricingNote` is localized per file.
-    pricingNote: z.string().optional(),
+    pricingNote: z.string().optional(), // short intro shown above the tiers table
+    pricingTiers: z
+      .array(z.object({ plan: z.string(), price: z.string(), note: z.string().optional() }))
+      .default([]), // localized plan / price / note rows
     pricingSource: z.string().url().optional(),
     pricingCheckedAt: z.string().optional(), // YYYY-MM-DD
     deprecated: z.boolean().default(false), // maintenance-only / superseded

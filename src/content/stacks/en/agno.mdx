@@ -10,7 +10,11 @@ tags: [multi-agent, runtime, memory, python]
 language: Python
 license: Apache-2.0
 pricing: [open-source, free-tier, paid]
-pricingNote: "Open source (Apache-2.0). AgentOS cloud: Free, Pro $150/mo (4 seats; add-on $30/seat, $95/live connection), Enterprise (custom)."
+pricingNote: "Open source (Apache-2.0) and free to self-host. The hosted AgentOS Control Plane is paid per seat and live connection."
+pricingTiers:
+  - { plan: "Free", price: "$0", note: "Build agent systems; Control Plane for a local AgentOS." }
+  - { plan: "Pro", price: "$150/mo", note: "Live AgentOS Control Plane, 4 seats included (+$30/seat, +$95/live connection)." }
+  - { plan: "Enterprise", price: "Custom", note: "Dedicated support & SLA, SSO/RBAC, self-hosted Control Plane." }
 pricingSource: https://www.agno.com/pricing
 pricingCheckedAt: "2026-06-27"
 related: [crewai, langgraph]

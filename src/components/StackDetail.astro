@@ -184,6 +184,7 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
           <PricingSection
             lang={lang}
             note={data.pricingNote}
+            tiers={data.pricingTiers}
             source={data.pricingSource}
             checkedAt={data.pricingCheckedAt}
           />
@@ -205,6 +206,7 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
         <PricingSection
           lang={lang}
           note={data.pricingNote}
+          tiers={data.pricingTiers}
           source={data.pricingSource}
           checkedAt={data.pricingCheckedAt}
         />
