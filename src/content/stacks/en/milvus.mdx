@@ -1,0 +1,59 @@
+---
+name: Milvus
+category: vec-db
+description: Open-source vector database built for billion-scale similarity search.
+website: https://milvus.io
+repo: https://github.com/milvus-io/milvus
+docs: https://milvus.io/docs
+tags: [vector-db, embeddings, rag, go]
+language: Go
+license: Apache-2.0
+pricing: [open-source, free-tier, paid]
+related: [qdrant, weaviate, chroma]
+samples:
+  - version: "Python · Milvus Lite"
+    lang: python
+    diagram: |
+      flowchart LR
+        vecs[vectors] --> m[(Milvus)]
+        q[query vector] --> m
+        m --> top[top-k]
+    code: |
+      from pymilvus import MilvusClient
+
+      # Milvus Lite runs embedded from a local file — no server to start.
+      client = MilvusClient("demo.db")
+      client.create_collection("docs", dimension=4)
+      client.insert("docs", [{"id": 1, "vector": [0.1, 0.2, 0.3, 0.4], "text": "hello"}])
+
+      hits = client.search("docs", data=[[0.1, 0.2, 0.3, 0.4]], limit=1, output_fields=["text"])
+      print(hits[0][0]["entity"]["text"])
+    description: |
+      ### When to use
+      Use Milvus Lite to prototype locally with the same API you scale to a
+      clustered Milvus or Zilliz Cloud deployment.
+
+      ### How it flows
+      Create a collection with a dimension, insert vectors with fields, then
+      search by a query vector for the top-k.
+---
+
+## Overview
+
+Milvus is an open-source vector database designed for similarity search at massive scale, with a distributed architecture that handles billions of vectors.  
+It runs embedded (Milvus Lite), self-hosted, or as managed Zilliz Cloud — the same API across all three.
+
+```mermaid
+flowchart LR
+  vecs[vectors] --> m[(Milvus)]
+  q[query vector] --> m
+  m --> top[top-k]
+```
+
+The **Code samples** tab shows the embedded Milvus Lite flow.
+
+## When to use it
+
+Choose Milvus when you expect very large collections and need a battle-tested
+distributed vector store — prototype with Milvus Lite, then scale to a cluster
+or Zilliz Cloud without changing your code.

@@ -1,0 +1,60 @@
+---
+name: Weaviate
+category: vec-db
+description: Open-source vector database with hybrid search, filtering, and built-in vectorizers.
+website: https://weaviate.io
+repo: https://github.com/weaviate/weaviate
+docs: https://weaviate.io/developers/weaviate
+tags: [vector-db, embeddings, hybrid-search, go]
+language: Go
+license: BSD-3-Clause
+pricing: [open-source, free-tier, paid]
+related: [qdrant, chroma, milvus]
+samples:
+  - version: "Python · bring your own vectors"
+    lang: python
+    diagram: |
+      flowchart LR
+        obj[objects + vectors] --> w[(Weaviate)]
+        q[query vector] --> w
+        w --> top[nearest objects]
+    code: |
+      import weaviate
+      from weaviate.classes.config import Configure
+
+      client = weaviate.connect_to_local()  # or connect_to_weaviate_cloud(...)
+      client.collections.create("Docs", vectorizer_config=Configure.Vectorizer.none())
+      docs = client.collections.get("Docs")
+      docs.data.insert(properties={"text": "hello"}, vector=[0.1, 0.2, 0.3, 0.4])
+
+      res = docs.query.near_vector([0.1, 0.2, 0.3, 0.4], limit=1)
+      print(res.objects[0].properties["text"])
+      client.close()
+    description: |
+      ### When to use
+      Manage vectors yourself when embeddings come from elsewhere; or configure a
+      vectorizer module to have Weaviate embed for you.
+
+      ### How it flows
+      Create a collection, insert objects with vectors and properties, then query
+      by a vector for the nearest objects.
+---
+
+## Overview
+
+Weaviate is an open-source vector database with hybrid (vector + keyword) search, structured filtering, and optional vectorizer modules that embed your data for you.  
+It runs self-hosted with Docker or as managed Weaviate Cloud, and is a common retrieval layer for RAG and agents.
+
+```mermaid
+flowchart LR
+  obj[objects + vectors] --> w[(Weaviate)]
+  q[query vector] --> w
+  w --> top[nearest objects]
+```
+
+The **Code samples** tab shows a bring-your-own-vectors flow.
+
+## When to use it
+
+Choose Weaviate when you want hybrid search and rich filtering in one engine,
+with the option of built-in vectorizers — self-hosted or on Weaviate Cloud.

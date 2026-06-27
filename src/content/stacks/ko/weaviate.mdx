@@ -1,0 +1,60 @@
+---
+name: Weaviate
+category: vec-db
+description: 하이브리드 검색·필터링·내장 벡터라이저를 갖춘 오픈소스 벡터 데이터베이스.
+website: https://weaviate.io
+repo: https://github.com/weaviate/weaviate
+docs: https://weaviate.io/developers/weaviate
+tags: [vector-db, embeddings, hybrid-search, go]
+language: Go
+license: BSD-3-Clause
+pricing: [open-source, free-tier, paid]
+related: [qdrant, chroma, milvus]
+samples:
+  - version: "Python · bring your own vectors"
+    lang: python
+    diagram: |
+      flowchart LR
+        obj[objects + vectors] --> w[(Weaviate)]
+        q[query vector] --> w
+        w --> top[nearest objects]
+    code: |
+      import weaviate
+      from weaviate.classes.config import Configure
+
+      client = weaviate.connect_to_local()  # or connect_to_weaviate_cloud(...)
+      client.collections.create("Docs", vectorizer_config=Configure.Vectorizer.none())
+      docs = client.collections.get("Docs")
+      docs.data.insert(properties={"text": "hello"}, vector=[0.1, 0.2, 0.3, 0.4])
+
+      res = docs.query.near_vector([0.1, 0.2, 0.3, 0.4], limit=1)
+      print(res.objects[0].properties["text"])
+      client.close()
+    description: |
+      ### 언제 쓰나
+      임베딩이 다른 곳에서 올 때는 벡터를 직접 관리하고, 벡터라이저 모듈을 설정하면
+      Weaviate가 대신 임베딩하게 할 수도 있습니다.
+
+      ### 흐름
+      컬렉션을 만들고 벡터·속성과 함께 객체를 넣은 뒤, 질의 벡터로 최근접 객체를
+      검색합니다.
+---
+
+## 개요
+
+Weaviate는 하이브리드(벡터+키워드) 검색, 정형 필터링, 그리고 데이터를 대신 임베딩해주는 선택적 벡터라이저 모듈을 갖춘 오픈소스 벡터 데이터베이스입니다.  
+Docker로 셀프호스트하거나 매니지드 Weaviate Cloud로 운영하며, RAG와 에이전트의 검색 계층으로 흔히 쓰입니다.
+
+```mermaid
+flowchart LR
+  obj[objects + vectors] --> w[(Weaviate)]
+  q[query vector] --> w
+  w --> top[nearest objects]
+```
+
+**코드 샘플** 탭에서 벡터 직접 관리 흐름을 보여줍니다.
+
+## 언제 쓰면 좋은가
+
+하이브리드 검색과 풍부한 필터링을 한 엔진에서, 내장 벡터라이저 옵션과 함께 원할 때 —
+셀프호스트든 Weaviate Cloud든 Weaviate를 고르세요.
