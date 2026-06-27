@@ -486,7 +486,7 @@ summary {
   gap: 0;
   padding: 1rem;
   border-radius: 1.5rem;
-  border-width: 0.5px;
+  border-width: 0.1px;
   overflow: hidden; /* clip the scaled backdrop to the card's rounded corners */
   isolation: isolate; /* contain the z-index:-1 backdrop within the card */
 }
