@@ -1,0 +1,69 @@
+---
+name: LiveKit Agents
+category: voice-agents
+description: Realtime framework for voice, video, and physical AI agents on the LiveKit WebRTC stack.
+website: https://livekit.io
+repo: https://github.com/livekit/agents
+docs: https://docs.livekit.io/agents/
+tags: [voice, webrtc, real-time, python]
+language: Python
+license: Apache-2.0
+pricing: [open-source, free-tier, paid]
+pricingNote: "Open-source framework, free to self-host. LiveKit Cloud is the hosted, usage-based WebRTC offering."
+pricingTiers:
+  - { plan: "Build", price: "$0", note: "1,000 session min, 5 concurrent." }
+  - { plan: "Ship", price: "from $50/mo", note: "5,000 session min, custom voices." }
+  - { plan: "Scale", price: "from $500/mo", note: "50,000 session min, HIPAA." }
+  - { plan: "Enterprise", price: "Custom", note: "Volume pricing, SSO, SLA." }
+pricingSource: https://livekit.com/pricing
+pricingCheckedAt: "2026-06-27"
+related: [pipecat]
+samples:
+  - version: "Python · voice agent"
+    lang: python
+    diagram: |
+      flowchart LR
+        caller[caller] --> lk[LiveKit room]
+        lk --> agent[Agent: STT → LLM → TTS]
+        agent --> lk
+    code: |
+      from livekit import agents
+      from livekit.agents import AgentServer, AgentSession, Agent, inference
+
+      server = AgentServer()
+
+      @server.rtc_session(agent_name="my-agent")
+      async def entrypoint(ctx: agents.JobContext):
+          session = AgentSession(
+              stt=inference.STT(model="deepgram/nova-3"),
+              llm=inference.LLM(model="openai/chat-latest"),
+              tts=inference.TTS(model="cartesia/sonic-3"),
+          )
+          await session.start(room=ctx.room, agent=Agent())
+    description: |
+      ### When to use
+      Reach for LiveKit Agents when you need a real-time voice or video agent
+      running over WebRTC.
+
+      ### How it flows
+      The agent joins a room; `AgentSession` wires STT → LLM → TTS so callers
+      talk to the model live.
+---
+
+## Overview
+
+LiveKit Agents is a realtime framework for building voice, video, and physical AI agents on the LiveKit WebRTC stack.  
+An `AgentSession` strings speech-to-text, an LLM, and text-to-speech into a low-latency pipeline, with built-in turn detection so callers can interrupt and converse naturally.
+
+```mermaid
+flowchart LR
+  caller[caller] --> lk[LiveKit room]
+  lk --> agent[Agent: STT → LLM → TTS]
+  agent --> lk
+```
+
+The **Code samples** tab shows a minimal voice agent entrypoint wiring STT, an LLM, and TTS.
+
+## When to use it
+
+Choose LiveKit Agents when you want a real-time conversational voice or video agent over WebRTC, rather than turn-based text chat. Self-host the open-source framework, or run it on LiveKit Cloud for managed, global edge infrastructure.

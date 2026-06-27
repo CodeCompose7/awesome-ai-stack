@@ -1,0 +1,70 @@
+---
+name: Tavily
+category: tool-web
+description: Web search API built for LLMs and agents — returns clean, ranked, RAG-ready results from one call.
+website: https://www.tavily.com
+repo: https://github.com/tavily-ai
+docs: https://docs.tavily.com
+tags: [search, web, rag, api]
+language: Python / TypeScript
+license: proprietary
+pricing: [free-tier, paid]
+pricingNote: "Credit-based: every plan includes a monthly credit allowance, with pay-as-you-go on top."
+pricingTiers:
+  - { plan: "Researcher", price: "$0", note: "1,000 API credits / month, no card." }
+  - { plan: "Pay As You Go", price: "$0.008/credit", note: "Usage-based once free credits run out." }
+  - { plan: "Project", price: "from $30/mo", note: "4,000 credits / month, scales up." }
+  - { plan: "Enterprise", price: "Custom", note: "Custom volume, rate limits, support." }
+pricingSource: https://www.tavily.com/pricing
+pricingCheckedAt: "2026-06-27"
+related: [firecrawl, exa, langgraph]
+samples:
+  - version: "Python · search"
+    lang: python
+    diagram: |
+      flowchart LR
+        q[query] --> tavily[Tavily]
+        tavily --> web[(web)]
+        tavily --> res[ranked results]
+    code: |
+      from tavily import TavilyClient
+
+      client = TavilyClient(api_key="tvly-YOUR_API_KEY")
+
+      response = client.search(
+          "latest research on retrieval-augmented generation",
+          search_depth="advanced",
+          max_results=5,
+      )
+
+      for r in response["results"]:
+          print(r["title"], "-", r["url"])
+    description: |
+      ### When to use
+      Reach for Tavily when an agent or RAG pipeline needs fresh, ranked
+      web results without scraping and cleaning pages yourself.
+
+      ### How it flows
+      `search` queries the live web and returns scored results; pass
+      `search_depth="advanced"` for deeper coverage at 2 credits.
+---
+
+## Overview
+
+Tavily is a web search API built for LLMs and agents that returns clean, ranked, RAG-ready results from a single call.  
+Instead of parsing raw HTML, you get scored snippets and source URLs you can feed straight into a model.
+
+```mermaid
+flowchart LR
+  q[query] --> tavily[Tavily]
+  tavily --> web[(web)]
+  tavily --> res[ranked results]
+```
+
+The **Code samples** tab shows a basic search returning ranked results.
+
+## When to use it
+
+Choose Tavily when an agent needs live web knowledge with minimal plumbing.
+It handles fetching, ranking, and cleaning, so you spend credits instead of
+maintaining scrapers and parsers.

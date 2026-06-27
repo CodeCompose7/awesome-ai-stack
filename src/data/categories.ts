@@ -270,6 +270,92 @@ export const categories: Category[] = [
       },
     ],
   },
+  {
+    id: 'agent-tooling',
+    label: { en: 'Agent Tooling & Integrations', ko: '에이전트 도구·연동' },
+    description: {
+      en: 'Capabilities you plug into an agent — web access, browser control, sandboxes, and integration hubs.',
+      ko: '에이전트에 끼워 넣는 역량 — 웹 접근·브라우저 제어·샌드박스·통합 허브.',
+    },
+    detail: {
+      en: 'What an agent reaches for to act on the world: pull live web data, drive a browser, run code in a sandbox, or connect to hundreds of external tools. These sit beside the framework and give the agent hands.',
+      ko: '에이전트가 세상에 작용하기 위해 손에 쥐는 것들입니다. 실시간 웹 데이터를 가져오고, 브라우저를 조작하고, 샌드박스에서 코드를 실행하고, 수많은 외부 도구에 연결합니다. 프레임워크 옆에서 에이전트에 손발을 달아줍니다.',
+    },
+    children: [
+      {
+        id: 'tool-web',
+        label: { en: 'Web Search & Ingestion', ko: '웹 검색·수집' },
+        description: {
+          en: 'Search the web and turn pages into clean, LLM-ready data.',
+          ko: '웹을 검색하고 페이지를 LLM이 쓰기 좋은 데이터로 변환하는 도구.',
+        },
+        detail: {
+          en: 'Give an agent fresh knowledge from the open web — search APIs tuned for LLMs, and crawlers that return clean markdown or structured data instead of raw HTML.',
+          ko: '열린 웹에서 최신 지식을 에이전트에 공급합니다 — LLM에 맞춘 검색 API와, 원시 HTML 대신 깨끗한 마크다운·구조화 데이터를 돌려주는 크롤러입니다.',
+        },
+      },
+      {
+        id: 'tool-browser',
+        label: { en: 'Browser & Computer Use', ko: '브라우저·컴퓨터 사용' },
+        description: {
+          en: 'Let agents drive a real browser to click, type, and extract.',
+          ko: '에이전트가 실제 브라우저를 조작해 클릭·입력·추출하게 하는 도구.',
+        },
+        detail: {
+          en: 'For tasks that live behind a UI: these frameworks let an agent control a real browser — navigate, fill forms, and read the page — when there is no API to call.',
+          ko: 'UI 뒤에 있는 작업을 위한 것입니다. 호출할 API가 없을 때, 에이전트가 실제 브라우저를 제어해 이동하고 폼을 채우고 페이지를 읽도록 합니다.',
+        },
+      },
+      {
+        id: 'tool-sandbox',
+        label: { en: 'Code Sandboxes', ko: '코드 샌드박스' },
+        description: {
+          en: 'Run agent-generated code safely in isolated environments.',
+          ko: '에이전트가 생성한 코드를 격리 환경에서 안전하게 실행하는 도구.',
+        },
+        detail: {
+          en: 'Execute model-written code without risking your machine. Isolated, disposable runtimes spin up fast, run the code, and tear down — the safe hands behind a code-interpreter agent.',
+          ko: '모델이 작성한 코드를 내 머신을 위협하지 않고 실행합니다. 격리된 일회용 런타임이 빠르게 떠서 코드를 돌리고 사라집니다 — 코드 인터프리터 에이전트 뒤의 안전장치입니다.',
+        },
+      },
+      {
+        id: 'tool-integrations',
+        label: { en: 'Tool Integrations', ko: '도구 연동' },
+        description: {
+          en: 'Hubs that connect agents to hundreds of external apps and APIs.',
+          ko: '에이전트를 수백 개의 외부 앱·API에 연결하는 허브.',
+        },
+        detail: {
+          en: 'One layer that wires an agent into hundreds of SaaS apps and APIs — with managed auth and ready-made tool definitions — so you skip writing each integration by hand.',
+          ko: '에이전트를 수백 개의 SaaS 앱·API에 연결하는 단일 계층입니다. 인증 관리와 준비된 도구 정의를 제공해, 통합을 하나하나 직접 작성하지 않아도 됩니다.',
+        },
+      },
+    ],
+  },
+  {
+    id: 'guardrails',
+    label: { en: 'Guardrails & Safety', ko: '가드레일 & 안전' },
+    description: {
+      en: 'Validate, constrain, and steer model input and output at runtime.',
+      ko: '런타임에 모델 입출력을 검증·제약·유도하는 도구.',
+    },
+    detail: {
+      en: 'A safety layer around the model: enforce output schemas, block unsafe or off-topic content, and keep a conversation on the rails — checked as the agent runs, not after.',
+      ko: '모델을 감싸는 안전 계층입니다. 출력 스키마를 강제하고 안전하지 않거나 주제를 벗어난 내용을 막으며, 대화가 정해진 궤도를 벗어나지 않게 합니다 — 사후가 아니라 에이전트가 도는 동안 검사합니다.',
+    },
+  },
+  {
+    id: 'voice-agents',
+    label: { en: 'Voice Agents', ko: '음성 에이전트' },
+    description: {
+      en: 'Frameworks for real-time, conversational voice and multimodal agents.',
+      ko: '실시간 대화형 음성·멀티모달 에이전트를 위한 프레임워크.',
+    },
+    detail: {
+      en: 'Build agents you talk to. These frameworks wire up streaming speech-to-text, the LLM, and text-to-speech with low enough latency for natural back-and-forth — plus telephony and WebRTC transport.',
+      ko: '말을 거는 에이전트를 만듭니다. 스트리밍 STT·LLM·TTS를 자연스러운 대화가 가능한 낮은 지연으로 연결하고, 전화망과 WebRTC 전송까지 묶어 줍니다.',
+    },
+  },
 ];
 
 /** Top-level categories (homepage sections), in display order. */

@@ -1,0 +1,70 @@
+---
+name: Browser Use
+category: tool-browser
+description: Let an LLM agent drive a real browser — navigate, click, type, and extract from any website.
+website: https://browser-use.com
+repo: https://github.com/browser-use/browser-use
+docs: https://docs.browser-use.com
+tags: [browser, automation, agent, python]
+language: Python
+license: MIT
+pricing: [open-source, free-tier, paid]
+pricingNote: "Open source and free to self-host. Browser Use Cloud runs the agent on hosted, stealth browsers billed in credits."
+pricingTiers:
+  - { plan: "Free", price: "$0", note: "3 concurrent sessions, community support." }
+  - { plan: "Dev", price: "$29/mo", note: "$29 credits, 25 sessions, scheduled jobs." }
+  - { plan: "Business", price: "$299/mo", note: "$299 credits, 200 sessions." }
+  - { plan: "Scaleup", price: "$999/mo", note: "$999 credits, 500 sessions." }
+  - { plan: "Enterprise", price: "Contact", note: "Custom SLAs and limits." }
+pricingSource: https://browser-use.com/pricing
+pricingCheckedAt: "2026-06-27"
+related: [stagehand, e2b]
+samples:
+  - version: "Python · run a task"
+    lang: python
+    diagram: |
+      flowchart LR
+        task[task] --> agent[Browser Use Agent]
+        agent --> browser[(real browser)]
+        agent --> out[result]
+    code: |
+      from browser_use import Agent, ChatAnthropic
+      import asyncio
+
+      # The agent pairs with an LLM that decides each browser action.
+      async def main():
+          agent = Agent(
+              task="Find the number of stars on the browser-use repo",
+              llm=ChatAnthropic(model="claude-opus-4-8"),
+          )
+          history = await agent.run()
+          print(history.final_result())
+
+      if __name__ == "__main__":
+          asyncio.run(main())
+    description: |
+      ### When to use
+      Reach for Browser Use when an agent must operate a real site that has no API.
+
+      ### How it flows
+      You give a plain-English task; the LLM plans clicks and reads results back.
+---
+
+## Overview
+
+Browser Use lets an LLM agent drive a real browser to finish web tasks end to end.  
+You describe the goal in plain English, and the agent navigates, clicks, types, and extracts data from live pages.
+
+```mermaid
+flowchart LR
+  task[task] --> agent[Browser Use Agent]
+  agent --> browser[(real browser)]
+  agent --> out[result]
+```
+
+The **Code samples** tab shows running a task with an LLM-driven agent.
+
+## When to use it
+
+Choose Browser Use when an agent has to interact with a site that offers no clean API.
+It shines for scraping behind logins, filling forms, and multi-step flows a human would click through.

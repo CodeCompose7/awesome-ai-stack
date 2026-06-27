@@ -1,0 +1,67 @@
+---
+name: Firecrawl
+category: tool-web
+description: Crawl or scrape any URL and get back clean, LLM-ready markdown or structured data.
+website: https://www.firecrawl.dev
+repo: https://github.com/firecrawl/firecrawl
+docs: https://docs.firecrawl.dev
+tags: [scraping, crawling, markdown, web]
+language: TypeScript
+license: AGPL-3.0
+pricing: [open-source, free-tier, paid]
+pricingNote: "AGPL-3.0 core is free to self-host. Firecrawl Cloud is the credit-based hosted API."
+pricingTiers:
+  - { plan: "Free", price: "$0", note: "1,000 credits/mo to try it out." }
+  - { plan: "Hobby", price: "$16/mo", note: "5,000 credits, billed yearly." }
+  - { plan: "Standard", price: "$83/mo", note: "100,000 credits, higher concurrency." }
+  - { plan: "Growth", price: "$333/mo", note: "500,000 credits, priority support." }
+  - { plan: "Enterprise", price: "Custom", note: "SSO, SLA, zero data retention." }
+pricingSource: https://www.firecrawl.dev/pricing
+pricingCheckedAt: "2026-06-27"
+related: [tavily, exa, llamaindex]
+samples:
+  - version: "Python · scrape"
+    lang: python
+    diagram: |
+      flowchart LR
+        url[URL] --> fc[Firecrawl]
+        fc --> md[clean markdown]
+        md --> llm[LLM]
+    code: |
+      from firecrawl import Firecrawl
+
+      app = Firecrawl(api_key="fc-YOUR_API_KEY")
+
+      # Fetch one page and get back clean markdown.
+      doc = app.scrape("https://firecrawl.dev", formats=["markdown"])
+
+      print(doc.markdown)  # feed straight into an LLM
+    description: |
+      ### When to use
+      Reach for Firecrawl when an agent needs a web page as clean text instead
+      of raw, noisy HTML.
+
+      ### How it flows
+      `scrape` fetches the URL, strips boilerplate, and returns LLM-ready
+      markdown.
+---
+
+## Overview
+
+Firecrawl turns any URL or whole site into clean, LLM-ready markdown or structured data.  
+It handles fetching, rendering, and boilerplate removal, so an agent gets readable text instead of raw HTML.
+
+```mermaid
+flowchart LR
+  url[URL] --> fc[Firecrawl]
+  fc --> md[clean markdown]
+  md --> llm[LLM]
+```
+
+The **Code samples** tab shows scraping a single page into markdown.
+
+## When to use it
+
+Choose Firecrawl when you need web content as clean markdown for retrieval or
+prompting, and you would rather not write and maintain scraping and parsing code
+yourself.

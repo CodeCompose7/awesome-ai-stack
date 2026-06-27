@@ -1,0 +1,69 @@
+---
+name: Exa
+category: tool-web
+description: Neural web search API for agents — semantic search plus full page contents in one call.
+website: https://exa.ai
+repo: https://github.com/exa-labs/exa-py
+docs: https://exa.ai/docs
+tags: [search, web, embeddings, rag]
+language: Python / TypeScript
+license: proprietary
+pricing: [free-tier, paid]
+pricingNote: "Free tier covers 20k requests/month. Beyond that, billing is usage-based per request and per page."
+pricingTiers:
+  - { plan: "Free", price: "$0", note: "Up to 20k requests/month." }
+  - { plan: "Search", price: "$7 / 1k requests", note: "Up to 10 results; +$1 per extra result." }
+  - { plan: "Contents", price: "$1 / 1k pages", note: "Full page text and highlights." }
+  - { plan: "Enterprise", price: "Custom", note: "Volume discounts and support." }
+pricingSource: https://exa.ai/pricing
+pricingCheckedAt: "2026-06-27"
+related: [tavily, firecrawl]
+samples:
+  - version: "Python · search"
+    lang: python
+    diagram: |
+      flowchart LR
+        q[query] --> exa[Exa]
+        exa --> web[(web)]
+        exa --> res[results + contents]
+    code: |
+      from exa_py import Exa
+
+      exa = Exa(api_key="your-api-key")
+
+      result = exa.search(
+          "best open-source agent frameworks",
+          num_results=5,
+          contents={"text": {"maxCharacters": 2000}},
+      )
+
+      for item in result.results:
+          print(item.title, item.url)
+          print(item.text[:200])
+    description: |
+      ### When to use
+      Reach for Exa when an agent needs to find pages by meaning, not just
+      keywords, and wants the page text back in the same call.
+
+      ### How it flows
+      `search` runs a neural query over the web; passing `contents` returns the
+      page text alongside each ranked result.
+---
+
+## Overview
+
+Exa is a neural web search API built for agents and retrieval pipelines.  
+It ranks pages by embedding similarity rather than keyword overlap, and can return the full page text or highlights in the same request, so an agent gets searchable, ready-to-read context in one round trip.
+
+```mermaid
+flowchart LR
+  q[query] --> exa[Exa]
+  exa --> web[(web)]
+  exa --> res[results + contents]
+```
+
+The **Code samples** tab shows running a semantic search and pulling page contents in one call.
+
+## When to use it
+
+Choose Exa when an agent needs to discover relevant pages by meaning and feed their contents straight into a prompt or RAG step. It fits research, grounding, and freshness checks where keyword search misses the intent.

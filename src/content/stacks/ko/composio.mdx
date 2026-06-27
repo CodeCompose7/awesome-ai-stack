@@ -1,0 +1,75 @@
+---
+name: Composio
+category: tool-integrations
+description: 관리형 인증과 준비된 도구 정의로 에이전트를 1000개 이상의 외부 앱에 연결합니다.
+website: https://composio.dev
+repo: https://github.com/ComposioHQ/composio
+docs: https://docs.composio.dev
+tags: [tool-use, integrations, auth, agent]
+language: Python
+license: MIT
+pricing: [open-source, free-tier, paid]
+pricingNote: "SDK는 오픈 소스(MIT)다. 호스팅 플랫폼이 인증과 도구 실행을 처리하며 도구 호출 단위로 과금된다."
+pricingTiers:
+  - { plan: "Totally Free", price: "$0", note: "월 2만 회 도구 호출, 커뮤니티 지원." }
+  - { plan: "Ridiculously Cheap", price: "$29/월", note: "월 20만 회, 초과 시 1천 회당 $0.299." }
+  - { plan: "Serious Business", price: "$229/월", note: "월 200만 회, 초과 시 1천 회당 $0.249." }
+  - { plan: "Enterprise", price: "맞춤형", note: "SLA, SOC 2, VPC/온프레미스." }
+pricingSource: https://composio.dev/pricing
+pricingCheckedAt: "2026-06-27"
+related: [langgraph, crewai]
+samples:
+  - version: "Python · use a tool"
+    lang: python
+    diagram: |
+      flowchart LR
+        agent[agent] --> composio[Composio]
+        composio --> apps[(Gmail · GitHub · Slack …)]
+    code: |
+      from composio import Composio
+      from composio_openai import OpenAIProvider
+      from openai import OpenAI
+
+      composio = Composio(provider=OpenAIProvider())
+      client = OpenAI()
+
+      # 사용자에 맞춰 인증까지 연결된 도구 정의를 가져온다.
+      tools = composio.tools.get(user_id="alice", toolkits=["GITHUB"])
+
+      resp = client.chat.completions.create(
+          model="gpt-4o",
+          tools=tools,
+          messages=[{"role": "user", "content": "Star the ComposioHQ/composio repo."}],
+      )
+
+      # 모델이 요청한 도구 호출을 Composio가 실행한다.
+      result = composio.provider.handle_tool_calls(user_id="alice", response=resp)
+      print(result)
+    description: |
+      ### 언제 쓰나
+      이메일, GitHub, Slack 같은 실제 앱에서 에이전트가 작업해야 할 때, 각 연동과
+      OAuth 흐름을 직접 작성하지 않고 Composio를 쓴다.
+
+      ### 흐름
+      `tools.get`이 인증까지 연결된 도구 스키마를 돌려주고, 모델이 호출을 고르면
+      `handle_tool_calls`가 실제 앱에서 실행한다.
+---
+
+## 개요
+
+Composio는 에이전트에게 1000개 이상 외부 앱에 대한 실제 도구 접근을 제공하는 연동 계층이다.  
+준비된 도구 정의를 제공하고 관리형 인증을 처리하므로, 별도 연결 코드 없이도 모델이 Gmail을 읽고 GitHub 이슈를 열고 Slack에 글을 올릴 수 있다.
+
+```mermaid
+flowchart LR
+  agent[agent] --> composio[Composio]
+  composio --> apps[(Gmail · GitHub · Slack …)]
+```
+
+**코드 샘플** 탭에는 툴킷의 도구를 가져와 LLM이 호출하게 하는 예시가 있습니다.
+
+## 언제 쓰면 좋은가
+
+에이전트가 서드파티 서비스에서 작업을 수행해야 하고, 커넥터를 직접 만들기보다
+관리형 OAuth와 도구 스키마를 원할 때 Composio를 고르면 좋다. LangGraph, CrewAI
+같은 프레임워크에는 프로바이더 어댑터로 연결된다.

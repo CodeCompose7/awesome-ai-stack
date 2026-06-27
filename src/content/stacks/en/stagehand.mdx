@@ -1,0 +1,73 @@
+---
+name: Stagehand
+category: tool-browser
+description: AI browser-automation framework — drive Playwright with act, extract, and observe in natural language.
+website: https://stagehand.dev
+repo: https://github.com/browserbase/stagehand
+docs: https://docs.stagehand.dev
+tags: [browser, automation, playwright, typescript]
+language: TypeScript
+license: MIT
+pricing: [open-source, free-tier, paid]
+pricingNote: "Open-source (MIT) framework, free to run locally; the hosted Browserbase cloud adds managed browsers with usage-based pricing."
+pricingTiers:
+  - { plan: "Self-host", price: "$0", note: "MIT framework on your own Playwright." }
+  - { plan: "Browserbase Free", price: "$0", note: "1 browser hour, 3 concurrent browsers." }
+  - { plan: "Browserbase Developer", price: "$20/mo", note: "100 browser hours, then $0.12/hr." }
+  - { plan: "Browserbase Startup", price: "$99/mo", note: "500 browser hours, 100 concurrent." }
+pricingSource: https://www.browserbase.com/pricing
+pricingCheckedAt: "2026-06-27"
+related: [browser-use]
+samples:
+  - version: "TypeScript · act & extract"
+    lang: typescript
+    diagram: |
+      flowchart LR
+        nl[natural language] --> sh[Stagehand]
+        sh --> pw[Playwright]
+        pw --> page[(web page)]
+    code: |
+      import { Stagehand } from "@browserbasehq/stagehand";
+      import { z } from "zod";
+
+      const stagehand = new Stagehand({ env: "LOCAL" });
+      await stagehand.init();
+
+      const page = stagehand.page;
+      await page.goto("https://github.com/browserbase/stagehand");
+      await page.act("click the latest release link");
+
+      const { title } = await page.extract({
+        instruction: "extract the release title",
+        schema: z.object({ title: z.string() }),
+      });
+      console.log(title);
+    description: |
+      ### When to use
+      Reach for Stagehand when a Playwright script keeps breaking on selectors
+      and you want resilient, natural-language steps instead.
+
+      ### How it flows
+      `act` turns instructions into browser actions; `extract` pulls typed data
+      back out via a zod schema.
+---
+
+## Overview
+
+Stagehand is an AI browser-automation framework from Browserbase that layers `act`, `extract`, and `observe` on top of Playwright.  
+You write steps in natural language, and Stagehand resolves them to real browser actions that self-heal when a page changes.
+
+```mermaid
+flowchart LR
+  nl[natural language] --> sh[Stagehand]
+  sh --> pw[Playwright]
+  pw --> page[(web page)]
+```
+
+The **Code samples** tab shows acting on a page and extracting typed data with a zod schema.
+
+## When to use it
+
+Choose Stagehand when brittle CSS or XPath selectors keep breaking your scrapers
+and agents, and you want natural-language steps that adapt. Run it locally for
+free, or on the Browserbase cloud for managed, scalable browsers.

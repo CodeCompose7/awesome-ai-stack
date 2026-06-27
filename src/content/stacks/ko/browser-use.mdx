@@ -1,0 +1,70 @@
+---
+name: Browser Use
+category: tool-browser
+description: LLM 에이전트가 실제 브라우저를 직접 조작 — 페이지를 이동하고 클릭·입력하며 데이터를 추출합니다.
+website: https://browser-use.com
+repo: https://github.com/browser-use/browser-use
+docs: https://docs.browser-use.com
+tags: [browser, automation, agent, python]
+language: Python
+license: MIT
+pricing: [open-source, free-tier, paid]
+pricingNote: "오픈소스라 무료로 셀프호스트할 수 있고, Browser Use Cloud는 호스팅형 스텔스 브라우저에서 에이전트를 크레딧 단위로 과금합니다."
+pricingTiers:
+  - { plan: "Free", price: "$0", note: "동시 세션 3개, 커뮤니티 지원." }
+  - { plan: "Dev", price: "$29/월", note: "크레딧 $29, 세션 25개, 예약 작업." }
+  - { plan: "Business", price: "$299/월", note: "크레딧 $299, 세션 200개." }
+  - { plan: "Scaleup", price: "$999/월", note: "크레딧 $999, 세션 500개." }
+  - { plan: "Enterprise", price: "문의", note: "맞춤형 SLA와 한도." }
+pricingSource: https://browser-use.com/pricing
+pricingCheckedAt: "2026-06-27"
+related: [stagehand, e2b]
+samples:
+  - version: "Python · run a task"
+    lang: python
+    diagram: |
+      flowchart LR
+        task[task] --> agent[Browser Use Agent]
+        agent --> browser[(real browser)]
+        agent --> out[result]
+    code: |
+      from browser_use import Agent, ChatAnthropic
+      import asyncio
+
+      # 에이전트는 매 브라우저 동작을 결정하는 LLM과 짝을 이룹니다.
+      async def main():
+          agent = Agent(
+              task="Find the number of stars on the browser-use repo",
+              llm=ChatAnthropic(model="claude-opus-4-8"),
+          )
+          history = await agent.run()
+          print(history.final_result())
+
+      if __name__ == "__main__":
+          asyncio.run(main())
+    description: |
+      ### 언제 쓰나
+      API가 없는 실제 사이트를 에이전트가 직접 다뤄야 할 때 Browser Use를 쓰세요.
+
+      ### 흐름
+      평범한 한 문장으로 작업을 주면 LLM이 클릭을 계획하고 결과를 읽어 돌려줍니다.
+---
+
+## 개요
+
+Browser Use는 LLM 에이전트가 실제 브라우저를 조작해 웹 작업을 처음부터 끝까지 처리하게 합니다.  
+목표를 평범한 문장으로 적으면 에이전트가 페이지를 이동하고 클릭·입력하며 살아 있는 페이지에서 데이터를 뽑아냅니다.
+
+```mermaid
+flowchart LR
+  task[task] --> agent[Browser Use Agent]
+  agent --> browser[(real browser)]
+  agent --> out[result]
+```
+
+**코드 샘플** 탭에는 LLM 기반 에이전트로 작업을 실행하는 예시가 있습니다.
+
+## 언제 쓰면 좋은가
+
+깔끔한 API가 없는 사이트를 에이전트가 직접 다뤄야 할 때 Browser Use가 잘 맞습니다.
+로그인 뒤 스크래핑, 폼 작성, 사람이 클릭으로 거쳐야 하는 여러 단계 흐름에서 특히 빛납니다.
