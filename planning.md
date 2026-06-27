@@ -8,23 +8,27 @@ AI 에이전트 생태계에서 카탈로그(`src/content/stacks`)에 추가할 
 - 기존 형식 준수 — frontmatter(`name`·`logo`·`category`·`description`·`website`·
   `repo`·`docs`·`tags`·`language`·`license`·`pricing`·`related`·`samples`) + 본문(개요 +
   코드 샘플 탭 + 언제 쓰면 좋은가), `en`/`ko` 한 쌍.
-- 카테고리는 `src/data/categories.ts`의 5개(`frameworks`·`coding-agents`·
-  `llm-providers`·`vector-stores`·`observability`) 중에서. 새 영역은 거기에 항목을 먼저 추가.
+- 카테고리는 `src/data/categories.ts`의 트리 — 상위 5개(`frameworks`·
+  `coding-agents`·`llm-providers`·`vector-stores`·`observability`)와 그 아래 서브카테고리
+  — 중 가장 구체적인 노드로. 새 영역·서브카테고리는 거기에 항목을 먼저 추가.
 - 로고는 `public/logos`에 파일을 넣고 frontmatter `logo`로 연결. 단색 로고는 `-mono`
   접미사로 다크 테마에 대응.
 - 가능하면 LiteLLM-first + 실행 가능한 Docker 샘플(`samples/<slug>_1`)도 함께.
 
-## 이번에 추가 (기존 카테고리에 들어맞음)
+## 추가 완료 (카탈로그 반영 — v1.3.0)
 
-| 도구 | 카테고리 | 한 줄 | 출처 |
+아래 7종은 카탈로그(`src/content/stacks`)에 한/영 한 쌍으로 추가됐다. Aider를 제외한
+6종은 실행 가능한 Docker 샘플(`samples/<slug>_1`)도 포함한다.
+
+| 도구 | 카테고리 · 서브카테고리 | 슬러그 | 구현 샘플 |
 | --- | --- | --- | --- |
-| CrewAI | frameworks | 역할 기반 멀티에이전트 오케스트레이션 | <https://github.com/crewAIInc/crewAI> |
-| Pydantic AI | frameworks | 타입 안전 에이전트(Pydantic 팀) | <https://github.com/pydantic/pydantic-ai> |
-| Aider | coding-agents | 터미널 git-native 페어프로그래머 | <https://github.com/Aider-AI/aider> |
-| OpenRouter | llm-providers | 300+ 모델 통합 게이트웨이 | <https://openrouter.ai> |
-| Qdrant | vector-stores | 오픈소스 벡터 DB | <https://github.com/qdrant/qdrant> |
-| Mem0 | vector-stores | 에이전트 메모리 레이어 | <https://github.com/mem0ai/mem0> |
-| Arize Phoenix | observability | OSS LLM·에이전트 트레이싱·평가 | <https://github.com/Arize-ai/phoenix> |
+| CrewAI | frameworks · 멀티 에이전트 오케스트레이션 | `crewai` | `samples/crewai_1` |
+| Pydantic AI | frameworks · 구조화 출력 & 타입 | `pydantic-ai` | `samples/pydantic-ai_1` |
+| Aider | coding-agents · 터미널 & CLI | `aider` | — |
+| OpenRouter | llm-providers · 게이트웨이 & 라우터 | `openrouter` | `samples/openrouter_1` |
+| Qdrant | vector-stores · 벡터 데이터베이스 | `qdrant` | `samples/qdrant_1` |
+| Mem0 | vector-stores · 에이전트 메모리 | `mem0` | `samples/mem0_1` |
+| Arize Phoenix | observability | `arize-phoenix` | `samples/arize-phoenix_1` |
 
 ## 추후 추가 — 기존 카테고리 보강
 
