@@ -525,6 +525,22 @@ summary {
   border-color: transparent;
   background: color-mix(in srgb, var(--aas-text) 6%, transparent);
 }
+/* The open-source chip becomes an icon, pinned to the right edge; its text label
+   (which wraps awkwardly in a narrow tile) is swapped out. */
+.aas-oss-icon {
+  display: none;
+}
+:root[data-view='gallery'] [data-card-foot] [data-pricing-tag='open-source'] {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+}
+:root[data-view='gallery'] [data-card-foot] [data-pricing-tag='open-source'] [data-chip-label] {
+  display: none;
+}
+:root[data-view='gallery'] [data-card-foot] [data-pricing-tag='open-source'] .aas-oss-icon {
+  display: block;
+}
 /* The blurred-logo backdrop. Hidden outside the gallery view. Kept at z-index:-1
    (behind the static content) so the name's full-card link overlay still covers
    the description — clicking anywhere on the card navigates. */
