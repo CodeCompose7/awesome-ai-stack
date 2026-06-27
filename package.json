@@ -1,7 +1,7 @@
 {
   "name": "awesome-agent-stack",
   "type": "module",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "private": true,
   "packageManager": "pnpm@11.7.0",
   "engines": {

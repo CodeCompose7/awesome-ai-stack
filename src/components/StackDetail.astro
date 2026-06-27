@@ -8,6 +8,7 @@ import { getArticlesForTool, articleSlugOf } from '../lib/articles';
 import ToolAvatar from './ToolAvatar.astro';
 import ToolMeta from './ToolMeta.astro';
 import Breadcrumb from './Breadcrumb.astro';
+import PricingSection from './PricingSection.astro';
 import DetailTabs from './DetailTabs.astro';
 import CodeSamples from './CodeSamples.astro';
 import MermaidLoader from './MermaidLoader.astro';
@@ -71,7 +72,8 @@ const projects = projectSpecs.length
   ? await renderProjects(projectSpecs.map((p) => p.folder), lang)
   : [];
 const hasProject = projects.length > 0;
-const hasTabs = hasSamples || hasProject;
+const hasPricing = Boolean(data.pricingNote || data.pricingTiers.length);
+const hasTabs = hasSamples || hasProject || hasPricing;
 
 // Resolve each project's related tool slugs against the stacks collection. A
 // known slug links to its page; an unknown one shows as "not in our catalog".
@@ -160,6 +162,7 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
       </div>
     )
   }
+
 </header>
 
 <RelatedTools lang={lang} slugs={data.related} />
@@ -170,12 +173,24 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
     hasTabs ? (
       <DetailTabs
         overviewLabel={t('tab.overview')}
+        pricingLabel={hasPricing ? t('tab.pricing') : undefined}
         codeLabel={hasSamples ? t('tab.code') : undefined}
         implLabel={hasProject ? t('tab.impl') : undefined}
       >
         <article slot="overview" class="prose max-w-none">
           <Content />
         </article>
+        {hasPricing && (
+          <article slot="pricing" class="prose max-w-none">
+            <PricingSection
+              lang={lang}
+              note={data.pricingNote}
+              tiers={data.pricingTiers}
+              source={data.pricingSource}
+              checkedAt={data.pricingCheckedAt}
+            />
+          </article>
+        )}
         {hasSamples && (
           <div slot="code">
             <CodeSamples samples={renderedSamples} lang={lang} />

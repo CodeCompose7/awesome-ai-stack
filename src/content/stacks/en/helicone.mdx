@@ -10,6 +10,14 @@ tags: [observability, proxy, logging, typescript]
 language: TypeScript
 license: Apache-2.0
 pricing: [open-source, free-tier, paid]
+pricingNote: "Open source, free to self-host. Helicone Cloud is the managed gateway and observability service."
+pricingTiers:
+  - { plan: "Hobby", price: "$0", note: "10k requests/mo." }
+  - { plan: "Pro", price: "$79/mo", note: "Higher limits, team." }
+  - { plan: "Team", price: "$799/mo", note: "Scale, support." }
+  - { plan: "Enterprise", price: "Custom", note: "SSO, SLA, dedicated." }
+pricingSource: https://www.helicone.ai/pricing
+pricingCheckedAt: "2026-06-27"
 related: [langfuse, langsmith, litellm]
 samples:
   - version: "Python · proxy the OpenAI SDK"
