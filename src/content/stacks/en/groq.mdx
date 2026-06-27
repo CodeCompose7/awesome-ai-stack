@@ -9,7 +9,10 @@ tags: [llm, inference, fast, api]
 language: API
 license: proprietary
 pricing: [free-tier, paid]
-pricingNote: "Free developer tier (rate-limited, no card). Paid is pay-as-you-go per token, e.g. Llama 3.3 70B ~$0.59 in / $0.79 out per M tokens."
+pricingNote: "Free developer tier (rate-limited, no card). Paid is pay-as-you-go per token. Prices per million tokens (input / output)."
+pricingTiers:
+  - { plan: "Developer (free)", price: "$0", note: "Rate-limited, no card." }
+  - { plan: "Llama 3.3 70B", price: "$0.59 / $0.79", note: "Example paid rate." }
 pricingSource: https://groq.com/pricing
 pricingCheckedAt: "2026-06-27"
 related: [litellm, openrouter, ollama]

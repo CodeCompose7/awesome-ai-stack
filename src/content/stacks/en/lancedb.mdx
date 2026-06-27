@@ -10,7 +10,10 @@ tags: [vector-db, embeddings, embedded, rust]
 language: Rust / Python
 license: Apache-2.0
 pricing: [open-source, free-tier, paid]
-pricingNote: "Open source (Apache-2.0, free to self-host). LanceDB Cloud: free usage-based tier, Enterprise (annual, custom)."
+pricingNote: "Open source (Apache-2.0), free to self-host. LanceDB Cloud is usage-based."
+pricingTiers:
+  - { plan: "Cloud (free)", price: "$0", note: "Usage-based free tier." }
+  - { plan: "Enterprise", price: "Custom", note: "Annual, dedicated." }
 pricingSource: https://lancedb.com/pricing
 pricingCheckedAt: "2026-06-27"
 related: [chroma, qdrant, pgvector]

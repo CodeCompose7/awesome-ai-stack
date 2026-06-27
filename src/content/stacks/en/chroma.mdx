@@ -10,7 +10,10 @@ tags: [vector-db, embeddings, rag, python]
 language: Python
 license: Apache-2.0
 pricing: [open-source, free-tier, paid]
-pricingNote: "Open source (Apache-2.0, free to self-host). Chroma Cloud: free tier (1M embeddings, $5 credits), then usage-based."
+pricingNote: "Open source (Apache-2.0), free to self-host. Chroma Cloud is usage-based."
+pricingTiers:
+  - { plan: "Free", price: "$0", note: "1M embeddings, $5 credits." }
+  - { plan: "Cloud (usage)", price: "Usage-based", note: "Pay for storage and queries." }
 pricingSource: https://www.trychroma.com/pricing
 pricingCheckedAt: "2026-06-27"
 related: [sentence-transformers, pgvector]

@@ -10,7 +10,11 @@ tags: [vector-db, embeddings, rag, rust]
 language: Rust
 license: Apache-2.0
 pricing: [open-source, free-tier, paid]
-pricingNote: "Open source (Apache-2.0, free to self-host). Qdrant Cloud: permanent free tier (1GB), Standard clusters ~$30–200/mo (resource-based), Premium."
+pricingNote: "Open source (Apache-2.0), free to self-host. Qdrant Cloud is resource-based."
+pricingTiers:
+  - { plan: "Free", price: "$0", note: "1GB cluster, permanent." }
+  - { plan: "Standard", price: "~$30–200/mo", note: "Resource-based clusters." }
+  - { plan: "Premium", price: "Custom", note: "HA, SSO, support." }
 pricingSource: https://qdrant.tech/pricing/
 pricingCheckedAt: "2026-06-27"
 related: [chroma, pgvector, sentence-transformers]

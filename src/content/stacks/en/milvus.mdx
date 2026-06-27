@@ -10,7 +10,11 @@ tags: [vector-db, embeddings, rag, go]
 language: Go
 license: Apache-2.0
 pricing: [open-source, free-tier, paid]
-pricingNote: "Open source (Apache-2.0, free to self-host). Managed Zilliz Cloud: free tier (5GB), Serverless pay-per-use, Dedicated from $99/mo."
+pricingNote: "Open source (Apache-2.0), free to self-host. Managed Zilliz Cloud adds serverless and dedicated options."
+pricingTiers:
+  - { plan: "Free", price: "$0", note: "5GB, managed." }
+  - { plan: "Serverless", price: "Pay-per-use", note: "Scales to zero." }
+  - { plan: "Dedicated", price: "from $99/mo", note: "Reserved clusters." }
 pricingSource: https://zilliz.com/pricing
 pricingCheckedAt: "2026-06-27"
 related: [qdrant, weaviate, chroma]

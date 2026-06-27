@@ -9,7 +9,11 @@ tags: [tracing, eval, monitoring, prompts]
 language: SaaS / SDK
 license: proprietary
 pricing: [free-tier, paid]
-pricingNote: "Developer free (1 seat, 5k traces/mo). Plus $39/seat/mo (10k traces), Enterprise (custom). Not open source."
+pricingNote: "Not open source — hosted only, with a free developer seat."
+pricingTiers:
+  - { plan: "Developer", price: "$0", note: "1 seat, 5k traces/mo." }
+  - { plan: "Plus", price: "$39/seat/mo", note: "10k traces, team." }
+  - { plan: "Enterprise", price: "Custom", note: "SSO, SLA, self-host." }
 pricingSource: https://www.langchain.com/pricing
 pricingCheckedAt: "2026-06-27"
 projects:

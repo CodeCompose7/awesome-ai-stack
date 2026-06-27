@@ -10,7 +10,11 @@ tags: [observability, tracing, evaluation, python]
 language: Python
 license: Apache-2.0
 pricing: [open-source, free-tier, paid]
-pricingNote: "오픈소스라 무료로 셀프호스트. Opik Cloud는 Hobby 무료(월 5만 유닛)·Pro $39/사용자·월·Enterprise 맞춤형."
+pricingNote: "오픈소스라 무료로 셀프호스트할 수 있고, Opik Cloud는 관리형 서비스입니다."
+pricingTiers:
+  - { plan: "Hobby", price: "$0", note: "월 5만 유닛." }
+  - { plan: "Pro", price: "$39/사용자·월", note: "상향 한도·팀." }
+  - { plan: "Enterprise", price: "문의", note: "SSO·SLA·지원." }
 pricingSource: https://www.comet.com/site/pricing/
 pricingCheckedAt: "2026-06-27"
 related: [langfuse, arize-phoenix]

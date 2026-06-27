@@ -10,7 +10,12 @@ tags: [rag, retrieval, indexing, python]
 language: Python
 license: MIT
 pricing: [open-source, free-tier, paid]
-pricingNote: "Open-source framework (free). LlamaCloud: Free (10k credits/mo), Starter $50/mo, Pro $500/mo, Enterprise (custom)."
+pricingNote: "Open-source framework, free to use. LlamaCloud is the managed parsing and indexing service."
+pricingTiers:
+  - { plan: "Free", price: "$0", note: "10k credits/mo." }
+  - { plan: "Starter", price: "$50/mo", note: "Higher credits, more connectors." }
+  - { plan: "Pro", price: "$500/mo", note: "Team features, larger volume." }
+  - { plan: "Enterprise", price: "Custom", note: "SSO, SLA, self-hosting." }
 pricingSource: https://www.llamaindex.ai/pricing
 pricingCheckedAt: "2026-06-27"
 related: [langgraph, qdrant, chroma]

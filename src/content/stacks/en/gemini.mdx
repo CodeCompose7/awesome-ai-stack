@@ -9,7 +9,11 @@ tags: [llm, multimodal, long-context, free-tier]
 language: API
 license: proprietary
 pricing: [free-tier, paid]
-pricingNote: "Free tier on Flash / Flash-Lite (rate-limited, no card). Paid per token, e.g. Gemini 2.5 Pro $1.25 in / $10 out, Flash-Lite $0.10 / $0.40 per M tokens."
+pricingNote: "Free tier on Flash / Flash-Lite (rate-limited, no card). Paid prices per million tokens (input / output)."
+pricingTiers:
+  - { plan: "Flash-Lite (free)", price: "$0", note: "Rate-limited, no card." }
+  - { plan: "Gemini 2.5 Flash-Lite", price: "$0.10 / $0.40", note: "Cheapest paid tier." }
+  - { plan: "Gemini 2.5 Pro", price: "$1.25 / $10", note: "Most capable." }
 pricingSource: https://ai.google.dev/gemini-api/docs/pricing
 pricingCheckedAt: "2026-06-27"
 related: [litellm]

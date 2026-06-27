@@ -9,7 +9,10 @@ tags: [llm, open-weights, api, europe]
 language: API
 license: proprietary
 pricing: [free-tier, paid]
-pricingNote: "La Plateforme에 무료 Experiment 티어가 있습니다. 유료는 토큰 단위 종량제로 모델에 따라 대략 M 토큰당 $0.04~$6."
+pricingNote: "La Plateforme에 무료 Experiment 티어가 있고, 유료는 토큰 종량제로 모델에 따라 요금이 다릅니다."
+pricingTiers:
+  - { plan: "Experiment", price: "$0", note: "무료, 속도 제한." }
+  - { plan: "종량제", price: "~$0.04–$6 / M", note: "모델 크기에 따라 상이." }
 pricingSource: https://mistral.ai/pricing
 pricingCheckedAt: "2026-06-27"
 related: [litellm, openrouter]

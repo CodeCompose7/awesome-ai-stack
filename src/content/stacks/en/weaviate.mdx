@@ -10,7 +10,12 @@ tags: [vector-db, embeddings, hybrid-search, go]
 language: Go
 license: BSD-3-Clause
 pricing: [open-source, free-tier, paid]
-pricingNote: "Open source (BSD-3, free to self-host). Weaviate Cloud: free Sandbox, Flex from $45/mo, Plus from $280/mo, Premium (custom)."
+pricingNote: "Open source (BSD-3), free to self-host. Weaviate Cloud is the managed service."
+pricingTiers:
+  - { plan: "Sandbox", price: "$0", note: "Free, expires." }
+  - { plan: "Flex", price: "from $45/mo", note: "Pay-as-you-go SLA." }
+  - { plan: "Plus", price: "from $280/mo", note: "Higher SLA, support." }
+  - { plan: "Premium", price: "Custom", note: "Dedicated, enterprise." }
 pricingSource: https://weaviate.io/pricing
 pricingCheckedAt: "2026-06-27"
 related: [qdrant, chroma, milvus]
