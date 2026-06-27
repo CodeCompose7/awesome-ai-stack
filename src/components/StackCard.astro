@@ -64,7 +64,7 @@ const searchText = `${name} ${description} ${tags.join(' ')}`.toLowerCase();
    (its ::after covers the whole card), while tag links sit above it (z-10) so
    they remain individually clickable. */}
 <div
-  class="aas-lift relative flex flex-col gap-3 rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-5 min-[1000px]:flex-row"
+  class="aas-lift relative isolate flex flex-col gap-3 overflow-hidden rounded-2xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-5 min-[1000px]:flex-row"
   data-tool
   data-name={name}
   data-search={searchText}

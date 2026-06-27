@@ -561,28 +561,32 @@ summary {
   display: block;
   color: var(--aas-text); /* match the star glyph, not the accent */
 }
-/* The blurred-logo backdrop. Hidden outside the gallery view. Kept at z-index:-1
-   (behind the static content) so the name's full-card link overlay still covers
-   the description — clicking anywhere on the card navigates. */
+/* The blurred-logo backdrop. Shown on every card, kept at z-index:-1 (behind the
+   static content) so the name's full-card link overlay still covers it — a click
+   anywhere on the card navigates. Subtle by default; a touch stronger and taller
+   in the gallery view. */
 .aas-gallery-bg {
-  display: none;
-}
-:root[data-view='gallery'] .aas-gallery-bg {
-  display: block;
   position: absolute;
   inset: 0 0 auto 0;
-  height: 60%;
+  height: 50%;
   z-index: -1;
   background-position: center 35%;
   background-repeat: no-repeat;
   background-size: cover;
-  filter: blur(22px) saturate(1.25);
+  filter: blur(24px) saturate(1.2);
   transform: scale(1.6);
-  opacity: 0.15;
+  opacity: 0.09;
   pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 45%, transparent);
+  mask-image: linear-gradient(to bottom, #000 45%, transparent);
+  animation: aas-bg-drift 22s ease-in-out infinite;
+}
+:root[data-view='gallery'] .aas-gallery-bg {
+  height: 60%;
+  opacity: 0.15;
+  filter: blur(22px) saturate(1.25);
   -webkit-mask-image: linear-gradient(to bottom, #000 50%, transparent);
   mask-image: linear-gradient(to bottom, #000 50%, transparent);
-  animation: aas-bg-drift 22s ease-in-out infinite;
 }
 /* A gentle, slow drift so the backdrop feels alive without distracting. */
 @keyframes aas-bg-drift {
