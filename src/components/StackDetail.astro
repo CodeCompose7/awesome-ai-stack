@@ -42,12 +42,8 @@ const crumbs = [
   })),
 ];
 
-// Right-rail table of contents: body headings, h2–h3 only, plus the appended
-// Pricing section when present.
-const tocItems = [
-  ...headings.filter((h) => h.depth >= 2 && h.depth <= 3),
-  ...(data.pricingNote ? [{ slug: 'pricing', text: t('detail.pricing'), depth: 2 }] : []),
-];
+// Right-rail table of contents: body headings, h2–h3 only.
+const tocItems = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
 
 // Backlinks: writing that references this tool (computed reverse lookup).
 const relatedArticles = await getArticlesForTool(lang, slugOf(entry));
@@ -76,7 +72,8 @@ const projects = projectSpecs.length
   ? await renderProjects(projectSpecs.map((p) => p.folder), lang)
   : [];
 const hasProject = projects.length > 0;
-const hasTabs = hasSamples || hasProject;
+const hasPricing = Boolean(data.pricingNote || data.pricingTiers.length);
+const hasTabs = hasSamples || hasProject || hasPricing;
 
 // Resolve each project's related tool slugs against the stacks collection. A
 // known slug links to its page; an unknown one shows as "not in our catalog".
@@ -176,19 +173,24 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
     hasTabs ? (
       <DetailTabs
         overviewLabel={t('tab.overview')}
+        pricingLabel={hasPricing ? t('tab.pricing') : undefined}
         codeLabel={hasSamples ? t('tab.code') : undefined}
         implLabel={hasProject ? t('tab.impl') : undefined}
       >
         <article slot="overview" class="prose max-w-none">
           <Content />
-          <PricingSection
-            lang={lang}
-            note={data.pricingNote}
-            tiers={data.pricingTiers}
-            source={data.pricingSource}
-            checkedAt={data.pricingCheckedAt}
-          />
         </article>
+        {hasPricing && (
+          <article slot="pricing" class="prose max-w-none">
+            <PricingSection
+              lang={lang}
+              note={data.pricingNote}
+              tiers={data.pricingTiers}
+              source={data.pricingSource}
+              checkedAt={data.pricingCheckedAt}
+            />
+          </article>
+        )}
         {hasSamples && (
           <div slot="code">
             <CodeSamples samples={renderedSamples} lang={lang} />
@@ -203,13 +205,6 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
     ) : (
       <article class="prose max-w-none">
         <Content />
-        <PricingSection
-          lang={lang}
-          note={data.pricingNote}
-          tiers={data.pricingTiers}
-          source={data.pricingSource}
-          checkedAt={data.pricingCheckedAt}
-        />
       </article>
     )
   }

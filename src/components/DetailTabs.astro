@@ -1,11 +1,12 @@
 ---
 interface Props {
   overviewLabel: string;
+  pricingLabel?: string;
   codeLabel?: string;
   implLabel?: string;
 }
 
-const { overviewLabel, codeLabel, implLabel } = Astro.props;
+const { overviewLabel, pricingLabel, codeLabel, implLabel } = Astro.props;
 const tabClass =
   'aas-tab cursor-pointer rounded-lg px-3 py-1.5 text-sm font-medium text-[var(--aas-muted)] hover:text-[var(--aas-text)]';
 ---
@@ -15,6 +16,13 @@ const tabClass =
     <button type="button" data-tab="overview" class={tabClass} aria-selected="true">
       {overviewLabel}
     </button>
+    {
+      pricingLabel && (
+        <button type="button" data-tab="pricing" class={tabClass} aria-selected="false">
+          {pricingLabel}
+        </button>
+      )
+    }
     {
       codeLabel && (
         <button type="button" data-tab="code" class={tabClass} aria-selected="false">
@@ -34,6 +42,13 @@ const tabClass =
   <div data-panel="overview" class="mt-6">
     <slot name="overview" />
   </div>
+  {
+    pricingLabel && (
+      <div data-panel="pricing" class="mt-6 hidden">
+        <slot name="pricing" />
+      </div>
+    )
+  }
   {
     codeLabel && (
       <div data-panel="code" class="mt-6 hidden">
