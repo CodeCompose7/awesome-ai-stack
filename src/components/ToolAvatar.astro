@@ -46,8 +46,14 @@ const emoji = logo && !isImage ? logo : undefined;
 // logo: render it as a mask tinted with the theme text colour so it stays
 // visible in both light and dark — including the manual theme toggle.
 const isMono = isImage && /-mono\.[a-z0-9]+$/i.test(logo!);
+// A `-wbg` suffix (e.g. `/logos/lancedb-wbg.png`) sits the logo on a white,
+// padded tile so a dark or transparent logo stays visible on the dark theme.
+const isWbg = isImage && /-wbg\.[a-z0-9]+$/i.test(logo!);
 
 const boxStyle = `width:${size}px;height:${size}px`;
+const imgStyle = isWbg
+  ? `${boxStyle};background:#fff;padding:${Math.round(size * 0.12)}px`
+  : boxStyle;
 const iconSize = Math.round(size * 0.52);
 const tileClass =
   'flex shrink-0 items-center justify-center rounded-lg border border-[var(--aas-border)] bg-[var(--aas-tint)] text-[var(--aas-muted)]';
@@ -70,7 +76,7 @@ const tileClass =
           height={size}
           loading="lazy"
           class:list={['aas-logo-light shrink-0 rounded-lg object-contain', className]}
-          style={boxStyle}
+          style={imgStyle}
         />
         <img
           src={logoDarkSrc}
@@ -79,7 +85,7 @@ const tileClass =
           height={size}
           loading="lazy"
           class:list={['aas-logo-dark shrink-0 rounded-lg object-contain', className]}
-          style={boxStyle}
+          style={imgStyle}
         />
       </Fragment>
     ) : (
@@ -90,7 +96,7 @@ const tileClass =
         height={size}
         loading="lazy"
         class:list={['shrink-0 rounded-lg object-contain', className]}
-        style={boxStyle}
+        style={imgStyle}
       />
     )
   ) : emoji ? (
