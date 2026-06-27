@@ -485,10 +485,18 @@ summary {
   flex-direction: column;
   gap: 0;
   padding: 1rem;
-  /* The title and description reserve fixed line slots (below), so every card is
-     the same height without clipping text mid-line. */
   overflow: hidden; /* clip the scaled backdrop to the card's rounded corners */
   isolation: isolate; /* contain the z-index:-1 backdrop within the card */
+}
+/* The content block (logo + title + description) is a fixed height, and the
+   title and description share one line grid (1.4rem). So the title and
+   description TOGETHER fill a constant space: a 1-line title leaves the
+   description 3 lines, a 2-line title leaves it 2 — no per-element gaps, and
+   truncation always lands on a line boundary. */
+:root[data-view='gallery'] [data-card-body] {
+  flex: none;
+  height: 9.3rem;
+  min-height: 0;
 }
 :root[data-view='gallery'] [data-card-head] {
   flex-direction: column;
@@ -503,16 +511,15 @@ summary {
 :root[data-view='gallery'] [data-card-head] h3 {
   font-size: 1.0625rem;
   font-weight: 700;
-  /* Up to two lines, ellipsised beyond (overrides the single-line truncate); a
-     fixed 2-line slot keeps every card the same height. */
+  /* Up to two lines, ellipsised beyond (overrides the single-line truncate).
+     The title takes its natural height; the description fills what's left. */
   white-space: normal;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  line-height: 1.3;
-  min-height: 2.6em;
+  line-height: 1.4rem;
 }
 :root[data-view='gallery'] [data-card-meta],
 :root[data-view='gallery'] [data-card-tags] {
@@ -520,14 +527,17 @@ summary {
 }
 :root[data-view='gallery'] [data-card-desc] {
   margin-top: 0.6rem;
+  /* Fill the space the title leaves, on the same 1.4rem line grid; overflow
+     clips at a line boundary (no mid-line cut). line-clamp caps it at 3. */
+  flex: 1 1 auto;
+  min-height: 0;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  font-size: 0.75rem;
-  line-height: 1.5;
-  min-height: 4.5em; /* reserve three lines so cards stay equal height */
+  font-size: 0.78rem;
+  line-height: 1.4rem;
   /* Fade via colour, not opacity — opacity would create a stacking context and
      lift the description above the card's full-card link overlay. */
   color: color-mix(in srgb, var(--aas-muted) 78%, transparent);
