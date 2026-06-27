@@ -1,0 +1,49 @@
+---
+name: Continue
+logo: /logos/continue.png
+category: coding-ide
+description: Open-source AI code assistant for VS Code and JetBrains — autocomplete, chat, and agents.
+website: https://continue.dev
+repo: https://github.com/continuedev/continue
+docs: https://docs.continue.dev
+tags: [coding, ide, autocomplete, vscode]
+language: TypeScript
+license: Apache-2.0
+pricing: [open-source]
+related: [cline, aider]
+samples:
+  - version: "YAML · configure a model"
+    lang: yaml
+    code: |
+      # ~/.continue/config.yaml — point Continue at a model, then chat and edit
+      # inline in your IDE. Bring your own provider key.
+      models:
+        - name: Claude Opus 4.8
+          provider: anthropic
+          model: claude-opus-4-8
+          apiKey: ${ANTHROPIC_API_KEY}
+          roles: [chat, edit, apply]
+    description: |
+      ### When to use
+      Use Continue when you want IDE-native autocomplete and chat that you fully
+      control — your models, your context, your config.
+---
+
+## Overview
+
+Continue is an open-source AI coding assistant that lives in VS Code and JetBrains, offering inline autocomplete, chat, and agentic edits.  
+It is model-agnostic and configured with a simple file, so you choose the provider and keep your keys and context local.
+
+```mermaid
+flowchart LR
+  editor[your IDE] --> continue[Continue]
+  continue --> model[(your model)]
+  model --> continue
+  continue --> edit[autocomplete / chat / edits]
+```
+
+## When to use it
+
+Choose Continue when you want a customizable, open-source assistant embedded in
+your editor — a self-hosted alternative to closed autocomplete tools, with your
+own model and rules.

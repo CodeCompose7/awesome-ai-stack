@@ -32,6 +32,7 @@ const entries = (await getStacksByTag(lang, tag)).sort((a, b) =>
         slug={slugOf(e)}
         lang={lang}
         name={e.data.name}
+        formerNames={e.data.formerNames}
         description={e.data.description}
         tags={e.data.tags}
         pricing={e.data.pricing}
@@ -39,6 +40,7 @@ const entries = (await getStacksByTag(lang, tag)).sort((a, b) =>
         language={e.data.language}
         category={e.data.category}
         logo={e.data.logo}
+        logoDark={e.data.logoDark}
         repo={e.data.repo}
         version={e.data.version}
         deprecated={e.data.deprecated}

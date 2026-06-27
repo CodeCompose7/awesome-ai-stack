@@ -1,0 +1,61 @@
+---
+name: OpenAI Agents SDK
+logo: /logos/openai-agents-sdk.webp
+category: framework-orchestration
+description: OpenAI's lightweight SDK for agents with tools, handoffs, and guardrails.
+website: https://openai.github.io/openai-agents-python
+repo: https://github.com/openai/openai-agents-python
+docs: https://openai.github.io/openai-agents-python
+tags: [agents, tools, handoffs, python]
+language: Python
+license: MIT
+pricing: [open-source]
+related: [openai, pydantic-ai]
+projects:
+  - folder: openai-agents-sdk_1
+    related: []
+samples:
+  - version: "Python · run an agent"
+    lang: python
+    diagram: |
+      flowchart LR
+        input[input] --> r[Runner]
+        r --> agent[Agent]
+        agent --> tools[tools / handoffs]
+        agent --> out[final output]
+    code: |
+      from agents import Agent, Runner
+
+      agent = Agent(name="Assistant", instructions="You are concise and helpful.")
+      result = Runner.run_sync(agent, "Summarize what an AI agent is in one sentence.")
+      print(result.final_output)
+    description: |
+      ### When to use
+      A small, unopinionated core when you want primitives — agents, tools,
+      handoffs, guardrails — without a heavy framework.
+
+      ### How it flows
+      Define an `Agent` with instructions (and optional tools); the `Runner`
+      executes the loop and returns the final output.
+---
+
+## Overview
+
+The OpenAI Agents SDK is a lightweight, provider-first framework for building agents from a few primitives: agents, tools, handoffs between agents, and guardrails.  
+It is the production-oriented successor to OpenAI's Swarm experiment, with built-in tracing and a small surface area.
+
+```mermaid
+flowchart LR
+  input[input] --> r[Runner]
+  r --> agent[Agent]
+  agent --> tools[tools / handoffs]
+  agent --> out[final output]
+```
+
+The **Code samples** tab shows a minimal single-agent run.
+
+## When to use it
+
+Choose it when you want a thin, composable agent loop close to the OpenAI API —
+especially for tool use, multi-agent handoffs, and guardrails — without adopting
+a larger orchestration framework.

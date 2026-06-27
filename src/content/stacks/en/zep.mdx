@@ -1,0 +1,63 @@
+---
+name: Zep
+logo: /logos/zep-wbg.svg
+category: vec-memory
+description: Long-term memory layer for agents, building a temporal knowledge graph from conversations.
+website: https://www.getzep.com
+repo: https://github.com/getzep/zep
+docs: https://help.getzep.com
+tags: [memory, agents, knowledge-graph, python]
+language: Python
+license: Apache-2.0
+pricing: [open-source, free-tier, paid]
+related: [mem0, qdrant]
+samples:
+  - version: "Python · add & recall"
+    lang: python
+    diagram: |
+      flowchart LR
+        msgs[conversation] --> z[(Zep)]
+        z --> graph[temporal knowledge graph]
+        q[next turn] --> z
+        z --> ctx[relevant context]
+    code: |
+      from zep_cloud.client import Zep
+
+      client = Zep(api_key="...")  # Zep Cloud, or base_url=... for self-hosted
+      client.memory.add(
+          session_id="s1",
+          messages=[{"role": "user", "content": "I work mostly in Rust."}],
+      )
+
+      memory = client.memory.get(session_id="s1")
+      print(memory.context)  # summarized, relevant context for the next prompt
+    description: |
+      ### When to use
+      Use Zep when an agent needs durable memory across sessions, distilled into
+      facts and a knowledge graph rather than raw chat history.
+
+      ### How it flows
+      `add` ingests messages and updates a temporal knowledge graph; `get`
+      returns the relevant, summarized context to prepend to the next prompt.
+---
+
+## Overview
+
+Zep is a memory layer for AI agents: it ingests conversations and builds a temporal knowledge graph, so the agent recalls relevant facts — and how they change over time — instead of replaying raw history.  
+It runs as managed Zep Cloud or self-hosted, and exposes a simple add/get memory API.
+
+```mermaid
+flowchart LR
+  msgs[conversation] --> z[(Zep)]
+  z --> graph[temporal knowledge graph]
+  q[next turn] --> z
+  z --> ctx[relevant context]
+```
+
+The **Code samples** tab shows the add-and-recall flow.
+
+## When to use it
+
+Choose Zep when long-term, evolving memory matters — personal assistants and
+support agents that must remember user facts across sessions and keep them
+current, beyond a single context window.

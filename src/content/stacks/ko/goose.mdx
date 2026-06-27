@@ -1,0 +1,46 @@
+---
+name: Goose
+logo: /logos/goose.png
+logoDark: /logos/goose_dark.png
+category: coding-cli
+description: 터미널과 데스크톱에서 동작하는 Block의 오픈소스 확장형 코딩 에이전트.
+website: https://block.github.io/goose
+repo: https://github.com/block/goose
+docs: https://block.github.io/goose/docs/quickstart
+tags: [coding, terminal, mcp, rust]
+language: Rust
+license: Apache-2.0
+pricing: [open-source]
+related: [aider, cline, openhands]
+samples:
+  - version: "Shell · run a task"
+    lang: bash
+    code: |
+      # Install the Goose CLI (see docs for your platform), then point it at a task.
+      # It plans, edits files, and runs commands, extensible via MCP servers.
+      goose session            # start an interactive session
+      goose run -t "Add a CHANGELOG.md summarizing the last 10 commits."
+    description: |
+      ### 언제 쓰나
+      MCP 도구로 확장하는, 로컬·모델 독립적 에이전트를 터미널이나 데스크톱
+      앱에서 쓰고 싶을 때.
+---
+
+## 개요
+
+Goose는 Block이 만든 오픈소스 코딩 에이전트로, 로컬에서 실제 작업을 수행합니다 — 파일을 수정하고 명령을 실행하며, Model Context Protocol로 도구를 호출합니다.  
+모델에 구애받지 않으며(자신의 LLM 키 사용) CLI와 데스크톱 앱으로 제공됩니다.
+
+```mermaid
+flowchart LR
+  task[task] --> goose[Goose]
+  goose --> mcp[MCP tools]
+  goose --> edit[edit + run]
+  edit --> goose
+  goose --> done[result]
+```
+
+## 언제 쓰면 좋은가
+
+호스팅 서비스를 끼지 않고, 자신의 모델과 MCP 기반 도구로 개발 작업을 자동화하는
+셀프호스트·확장형 에이전트를 원할 때 Goose를 고르세요.

@@ -1,0 +1,65 @@
+---
+name: Ragas
+logo: /logos/ragas.jpeg
+category: observability-eval
+description: Open-source evaluation framework for RAG pipelines and LLM applications.
+website: https://www.ragas.io
+repo: https://github.com/explodinggradients/ragas
+docs: https://docs.ragas.io
+tags: [evaluation, rag, metrics, python]
+language: Python
+license: Apache-2.0
+pricing: [open-source]
+related: [deepeval, arize-phoenix]
+projects:
+  - folder: ragas_1
+    related: []
+samples:
+  - version: "Python · evaluate RAG"
+    lang: python
+    diagram: |
+      flowchart LR
+        qa[question / answer / context] --> r[Ragas]
+        r --> judge[(LLM judge)]
+        r --> scores[faithfulness / relevancy]
+    code: |
+      from ragas import evaluate
+      from ragas.metrics import faithfulness, answer_relevancy
+      from datasets import Dataset
+
+      data = Dataset.from_dict({
+          "question": ["What language is Qdrant written in?"],
+          "answer": ["Qdrant is written in Rust."],
+          "contexts": [["Qdrant is a vector database written in Rust."]],
+      })
+      # Metrics use an LLM judge (set OPENAI_API_KEY or configure another).
+      print(evaluate(data, metrics=[faithfulness, answer_relevancy]))
+    description: |
+      ### When to use
+      Use Ragas to score RAG quality — does the answer stay faithful to the
+      retrieved context, and is it relevant to the question?
+
+      ### How it flows
+      Provide questions, answers, and contexts; Ragas runs reference-free metrics
+      (often LLM-judged) and returns per-metric scores.
+---
+
+## Overview
+
+Ragas is an open-source framework for evaluating RAG pipelines and LLM applications, with reference-free metrics like faithfulness, answer relevancy, and context precision.  
+It turns "does this RAG system actually work?" into numbers you can track in CI and compare across changes.
+
+```mermaid
+flowchart LR
+  qa[question / answer / context] --> r[Ragas]
+  r --> judge[(LLM judge)]
+  r --> scores[faithfulness / relevancy]
+```
+
+The **Code samples** tab shows a minimal RAG evaluation.
+
+## When to use it
+
+Choose Ragas when retrieval quality matters and you want objective, repeatable
+metrics for your RAG pipeline — to catch regressions and compare retrievers,
+chunking, or prompts.

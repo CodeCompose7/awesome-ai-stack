@@ -1,0 +1,49 @@
+---
+name: Groq
+logo: /logos/groq-wbg.svg
+category: llm-foundation
+description: Ultra-fast inference API for open models on custom LPU hardware.
+website: https://groq.com
+docs: https://console.groq.com/docs
+tags: [llm, inference, fast, api]
+language: API
+license: proprietary
+pricing: [free-tier, paid]
+related: [litellm, openrouter, ollama]
+samples:
+  - version: "Python · via LiteLLM"
+    lang: python
+    code: |
+      from litellm import completion
+
+      # GROQ_API_KEY in the environment. Groq serves open models (Llama, etc.)
+      # on its LPU hardware — the same OpenAI-style call, just very fast.
+      resp = completion(
+          model="groq/llama-3.3-70b-versatile",
+          messages=[{"role": "user", "content": "Say hello in one short sentence."}],
+      )
+      print(resp.choices[0].message.content)
+    description: |
+      ### When to use
+      Reach for Groq when latency matters — interactive agents and chat where
+      tokens-per-second is the bottleneck.
+---
+
+## Overview
+
+Groq is an inference provider that runs open-source models on its custom LPU hardware, delivering some of the fastest tokens-per-second available.  
+It exposes an OpenAI-compatible API with a generous free developer tier, so it drops into existing code through LiteLLM or the OpenAI SDK.
+
+```mermaid
+flowchart LR
+  prompt[prompt] --> groq[(Groq LPU)]
+  groq --> fast[very fast tokens]
+```
+
+The **Code samples** tab shows a LiteLLM-routed call.
+
+## When to use it
+
+Choose Groq when speed is the priority and an open model (Llama, Qwen, and
+others) fits the task — especially real-time agents, where its throughput
+shortens each reasoning step.

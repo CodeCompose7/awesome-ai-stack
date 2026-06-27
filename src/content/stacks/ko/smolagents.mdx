@@ -1,0 +1,63 @@
+---
+name: smolagents
+logo: /logos/smolagents.webp
+category: framework-orchestration
+description: 코드를 작성·실행해 행동하는 에이전트를 위한 Hugging Face의 미니멀 라이브러리.
+website: https://huggingface.co/docs/smolagents
+repo: https://github.com/huggingface/smolagents
+docs: https://huggingface.co/docs/smolagents
+tags: [code-agents, huggingface, litellm, python]
+language: Python
+license: Apache-2.0
+pricing: [open-source]
+related: [litellm, crewai]
+projects:
+  - folder: smolagents_1
+    related: []
+samples:
+  - version: "Python · code agent"
+    lang: python
+    diagram: |
+      flowchart LR
+        task[task] --> agent[CodeAgent]
+        agent --> code[writes Python]
+        code --> run[executes]
+        run --> agent
+        agent --> out[answer]
+    code: |
+      from smolagents import CodeAgent, LiteLLMModel
+
+      # Code agents act by writing and running Python; LiteLLM routes to any provider.
+      model = LiteLLMModel(model_id="anthropic/claude-opus-4-8")
+      agent = CodeAgent(tools=[], model=model)
+      print(agent.run("Compute 2 ** 10 + 5 in Python and return the number."))
+    description: |
+      ### 언제 쓰나
+      JSON 도구 호출 대신 *코드를 작성해 행동하는* 에이전트를 원할 때 — 계산
+      과제는 보통 더 적은 단계로 끝납니다.
+
+      ### 흐름
+      `CodeAgent`가 Python을 작성해 샌드박스에서 실행하고, 결과를 관찰하며 답이
+      나올 때까지 반복합니다.
+---
+
+## 개요
+
+smolagents는 의도적으로 아주 작은 Hugging Face 라이브러리입니다 — 에이전트 로직이 약 1,000줄에 담깁니다 — 그리고 **코드 에이전트**, 즉 Python을 작성·실행해 행동하는 방식을 중심으로 설계됐습니다.  
+모델에 구애받지 않아 로컬 transformers, Hugging Face Hub 모델, 또는 LiteLLM을 통한 임의 제공자를 쓸 수 있습니다.
+
+```mermaid
+flowchart LR
+  task[task] --> agent[CodeAgent]
+  agent --> code[writes Python]
+  code --> run[executes]
+  run --> agent
+  agent --> out[answer]
+```
+
+**코드 샘플** 탭에서 LiteLLM 기반 코드 에이전트를 보여줍니다.
+
+## 언제 쓰면 좋은가
+
+최소한의, 손대기 쉬운 에이전트 루프를 원하거나, JSON 함수 호출보다 코드 작성
+방식이 과제(수학·데이터 가공·다단계 도구 사용)에 더 잘 맞을 때 고르세요.

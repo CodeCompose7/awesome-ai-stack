@@ -1,0 +1,64 @@
+---
+name: smolagents
+logo: /logos/smolagents.webp
+category: framework-orchestration
+description: Hugging Face's minimal library for agents that act by writing and running code.
+website: https://huggingface.co/docs/smolagents
+repo: https://github.com/huggingface/smolagents
+docs: https://huggingface.co/docs/smolagents
+tags: [code-agents, huggingface, litellm, python]
+language: Python
+license: Apache-2.0
+pricing: [open-source]
+related: [litellm, crewai]
+projects:
+  - folder: smolagents_1
+    related: []
+samples:
+  - version: "Python · code agent"
+    lang: python
+    diagram: |
+      flowchart LR
+        task[task] --> agent[CodeAgent]
+        agent --> code[writes Python]
+        code --> run[executes]
+        run --> agent
+        agent --> out[answer]
+    code: |
+      from smolagents import CodeAgent, LiteLLMModel
+
+      # Code agents act by writing and running Python; LiteLLM routes to any provider.
+      model = LiteLLMModel(model_id="anthropic/claude-opus-4-8")
+      agent = CodeAgent(tools=[], model=model)
+      print(agent.run("Compute 2 ** 10 + 5 in Python and return the number."))
+    description: |
+      ### When to use
+      Pick smolagents when you want agents that *write code to act* rather than
+      emit JSON tool calls — often fewer steps for computational tasks.
+
+      ### How it flows
+      The `CodeAgent` writes Python, runs it in a sandbox, observes the result,
+      and iterates until it answers.
+---
+
+## Overview
+
+smolagents is a deliberately tiny library from Hugging Face — the agent logic fits in roughly a thousand lines — built around **code agents** that take actions by writing and running Python.  
+It is model-agnostic: local transformers, Hugging Face Hub models, or any provider through LiteLLM.
+
+```mermaid
+flowchart LR
+  task[task] --> agent[CodeAgent]
+  agent --> code[writes Python]
+  code --> run[executes]
+  run --> agent
+  agent --> out[answer]
+```
+
+The **Code samples** tab shows a code agent backed by LiteLLM.
+
+## When to use it
+
+Reach for smolagents when you want a minimal, hackable agent loop, or when
+code-writing actions suit the task (math, data wrangling, multi-step tool use)
+better than JSON function calls.

@@ -5,12 +5,16 @@ interface Props {
   name: string;
   /** Optional logo image (URL or /public path). Falls back to a category icon. */
   logo?: string;
+  /** Optional dark-theme variant of `logo`; swapped in via CSS under data-theme. */
+  logoDark?: string;
   category?: string;
   size?: number;
   class?: string;
 }
 
-const { name, logo, category, size = 44, class: className } = Astro.props;
+const { name, logo, logoDark, category, size = 44, class: className } = Astro.props;
+const toSrc = (p?: string) =>
+  !p ? undefined : /^https?:\/\//.test(p) ? p : base.replace(/\/$/, '') + '/' + p.replace(/^\//, '');
 
 // Lucide-style line icons per category (inner SVG markup; 24×24 viewBox).
 const icons: Record<string, string> = {
@@ -34,18 +38,22 @@ const icon = (iconKey && icons[iconKey]) || icons.default;
 // emoji/text glyph (e.g. "🚅"). Anything else falls back to the category icon.
 const base = import.meta.env.BASE_URL;
 const isImage = !!logo && (/^https?:\/\//.test(logo) || logo.startsWith('/'));
-const logoSrc = isImage
-  ? /^https?:\/\//.test(logo!)
-    ? logo
-    : base.replace(/\/$/, '') + '/' + logo!.replace(/^\//, '')
-  : undefined;
+const logoSrc = isImage ? toSrc(logo) : undefined;
+// Dark-theme variant (only meaningful for a non-mono image logo).
+const logoDarkSrc = isImage && logoDark ? toSrc(logoDark) : undefined;
 const emoji = logo && !isImage ? logo : undefined;
 // A `-mono` suffix (e.g. `/logos/instructor-mono.svg`) marks a single-colour
 // logo: render it as a mask tinted with the theme text colour so it stays
 // visible in both light and dark — including the manual theme toggle.
 const isMono = isImage && /-mono\.[a-z0-9]+$/i.test(logo!);
+// A `-wbg` suffix (e.g. `/logos/lancedb-wbg.png`) sits the logo on a white,
+// padded tile so a dark or transparent logo stays visible on the dark theme.
+const isWbg = isImage && /-wbg\.[a-z0-9]+$/i.test(logo!);
 
 const boxStyle = `width:${size}px;height:${size}px`;
+const imgStyle = isWbg
+  ? `${boxStyle};background:#fff;padding:${Math.round(size * 0.12)}px`
+  : boxStyle;
 const iconSize = Math.round(size * 0.52);
 const tileClass =
   'flex shrink-0 items-center justify-center rounded-lg border border-[var(--aas-border)] bg-[var(--aas-tint)] text-[var(--aas-muted)]';
@@ -59,15 +67,38 @@ const tileClass =
       />
     </span>
   ) : isImage ? (
-    <img
-      src={logoSrc}
-      alt={name}
-      width={size}
-      height={size}
-      loading="lazy"
-      class:list={['shrink-0 rounded-lg object-contain', className]}
-      style={boxStyle}
-    />
+    logoDarkSrc ? (
+      <Fragment>
+        <img
+          src={logoSrc}
+          alt={name}
+          width={size}
+          height={size}
+          loading="lazy"
+          class:list={['aas-logo-light shrink-0 rounded-lg object-contain', className]}
+          style={imgStyle}
+        />
+        <img
+          src={logoDarkSrc}
+          alt={name}
+          width={size}
+          height={size}
+          loading="lazy"
+          class:list={['aas-logo-dark shrink-0 rounded-lg object-contain', className]}
+          style={imgStyle}
+        />
+      </Fragment>
+    ) : (
+      <img
+        src={logoSrc}
+        alt={name}
+        width={size}
+        height={size}
+        loading="lazy"
+        class:list={['shrink-0 rounded-lg object-contain', className]}
+        style={imgStyle}
+      />
+    )
   ) : emoji ? (
     <span class:list={[tileClass, className]} style={boxStyle} aria-hidden="true">
       <span style={`font-size:${Math.round(size * 0.52)}px;line-height:1`}>{emoji}</span>

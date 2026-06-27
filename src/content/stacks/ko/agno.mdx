@@ -1,0 +1,60 @@
+---
+name: Agno
+logo: /logos/agno.jpeg
+category: framework-orchestration
+description: 멀티 에이전트 시스템을 위한 고성능 프레임워크 — 런타임 AgentOS 포함.
+website: https://www.agno.com
+repo: https://github.com/agno-agi/agno
+docs: https://docs.agno.com
+tags: [multi-agent, runtime, memory, python]
+language: Python
+license: Apache-2.0
+pricing: [open-source, paid]
+related: [crewai, langgraph]
+projects:
+  - folder: agno_1
+    related: []
+samples:
+  - version: "Python · agent"
+    lang: python
+    diagram: |
+      flowchart LR
+        prompt[prompt] --> agent[Agent]
+        agent --> model[(model)]
+        agent --> mem[memory / tools]
+        agent --> out[response]
+    code: |
+      from agno.agent import Agent
+      from agno.models.anthropic import Claude
+
+      agent = Agent(model=Claude(id="claude-opus-4-8"), markdown=False)
+      agent.print_response("Say hello in one short sentence.")
+    description: |
+      ### 언제 쓰나
+      메모리·지식·도구를 갖춘 하나의 빠르고 모델 독립적인 에이전트 추상화에,
+      프로덕션으로 가는 경로까지 원할 때.
+
+      ### 흐름
+      `Agent`가 모델에 선택적 메모리·지식·도구를 묶고, `print_response`가 실행해
+      응답을 스트리밍합니다.
+---
+
+## 개요
+
+Agno(옛 Phidata)는 메모리·지식·도구를 갖춘 에이전트를 만드는 고성능 Python 프레임워크이며, 이를 프로덕션에서 서빙·확장하는 런타임 **AgentOS**를 함께 제공합니다.  
+모델에 구애받지 않으며, 속도와 데이터를 자체 인프라 안에 두는 점을 강조합니다.
+
+```mermaid
+flowchart LR
+  prompt[prompt] --> agent[Agent]
+  agent --> model[(model)]
+  agent --> mem[memory / tools]
+  agent --> out[response]
+```
+
+**코드 샘플** 탭에서 Claude 기반 단일 에이전트를 보여줍니다.
+
+## 언제 쓰면 좋은가
+
+빠르고 기본 기능이 갖춰진 에이전트 추상화와, 데이터를 외부 플랫폼에 보내지 않고
+멀티 에이전트 시스템을 배포할 자체 런타임(AgentOS)을 원할 때 Agno를 고르세요.

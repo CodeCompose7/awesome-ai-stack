@@ -1,0 +1,54 @@
+---
+name: Helicone
+logo: /logos/helicone.svg
+category: observability-tracing
+description: 한 줄 프록시로 붙이는 오픈소스 LLM 관측 — 로깅·캐싱·비용 추적.
+website: https://www.helicone.ai
+repo: https://github.com/Helicone/helicone
+docs: https://docs.helicone.ai
+tags: [observability, proxy, logging, typescript]
+language: TypeScript
+license: Apache-2.0
+pricing: [open-source, free-tier, paid]
+related: [langfuse, langsmith, litellm]
+samples:
+  - version: "Python · proxy the OpenAI SDK"
+    lang: python
+    code: |
+      from openai import OpenAI
+
+      # Point the OpenAI SDK at Helicone's gateway to log every call — no code
+      # changes beyond the base_url and an auth header.
+      client = OpenAI(
+          base_url="https://oai.helicone.ai/v1",
+          default_headers={"Helicone-Auth": "Bearer <HELICONE_API_KEY>"},
+      )
+      resp = client.chat.completions.create(
+          model="gpt-4o-mini",
+          messages=[{"role": "user", "content": "Say hello."}],
+      )
+      print(resp.choices[0].message.content)
+    description: |
+      ### 언제 쓰나
+      통합 비용을 거의 0으로 두고 관측을 원할 때 — base URL만 바꾸면 호출이
+      로깅·캐싱되고 비용이 집계됩니다.
+---
+
+## 개요
+
+Helicone는 프록시로 동작하는 LLM 앱용 오픈소스 관측 플랫폼입니다 — 제공자 호출을 게이트웨이로 보내면 한 줄 변경으로 로깅·캐싱·레이트리밋·비용 추적을 얻습니다.  
+매니지드 Helicone Cloud나 셀프호스트로 동작하며, 프록시를 쓰고 싶지 않을 때를 위한 비동기 SDK도 제공합니다.
+
+```mermaid
+flowchart LR
+  app[your app] --> h[(Helicone proxy)]
+  h --> provider[LLM provider]
+  h --> dash[logs / cost / cache]
+```
+
+**코드 샘플** 탭에서 OpenAI SDK 프록시 방식을 보여줍니다.
+
+## 언제 쓰면 좋은가
+
+로깅과 비용 가시성으로 가는 가장 빠른 길을 원할 때 — OpenAI 호환 제공자 앞에
+끼우는 게이트웨이로, 데이터 제어를 위한 셀프호스트도 가능합니다.

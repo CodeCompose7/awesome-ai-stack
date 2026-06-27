@@ -1,0 +1,65 @@
+---
+name: LlamaIndex
+logo: /logos/llamaindex.webp
+category: framework-rag
+description: Data framework for building RAG pipelines and document agents over your own data.
+website: https://www.llamaindex.ai
+repo: https://github.com/run-llama/llama_index
+docs: https://docs.llamaindex.ai
+tags: [rag, retrieval, indexing, python]
+language: Python
+license: MIT
+pricing: [open-source, free-tier, paid]
+related: [langgraph, qdrant, chroma]
+projects:
+  - folder: llamaindex_1
+    related: []
+samples:
+  - version: "Python · index & query"
+    lang: python
+    diagram: |
+      flowchart LR
+        docs[your documents] --> idx[(VectorStoreIndex)]
+        q[question] --> idx
+        idx --> ans[grounded answer]
+    code: |
+      from llama_index.core import VectorStoreIndex, Document
+      from llama_index.llms.openai import OpenAI
+
+      # Index a few documents, then ask a question grounded in them.
+      docs = [
+          Document(text="Qdrant is a vector database written in Rust."),
+          Document(text="LlamaIndex builds RAG pipelines over your own data."),
+      ]
+      index = VectorStoreIndex.from_documents(docs)
+      engine = index.as_query_engine(llm=OpenAI(model="gpt-4o-mini"))
+      print(engine.query("What language is Qdrant written in?"))
+    description: |
+      ### When to use
+      Reach for the high-level index + query engine when you want retrieval,
+      chunking, and prompting handled for you.
+
+      ### How it flows
+      `from_documents` chunks and embeds the docs into an index; the query
+      engine retrieves the relevant chunks and asks the LLM, grounded in them.
+---
+
+## Overview
+
+LlamaIndex is a data framework for connecting LLMs to your own data — it ingests, chunks, embeds, and indexes documents, then retrieves the relevant pieces at query time.  
+It is one of the most common ways to build RAG pipelines and document agents, with connectors for dozens of vector stores and data sources.
+
+```mermaid
+flowchart LR
+  data[your documents] --> idx[(VectorStoreIndex)]
+  q[question] --> idx
+  idx --> ans[grounded answer]
+```
+
+The **Code samples** tab shows a minimal index-and-query flow.
+
+## When to use it
+
+Choose LlamaIndex when retrieval is the core of your app — RAG over documents,
+knowledge bases, or structured sources — and you want ingestion and querying
+handled by a mature framework. LlamaCloud adds hosted parsing and indexing.

@@ -1,0 +1,61 @@
+---
+name: OpenAI Agents SDK
+logo: /logos/openai-agents-sdk.webp
+category: framework-orchestration
+description: 도구·핸드오프·가드레일을 갖춘 OpenAI의 경량 에이전트 SDK.
+website: https://openai.github.io/openai-agents-python
+repo: https://github.com/openai/openai-agents-python
+docs: https://openai.github.io/openai-agents-python
+tags: [agents, tools, handoffs, python]
+language: Python
+license: MIT
+pricing: [open-source]
+related: [openai, pydantic-ai]
+projects:
+  - folder: openai-agents-sdk_1
+    related: []
+samples:
+  - version: "Python · run an agent"
+    lang: python
+    diagram: |
+      flowchart LR
+        input[input] --> r[Runner]
+        r --> agent[Agent]
+        agent --> tools[tools / handoffs]
+        agent --> out[final output]
+    code: |
+      from agents import Agent, Runner
+
+      agent = Agent(name="Assistant", instructions="You are concise and helpful.")
+      result = Runner.run_sync(agent, "Summarize what an AI agent is in one sentence.")
+      print(result.final_output)
+    description: |
+      ### 언제 쓰나
+      무거운 프레임워크 없이 에이전트·도구·핸드오프·가드레일 같은 기본 요소만
+      원할 때 쓰는 작고 의견 없는 코어.
+
+      ### 흐름
+      지시문(과 선택적 도구)으로 `Agent`를 정의하면, `Runner`가 루프를 실행해
+      최종 출력을 돌려줍니다.
+---
+
+## 개요
+
+OpenAI Agents SDK는 에이전트·도구·에이전트 간 핸드오프·가드레일이라는 몇 가지 기본 요소로 에이전트를 만드는 경량 프레임워크입니다.  
+OpenAI의 Swarm 실험을 잇는 프로덕션 지향 후속작으로, 트레이싱이 내장되어 있고 표면적이 작습니다.
+
+```mermaid
+flowchart LR
+  input[input] --> r[Runner]
+  r --> agent[Agent]
+  agent --> tools[tools / handoffs]
+  agent --> out[final output]
+```
+
+**코드 샘플** 탭에서 최소 단일 에이전트 실행을 보여줍니다.
+
+## 언제 쓰면 좋은가
+
+더 큰 오케스트레이션 프레임워크를 도입하지 않고, OpenAI API에 가까운 얇고
+조합 가능한 에이전트 루프를 원할 때 — 특히 도구 사용·멀티 에이전트 핸드오프·
+가드레일에 적합합니다.

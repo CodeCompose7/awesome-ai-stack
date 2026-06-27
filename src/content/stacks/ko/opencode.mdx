@@ -1,0 +1,44 @@
+---
+name: opencode
+logo: /logos/opencode-wbg.svg
+category: coding-cli
+description: SST의 오픈소스·모델 독립적 터미널 코딩 에이전트 — TUI 제공.
+website: https://opencode.ai
+repo: https://github.com/sst/opencode
+docs: https://opencode.ai/docs
+tags: [coding, terminal, tui, typescript]
+language: TypeScript
+license: MIT
+pricing: [open-source]
+related: [aider, cline]
+samples:
+  - version: "Shell · run in a project"
+    lang: bash
+    code: |
+      # Install, then launch in your project directory.
+      npm i -g opencode-ai     # or: curl -fsSL https://opencode.ai/install | bash
+      cd your-project
+      opencode                 # launches the TUI — describe the change you want
+    description: |
+      ### 언제 쓰나
+      모델·에디터에 구애받지 않는, 잘 다듬어진 터미널 UI 에이전트를 원할 때.
+---
+
+## 개요
+
+opencode는 SST 팀이 만든 오픈소스 터미널 코딩 에이전트로, 빠른 TUI와 클라이언트/서버 구조를 중심으로 설계됐습니다.  
+모델에 구애받지 않아 어떤 제공자든 쓸 수 있고, 이미 쓰는 에디터와 함께 동작합니다.
+
+```mermaid
+flowchart LR
+  task[task in TUI] --> oc[opencode]
+  oc --> model[(your model)]
+  oc --> edit[edit + run]
+  edit --> oc
+  oc --> review[review diffs]
+```
+
+## 언제 쓰면 좋은가
+
+에디터 종속 없이 강력한 TUI를 갖춘 터미널 우선 코딩 에이전트로, 커맨드라인에서
+자신의 모델을 구동하고 싶을 때 opencode를 고르세요.

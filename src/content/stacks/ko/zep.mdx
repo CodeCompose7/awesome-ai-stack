@@ -1,0 +1,62 @@
+---
+name: Zep
+logo: /logos/zep-wbg.svg
+category: vec-memory
+description: 대화로부터 시간적 지식 그래프를 만드는 에이전트용 장기 기억 계층.
+website: https://www.getzep.com
+repo: https://github.com/getzep/zep
+docs: https://help.getzep.com
+tags: [memory, agents, knowledge-graph, python]
+language: Python
+license: Apache-2.0
+pricing: [open-source, free-tier, paid]
+related: [mem0, qdrant]
+samples:
+  - version: "Python · add & recall"
+    lang: python
+    diagram: |
+      flowchart LR
+        msgs[conversation] --> z[(Zep)]
+        z --> graph[temporal knowledge graph]
+        q[next turn] --> z
+        z --> ctx[relevant context]
+    code: |
+      from zep_cloud.client import Zep
+
+      client = Zep(api_key="...")  # Zep Cloud, or base_url=... for self-hosted
+      client.memory.add(
+          session_id="s1",
+          messages=[{"role": "user", "content": "I work mostly in Rust."}],
+      )
+
+      memory = client.memory.get(session_id="s1")
+      print(memory.context)  # summarized, relevant context for the next prompt
+    description: |
+      ### 언제 쓰나
+      에이전트가 세션을 넘나드는 지속 기억을, 원시 대화 기록이 아니라 사실과 지식
+      그래프로 정제해 둬야 할 때.
+
+      ### 흐름
+      `add`가 메시지를 수집해 시간적 지식 그래프를 갱신하고, `get`이 다음 프롬프트
+      앞에 붙일 관련 요약 컨텍스트를 돌려줍니다.
+---
+
+## 개요
+
+Zep은 AI 에이전트를 위한 기억 계층입니다 — 대화를 수집해 시간적 지식 그래프를 만들어, 에이전트가 원시 기록을 재생하는 대신 관련 사실과 그 변화를 떠올리게 합니다.  
+매니지드 Zep Cloud나 셀프호스트로 동작하며, 단순한 add/get 기억 API를 제공합니다.
+
+```mermaid
+flowchart LR
+  msgs[conversation] --> z[(Zep)]
+  z --> graph[temporal knowledge graph]
+  q[next turn] --> z
+  z --> ctx[relevant context]
+```
+
+**코드 샘플** 탭에서 추가·회상 흐름을 보여줍니다.
+
+## 언제 쓰면 좋은가
+
+장기적이고 변화하는 기억이 중요할 때 — 단일 컨텍스트 윈도를 넘어, 사용자 사실을
+세션 간에 기억하고 최신으로 유지해야 하는 개인 비서·지원 에이전트에 Zep을 고르세요.

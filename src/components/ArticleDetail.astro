@@ -48,7 +48,7 @@ const referenced = data.tools
               href={getRelativeLocaleUrl(lang, `stacks/${slugOf(e)}/`)}
               class="aas-lift flex items-center gap-3 rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-3 no-underline"
             >
-              <ToolAvatar name={e.data.name} logo={e.data.logo} category={e.data.category} size={36} />
+              <ToolAvatar name={e.data.name} logo={e.data.logo} logoDark={e.data.logoDark} category={e.data.category} size={36} />
               <div class="min-w-0">
                 <div class="flex items-center gap-2">
                   <span class="truncate font-semibold text-[var(--aas-text)]">{e.data.name}</span>

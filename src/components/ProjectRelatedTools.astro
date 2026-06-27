@@ -11,6 +11,7 @@ export interface RelatedTool {
   name: string;
   registered: boolean;
   logo?: string;
+  logoDark?: string;
   category?: string;
   deprecated?: boolean;
 }
@@ -38,7 +39,7 @@ const t = useTranslations(lang);
                 href={getRelativeLocaleUrl(lang, `stacks/${tool.slug}/`)}
                 class="aas-lift flex items-center gap-2.5 rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-2 no-underline"
               >
-                <ToolAvatar name={tool.name} logo={tool.logo} category={tool.category} size={28} />
+                <ToolAvatar name={tool.name} logo={tool.logo} logoDark={tool.logoDark} category={tool.category} size={28} />
                 <div class="min-w-0">
                   <div class="flex items-center gap-1.5">
                     <span class="truncate font-semibold text-[var(--aas-text)]">{tool.name}</span>

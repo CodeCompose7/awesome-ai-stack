@@ -1,0 +1,48 @@
+---
+name: Mistral AI
+logo: /logos/mistral.png
+category: llm-foundation
+description: 강력한 오픈 웨이트 모델과 호스팅 API(La Plateforme)를 갖춘 유럽 모델 연구소.
+website: https://mistral.ai
+docs: https://docs.mistral.ai
+tags: [llm, open-weights, api, europe]
+language: API
+license: proprietary
+pricing: [free-tier, paid]
+related: [litellm, openrouter]
+samples:
+  - version: "Python · via LiteLLM"
+    lang: python
+    code: |
+      from litellm import completion
+
+      # MISTRAL_API_KEY in the environment (La Plateforme has a free tier).
+      resp = completion(
+          model="mistral/mistral-large-latest",
+          messages=[{"role": "user", "content": "Say hello in one short sentence."}],
+      )
+      print(resp.choices[0].message.content)
+    description: |
+      ### 언제 쓰나
+      낮은 비용의 경쟁력 있는 품질, EU 데이터 레지던시, 또는 오픈 웨이트 모델을
+      셀프호스트하는 선택지가 필요할 때.
+---
+
+## 개요
+
+Mistral AI는 강력한 오픈 웨이트 모델(Mistral·Mixtral·Codestral)을 호스팅 API La Plateforme와 함께 공개하는 유럽 파운데이션 모델 연구소입니다.  
+API는 OpenAI 형태이며 무료 실험 티어가 있고, 오픈 웨이트 모델은 내려받아 셀프호스트할 수 있습니다.
+
+```mermaid
+flowchart LR
+  prompt[prompt] --> api[(La Plateforme)]
+  api --> resp[completion]
+  weights[open weights] --> self[self-host option]
+```
+
+**코드 샘플** 탭에서 LiteLLM 경유 호출을 보여줍니다.
+
+## 언제 쓰면 좋은가
+
+EU 데이터 레지던시를 갖춘 비용 효율적 프런티어 대안을 원하거나, 같은 계열의
+오픈 웨이트 모델을 셀프호스트하는 유연성이 중요할 때 Mistral을 고르세요.

@@ -42,7 +42,10 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  /* No global smooth scroll: it makes the browser animate scroll *restoration*
+     on back/forward, which is disorienting when returning to the list. The
+     deliberate smooth scrolls (back-to-top, file selector) pass behavior:
+     'smooth' explicitly in JS, so they still animate. */
   background: var(--aas-bg);
   color: var(--aas-text);
 }
@@ -63,25 +66,66 @@ html {
 :root[data-theme='dark'] .aas-deprecated {
   color: #fbbf24;
 }
+/* "No updates in 1+ year" — same amber warning weight as deprecated. */
+.aas-stale {
+  background: color-mix(in srgb, #d97706 16%, transparent);
+  border: 1px solid color-mix(in srgb, #d97706 35%, transparent);
+  color: #b45309;
+}
+:root[data-theme='dark'] .aas-stale {
+  color: #fbbf24;
+}
+/* "No updates in 6+ months" — a milder, lower-contrast caution (softer yellow). */
+.aas-aging {
+  background: color-mix(in srgb, #ca8a04 9%, transparent);
+  border: 1px solid color-mix(in srgb, #ca8a04 22%, transparent);
+  color: #a16207;
+}
+:root[data-theme='dark'] .aas-aging {
+  color: #facc15;
+}
 /* Pricing chip: a soft accent-tinted surface with a faint accent outline. */
 .aas-pricing {
   background: color-mix(in srgb, var(--aas-accent) 12%, transparent);
   border: 1px solid color-mix(in srgb, var(--aas-accent) 28%, transparent);
   color: var(--aas-accent);
 }
+/* "Completely free" pricing chip — a positive green to stand out from paid tiers. */
+.aas-free {
+  background: color-mix(in srgb, #16a34a 14%, transparent);
+  border: 1px solid color-mix(in srgb, #16a34a 32%, transparent);
+  color: #15803d;
+}
+:root[data-theme='dark'] .aas-free {
+  color: #4ade80;
+}
+/* Theme-aware logos: show only the variant matching the active theme
+   (ToolAvatar emits both when a logoDark is set). */
+.aas-logo-dark {
+  display: none;
+}
+:root[data-theme='dark'] .aas-logo-light {
+  display: none;
+}
+:root[data-theme='dark'] .aas-logo-dark {
+  display: revert;
+}
 
-/* Subtle "lift + shadow" on hover for cards and button-like elements. */
+/* Subtle "lift + shadow" on hover for cards and button-like elements. Gated to
+   devices with real hover, so the effect never "sticks" after a tap on touch. */
 .aas-lift {
   transition:
     transform 0.16s ease,
     box-shadow 0.16s ease,
     border-color 0.16s ease;
 }
-.aas-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--aas-shadow);
+@media (hover: hover) {
+  .aas-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--aas-shadow);
+  }
 }
-@media (prefers-reduced-motion: reduce) {
+@media (hover: hover) and (prefers-reduced-motion: reduce) {
   .aas-lift:hover {
     transform: none;
   }

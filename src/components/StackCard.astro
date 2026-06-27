@@ -1,7 +1,8 @@
 ---
 import { getRelativeLocaleUrl } from 'astro:i18n';
-import { pricingLabels, type Lang } from '../i18n/ui';
-import { getRepoStats, formatStars, isStale } from '../lib/github';
+import { pricingLabels, useTranslations, type Lang } from '../i18n/ui';
+import { getRepoStats, formatStars, stalenessOf } from '../lib/github';
+import { pricingTags, COMPLETELY_FREE } from '../lib/pricing';
 import ToolAvatar from './ToolAvatar.astro';
 import ToolMeta from './ToolMeta.astro';
 import StarIcon from './StarIcon.astro';
@@ -10,6 +11,7 @@ interface Props {
   slug: string;
   lang: Lang;
   name: string;
+  formerNames?: string[];
   description: string;
   tags: string[];
   pricing: string[];
@@ -17,20 +19,28 @@ interface Props {
   language?: string;
   category?: string;
   logo?: string;
+  logoDark?: string;
   repo?: string;
   version?: string;
   deprecated?: boolean;
 }
 
-const { slug, lang, name, description, tags, pricing, license, language, category, logo, repo, version, deprecated } =
+const { slug, lang, name, formerNames = [], description, tags, pricing, license, language, category, logo, logoDark, repo, version, deprecated } =
   Astro.props;
+const t = useTranslations(lang);
 const href = getRelativeLocaleUrl(lang, `stacks/${slug}/`);
 
 // Live stats from GitHub (build-time), with the manual `version` as fallback.
 const stats = await getRepoStats(repo);
 const displayVersion = stats?.version ?? version;
-// Warn when an open-source project's latest release is more than a year old.
-const stale = pricing.includes('open-source') && isStale(stats?.releasedAt);
+// Warn when an open-source project's latest release is getting old (6m / 1y).
+const staleness = pricing.includes('open-source') ? stalenessOf(stats?.releasedAt) : 'fresh';
+// Months since the latest release, for the "last updated" freshness filter
+// (open-source only; others have no meaningful release cadence to flag).
+const releaseMs = pricing.includes('open-source') ? Date.parse(stats?.releasedAt ?? '') : NaN;
+const updateMonths = Number.isNaN(releaseMs)
+  ? ''
+  : String(Math.floor((Date.now() - releaseMs) / (30.44 * 24 * 60 * 60 * 1000)));
 
 // Data for client-side search / filter / sort (used on the homepage).
 const langTokens = (language ?? '')
@@ -48,21 +58,29 @@ const searchText = `${name} ${description} ${tags.join(' ')}`.toLowerCase();
   data-tool
   data-name={name}
   data-search={searchText}
-  data-pricing={pricing.join('|')}
+  data-pricing={pricingTags(pricing).join('|')}
   data-license={license ?? ''}
   data-langs={langTokens.join('|')}
   data-stars={typeof stats?.stars === 'number' ? String(stats.stars) : ''}
   data-date={stats?.releasedAt?.slice(0, 10) ?? ''}
+  data-updatemonths={updateMonths}
 >
   {/* Left column: the content. Grows; chips on the right don't push it down. */}
   <div class="flex min-w-0 flex-1 flex-col">
     <div class="flex min-w-0 items-center gap-3">
-      <ToolAvatar name={name} logo={logo} category={category} size={40} />
-      <h3 class="truncate text-base font-semibold text-[var(--aas-text)]">
-        <a href={href} class="no-underline after:absolute after:inset-0 after:content-['']">
-          {name}
-        </a>
-      </h3>
+      <ToolAvatar name={name} logo={logo} logoDark={logoDark} category={category} size={40} />
+      <div class="min-w-0">
+        <h3 class="truncate text-base font-semibold text-[var(--aas-text)]">
+          <a href={href} class="no-underline after:absolute after:inset-0 after:content-['']">
+            {name}
+          </a>
+        </h3>
+        {formerNames.length > 0 && (
+          <p class="truncate text-xs text-[var(--aas-muted)]">
+            {t('meta.formerly')} {formerNames[0]}
+          </p>
+        )}
+      </div>
     </div>
 
     <p class="mt-2 text-sm leading-relaxed text-[var(--aas-muted)]">{description}</p>
@@ -76,7 +94,7 @@ const searchText = `${name} ${description} ${tags.join(' ')}`.toLowerCase();
       version={displayVersion}
       released={stats?.releasedAt?.slice(0, 10)}
       deprecated={deprecated}
-      stale={stale}
+      staleness={staleness}
       class="mt-3"
     />
 
@@ -110,8 +128,12 @@ const searchText = `${name} ${description} ${tags.join(' ')}`.toLowerCase();
       )
     }
     {
-      pricing.map((p) => (
-        <span class="aas-pricing rounded-lg px-2.5 py-1">{pricingLabels[lang][p] ?? p}</span>
+      pricingTags(pricing).map((p) => (
+        <span
+          class:list={[p === COMPLETELY_FREE ? 'aas-free' : 'aas-pricing', 'rounded-lg px-2.5 py-1']}
+        >
+          {pricingLabels[lang][p] ?? p}
+        </span>
       ))
     }
   </div>

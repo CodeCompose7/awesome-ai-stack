@@ -134,19 +134,26 @@ export function getRepoStats(repoUrl?: string): Promise<RepoStats | null> {
   return cache.get(key)!;
 }
 
+const SIX_MONTHS = 182 * ONE_DAY;
 const ONE_YEAR = 365 * ONE_DAY;
 
+/** How long since a project's last release: fresh, aging (6m+), or stale (1y+). */
+export type Staleness = 'fresh' | 'aging' | 'stale';
+
 /**
- * True when the given date is more than a year old — a "stale / no recent
- * updates" signal. Fed the latest release/tag date (the same date shown in the
- * UI), so the warning is consistent with what users see. Unknown or
- * unparseable dates are treated as not-stale (no false warning).
+ * Tier the given date by age — a "no recent updates" signal. Fed the latest
+ * release/tag date (the same date shown in the UI), so the warning is
+ * consistent with what users see: `stale` past a year (stronger), `aging` past
+ * six months (milder). Unknown or unparseable dates are treated as fresh.
  */
-export function isStale(date?: string): boolean {
-  if (!date) return false;
+export function stalenessOf(date?: string): Staleness {
+  if (!date) return 'fresh';
   const t = Date.parse(date);
-  if (Number.isNaN(t)) return false;
-  return Date.now() - t > ONE_YEAR;
+  if (Number.isNaN(t)) return 'fresh';
+  const age = Date.now() - t;
+  if (age > ONE_YEAR) return 'stale';
+  if (age > SIX_MONTHS) return 'aging';
+  return 'fresh';
 }
 
 /** Compact star count, one decimal in k: 1234 → "1.2k", 35456 → "35.5k". */

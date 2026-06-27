@@ -1,0 +1,63 @@
+---
+name: LanceDB
+logo: /logos/lancedb-wbg.png
+category: vec-db
+description: Lance 컬럼형 포맷 기반의 임베디드 벡터 데이터베이스 — 서버리스·로컬 우선.
+website: https://lancedb.com
+repo: https://github.com/lancedb/lancedb
+docs: https://lancedb.github.io/lancedb
+tags: [vector-db, embeddings, embedded, rust]
+language: Rust / Python
+license: Apache-2.0
+pricing: [open-source, free-tier, paid]
+related: [chroma, qdrant, pgvector]
+projects:
+  - folder: lancedb_1
+    related: []
+samples:
+  - version: "Python · embedded"
+    lang: python
+    diagram: |
+      flowchart LR
+        rows[rows + vectors] --> t[(LanceDB table)]
+        q[query vector] --> t
+        t --> top[nearest rows]
+    code: |
+      import lancedb
+
+      db = lancedb.connect("./lance")   # embedded; data lives in a local directory
+      tbl = db.create_table("docs", data=[
+          {"vector": [0.1, 0.2, 0.3, 0.4], "text": "hello"},
+          {"vector": [0.9, 0.8, 0.7, 0.6], "text": "world"},
+      ])
+
+      hits = tbl.search([0.1, 0.2, 0.3, 0.4]).limit(1).to_list()
+      print(hits[0]["text"])
+    description: |
+      ### 언제 쓰나
+      서버 없는 임베디드 벡터 스토어를 원할 때 — SQLite처럼 디스크에 쓰되, 대상이
+      벡터입니다.
+
+      ### 흐름
+      로컬 디렉터리에 연결해 벡터가 담긴 행으로 테이블을 만든 뒤, 질의 벡터로
+      최근접 행을 검색합니다.
+---
+
+## 개요
+
+LanceDB는 Lance 컬럼형 포맷 위에 만들어진 오픈소스 임베디드 벡터 데이터베이스로, 프로세스 내에서 동작하며 로컬 파일이나 오브젝트 스토리지에 기록합니다 — 운영할 서버가 없습니다.  
+멀티모달이고 빠르며, API를 바꾸지 않고 노트북에서 LanceDB Cloud까지 확장됩니다.
+
+```mermaid
+flowchart LR
+  rows[rows + vectors] --> t[(LanceDB table)]
+  q[query vector] --> t
+  t --> top[nearest rows]
+```
+
+**코드 샘플** 탭에서 완전 임베디드 흐름을 보여줍니다.
+
+## 언제 쓰면 좋은가
+
+앱에 내장되는 무운영(zero-ops)·로컬 우선 벡터 스토어를 원할 때 — 데스크톱 도구·
+노트북·엣지 배포에 이상적이며, 로컬 파일을 넘어설 때 클라우드 옵션이 있습니다.

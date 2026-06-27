@@ -1,6 +1,7 @@
 ---
 import { pricingLabels, licenseLabel, useTranslations, type Lang } from '../i18n/ui';
-import { formatStars } from '../lib/github';
+import { formatStars, type Staleness } from '../lib/github';
+import { pricingTags, COMPLETELY_FREE } from '../lib/pricing';
 import StarIcon from './StarIcon.astro';
 
 interface Props {
@@ -12,7 +13,7 @@ interface Props {
   version?: string | null;
   released?: string | null; // YYYY-MM-DD of the latest release
   deprecated?: boolean;
-  stale?: boolean; // repo not updated in 1+ year (warning); hidden when deprecated
+  staleness?: Staleness; // 'stale' (1y+, stronger) or 'aging' (6m+, milder) warning
   class?: string;
 }
 
@@ -25,16 +26,18 @@ const {
   version,
   released,
   deprecated,
-  stale,
+  staleness,
   class: className,
 } = Astro.props;
 const t = useTranslations(lang);
 // "Maintenance only" and the staleness warning are independent signals and may
 // both apply (e.g. a superseded tool whose repo also went quiet).
-const showStale = stale;
+const showStale = staleness === 'stale';
+const showAging = staleness === 'aging';
 const hasAny =
   deprecated ||
   showStale ||
+  showAging ||
   pricing.length > 0 ||
   license ||
   language ||
@@ -53,8 +56,13 @@ const chip = 'aas-chip rounded-lg px-2.5 py-1';
         <span class="aas-deprecated rounded-lg px-2.5 py-1 font-medium">{t('meta.deprecated')}</span>
       )}
       {showStale && (
-        <span title={t('meta.staleHint')} class="aas-deprecated rounded-lg px-2.5 py-1 font-medium">
+        <span title={t('meta.staleHint')} class="aas-stale rounded-lg px-2.5 py-1 font-medium">
           {t('meta.stale')}
+        </span>
+      )}
+      {showAging && (
+        <span title={t('meta.agingHint')} class="aas-aging rounded-lg px-2.5 py-1 font-medium">
+          {t('meta.aging')}
         </span>
       )}
       {typeof stars === 'number' && (
@@ -71,8 +79,10 @@ const chip = 'aas-chip rounded-lg px-2.5 py-1';
         </span>
       )}
       {language && <span class={chip}>{language}</span>}
-      {pricing.map((p) => (
-        <span class="aas-pricing rounded-lg px-2.5 py-1">{pricingLabels[lang][p] ?? p}</span>
+      {pricingTags(pricing).map((p) => (
+        <span class:list={[p === COMPLETELY_FREE ? 'aas-free' : 'aas-pricing', 'rounded-lg px-2.5 py-1']}>
+          {pricingLabels[lang][p] ?? p}
+        </span>
       ))}
       {license && (
         <span class:list={['inline-flex items-center gap-1', chip]}>

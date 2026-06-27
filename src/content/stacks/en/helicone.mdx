@@ -1,0 +1,55 @@
+---
+name: Helicone
+logo: /logos/helicone.svg
+category: observability-tracing
+description: Open-source LLM observability via a one-line proxy — logging, caching, and cost tracking.
+website: https://www.helicone.ai
+repo: https://github.com/Helicone/helicone
+docs: https://docs.helicone.ai
+tags: [observability, proxy, logging, typescript]
+language: TypeScript
+license: Apache-2.0
+pricing: [open-source, free-tier, paid]
+related: [langfuse, langsmith, litellm]
+samples:
+  - version: "Python · proxy the OpenAI SDK"
+    lang: python
+    code: |
+      from openai import OpenAI
+
+      # Point the OpenAI SDK at Helicone's gateway to log every call — no code
+      # changes beyond the base_url and an auth header.
+      client = OpenAI(
+          base_url="https://oai.helicone.ai/v1",
+          default_headers={"Helicone-Auth": "Bearer <HELICONE_API_KEY>"},
+      )
+      resp = client.chat.completions.create(
+          model="gpt-4o-mini",
+          messages=[{"role": "user", "content": "Say hello."}],
+      )
+      print(resp.choices[0].message.content)
+    description: |
+      ### When to use
+      Reach for Helicone when you want observability with near-zero integration —
+      change the base URL and your calls are logged, cached, and costed.
+---
+
+## Overview
+
+Helicone is an open-source observability platform for LLM apps that works as a proxy: route your provider calls through its gateway and get logging, caching, rate limiting, and cost tracking with a one-line change.  
+It runs as managed Helicone Cloud or self-hosted, and also offers an async SDK when you would rather not proxy.
+
+```mermaid
+flowchart LR
+  app[your app] --> h[(Helicone proxy)]
+  h --> provider[LLM provider]
+  h --> dash[logs / cost / cache]
+```
+
+The **Code samples** tab shows the proxy approach with the OpenAI SDK.
+
+## When to use it
+
+Choose Helicone when you want the fastest path to logging and cost visibility —
+a gateway you drop in front of any OpenAI-compatible provider — with self-hosting
+available for data control.

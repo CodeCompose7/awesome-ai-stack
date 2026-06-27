@@ -1,0 +1,64 @@
+---
+name: DeepEval
+logo: /logos/confident-ai-wbg.webp
+category: observability-eval
+description: Open-source "Pytest for LLMs" — unit-test your model and RAG output with metrics.
+website: https://deepeval.com
+repo: https://github.com/confident-ai/deepeval
+docs: https://deepeval.com/docs
+tags: [evaluation, testing, metrics, python]
+language: Python
+license: Apache-2.0
+pricing: [open-source, free-tier, paid]
+related: [ragas, langfuse]
+projects:
+  - folder: deepeval_1
+    related: []
+samples:
+  - version: "Python · evaluate a case"
+    lang: python
+    diagram: |
+      flowchart LR
+        case[test case] --> m[metric]
+        m --> judge[(LLM judge)]
+        m --> verdict[score + pass/fail]
+    code: |
+      from deepeval import evaluate
+      from deepeval.metrics import AnswerRelevancyMetric
+      from deepeval.test_case import LLMTestCase
+
+      case = LLMTestCase(
+          input="What language is Qdrant written in?",
+          actual_output="Qdrant is written in Rust.",
+      )
+      # Metrics use an LLM judge (set OPENAI_API_KEY or configure another).
+      evaluate(test_cases=[case], metrics=[AnswerRelevancyMetric()])
+    description: |
+      ### When to use
+      Use DeepEval when you want LLM evaluation that feels like unit testing —
+      assertions and metrics you run locally and in CI.
+
+      ### How it flows
+      Build `LLMTestCase`s, attach metrics (relevancy, faithfulness, hallucination,
+      and more), and `evaluate` scores each — pass/fail like a test suite.
+---
+
+## Overview
+
+DeepEval is an open-source evaluation framework that treats LLM testing like unit testing — "Pytest for LLMs" — with a library of metrics for relevancy, faithfulness, hallucination, bias, and custom criteria.  
+It runs locally and in CI, and pairs with the Confident AI platform for hosted dashboards and regression tracking.
+
+```mermaid
+flowchart LR
+  case[test case] --> m[metric]
+  m --> judge[(LLM judge)]
+  m --> verdict[score + pass/fail]
+```
+
+The **Code samples** tab shows scoring a single test case.
+
+## When to use it
+
+Choose DeepEval when you want evaluation wired into your test workflow — writing
+metric-based assertions for model and RAG output, and gating CI on them, with an
+optional hosted platform on top.

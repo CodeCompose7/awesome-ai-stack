@@ -1,0 +1,64 @@
+---
+name: LanceDB
+logo: /logos/lancedb-wbg.png
+category: vec-db
+description: Embedded vector database built on the Lance columnar format — serverless and local-first.
+website: https://lancedb.com
+repo: https://github.com/lancedb/lancedb
+docs: https://lancedb.github.io/lancedb
+tags: [vector-db, embeddings, embedded, rust]
+language: Rust / Python
+license: Apache-2.0
+pricing: [open-source, free-tier, paid]
+related: [chroma, qdrant, pgvector]
+projects:
+  - folder: lancedb_1
+    related: []
+samples:
+  - version: "Python · embedded"
+    lang: python
+    diagram: |
+      flowchart LR
+        rows[rows + vectors] --> t[(LanceDB table)]
+        q[query vector] --> t
+        t --> top[nearest rows]
+    code: |
+      import lancedb
+
+      db = lancedb.connect("./lance")   # embedded; data lives in a local directory
+      tbl = db.create_table("docs", data=[
+          {"vector": [0.1, 0.2, 0.3, 0.4], "text": "hello"},
+          {"vector": [0.9, 0.8, 0.7, 0.6], "text": "world"},
+      ])
+
+      hits = tbl.search([0.1, 0.2, 0.3, 0.4]).limit(1).to_list()
+      print(hits[0]["text"])
+    description: |
+      ### When to use
+      Reach for LanceDB when you want an embedded vector store with no server —
+      it writes to disk like SQLite, but for vectors.
+
+      ### How it flows
+      Connect to a local directory, create a table of rows with vectors, then
+      search by a query vector for the nearest rows.
+---
+
+## Overview
+
+LanceDB is an open-source, embedded vector database built on the Lance columnar format — it runs in-process and writes to local files or object storage, with no server to operate.  
+It is multimodal and fast, and scales from a laptop to LanceDB Cloud without changing the API.
+
+```mermaid
+flowchart LR
+  rows[rows + vectors] --> t[(LanceDB table)]
+  q[query vector] --> t
+  t --> top[nearest rows]
+```
+
+The **Code samples** tab shows the fully embedded flow.
+
+## When to use it
+
+Choose LanceDB when you want a zero-ops, local-first vector store embedded in
+your app — ideal for desktop tools, notebooks, and edge deployments, with a
+cloud option when you outgrow local files.

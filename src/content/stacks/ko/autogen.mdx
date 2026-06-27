@@ -1,0 +1,68 @@
+---
+name: AutoGen
+logo: /logos/autogen-wbg.svg
+category: framework-orchestration
+description: Microsoft의 멀티 에이전트 대화 프레임워크. 현재 유지보수 전용 — 신규는 Microsoft Agent Framework 권장.
+website: https://microsoft.github.io/autogen
+repo: https://github.com/microsoft/autogen
+docs: https://microsoft.github.io/autogen/stable/
+tags: [multi-agent, conversation, microsoft, python]
+language: Python
+license: MIT
+pricing: [open-source]
+deprecated: true
+related: [crewai, langgraph]
+projects:
+  - folder: autogen_1
+    related: []
+samples:
+  - version: "Python · AgentChat"
+    lang: python
+    diagram: |
+      flowchart LR
+        task[task] --> a[AssistantAgent]
+        a --> model[(model client)]
+        model --> a
+        a --> out[reply]
+    code: |
+      import asyncio
+      from autogen_agentchat.agents import AssistantAgent
+      from autogen_ext.models.openai import OpenAIChatCompletionClient
+
+      async def main():
+          model = OpenAIChatCompletionClient(model="gpt-4o-mini")
+          agent = AssistantAgent("assistant", model_client=model)
+          result = await agent.run(task="Say hello in one short sentence.")
+          print(result.messages[-1].content)
+
+      asyncio.run(main())
+    description: |
+      ### 언제 쓰나
+      에이전트끼리 메시지를 주고받아 과제를 푸는 대화형 멀티 에이전트 앱에 쓰는
+      AgentChat API.
+
+      ### 흐름
+      `AssistantAgent`가 모델 클라이언트를 감싸고, `run`이 대화를 진행해 메시지
+      목록을 돌려줍니다.
+---
+
+## 개요
+
+AutoGen은 에이전트 간 대화로 멀티 에이전트 시스템을 만드는 Microsoft의 프레임워크입니다 — 이벤트 기반 코어와 상위 수준 AgentChat API로 구성됩니다.  
+2025년부터 **유지보수 전용**입니다. 기존 프로젝트는 계속 동작하지만, Microsoft는 신규 개발에 통합 제품인 Microsoft Agent Framework를 권장합니다.
+
+```mermaid
+flowchart LR
+  task[task] --> a[AssistantAgent]
+  a --> model[(model client)]
+  model --> a
+  a --> out[reply]
+```
+
+**코드 샘플** 탭에서 단일 에이전트 AgentChat 실행을 보여줍니다.
+
+## 언제 쓰면 좋은가
+
+기존 AutoGen 코드베이스나 대화 중심 멀티 에이전트 패턴에는 여전히 합리적입니다.
+신규 프로젝트라면 Microsoft Agent Framework나 활발히 개발되는 CrewAI·LangGraph
+같은 대안을 함께 검토하세요.

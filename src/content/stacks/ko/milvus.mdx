@@ -1,0 +1,62 @@
+---
+name: Milvus
+logo: /logos/milvus.png
+category: vec-db
+description: 수십억 규모 유사도 검색을 위해 만들어진 오픈소스 벡터 데이터베이스.
+website: https://milvus.io
+repo: https://github.com/milvus-io/milvus
+docs: https://milvus.io/docs
+tags: [vector-db, embeddings, rag, go]
+language: Go
+license: Apache-2.0
+pricing: [open-source, free-tier, paid]
+related: [qdrant, weaviate, chroma]
+projects:
+  - folder: milvus_1
+    related: []
+samples:
+  - version: "Python · Milvus Lite"
+    lang: python
+    diagram: |
+      flowchart LR
+        vecs[vectors] --> m[(Milvus)]
+        q[query vector] --> m
+        m --> top[top-k]
+    code: |
+      from pymilvus import MilvusClient
+
+      # Milvus Lite runs embedded from a local file — no server to start.
+      client = MilvusClient("demo.db")
+      client.create_collection("docs", dimension=4)
+      client.insert("docs", [{"id": 1, "vector": [0.1, 0.2, 0.3, 0.4], "text": "hello"}])
+
+      hits = client.search("docs", data=[[0.1, 0.2, 0.3, 0.4]], limit=1, output_fields=["text"])
+      print(hits[0][0]["entity"]["text"])
+    description: |
+      ### 언제 쓰나
+      클러스터 Milvus나 Zilliz Cloud로 확장할 때와 같은 API로, 로컬에서 먼저
+      프로토타이핑하고 싶을 때 Milvus Lite를 쓰세요.
+
+      ### 흐름
+      차원을 지정해 컬렉션을 만들고 필드와 함께 벡터를 넣은 뒤, 질의 벡터로 top-k를
+      검색합니다.
+---
+
+## 개요
+
+Milvus는 대규모 유사도 검색을 위해 설계된 오픈소스 벡터 데이터베이스로, 수십억 개의 벡터를 다루는 분산 아키텍처를 갖췄습니다.  
+임베디드(Milvus Lite), 셀프호스트, 매니지드 Zilliz Cloud로 실행하며 세 방식 모두 같은 API를 씁니다.
+
+```mermaid
+flowchart LR
+  vecs[vectors] --> m[(Milvus)]
+  q[query vector] --> m
+  m --> top[top-k]
+```
+
+**코드 샘플** 탭에서 임베디드 Milvus Lite 흐름을 보여줍니다.
+
+## 언제 쓰면 좋은가
+
+매우 큰 컬렉션이 예상되고 검증된 분산 벡터 스토어가 필요할 때 — Milvus Lite로
+프로토타이핑한 뒤 코드를 바꾸지 않고 클러스터나 Zilliz Cloud로 확장하세요.

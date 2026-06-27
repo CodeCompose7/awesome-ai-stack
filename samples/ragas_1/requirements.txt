@@ -1,0 +1,6 @@
+ragas>=0.2
+# Pin: ragas still imports langchain_community.chat_models.vertexai, which was
+# removed in langchain-community 0.4. Stay on 0.3.x so the import resolves.
+langchain-community>=0.3,<0.4
+langchain-openai>=0.2
+python-dotenv>=1.2

@@ -1,0 +1,56 @@
+---
+name: Opik
+logo: /logos/opik.svg
+category: observability-tracing
+description: Comet's open-source platform for tracing, evaluating, and monitoring LLM apps.
+website: https://www.comet.com/site/products/opik
+repo: https://github.com/comet-ml/opik
+docs: https://www.comet.com/docs/opik
+tags: [observability, tracing, evaluation, python]
+language: Python
+license: Apache-2.0
+pricing: [open-source, free-tier, paid]
+related: [langfuse, arize-phoenix]
+samples:
+  - version: "Python · trace a function"
+    lang: python
+    diagram: |
+      flowchart LR
+        call[your function] --> t["@track"]
+        t --> opik[(Opik)]
+        opik --> ui[traces / scores]
+    code: |
+      from opik import track
+
+      @track
+      def answer(question: str) -> str:
+          # Any LLM/tool calls inside are captured as a trace.
+          return "Qdrant is written in Rust."
+
+      answer("What language is Qdrant written in?")
+      # The call is logged to Opik (self-hosted or Comet Cloud).
+    description: |
+      ### When to use
+      Use Opik when you want tracing and evaluation in one open-source platform —
+      decorate functions to capture traces, then score them online or offline.
+---
+
+## Overview
+
+Opik is an open-source LLM observability platform from Comet that combines tracing, evaluation, and monitoring — capture every call as a trace, attach scores, and watch dashboards in production.  
+It runs self-hosted or as managed Comet Cloud, and integrates with popular frameworks and the `@track` decorator.
+
+```mermaid
+flowchart LR
+  call[your function] --> t["@track"]
+  t --> opik[(Opik)]
+  opik --> ui[traces / scores]
+```
+
+The **Code samples** tab shows tracing a function with `@track`.
+
+## When to use it
+
+Choose Opik when you want tracing and evaluation together in one self-hostable
+platform — instrumenting an app for production monitoring while scoring quality,
+without stitching separate tools.

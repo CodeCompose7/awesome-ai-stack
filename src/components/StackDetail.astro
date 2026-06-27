@@ -16,7 +16,7 @@ import ProjectViewer from './ProjectViewer.astro';
 import ProjectRelatedTools, { type RelatedTool } from './ProjectRelatedTools.astro';
 import ProjectFileList from './ProjectFileList.astro';
 import Toc from './Toc.astro';
-import { getRepoStats, isStale } from '../lib/github';
+import { getRepoStats, stalenessOf } from '../lib/github';
 import { renderSamples } from '../lib/samples';
 import { renderProjects } from '../lib/project';
 
@@ -29,6 +29,9 @@ const { entry, lang } = Astro.props;
 const t = useTranslations(lang);
 const { Content, headings } = await render(entry);
 const data = entry.data;
+// The overview body can contain a Mermaid diagram even with no samples/projects
+// (and thus no tabs), so the loader must not be gated on the tabs alone.
+const overviewHasMermaid = (entry.body ?? '').includes('```mermaid');
 // Breadcrumb: All tools › category › subcategory… (each segment linked).
 const crumbs = [
   { label: t('detail.allTools'), href: getRelativeLocaleUrl(lang, '') },
@@ -47,8 +50,8 @@ const relatedArticles = await getArticlesForTool(lang, slugOf(entry));
 // Live GitHub stats (build-time), with the manual `version` as fallback.
 const stats = await getRepoStats(data.repo);
 const displayVersion = stats?.version ?? data.version;
-// Warn when an open-source project's latest release is more than a year old.
-const stale = data.pricing.includes('open-source') && isStale(stats?.releasedAt);
+// Warn when an open-source project's latest release is getting old (6m / 1y).
+const staleness = data.pricing.includes('open-source') ? stalenessOf(stats?.releasedAt) : 'fresh';
 
 const links = [
   data.website && { label: t('detail.website'), href: data.website },
@@ -83,6 +86,7 @@ function resolveTool(slug: string): RelatedTool {
     name: e.data.name,
     registered: true,
     logo: e.data.logo,
+    logoDark: e.data.logoDark,
     category: e.data.category,
     deprecated: e.data.deprecated,
   };
@@ -102,9 +106,14 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
 
 <header class="mt-4 pb-6">
   <div class="flex items-center gap-4">
-    <ToolAvatar name={data.name} logo={data.logo} category={data.category} size={56} />
+    <ToolAvatar name={data.name} logo={data.logo} logoDark={data.logoDark} category={data.category} size={56} />
     <div>
       <h1 class="text-3xl font-bold tracking-tight">{data.name}</h1>
+      {data.formerNames.length > 0 && (
+        <p class="mt-0.5 text-sm text-[var(--aas-muted)]">
+          {t('meta.formerly')} {data.formerNames.join(' · ')}
+        </p>
+      )}
     </div>
   </div>
   <p class="mt-3 max-w-2xl text-lg text-[var(--aas-muted)]">{data.description}</p>
@@ -133,7 +142,7 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
     version={displayVersion}
     released={stats?.releasedAt?.slice(0, 10)}
     deprecated={data.deprecated}
-    stale={stale}
+    staleness={staleness}
     class="mt-5"
   />
 
@@ -221,7 +230,7 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
   <button type="button" class="aas-toc-top" data-back-to-top>↑ {t('top.label')}</button>
 </aside>
 
-{(hasSamples || hasProject) && <MermaidLoader />}
+{(hasSamples || hasProject || overviewHasMermaid) && <MermaidLoader />}
 
 {/* Restore collapsed file-tree folders from localStorage before first paint
     (placed after every tree in the DOM, so no expand→collapse flash). */}

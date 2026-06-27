@@ -1,0 +1,68 @@
+---
+name: AutoGen
+logo: /logos/autogen-wbg.svg
+category: framework-orchestration
+description: Microsoft's multi-agent conversation framework (maintenance-only; new work moved to Microsoft Agent Framework).
+website: https://microsoft.github.io/autogen
+repo: https://github.com/microsoft/autogen
+docs: https://microsoft.github.io/autogen/stable/
+tags: [multi-agent, conversation, microsoft, python]
+language: Python
+license: MIT
+pricing: [open-source]
+deprecated: true
+related: [crewai, langgraph]
+projects:
+  - folder: autogen_1
+    related: []
+samples:
+  - version: "Python · AgentChat"
+    lang: python
+    diagram: |
+      flowchart LR
+        task[task] --> a[AssistantAgent]
+        a --> model[(model client)]
+        model --> a
+        a --> out[reply]
+    code: |
+      import asyncio
+      from autogen_agentchat.agents import AssistantAgent
+      from autogen_ext.models.openai import OpenAIChatCompletionClient
+
+      async def main():
+          model = OpenAIChatCompletionClient(model="gpt-4o-mini")
+          agent = AssistantAgent("assistant", model_client=model)
+          result = await agent.run(task="Say hello in one short sentence.")
+          print(result.messages[-1].content)
+
+      asyncio.run(main())
+    description: |
+      ### When to use
+      Use the AgentChat API for conversational multi-agent apps — agents that
+      message one another to solve a task.
+
+      ### How it flows
+      An `AssistantAgent` wraps a model client; `run` drives the conversation
+      and returns the message list.
+---
+
+## Overview
+
+AutoGen is Microsoft's framework for building multi-agent systems as conversations between agents — an event-driven core with a higher-level AgentChat API.  
+As of 2025 it is in **maintenance mode**: existing projects keep working, but Microsoft directs new development to the consolidated Microsoft Agent Framework (Semantic Kernel + AutoGen).
+
+```mermaid
+flowchart LR
+  task[task] --> a[AssistantAgent]
+  a --> model[(model client)]
+  model --> a
+  a --> out[reply]
+```
+
+The **Code samples** tab shows a single-agent AgentChat run.
+
+## When to use it
+
+Reasonable for existing AutoGen codebases and for its conversation-centric
+multi-agent patterns. For new projects, weigh the Microsoft Agent Framework or
+an actively developed alternative such as CrewAI or LangGraph.

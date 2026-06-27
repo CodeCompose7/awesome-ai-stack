@@ -1,0 +1,61 @@
+---
+name: Agno
+logo: /logos/agno.jpeg
+category: framework-orchestration
+description: High-performance framework and runtime (AgentOS) for multi-agent systems.
+website: https://www.agno.com
+repo: https://github.com/agno-agi/agno
+docs: https://docs.agno.com
+tags: [multi-agent, runtime, memory, python]
+language: Python
+license: Apache-2.0
+pricing: [open-source, paid]
+related: [crewai, langgraph]
+projects:
+  - folder: agno_1
+    related: []
+samples:
+  - version: "Python · agent"
+    lang: python
+    diagram: |
+      flowchart LR
+        prompt[prompt] --> agent[Agent]
+        agent --> model[(model)]
+        agent --> mem[memory / tools]
+        agent --> out[response]
+    code: |
+      from agno.agent import Agent
+      from agno.models.anthropic import Claude
+
+      agent = Agent(model=Claude(id="claude-opus-4-8"), markdown=False)
+      agent.print_response("Say hello in one short sentence.")
+    description: |
+      ### When to use
+      Use Agno when you want one fast, model-agnostic agent abstraction with
+      memory, knowledge, and tools — and a path to run it in production.
+
+      ### How it flows
+      An `Agent` pairs a model with optional memory, knowledge, and tools;
+      `print_response` runs it and streams the reply.
+---
+
+## Overview
+
+Agno (formerly Phidata) is a high-performance Python framework for building agents with memory, knowledge, and tools, plus **AgentOS** — a runtime for serving and scaling them in production.  
+It is model-agnostic and emphasizes speed and keeping your data inside your own infrastructure.
+
+```mermaid
+flowchart LR
+  prompt[prompt] --> agent[Agent]
+  agent --> model[(model)]
+  agent --> mem[memory / tools]
+  agent --> out[response]
+```
+
+The **Code samples** tab shows a single agent backed by Claude.
+
+## When to use it
+
+Choose Agno when you want a fast, batteries-included agent abstraction and an
+in-house runtime (AgentOS) to deploy multi-agent systems without sending data
+to a third-party platform.
