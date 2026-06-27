@@ -494,6 +494,11 @@ summary {
   align-items: flex-start;
   gap: 0.6rem;
 }
+/* Give the name wrapper the full tile width so the h3's `truncate` can ellipsize
+   a long title instead of overflowing the card. */
+:root[data-view='gallery'] [data-card-head] > div {
+  width: 100%;
+}
 :root[data-view='gallery'] [data-card-head] h3 {
   font-size: 1.0625rem;
   font-weight: 700;
