@@ -623,3 +623,43 @@ summary {
   border-top: 1px solid var(--aas-border);
   margin: 1.75rem 0;
 }
+
+/* Card-style links rendered inside prose (e.g. a concept's inline <Tools/>
+   cards) must not pick up the prose link underline on hover. */
+.prose a.aas-lift,
+.prose a.aas-lift:hover {
+  text-decoration: none;
+}
+
+/* Collapsible card grids (related tools / related concepts): show the first 6
+   cards, hide the rest until the toggle adds [data-expanded]. Keep the 6-item
+   cutoff in sync with LIMIT in CollapsibleGrid.astro. */
+[data-collapse-grid]:not([data-expanded]) [data-collapse-items] > *:nth-child(n + 7) {
+  display: none;
+}
+[data-collapse-toggle] {
+  cursor: pointer;
+}
+[data-collapse-toggle]:hover {
+  text-decoration: underline;
+}
+
+/* Hero card backdrop on the tool detail page: a large, blurred copy of the logo
+   as an ambient tint. Static and subtle (independent of the listing view
+   toggle, unlike .aas-gallery-bg). Sits behind the card content (z-index:-1
+   within the card's `isolate`). */
+.aas-hero-bg {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 60%;
+  z-index: -1;
+  background-position: center 28%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  filter: blur(44px) saturate(1.25);
+  transform: scale(1.6);
+  opacity: 0.1;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent);
+  mask-image: linear-gradient(to bottom, #000 40%, transparent);
+}

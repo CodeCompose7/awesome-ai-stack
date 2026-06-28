@@ -28,6 +28,30 @@ period; that trailing `).` is part of Markdown, not prose, and must stay:
 
 The rule is only about prose parentheses `( … )`, never about `](url)` / `](path)`.
 
+## Korean: no trailing period after a noun-ending fragment
+
+A list item, caption, or table cell that ends in a **noun / noun phrase** — a
+fragment, not a finished sentence — takes **no trailing period**. A line that
+ends in a finite predicate (`…다.`, `…요.`, `…니다.`, `…니까요.`) is a full
+sentence and **keeps** its period, even inside a list. The test: does the line
+end in a predicate? Yes → period; bare noun → no period.
+
+```markdown
+- **루프 + 모델**로 시작                    ← 명사로 끝남 → 마침표 없음
+- 에이전트가 코드를 돌리면 **샌드박스**       ← 명사로 끝남 → 마침표 없음
+- 반복을 시작하면 **평가 + 트레이싱** — 측정할 수 없는 건 개선할 수 없으니까요.  ← 완결 문장 → 마침표 유지
+```
+
+This is about how the line *ends*, so a complete sentence whose main predicate
+sits mid-line (e.g. `… 짜는 일입니다 — 제어 루프, 도구, 측정.`) is still a
+sentence and keeps the period.
+
+**English keeps sentence periods.** English list items that are complete
+sentences — including imperatives — keep their period; only true noun-phrase
+fragments drop it. So a Korean item and its English counterpart may differ:
+`- **루프 + 모델**로 시작` (fragment, no period) vs `- Start with the **loop +
+model**.` (imperative sentence, period). That asymmetry is expected.
+
 ## Line breaks inside a paragraph: two trailing spaces
 
 To make sentences render on their **own lines without the vertical gap of a new

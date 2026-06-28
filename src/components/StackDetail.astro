@@ -1,10 +1,14 @@
 ---
 import { render } from 'astro:content';
+import { Image } from 'astro:assets';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { pathOf } from '../data/categories';
-import { useTranslations, type Lang } from '../i18n/ui';
+import { pricingLabels, useTranslations, type Lang } from '../i18n/ui';
+import { pricingTags, COMPLETELY_FREE } from '../lib/pricing';
+import StarIcon from './StarIcon.astro';
 import { getStacks, slugOf, slugifyName, type StackEntry } from '../lib/stacks';
 import { getArticlesForTool, articleSlugOf } from '../lib/articles';
+import { getConceptsForTool, conceptSlugOf } from '../lib/concepts';
 import ToolAvatar from './ToolAvatar.astro';
 import ToolMeta from './ToolMeta.astro';
 import Breadcrumb from './Breadcrumb.astro';
@@ -13,11 +17,13 @@ import DetailTabs from './DetailTabs.astro';
 import CodeSamples from './CodeSamples.astro';
 import MermaidLoader from './MermaidLoader.astro';
 import RelatedTools from './RelatedTools.astro';
+import CollapsibleGrid from './CollapsibleGrid.astro';
 import ProjectViewer from './ProjectViewer.astro';
 import ProjectRelatedTools, { type RelatedTool } from './ProjectRelatedTools.astro';
 import ProjectFileList from './ProjectFileList.astro';
 import Toc from './Toc.astro';
-import { getRepoStats, stalenessOf } from '../lib/github';
+import { getRepoStats, stalenessOf, formatStars } from '../lib/github';
+import { formatDate, isoDate } from '../lib/dates';
 import { renderSamples } from '../lib/samples';
 import { renderProjects } from '../lib/project';
 
@@ -45,12 +51,23 @@ const crumbs = [
 // Right-rail table of contents: body headings, h2–h3 only.
 const tocItems = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
 
-// Backlinks: writing that references this tool (computed reverse lookup).
+// Backlinks: writing that references this tool, and concepts that use it.
 const relatedArticles = await getArticlesForTool(lang, slugOf(entry));
+const relatedConcepts = await getConceptsForTool(lang, slugOf(entry));
 
 // Live GitHub stats (build-time), with the manual `version` as fallback.
 const stats = await getRepoStats(data.repo);
 const displayVersion = stats?.version ?? data.version;
+
+// Resolved logo URL for the hero card's blurred ambient backdrop (image logos
+// only; monograms/emoji have nothing to blur).
+const base = import.meta.env.BASE_URL;
+const isImageLogo = !!data.logo && (/^https?:\/\//.test(data.logo) || data.logo.startsWith('/'));
+const logoUrl = !isImageLogo
+  ? undefined
+  : /^https?:\/\//.test(data.logo!)
+    ? data.logo!
+    : base.replace(/\/$/, '') + '/' + data.logo!.replace(/^\//, '');
 // Warn when an open-source project's latest release is getting old (6m / 1y).
 const staleness = data.pricing.includes('open-source') ? stalenessOf(stats?.releasedAt) : 'fresh';
 
@@ -106,77 +123,184 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
 
 <Breadcrumb segments={crumbs} />
 
-<header class="mt-4 pb-6">
-  <div class="flex items-center gap-4">
-    <ToolAvatar name={data.name} logo={data.logo} logoDark={data.logoDark} category={data.category} size={56} />
-    <div>
-      <h1 class="text-3xl font-bold tracking-tight">{data.name}</h1>
-      {data.vendor && (
-        <p class="mt-0.5 text-sm text-[var(--aas-muted)]">
-          {t('vendor.heading')}{' '}
-          <a
-            href={getRelativeLocaleUrl(lang, `vendors/${slugifyName(data.vendor)}/`)}
-            class="text-[var(--aas-accent)] no-underline hover:underline"
-          >
-            {data.vendor}
-          </a>
-        </p>
-      )}
-      {data.formerNames.length > 0 && (
-        <p class="mt-0.5 text-sm text-[var(--aas-muted)]">
-          {t('meta.formerly')} {data.formerNames.join(' · ')}
-        </p>
-      )}
+<header class="mt-4">
+  <div class="relative isolate overflow-hidden rounded-3xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-6 sm:p-8">
+    {/* Ambient blurred-logo backdrop, echoing the listing cards' tint. */}
+    {logoUrl && (
+      <div class="aas-hero-bg" aria-hidden="true" style={`background-image:url("${logoUrl}")`} />
+    )}
+
+    <div class="flex flex-col gap-5 min-[900px]:flex-row min-[900px]:items-start">
+      {/* Left: identity, description, links, facts, tags. */}
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-4">
+          <ToolAvatar name={data.name} logo={data.logo} logoDark={data.logoDark} category={data.category} size={56} />
+          <div class="min-w-0">
+            <h1 class="text-3xl font-bold tracking-tight">{data.name}</h1>
+            {data.vendor && (
+              <p class="mt-0.5 text-sm text-[var(--aas-muted)]">
+                {t('vendor.heading')}{' '}
+                <a
+                  href={getRelativeLocaleUrl(lang, `vendors/${slugifyName(data.vendor)}/`)}
+                  class="text-[var(--aas-accent)] no-underline hover:underline"
+                >
+                  {data.vendor}
+                </a>
+              </p>
+            )}
+            {data.formerNames.length > 0 && (
+              <p class="mt-0.5 text-sm text-[var(--aas-muted)]">
+                {t('meta.formerly')} {data.formerNames.join(' · ')}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <p class="mt-3 max-w-2xl text-lg text-[var(--aas-muted)]">{data.description}</p>
+
+        <div class="mt-4 flex flex-wrap gap-2 text-sm">
+          {
+            links.map((l) => (
+              <a
+                href={l.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="aas-lift rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] px-3 py-1.5 text-[var(--aas-text)] no-underline"
+              >
+                {l.label} <span class="text-[var(--aas-muted)]">&nearr;</span>
+              </a>
+            ))
+          }
+        </div>
+
+        <ToolMeta
+          lang={lang}
+          pricing={[]}
+          license={data.license}
+          language={data.language}
+          version={displayVersion}
+          released={stats?.releasedAt?.slice(0, 10)}
+          deprecated={data.deprecated}
+          staleness={staleness}
+          class="mt-5"
+        />
+
+        {
+          data.tags.length > 0 && (
+            <div class="mt-4 flex flex-wrap gap-x-3 gap-y-1 text-xs text-[var(--aas-muted)]">
+              {data.tags.map((tag) => (
+                <a
+                  href={getRelativeLocaleUrl(lang, `tags/${tag}/`)}
+                  class="no-underline opacity-80 hover:text-[var(--aas-accent)] hover:opacity-100"
+                >
+                  #{tag}
+                </a>
+              ))}
+            </div>
+          )
+        }
+      </div>
+
+      {/* Right: key facts — stars + coloured pricing chips, as on the cards. */}
+      <div class="flex shrink-0 flex-wrap gap-1.5 text-xs min-[900px]:flex-col min-[900px]:items-end">
+        {
+          typeof stats?.stars === 'number' && (
+            <span class="aas-chip inline-flex items-center gap-1 rounded-lg px-2.5 py-1">
+              <StarIcon class="text-[var(--aas-text)]" />
+              {formatStars(stats.stars)}
+            </span>
+          )
+        }
+        {
+          pricingTags(data.pricing).map((p) => (
+            <span
+              data-pricing-tag={p}
+              title={pricingLabels[lang][p] ?? p}
+              class:list={[p === COMPLETELY_FREE ? 'aas-free' : 'aas-pricing', 'inline-flex items-center gap-1 rounded-lg px-2.5 py-1']}
+            >
+              {p === 'open-source' && (
+                <svg
+                  class="aas-oss-icon"
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <polyline points="16 18 22 12 16 6" />
+                  <polyline points="8 6 2 12 8 18" />
+                </svg>
+              )}
+              <span>{pricingLabels[lang][p] ?? p}</span>
+            </span>
+          ))
+        }
+      </div>
     </div>
   </div>
-  <p class="mt-3 max-w-2xl text-lg text-[var(--aas-muted)]">{data.description}</p>
 
-  <div class="mt-4 flex flex-wrap gap-2 text-sm">
-    {
-      links.map((l) => (
-        <a
-          href={l.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="aas-lift rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] px-3 py-1.5 text-[var(--aas-text)] no-underline"
-        >
-          {l.label} <span class="text-[var(--aas-muted)]">&nearr;</span>
-        </a>
-      ))
-    }
-  </div>
-
-  <ToolMeta
-    lang={lang}
-    pricing={data.pricing}
-    license={data.license}
-    language={data.language}
-    stars={stats?.stars}
-    version={displayVersion}
-    released={stats?.releasedAt?.slice(0, 10)}
-    deprecated={data.deprecated}
-    staleness={staleness}
-    class="mt-5"
-  />
-
+  {/* Editorial meta sits outside the card, just below it. */}
   {
-    data.tags.length > 0 && (
-      <div class="mt-4 flex flex-wrap gap-x-3 gap-y-1 text-xs text-[var(--aas-muted)]">
-        {data.tags.map((tag) => (
-          <a
-            href={getRelativeLocaleUrl(lang, `tags/${tag}/`)}
-            class="no-underline opacity-80 hover:text-[var(--aas-accent)] hover:opacity-100"
-          >
-            #{tag}
-          </a>
-        ))}
-      </div>
+    (data.docVersion || data.updated) && (
+      <p class="mt-2 px-1 text-xs text-[var(--aas-muted)]">
+        {data.docVersion && <span>{t('meta.docVersion')} {data.docVersion}</span>}
+        {data.docVersion && data.updated && <span> · </span>}
+        {data.updated && (
+          <span>
+            {t('meta.updated')}{' '}
+            <time datetime={isoDate(data.updated)}>{formatDate(data.updated, lang)}</time>
+          </span>
+        )}
+      </p>
     )
   }
-
 </header>
 
 <RelatedTools lang={lang} slugs={data.related} />
+
+{/* Concepts that use this tool (computed backlink), as cards under related tools. */}
+{
+  relatedConcepts.length > 0 && (
+    <section class="mt-8">
+      <h2 class="text-xs font-semibold tracking-wide text-[var(--aas-muted)] uppercase">
+        {t('concept.relatedConcepts')}
+      </h2>
+      <CollapsibleGrid lang={lang} count={relatedConcepts.length}>
+        {relatedConcepts.map((c) => (
+          <a
+            href={getRelativeLocaleUrl(lang, `concepts/${conceptSlugOf(c)}/`)}
+            class="aas-lift flex items-stretch overflow-hidden rounded-2xl border border-[var(--aas-border)] bg-[var(--aas-panel)] no-underline"
+          >
+            {c.data.image && (
+              <Image src={c.data.image} alt="" class="w-28 shrink-0 self-stretch object-cover" />
+            )}
+            <div class="min-w-0 p-4">
+              <span class="block font-semibold text-[var(--aas-text)]">{c.data.title}</span>
+              {(c.data.version || c.data.updated) && (
+                <span class="mt-0.5 block text-xs text-[var(--aas-muted)]">
+                  {c.data.version && <span>{t('meta.docVersion')} {c.data.version}</span>}
+                  {c.data.version && c.data.updated && <span> · </span>}
+                  {c.data.updated && (
+                    <span>
+                      {t('concept.updated')} {formatDate(c.data.updated, lang)}
+                    </span>
+                  )}
+                </span>
+              )}
+              <span class="mt-1.5 line-clamp-2 text-xs leading-relaxed text-[var(--aas-muted)] opacity-75">
+                {c.data.description}
+              </span>
+            </div>
+          </a>
+        ))}
+      </CollapsibleGrid>
+    </section>
+  )
+}
 
 {/* Full-width content; the TOC is a fixed right rail, out of this flow. */}
 <div class="mt-8 min-w-0">
@@ -387,3 +511,4 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
     </aside>
   )
 }
+

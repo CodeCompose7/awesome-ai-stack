@@ -15,6 +15,11 @@ const stacks = defineCollection({
     // Prior names after a rename/rebrand, newest first. The card shows just the
     // most recent (formerNames[0]); the detail page shows all of them.
     formerNames: z.array(z.string()).default([]),
+    // Living-doc metadata for THIS catalog entry's writeup — bump on edits.
+    // Distinct from the tool's own software `version` (further below): docVersion
+    // tracks our article, `version` tracks the tool's release.
+    docVersion: z.string().optional(), // e.g. "1.0"
+    updated: z.coerce.date().optional(), // when the writeup was last revised (YYYY-MM-DD)
     // The organization / company / person that makes and maintains the tool
     // (e.g. "Microsoft"). Powers the per-vendor browse pages at /vendors/<slug>.
     vendor: z.string().optional(),
@@ -95,14 +100,51 @@ const stacks = defineCollection({
  */
 const articles = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/articles' }),
-  schema: z.object({
-    title: z.string(),
-    description: z.string(),
-    date: z.coerce.date(),
-    tools: z.array(z.string()).default([]),
-    tags: z.array(z.string()).default([]),
-    draft: z.boolean().default(false),
-  }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      description: z.string(),
+      date: z.coerce.date(), // first published
+      // Living-doc metadata, mirroring concepts: bump on meaningful edits.
+      version: z.string().optional(), // e.g. "1.0"
+      updated: z.coerce.date().optional(), // last meaningful update (YYYY-MM-DD)
+      image: image().optional(), // hero / card image (optimized; relative to the file)
+      imageAlt: z.string().optional(),
+      tools: z.array(z.string()).default([]),
+      tags: z.array(z.string()).default([]),
+      draft: z.boolean().default(false),
+    }),
 });
 
-export const collections = { stacks, articles };
+/**
+ * The `concepts` collection explains higher-level patterns that compose several
+ * catalog tools into a working setup (e.g. "harness engineering"). Each concept
+ * groups the tools it uses by the role they play, and links related articles.
+ *
+ * Locale-partitioned like the others: `concepts/<lang>/<slug>.mdx`.
+ */
+const concepts = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/concepts' }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      description: z.string(),
+      image: image().optional(), // hero / card image (optimized; relative to the file)
+      imageAlt: z.string().optional(),
+      // A concept is living documentation: bump `version` and `updated` on edits.
+      version: z.string().optional(), // e.g. "1.0"
+      updated: z.coerce.date().optional(), // last meaningful update (YYYY-MM-DD)
+      // Tools grouped by the role they play in the pattern. `role` is content, so
+      // it's written per-locale (e.g. "메모리" / "Memory"); `tools` are stack slugs.
+      tools: z
+        .array(z.object({ role: z.string(), tools: z.array(z.string()).default([]) }))
+        .default([]),
+      articles: z.array(z.string()).default([]), // related article slugs
+      related: z.array(z.string()).default([]), // related concept slugs
+      tags: z.array(z.string()).default([]),
+      order: z.number().optional(), // manual sort on the index (lower first)
+      draft: z.boolean().default(false),
+    }),
+});
+
+export const collections = { stacks, articles, concepts };
