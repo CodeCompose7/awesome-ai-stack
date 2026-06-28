@@ -20,6 +20,7 @@ import ProjectRelatedTools, { type RelatedTool } from './ProjectRelatedTools.ast
 import ProjectFileList from './ProjectFileList.astro';
 import Toc from './Toc.astro';
 import { getRepoStats, stalenessOf } from '../lib/github';
+import { formatDate, isoDate } from '../lib/dates';
 import { renderSamples } from '../lib/samples';
 import { renderProjects } from '../lib/project';
 
@@ -50,13 +51,6 @@ const tocItems = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
 // Backlinks: writing that references this tool, and concepts that use it.
 const relatedArticles = await getArticlesForTool(lang, slugOf(entry));
 const relatedConcepts = await getConceptsForTool(lang, slugOf(entry));
-const fmtConceptDate = (d: Date) =>
-  new Intl.DateTimeFormat(lang === 'ko' ? 'ko-KR' : 'en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    timeZone: 'UTC',
-  }).format(d);
 
 // Live GitHub stats (build-time), with the manual `version` as fallback.
 const stats = await getRepoStats(data.repo);
@@ -173,9 +167,7 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
     data.updated && (
       <p class="mt-3 text-xs text-[var(--aas-muted)]">
         {t('meta.updated')}{' '}
-        <time datetime={data.updated.toISOString().slice(0, 10)}>
-          {data.updated.toISOString().slice(0, 10)}
-        </time>
+        <time datetime={isoDate(data.updated)}>{formatDate(data.updated, lang)}</time>
       </p>
     )
   }
@@ -223,7 +215,7 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
                   {c.data.version && c.data.updated && <span> · </span>}
                   {c.data.updated && (
                     <span>
-                      {t('concept.updated')} {fmtConceptDate(c.data.updated)}
+                      {t('concept.updated')} {formatDate(c.data.updated, lang)}
                     </span>
                   )}
                 </span>

@@ -5,6 +5,7 @@ import { getStacks, slugOf } from '../lib/stacks';
 import { categoryMap } from '../data/categories';
 import { Image } from 'astro:assets';
 import { useTranslations, type Lang } from '../i18n/ui';
+import { formatDate } from '../lib/dates';
 import ToolAvatar from './ToolAvatar.astro';
 import TocRail from './TocRail.astro';
 import type { ArticleEntry } from '../lib/articles';
@@ -37,12 +38,12 @@ const referenced = data.tools
 
 <header class="mt-4 border-b border-[var(--aas-border)] pb-6">
   <p class="text-sm text-[var(--aas-muted)]">
-    <time datetime={dateStr}>{dateStr}</time>
+    <time datetime={dateStr}>{formatDate(data.date, lang)}</time>
     {data.version && <span> · v{data.version}</span>}
-    {updatedStr && updatedStr !== dateStr && (
+    {data.updated && updatedStr !== dateStr && (
       <span>
         {' '}
-        · {t('meta.updated')} <time datetime={updatedStr}>{updatedStr}</time>
+        · {t('meta.updated')} <time datetime={updatedStr}>{formatDate(data.updated, lang)}</time>
       </span>
     )}
   </p>
