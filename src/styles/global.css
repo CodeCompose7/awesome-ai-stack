@@ -643,3 +643,23 @@ summary {
 [data-collapse-toggle]:hover {
   text-decoration: underline;
 }
+
+/* Hero card backdrop on the tool detail page: a large, blurred copy of the logo
+   as an ambient tint. Static and subtle (independent of the listing view
+   toggle, unlike .aas-gallery-bg). Sits behind the card content (z-index:-1
+   within the card's `isolate`). */
+.aas-hero-bg {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 60%;
+  z-index: -1;
+  background-position: center 28%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  filter: blur(44px) saturate(1.25);
+  transform: scale(1.6);
+  opacity: 0.1;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent);
+  mask-image: linear-gradient(to bottom, #000 40%, transparent);
+}
