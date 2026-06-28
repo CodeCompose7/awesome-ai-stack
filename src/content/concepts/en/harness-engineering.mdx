@@ -16,6 +16,8 @@ tags: [harness, reliability, architecture]
 order: 1
 ---
 
+import Tools from '../../../components/ConceptTools.astro';
+
 ## What it is
 
 - A raw LLM call is capable but unreliable on its own.
@@ -52,46 +54,49 @@ Most of the demo-to-production gap is harness, not model — a bigger model rare
 
 Orchestrates the reason→act cycle, manages state, and decides when to call a tool versus stop.
 
-- [LangGraph](../../stacks/langgraph/) · [OpenAI Agents SDK](../../stacks/openai-agents-sdk/) · [CrewAI](../../stacks/crewai/) · [Agno](../../stacks/agno/)
+<Tools slugs={["langgraph", "openai-agents-sdk", "crewai", "agno"]} />
 
 ### Model
 
 The reasoning engine — keep it swappable across cost, latency, and capability.
 
-- Direct: [Anthropic Claude](../../stacks/anthropic-claude/) · [OpenAI](../../stacks/openai/) · [Gemini](../../stacks/gemini/)
-- Gateway (fallbacks, cost routing): [LiteLLM](../../stacks/litellm/) · [OpenRouter](../../stacks/openrouter/)
+**Direct APIs**
+
+<Tools slugs={["anthropic-claude", "openai", "gemini"]} />
+
+**Gateway** — fallbacks and cost routing across providers.
+
+<Tools slugs={["litellm", "openrouter"]} />
 
 ### Tools & web access
 
 What the agent can actually *do* — call apps, search, and pull fresh data.
 
-- Integrations: [Composio](../../stacks/composio/)
-- Web: [Tavily](../../stacks/tavily/) · [Firecrawl](../../stacks/firecrawl/) · [Exa](../../stacks/exa/)
-- Browser: [Browser Use](../../stacks/browser-use/)
+<Tools slugs={["composio", "tavily", "firecrawl", "exa", "browser-use"]} />
 
 ### Code sandbox
 
 Runs model-written code in isolation, so a bad command can't touch your machine.
 
-- [E2B](../../stacks/e2b/)
+<Tools slugs={["e2b"]} />
 
 ### Guardrails
 
 Validate and constrain input/output at runtime, before a bad result reaches a user.
 
-- [Guardrails AI](../../stacks/guardrails-ai/) · [NeMo Guardrails](../../stacks/nemo-guardrails/)
+<Tools slugs={["guardrails-ai", "nemo-guardrails"]} />
 
 ### Evaluation
 
 Score quality with metrics and test suites, so you know a change actually helped.
 
-- [DeepEval](../../stacks/deepeval/) · [Ragas](../../stacks/ragas/) · [Opik](../../stacks/opik/)
+<Tools slugs={["deepeval", "ragas", "opik"]} />
 
 ### Observability
 
 Trace every step, token, and cost in production to catch regressions early.
 
-- [Langfuse](../../stacks/langfuse/) · [LangSmith](../../stacks/langsmith/) · [Arize Phoenix](../../stacks/arize-phoenix/) · [Helicone](../../stacks/helicone/)
+<Tools slugs={["langfuse", "langsmith", "arize-phoenix", "helicone"]} />
 
 ## How to approach it
 

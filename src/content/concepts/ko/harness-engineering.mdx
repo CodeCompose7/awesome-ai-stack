@@ -16,6 +16,8 @@ tags: [harness, reliability, architecture]
 order: 1
 ---
 
+import Tools from '../../../components/ConceptTools.astro';
+
 ## 무엇인가
 
 - 단일 LLM 호출은 똑똑하지만 그 자체로는 불안정합니다.
@@ -52,46 +54,49 @@ flowchart LR
 
 추론→행동 사이클을 조율하고 상태를 관리하며, 도구를 부를지 멈출지 정합니다.
 
-- [LangGraph](../../stacks/langgraph/) · [OpenAI Agents SDK](../../stacks/openai-agents-sdk/) · [CrewAI](../../stacks/crewai/) · [Agno](../../stacks/agno/)
+<Tools slugs={["langgraph", "openai-agents-sdk", "crewai", "agno"]} />
 
 ### 모델
 
 추론 엔진 — 비용·지연·성능에 따라 교체 가능하게 둡니다.
 
-- 직접 호출: [Anthropic Claude](../../stacks/anthropic-claude/) · [OpenAI](../../stacks/openai/) · [Gemini](../../stacks/gemini/)
-- 게이트웨이(폴백·비용 라우팅): [LiteLLM](../../stacks/litellm/) · [OpenRouter](../../stacks/openrouter/)
+**직접 호출**
+
+<Tools slugs={["anthropic-claude", "openai", "gemini"]} />
+
+**게이트웨이** — 여러 제공자에 걸친 폴백·비용 라우팅.
+
+<Tools slugs={["litellm", "openrouter"]} />
 
 ### 도구·웹 접근
 
 에이전트가 *실제로* 할 수 있는 일 — 앱 호출, 검색, 최신 데이터 수집.
 
-- 연동: [Composio](../../stacks/composio/)
-- 웹: [Tavily](../../stacks/tavily/) · [Firecrawl](../../stacks/firecrawl/) · [Exa](../../stacks/exa/)
-- 브라우저: [Browser Use](../../stacks/browser-use/)
+<Tools slugs={["composio", "tavily", "firecrawl", "exa", "browser-use"]} />
 
 ### 코드 샌드박스
 
 모델이 짠 코드를 격리해 실행하므로, 잘못된 명령이 머신을 건드릴 수 없습니다.
 
-- [E2B](../../stacks/e2b/)
+<Tools slugs={["e2b"]} />
 
 ### 가드레일
 
 잘못된 결과가 사용자에게 닿기 전에, 런타임에 입출력을 검증·제약합니다.
 
-- [Guardrails AI](../../stacks/guardrails-ai/) · [NeMo Guardrails](../../stacks/nemo-guardrails/)
+<Tools slugs={["guardrails-ai", "nemo-guardrails"]} />
 
 ### 평가
 
 지표와 테스트로 품질을 채점해, 변경이 실제로 도움이 됐는지 압니다.
 
-- [DeepEval](../../stacks/deepeval/) · [Ragas](../../stacks/ragas/) · [Opik](../../stacks/opik/)
+<Tools slugs={["deepeval", "ragas", "opik"]} />
 
 ### 관측
 
 프로덕션에서 모든 단계·토큰·비용을 트레이싱해 회귀를 일찍 잡습니다.
 
-- [Langfuse](../../stacks/langfuse/) · [LangSmith](../../stacks/langsmith/) · [Arize Phoenix](../../stacks/arize-phoenix/) · [Helicone](../../stacks/helicone/)
+<Tools slugs={["langfuse", "langsmith", "arize-phoenix", "helicone"]} />
 
 ## 어떻게 접근하나
 

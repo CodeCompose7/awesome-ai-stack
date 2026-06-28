@@ -1,12 +1,9 @@
 ---
 import { render } from 'astro:content';
 import { getRelativeLocaleUrl } from 'astro:i18n';
-import { getStacks, slugOf, type StackEntry } from '../lib/stacks';
 import { getArticles, articleSlugOf, type ArticleEntry } from '../lib/articles';
 import { getConcepts, conceptSlugOf, type ConceptEntry } from '../lib/concepts';
-import { categoryMap } from '../data/categories';
 import { useTranslations, type Lang } from '../i18n/ui';
-import ToolAvatar from './ToolAvatar.astro';
 import MermaidLoader from './MermaidLoader.astro';
 
 interface Props {
@@ -20,15 +17,8 @@ const { Content } = await render(entry);
 const data = entry.data;
 const bodyHasMermaid = (entry.body ?? '').includes('```mermaid');
 
-// Resolve the role-grouped tool slugs to their stack entries.
-const stacks = await getStacks(lang);
-const stackBySlug = new Map(stacks.map((s) => [slugOf(s), s]));
-const toolGroups = data.tools
-  .map((g) => ({
-    role: g.role,
-    tools: g.tools.map((sl) => stackBySlug.get(sl)).filter(Boolean) as StackEntry[],
-  }))
-  .filter((g) => g.tools.length > 0);
+// The role-grouped tools are rendered inline in the body via <Tools/>; the
+// frontmatter `tools` still powers the tool→concept backlinks.
 
 // Related articles + related concepts (resolved from slugs).
 const articles = await getArticles(lang);
@@ -59,37 +49,6 @@ const sectionHead = 'text-sm font-semibold tracking-wide text-[var(--aas-muted)]
 <article class="prose max-w-none">
   <Content />
 </article>
-
-{
-  toolGroups.length > 0 && (
-    <section class="mt-10 border-t border-[var(--aas-border)] pt-6">
-      <h2 class={sectionHead}>{t('concept.usedTools')}</h2>
-      <div class="mt-4 space-y-5">
-        {toolGroups.map((g) => (
-          <div>
-            <h3 class="text-sm font-semibold text-[var(--aas-text)]">{g.role}</h3>
-            <div class="mt-2 grid gap-3 sm:grid-cols-2">
-              {g.tools.map((e) => (
-                <a
-                  href={getRelativeLocaleUrl(lang, `stacks/${slugOf(e)}/`)}
-                  class="aas-lift flex items-center gap-3 rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-3 no-underline"
-                >
-                  <ToolAvatar name={e.data.name} logo={e.data.logo} logoDark={e.data.logoDark} category={e.data.category} size={36} />
-                  <div class="min-w-0">
-                    <span class="block truncate font-semibold text-[var(--aas-text)]">{e.data.name}</span>
-                    <span class="block truncate text-xs text-[var(--aas-muted)]">
-                      {categoryMap.get(e.data.category)?.label[lang]}
-                    </span>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  )
-}
 
 {
   relatedArticles.length > 0 && (
