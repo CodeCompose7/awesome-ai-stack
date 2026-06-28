@@ -2,13 +2,14 @@
 title: Harness Engineering
 description: Wrapping an LLM in scaffolding — a control loop, tools, a sandbox, guardrails, and evaluation — so it behaves reliably in production.
 tools:
-  - { role: "Agent loop", tools: [langgraph] }
-  - { role: "Model", tools: [anthropic-claude] }
-  - { role: "Tools & web access", tools: [composio, tavily] }
+  - { role: "Agent loop", tools: [langgraph, openai-agents-sdk, crewai, agno] }
+  - { role: "Model", tools: [anthropic-claude, openai, gemini] }
+  - { role: "Model gateway", tools: [litellm, openrouter] }
+  - { role: "Tools & web access", tools: [composio, tavily, firecrawl, exa, browser-use] }
   - { role: "Code sandbox", tools: [e2b] }
-  - { role: "Guardrails", tools: [guardrails-ai] }
-  - { role: "Evaluation", tools: [deepeval, ragas] }
-  - { role: "Observability", tools: [langfuse] }
+  - { role: "Guardrails", tools: [guardrails-ai, nemo-guardrails] }
+  - { role: "Evaluation", tools: [deepeval, ragas, opik] }
+  - { role: "Observability", tools: [langfuse, langsmith, arize-phoenix, helicone] }
 articles: [langfuse-vs-langsmith]
 related: []
 tags: [harness, reliability, architecture]
@@ -17,12 +18,9 @@ order: 1
 
 ## What it is
 
-A raw LLM call is capable but unreliable on its own. **Harness engineering** is
-the work of building the scaffolding *around* the model: the control loop that
-decides what to do next, the tools it can reach for, a sandbox to run code, the
-checks on its input and output, and the tracing and evaluation that tell you
-whether it's actually working. The model is one part — the harness is everything
-that turns it into a dependable system.
+- A raw LLM call is capable but unreliable on its own.
+- **Harness engineering** is building the scaffolding *around* the model — the control loop, the tools it can reach, a sandbox, checks on its I/O, and the measurement that proves it works.
+- The model is one part; the harness is everything that makes it dependable.
 
 ```mermaid
 flowchart LR
@@ -38,33 +36,66 @@ flowchart LR
 
 ## Why it matters
 
-Most of the gap between a flashy demo and a production agent is harness, not
-model. A better prompt or a bigger model rarely fixes silent failures, runaway
-loops, unsafe output, or "it worked yesterday." Those are solved by the parts
-around the model — bounding the loop, validating output, sandboxing side
-effects, and measuring quality on every change.
+Most of the demo-to-production gap is harness, not model — a bigger model rarely fixes these:
 
-## The pieces
+| Common failure | Fixed by |
+| --- | --- |
+| Silent wrong answers | Evaluation · tracing |
+| Runaway loops | A bounded agent loop |
+| Unsafe / off-topic output | Guardrails |
+| Risky side effects | A code sandbox |
+| "Worked yesterday" | Observability |
 
-- **Agent loop** — orchestrates the reason→act cycle, manages state, and decides
-  when to call a tool versus stop. This is the backbone you build everything else
-  onto.
-- **Model** — the reasoning engine. Kept swappable so you can trade cost,
-  latency, and capability without rewriting the harness.
-- **Tools & web access** — what the agent can *do*: call APIs, search, and pull
-  fresh data from the open web.
-- **Code sandbox** — runs model-written code in isolation, so a bad command
-  can't touch your machine.
-- **Guardrails** — validate and constrain input and output at runtime, before a
-  bad result reaches a user or another step.
-- **Evaluation** — score quality with metrics and test suites so you can tell
-  whether a change actually helped, instead of guessing.
-- **Observability** — trace every step, token, and cost in production to catch
-  regressions before your users do.
+## The roles — and the tools that fill them
+
+### Agent loop
+
+Orchestrates the reason→act cycle, manages state, and decides when to call a tool versus stop.
+
+- [LangGraph](../../stacks/langgraph/) · [OpenAI Agents SDK](../../stacks/openai-agents-sdk/) · [CrewAI](../../stacks/crewai/) · [Agno](../../stacks/agno/)
+
+### Model
+
+The reasoning engine — keep it swappable across cost, latency, and capability.
+
+- Direct: [Anthropic Claude](../../stacks/anthropic-claude/) · [OpenAI](../../stacks/openai/) · [Gemini](../../stacks/gemini/)
+- Gateway (fallbacks, cost routing): [LiteLLM](../../stacks/litellm/) · [OpenRouter](../../stacks/openrouter/)
+
+### Tools & web access
+
+What the agent can actually *do* — call apps, search, and pull fresh data.
+
+- Integrations: [Composio](../../stacks/composio/)
+- Web: [Tavily](../../stacks/tavily/) · [Firecrawl](../../stacks/firecrawl/) · [Exa](../../stacks/exa/)
+- Browser: [Browser Use](../../stacks/browser-use/)
+
+### Code sandbox
+
+Runs model-written code in isolation, so a bad command can't touch your machine.
+
+- [E2B](../../stacks/e2b/)
+
+### Guardrails
+
+Validate and constrain input/output at runtime, before a bad result reaches a user.
+
+- [Guardrails AI](../../stacks/guardrails-ai/) · [NeMo Guardrails](../../stacks/nemo-guardrails/)
+
+### Evaluation
+
+Score quality with metrics and test suites, so you know a change actually helped.
+
+- [DeepEval](../../stacks/deepeval/) · [Ragas](../../stacks/ragas/) · [Opik](../../stacks/opik/)
+
+### Observability
+
+Trace every step, token, and cost in production to catch regressions early.
+
+- [Langfuse](../../stacks/langfuse/) · [LangSmith](../../stacks/langsmith/) · [Arize Phoenix](../../stacks/arize-phoenix/) · [Helicone](../../stacks/helicone/)
 
 ## How to approach it
 
-Start with the loop and the model, then add the pieces your failures demand:
-sandbox once the agent runs code, guardrails once output reaches users, and
-evaluation plus tracing as soon as you iterate — you can't improve what you
-can't measure. The tools below fill each role in the catalog.
+- Start with the **loop + model**.
+- Add a **sandbox** once the agent runs code.
+- Add **guardrails** once output reaches users.
+- Add **evaluation + tracing** the moment you iterate — you can't improve what you can't measure.
