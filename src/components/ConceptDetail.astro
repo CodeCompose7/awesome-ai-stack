@@ -3,7 +3,7 @@ import { render } from 'astro:content';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { getArticles, articleSlugOf, type ArticleEntry } from '../lib/articles';
 import { getConcepts, conceptSlugOf, type ConceptEntry } from '../lib/concepts';
-import { assetSrc } from '../lib/asset';
+import { Image } from 'astro:assets';
 import { useTranslations, type Lang } from '../i18n/ui';
 import MermaidLoader from './MermaidLoader.astro';
 import TocRail from './TocRail.astro';
@@ -37,7 +37,6 @@ const relatedConcepts = data.related
   .filter(Boolean) as ConceptEntry[];
 
 const sectionHead = 'text-sm font-semibold tracking-wide text-[var(--aas-muted)] uppercase';
-const imgSrc = assetSrc(data.image);
 const fmtDate = (d: Date) =>
   new Intl.DateTimeFormat(lang === 'ko' ? 'ko-KR' : 'en-US', {
     year: 'numeric',
@@ -69,12 +68,11 @@ const fmtDate = (d: Date) =>
   }
   <p class="mt-2 max-w-2xl text-lg text-[var(--aas-muted)]">{data.description}</p>
   {
-    imgSrc && (
-      <img
-        src={imgSrc}
+    data.image && (
+      <Image
+        src={data.image}
         alt={data.imageAlt ?? data.title}
         class="mt-5 aspect-[2/1] w-full rounded-2xl border border-[var(--aas-border)] object-cover"
-        loading="lazy"
       />
     )
   }

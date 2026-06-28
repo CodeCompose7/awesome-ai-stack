@@ -3,7 +3,7 @@ import { render } from 'astro:content';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { getStacks, slugOf } from '../lib/stacks';
 import { categoryMap } from '../data/categories';
-import { assetSrc } from '../lib/asset';
+import { Image } from 'astro:assets';
 import { useTranslations, type Lang } from '../i18n/ui';
 import ToolAvatar from './ToolAvatar.astro';
 import TocRail from './TocRail.astro';
@@ -20,7 +20,6 @@ const { Content, headings } = await render(entry);
 const data = entry.data;
 const dateStr = data.date.toISOString().slice(0, 10);
 const tocItems = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
-const imgSrc = assetSrc(data.image);
 
 // Forward links: resolve referenced tool slugs to their stack entries so they
 // render as the same cards used by the "related tools" section.
@@ -40,12 +39,11 @@ const referenced = data.tools
   <h1 class="mt-1 text-3xl font-bold tracking-tight">{data.title}</h1>
   <p class="mt-2 max-w-2xl text-lg text-[var(--aas-muted)]">{data.description}</p>
   {
-    imgSrc && (
-      <img
-        src={imgSrc}
+    data.image && (
+      <Image
+        src={data.image}
         alt={data.imageAlt ?? data.title}
         class="mt-5 aspect-[2/1] w-full rounded-2xl border border-[var(--aas-border)] object-cover"
-        loading="lazy"
       />
     )
   }

@@ -95,16 +95,17 @@ const stacks = defineCollection({
  */
 const articles = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/articles' }),
-  schema: z.object({
-    title: z.string(),
-    description: z.string(),
-    date: z.coerce.date(),
-    image: z.string().optional(), // hero / card image (public path or URL)
-    imageAlt: z.string().optional(),
-    tools: z.array(z.string()).default([]),
-    tags: z.array(z.string()).default([]),
-    draft: z.boolean().default(false),
-  }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      description: z.string(),
+      date: z.coerce.date(),
+      image: image().optional(), // hero / card image (optimized; relative to the file)
+      imageAlt: z.string().optional(),
+      tools: z.array(z.string()).default([]),
+      tags: z.array(z.string()).default([]),
+      draft: z.boolean().default(false),
+    }),
 });
 
 /**
@@ -116,25 +117,26 @@ const articles = defineCollection({
  */
 const concepts = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/concepts' }),
-  schema: z.object({
-    title: z.string(),
-    description: z.string(),
-    image: z.string().optional(), // hero / card image (public path or URL)
-    imageAlt: z.string().optional(),
-    // A concept is living documentation: bump `version` and `updated` on edits.
-    version: z.string().optional(), // e.g. "1.0"
-    updated: z.coerce.date().optional(), // last meaningful update (YYYY-MM-DD)
-    // Tools grouped by the role they play in the pattern. `role` is content, so
-    // it's written per-locale (e.g. "메모리" / "Memory"); `tools` are stack slugs.
-    tools: z
-      .array(z.object({ role: z.string(), tools: z.array(z.string()).default([]) }))
-      .default([]),
-    articles: z.array(z.string()).default([]), // related article slugs
-    related: z.array(z.string()).default([]), // related concept slugs
-    tags: z.array(z.string()).default([]),
-    order: z.number().optional(), // manual sort on the index (lower first)
-    draft: z.boolean().default(false),
-  }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      description: z.string(),
+      image: image().optional(), // hero / card image (optimized; relative to the file)
+      imageAlt: z.string().optional(),
+      // A concept is living documentation: bump `version` and `updated` on edits.
+      version: z.string().optional(), // e.g. "1.0"
+      updated: z.coerce.date().optional(), // last meaningful update (YYYY-MM-DD)
+      // Tools grouped by the role they play in the pattern. `role` is content, so
+      // it's written per-locale (e.g. "메모리" / "Memory"); `tools` are stack slugs.
+      tools: z
+        .array(z.object({ role: z.string(), tools: z.array(z.string()).default([]) }))
+        .default([]),
+      articles: z.array(z.string()).default([]), // related article slugs
+      related: z.array(z.string()).default([]), // related concept slugs
+      tags: z.array(z.string()).default([]),
+      order: z.number().optional(), // manual sort on the index (lower first)
+      draft: z.boolean().default(false),
+    }),
 });
 
 export const collections = { stacks, articles, concepts };
