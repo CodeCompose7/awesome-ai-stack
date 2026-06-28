@@ -623,3 +623,10 @@ summary {
   border-top: 1px solid var(--aas-border);
   margin: 1.75rem 0;
 }
+
+/* Card-style links rendered inside prose (e.g. a concept's inline <Tools/>
+   cards) must not pick up the prose link underline on hover. */
+.prose a.aas-lift,
+.prose a.aas-lift:hover {
+  text-decoration: none;
+}

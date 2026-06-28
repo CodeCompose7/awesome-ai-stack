@@ -3,6 +3,7 @@ import { render } from 'astro:content';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { getArticles, articleSlugOf, type ArticleEntry } from '../lib/articles';
 import { getConcepts, conceptSlugOf, type ConceptEntry } from '../lib/concepts';
+import { assetSrc } from '../lib/asset';
 import { useTranslations, type Lang } from '../i18n/ui';
 import MermaidLoader from './MermaidLoader.astro';
 
@@ -34,6 +35,14 @@ const relatedConcepts = data.related
   .filter(Boolean) as ConceptEntry[];
 
 const sectionHead = 'text-sm font-semibold tracking-wide text-[var(--aas-muted)] uppercase';
+const imgSrc = assetSrc(data.image);
+const fmtDate = (d: Date) =>
+  new Intl.DateTimeFormat(lang === 'ko' ? 'ko-KR' : 'en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'UTC',
+  }).format(d);
 ---
 
 <a
@@ -43,7 +52,30 @@ const sectionHead = 'text-sm font-semibold tracking-wide text-[var(--aas-muted)]
 
 <header class="mt-4 pb-6">
   <h1 class="text-3xl font-bold tracking-tight">{data.title}</h1>
+  {
+    (data.version || data.updated) && (
+      <p class="mt-1 text-sm text-[var(--aas-muted)]">
+        {data.version && <span>v{data.version}</span>}
+        {data.version && data.updated && <span> · </span>}
+        {data.updated && (
+          <span>
+            {t('concept.updated')} {fmtDate(data.updated)}
+          </span>
+        )}
+      </p>
+    )
+  }
   <p class="mt-2 max-w-2xl text-lg text-[var(--aas-muted)]">{data.description}</p>
+  {
+    imgSrc && (
+      <img
+        src={imgSrc}
+        alt={data.imageAlt ?? data.title}
+        class="mt-5 aspect-[2/1] w-full rounded-2xl border border-[var(--aas-border)] object-cover"
+        loading="lazy"
+      />
+    )
+  }
 </header>
 
 <article class="prose max-w-none">

@@ -1,6 +1,7 @@
 ---
 import { getRelativeLocaleUrl } from 'astro:i18n';
-import type { Lang } from '../i18n/ui';
+import { assetSrc } from '../lib/asset';
+import { useTranslations, type Lang } from '../i18n/ui';
 
 interface Props {
   lang: Lang;
@@ -8,24 +9,54 @@ interface Props {
   title: string;
   description: string;
   tags: string[];
+  image?: string;
+  imageAlt?: string;
+  version?: string;
+  updated?: Date;
 }
 
-const { lang, slug, title, description, tags } = Astro.props;
+const { lang, slug, title, description, tags, image, imageAlt, version, updated } = Astro.props;
+const t = useTranslations(lang);
+const imgSrc = assetSrc(image);
+const updatedStr = updated
+  ? new Intl.DateTimeFormat(lang === 'ko' ? 'ko-KR' : 'en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      timeZone: 'UTC',
+    }).format(updated)
+  : undefined;
 ---
 
 <a
   href={getRelativeLocaleUrl(lang, `concepts/${slug}/`)}
-  class="aas-lift block rounded-3xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-5 no-underline"
+  class="aas-lift block overflow-hidden rounded-3xl border border-[var(--aas-border)] bg-[var(--aas-panel)] no-underline"
 >
-  <h2 class="text-lg font-semibold text-[var(--aas-text)]">{title}</h2>
-  <p class="mt-1.5 text-sm leading-relaxed text-[var(--aas-muted)]">{description}</p>
-  {
-    tags.length > 0 && (
-      <div class="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-[var(--aas-muted)]">
-        {tags.map((tag) => (
-          <span class="opacity-80">#{tag}</span>
-        ))}
-      </div>
-    )
-  }
+  {imgSrc && <img src={imgSrc} alt={imageAlt ?? title} class="aspect-[16/9] w-full object-cover" loading="lazy" />}
+  <div class="p-5">
+    <h2 class="text-lg font-semibold text-[var(--aas-text)]">{title}</h2>
+    {
+      (version || updatedStr) && (
+        <p class="mt-0.5 text-xs text-[var(--aas-muted)]">
+          {version && <span>v{version}</span>}
+          {version && updatedStr && <span> · </span>}
+          {updatedStr && (
+            <span>
+              {t('concept.updated')} {updatedStr}
+            </span>
+          )}
+        </p>
+      )
+    }
+    <p class="mt-1.5 text-sm leading-relaxed text-[var(--aas-muted)]">{description}</p>
+    {
+      tags.length > 0 && (
+        <div class="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-[var(--aas-muted)]">
+          {tags.map((tag) => (
+            <span class="opacity-80">#{tag}</span>
+          ))}
+        </div>
+      )
+    }
+  </div>
 </a>

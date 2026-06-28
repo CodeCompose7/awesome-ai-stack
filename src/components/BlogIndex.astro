@@ -30,6 +30,8 @@ const articles = await getArticles(lang);
           description={a.data.description}
           date={a.data.date}
           tags={a.data.tags}
+          image={a.data.image}
+          imageAlt={a.data.imageAlt}
         />
       ))}
     </div>

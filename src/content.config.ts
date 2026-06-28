@@ -99,6 +99,8 @@ const articles = defineCollection({
     title: z.string(),
     description: z.string(),
     date: z.coerce.date(),
+    image: z.string().optional(), // hero / card image (public path or URL)
+    imageAlt: z.string().optional(),
     tools: z.array(z.string()).default([]),
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
@@ -117,6 +119,11 @@ const concepts = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
+    image: z.string().optional(), // hero / card image (public path or URL)
+    imageAlt: z.string().optional(),
+    // A concept is living documentation: bump `version` and `updated` on edits.
+    version: z.string().optional(), // e.g. "1.0"
+    updated: z.coerce.date().optional(), // last meaningful update (YYYY-MM-DD)
     // Tools grouped by the role they play in the pattern. `role` is content, so
     // it's written per-locale (e.g. "메모리" / "Memory"); `tools` are stack slugs.
     tools: z

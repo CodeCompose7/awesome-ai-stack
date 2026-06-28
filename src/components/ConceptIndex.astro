@@ -29,6 +29,10 @@ const concepts = await getConcepts(lang);
           title={c.data.title}
           description={c.data.description}
           tags={c.data.tags}
+          image={c.data.image}
+          imageAlt={c.data.imageAlt}
+          version={c.data.version}
+          updated={c.data.updated}
         />
       ))}
     </div>
