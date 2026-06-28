@@ -186,21 +186,6 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
         />
 
         {
-          (data.docVersion || data.updated) && (
-            <p class="mt-3 text-xs text-[var(--aas-muted)]">
-              {data.docVersion && <span>{t('meta.docVersion')} {data.docVersion}</span>}
-              {data.docVersion && data.updated && <span> · </span>}
-              {data.updated && (
-                <span>
-                  {t('meta.updated')}{' '}
-                  <time datetime={isoDate(data.updated)}>{formatDate(data.updated, lang)}</time>
-                </span>
-              )}
-            </p>
-          )
-        }
-
-        {
           data.tags.length > 0 && (
             <div class="mt-4 flex flex-wrap gap-x-3 gap-y-1 text-xs text-[var(--aas-muted)]">
               {data.tags.map((tag) => (
@@ -258,6 +243,21 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
     </div>
   </div>
 
+  {/* Editorial meta sits outside the card, just below it. */}
+  {
+    (data.docVersion || data.updated) && (
+      <p class="mt-2 px-1 text-xs text-[var(--aas-muted)]">
+        {data.docVersion && <span>{t('meta.docVersion')} {data.docVersion}</span>}
+        {data.docVersion && data.updated && <span> · </span>}
+        {data.updated && (
+          <span>
+            {t('meta.updated')}{' '}
+            <time datetime={isoDate(data.updated)}>{formatDate(data.updated, lang)}</time>
+          </span>
+        )}
+      </p>
+    )
+  }
 </header>
 
 <RelatedTools lang={lang} slugs={data.related} />
