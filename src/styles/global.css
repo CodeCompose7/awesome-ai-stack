@@ -630,3 +630,16 @@ summary {
 .prose a.aas-lift:hover {
   text-decoration: none;
 }
+
+/* Collapsible card grids (related tools / related concepts): show the first 6
+   cards, hide the rest until the toggle adds [data-expanded]. Keep the 6-item
+   cutoff in sync with LIMIT in CollapsibleGrid.astro. */
+[data-collapse-grid]:not([data-expanded]) [data-collapse-items] > *:nth-child(n + 7) {
+  display: none;
+}
+[data-collapse-toggle] {
+  cursor: pointer;
+}
+[data-collapse-toggle]:hover {
+  text-decoration: underline;
+}

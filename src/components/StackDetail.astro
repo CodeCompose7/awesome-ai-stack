@@ -15,6 +15,7 @@ import DetailTabs from './DetailTabs.astro';
 import CodeSamples from './CodeSamples.astro';
 import MermaidLoader from './MermaidLoader.astro';
 import RelatedTools from './RelatedTools.astro';
+import CollapsibleGrid from './CollapsibleGrid.astro';
 import ProjectViewer from './ProjectViewer.astro';
 import ProjectRelatedTools, { type RelatedTool } from './ProjectRelatedTools.astro';
 import ProjectFileList from './ProjectFileList.astro';
@@ -204,7 +205,7 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
       <h2 class="text-xs font-semibold tracking-wide text-[var(--aas-muted)] uppercase">
         {t('concept.relatedConcepts')}
       </h2>
-      <div class="mt-3 grid gap-3 sm:grid-cols-2">
+      <CollapsibleGrid lang={lang} count={relatedConcepts.length}>
         {relatedConcepts.map((c) => (
           <a
             href={getRelativeLocaleUrl(lang, `concepts/${conceptSlugOf(c)}/`)}
@@ -232,7 +233,7 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
             </div>
           </a>
         ))}
-      </div>
+      </CollapsibleGrid>
     </section>
   )
 }

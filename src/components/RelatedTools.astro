@@ -4,6 +4,7 @@ import { getStacks, slugOf } from '../lib/stacks';
 import { categoryMap } from '../data/categories';
 import { useTranslations, type Lang } from '../i18n/ui';
 import ToolAvatar from './ToolAvatar.astro';
+import CollapsibleGrid from './CollapsibleGrid.astro';
 
 interface Props {
   lang: Lang;
@@ -26,7 +27,7 @@ const related = slugs.map((s) => bySlug.get(s)).filter(Boolean) as NonNullable<
       <h2 class="text-xs font-semibold tracking-wide text-[var(--aas-muted)] uppercase">
         {t('detail.relatedTools')}
       </h2>
-      <div class="mt-3 grid gap-3 sm:grid-cols-2">
+      <CollapsibleGrid lang={lang} count={related.length}>
         {related.map((e) => (
           <a
             href={getRelativeLocaleUrl(lang, `stacks/${slugOf(e)}/`)}
@@ -48,7 +49,7 @@ const related = slugs.map((s) => bySlug.get(s)).filter(Boolean) as NonNullable<
             </div>
           </a>
         ))}
-      </div>
+      </CollapsibleGrid>
     </section>
   )
 }
