@@ -33,6 +33,7 @@ const entries = (await getStacksByTag(lang, tag)).sort((a, b) =>
         lang={lang}
         name={e.data.name}
         formerNames={e.data.formerNames}
+        vendor={e.data.vendor}
         description={e.data.description}
         tags={e.data.tags}
         pricing={e.data.pricing}

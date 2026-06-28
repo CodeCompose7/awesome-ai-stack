@@ -1,0 +1,59 @@
+---
+// A self-contained fixed right-rail table of contents (with scroll-spy and a
+// back-to-top button) for single-column detail pages — concepts and articles.
+// (StackDetail has its own tab-aware rail.)
+import Toc from './Toc.astro';
+import { useTranslations, type Lang } from '../i18n/ui';
+
+interface Item {
+  slug: string;
+  text: string;
+  depth: number;
+}
+interface Props {
+  lang: Lang;
+  items: Item[];
+}
+
+const { lang, items } = Astro.props;
+const t = useTranslations(lang);
+---
+
+{
+  items.length > 0 && (
+    <aside class="aas-toc-rail" data-toc-rail>
+      <div class="aas-toc-scroll">
+        <Toc items={items} title={t('toc.onThisPage')} />
+      </div>
+      <button type="button" class="aas-toc-top" data-back-to-top>
+        ↑ {t('top.label')}
+      </button>
+    </aside>
+  )
+}
+
+<script>
+  const rail = document.querySelector<HTMLElement>('[data-toc-rail]');
+  if (rail) {
+    const links = Array.from(rail.querySelectorAll<HTMLAnchorElement>('a[href^="#"]'));
+
+    // Scroll-spy: highlight the heading nearest the top of the viewport.
+    function spy() {
+      let activeId: string | null = null;
+      for (const a of links) {
+        const id = a.getAttribute('href')!.slice(1);
+        const h = document.getElementById(id);
+        if (h && h.getBoundingClientRect().top <= 140) activeId = id;
+      }
+      links.forEach((a) =>
+        a.setAttribute('aria-current', String(a.getAttribute('href')!.slice(1) === activeId)),
+      );
+    }
+    window.addEventListener('scroll', spy, { passive: true });
+    spy();
+
+    rail
+      .querySelector('[data-back-to-top]')
+      ?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  }
+</script>

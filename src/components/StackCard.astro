@@ -12,6 +12,7 @@ interface Props {
   lang: Lang;
   name: string;
   formerNames?: string[];
+  vendor?: string;
   description: string;
   tags: string[];
   pricing: string[];
@@ -25,7 +26,7 @@ interface Props {
   deprecated?: boolean;
 }
 
-const { slug, lang, name, formerNames = [], description, tags, pricing, license, language, category, logo, logoDark, repo, version, deprecated } =
+const { slug, lang, name, formerNames = [], vendor, description, tags, pricing, license, language, category, logo, logoDark, repo, version, deprecated } =
   Astro.props;
 const t = useTranslations(lang);
 const href = getRelativeLocaleUrl(lang, `stacks/${slug}/`);
@@ -64,7 +65,7 @@ const searchText = `${name} ${description} ${tags.join(' ')}`.toLowerCase();
    (its ::after covers the whole card), while tag links sit above it (z-10) so
    they remain individually clickable. */}
 <div
-  class="aas-lift relative flex flex-col gap-3 rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-5 min-[1000px]:flex-row"
+  class="aas-lift relative isolate flex flex-col gap-3 overflow-hidden rounded-3xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-5 min-[1000px]:flex-row"
   data-tool
   data-name={name}
   data-search={searchText}
@@ -91,6 +92,7 @@ const searchText = `${name} ${description} ${tags.join(' ')}`.toLowerCase();
             {name}
           </a>
         </h3>
+        {vendor && <p class="truncate text-xs text-[var(--aas-muted)]">{vendor}</p>}
         {formerNames.length > 0 && (
           <p class="truncate text-xs text-[var(--aas-muted)]">
             {t('meta.formerly')} {formerNames[0]}
@@ -153,9 +155,27 @@ const searchText = `${name} ${description} ${tags.join(' ')}`.toLowerCase();
       pricingTags(pricing).map((p) => (
         <span
           data-pricing-tag={p}
+          title={pricingLabels[lang][p] ?? p}
           class:list={[p === COMPLETELY_FREE ? 'aas-free' : 'aas-pricing', 'rounded-lg px-2.5 py-1']}
         >
-          {pricingLabels[lang][p] ?? p}
+          {p === 'open-source' && (
+            <svg
+              class="aas-oss-icon"
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <polyline points="16 18 22 12 16 6" />
+              <polyline points="8 6 2 12 8 18" />
+            </svg>
+          )}
+          <span data-chip-label>{pricingLabels[lang][p] ?? p}</span>
         </span>
       ))
     }

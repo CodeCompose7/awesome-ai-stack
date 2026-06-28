@@ -24,8 +24,8 @@ export const categories: Category[] = [
     id: 'frameworks',
     label: { en: 'Agent Frameworks', ko: '에이전트 프레임워크' },
     description: {
-      en: 'Libraries for orchestrating reasoning loops, tools, and multi-agent flows.',
-      ko: '추론 루프·도구·멀티 에이전트 흐름을 오케스트레이션하는 라이브러리.',
+      en: 'Libraries for orchestrating reasoning loops, tools, and multi-agent flows',
+      ko: '추론 루프·도구·멀티 에이전트 흐름을 오케스트레이션하는 라이브러리',
     },
     detail: {
       en: 'The backbone of an agent: these libraries run the reason–act loop, call tools, manage state, and coordinate one or many agents. Pick based on how much structure you want — from a single typed call to a full multi-agent graph.',
@@ -37,7 +37,7 @@ export const categories: Category[] = [
         label: { en: 'Multi-Agent Orchestration', ko: '멀티 에이전트 오케스트레이션' },
         description: {
           en: 'Coordinate multiple agents, tools, and reasoning steps into one workflow.',
-          ko: '여러 에이전트·도구·추론 단계를 하나의 워크플로로 조율하는 도구.',
+          ko: '여러 에이전트·도구·추론 단계를 하나의 워크플로로 조율하는 도구',
         },
         detail: {
           en: 'For workflows where multiple agents or tools hand off to one another. These frameworks model the control flow — graphs, roles, or crews — and manage the shared state that flows across steps.',
@@ -49,7 +49,7 @@ export const categories: Category[] = [
         label: { en: 'Structured Output & Typing', ko: '구조화 출력 & 타입' },
         description: {
           en: 'Coerce model responses into validated, typed data structures.',
-          ko: '모델 응답을 검증된 타입 데이터 구조로 변환하는 도구.',
+          ko: '모델 응답을 검증된 타입 데이터 구조로 변환하는 도구',
         },
         detail: {
           en: 'For when you need the model to return data, not prose. These libraries enforce a schema and hand you validated, typed objects — so an LLM call slots straight into typed code.',
@@ -61,7 +61,7 @@ export const categories: Category[] = [
         label: { en: 'Prompt Optimization', ko: '프롬프트 최적화' },
         description: {
           en: 'Program and automatically optimize prompts instead of hand-tuning them.',
-          ko: '프롬프트를 직접 튜닝하는 대신 프로그래밍하고 자동으로 최적화하는 도구.',
+          ko: '프롬프트를 직접 튜닝하는 대신 프로그래밍하고 자동으로 최적화하는 도구',
         },
         detail: {
           en: 'Treat prompting as programming. Instead of hand-tuning strings, you declare modules and let the framework compile and optimize the prompts against your metrics.',
@@ -72,12 +72,12 @@ export const categories: Category[] = [
         id: 'framework-rag',
         label: { en: 'RAG & Data Frameworks', ko: 'RAG·데이터 프레임워크' },
         description: {
-          en: 'Frameworks for retrieval-augmented generation and data-centric agents.',
-          ko: '검색 증강 생성(RAG)과 데이터 중심 에이전트를 위한 프레임워크.',
+          en: 'Frameworks for retrieval-augmented generation and data-centric agents',
+          ko: '검색 증강 생성(RAG)과 데이터 중심 에이전트를 위한 프레임워크',
         },
         detail: {
-          en: 'For retrieval-heavy apps — ingest, index, and query your data, then ground the model in it. The backbone of RAG pipelines and data agents.',
-          ko: '검색 중심 앱을 위한 것 — 데이터를 수집·색인·질의한 뒤 모델을 그 데이터에 근거하게 한다. RAG 파이프라인과 데이터 에이전트의 중심.',
+          en: 'For retrieval-heavy apps — ingest, index, and query your data, then ground the model in it. The backbone of RAG pipelines and data agents',
+          ko: '검색 중심 앱을 위한 것 — 데이터를 수집·색인·질의한 뒤 모델을 그 데이터에 근거하게 한다. RAG 파이프라인과 데이터 에이전트의 중심',
         },
       },
     ],
@@ -86,20 +86,20 @@ export const categories: Category[] = [
     id: 'coding-agents',
     label: { en: 'Coding Agents', ko: '코딩 에이전트' },
     description: {
-      en: 'Autonomous agents that read, write, and run code to complete software tasks.',
-      ko: '코드를 읽고 쓰고 실행해 소프트웨어 작업을 자율적으로 수행하는 에이전트.',
+      en: 'Autonomous agents that read, write, and run code to complete software tasks',
+      ko: '코드를 읽고 쓰고 실행해 소프트웨어 작업을 자율적으로 수행하는 에이전트',
     },
     detail: {
       en: 'Agents specialized for software work — they read a repo, plan a change, edit files, run tests, and iterate. They differ mainly in where you drive them: a terminal, your editor, or fully autonomous issue resolution.',
-      ko: '소프트웨어 작업에 특화된 에이전트입니다. 저장소를 읽고 변경을 계획하고 파일을 수정하며 테스트를 돌리고 반복합니다. 가장 큰 차이는 어디서 다루느냐입니다 — 터미널, 에디터, 또는 완전 자율적인 이슈 해결.',
+      ko: '소프트웨어 작업에 특화된 에이전트입니다. 저장소를 읽고 변경을 계획하고 파일을 수정하며 테스트를 돌리고 반복합니다. 가장 큰 차이는 어디서 다루느냐입니다 — 터미널, 에디터, 또는 완전 자율적인 이슈 해결',
     },
     children: [
       {
         id: 'coding-cli',
         label: { en: 'Terminal & CLI', ko: '터미널 & CLI' },
         description: {
-          en: 'Coding agents you drive from the command line.',
-          ko: '커맨드라인에서 다루는 코딩 에이전트.',
+          en: 'Coding agents you drive from the command line',
+          ko: '커맨드라인에서 다루는 코딩 에이전트',
         },
         detail: {
           en: 'Coding agents that live in your shell. You stay in the terminal, point them at files or a task, and review diffs — lightweight and easy to script.',
@@ -110,11 +110,11 @@ export const categories: Category[] = [
         id: 'coding-ide',
         label: { en: 'IDE-Integrated', ko: 'IDE 통합' },
         description: {
-          en: 'Agents that live inside your editor.',
-          ko: '에디터 안에서 동작하는 에이전트.',
+          en: 'Agents that live inside your editor',
+          ko: '에디터 안에서 동작하는 에이전트',
         },
         detail: {
-          en: 'Agents that work inside your editor, with the open file, project context, and inline diffs right where you code.',
+          en: 'Agents that work inside your editor, with the open file, project context, and inline diffs right where you code',
           ko: '에디터 안에서 동작하는 에이전트입니다. 열린 파일과 프로젝트 컨텍스트, 인라인 diff를 코딩하는 자리에서 바로 다룹니다.',
         },
       },
@@ -122,8 +122,8 @@ export const categories: Category[] = [
         id: 'coding-autonomous',
         label: { en: 'Autonomous SWE', ko: '자율 SWE 에이전트' },
         description: {
-          en: 'Agents that resolve issues and tasks end to end.',
-          ko: '이슈와 작업을 끝까지 자율적으로 해결하는 에이전트.',
+          en: 'Agents that resolve issues and tasks end to end',
+          ko: '이슈와 작업을 끝까지 자율적으로 해결하는 에이전트',
         },
         detail: {
           en: 'Give them an issue and step back. These agents plan and carry out an end-to-end fix — exploring the repo, editing, and validating — and are benchmarked on suites like SWE-bench.',
@@ -136,8 +136,8 @@ export const categories: Category[] = [
     id: 'llm-providers',
     label: { en: 'LLM Providers & Gateways', ko: 'LLM 제공자 & 게이트웨이' },
     description: {
-      en: 'Foundation-model APIs — and the gateways that unify them — powering an agent’s reasoning.',
-      ko: '에이전트의 추론을 담당하는 파운데이션 모델 API와 이를 하나로 묶는 게이트웨이.',
+      en: 'Foundation-model APIs — and the gateways that unify them — powering an agent’s reasoning',
+      ko: '에이전트의 추론을 담당하는 파운데이션 모델 API와 이를 하나로 묶는 게이트웨이',
     },
     detail: {
       en: "Where an agent's reasoning actually happens. This covers first-party model APIs, the gateways that put many models behind one interface, and local runtimes for open models — the layer you swap when cost, latency, or privacy needs change.",
@@ -148,8 +148,8 @@ export const categories: Category[] = [
         id: 'llm-foundation',
         label: { en: 'Foundation Model APIs', ko: '파운데이션 모델 API' },
         description: {
-          en: 'First-party APIs for frontier models.',
-          ko: '프런티어 모델의 1차 제공자 API.',
+          en: 'First-party APIs for frontier models',
+          ko: '프런티어 모델의 1차 제공자 API',
         },
         detail: {
           en: 'First-party APIs from the labs that build the models. You get the newest capabilities and the most reliable quality, in exchange for per-token pricing and a hosted dependency.',
@@ -160,8 +160,8 @@ export const categories: Category[] = [
         id: 'llm-gateway',
         label: { en: 'Gateways & Routers', ko: '게이트웨이 & 라우터' },
         description: {
-          en: 'One interface that unifies many providers.',
-          ko: '여러 제공자를 하나의 인터페이스로 통합하는 도구.',
+          en: 'One interface that unifies many providers',
+          ko: '여러 제공자를 하나의 인터페이스로 통합하는 도구',
         },
         detail: {
           en: 'One API in front of many providers. Swap models with a string, add fallbacks and cost-based routing, and avoid locking your code to a single vendor.',
@@ -173,7 +173,7 @@ export const categories: Category[] = [
         label: { en: 'Local Models', ko: '로컬 모델' },
         description: {
           en: 'Run open models on your own hardware.',
-          ko: '오픈 모델을 직접 실행하는 도구.',
+          ko: '오픈 모델을 직접 실행하는 도구',
         },
         detail: {
           en: 'Run open-weight models on your own hardware. Slower and smaller than frontier APIs, but private, offline-capable, and free of per-token cost.',
@@ -186,8 +186,8 @@ export const categories: Category[] = [
     id: 'vector-stores',
     label: { en: 'Vector Stores & Memory', ko: '벡터 스토어 & 메모리' },
     description: {
-      en: 'Embeddings storage and retrieval for long-term memory and RAG.',
-      ko: '장기 기억과 RAG를 위한 임베딩 저장·검색.',
+      en: 'Embeddings storage and retrieval for long-term memory and RAG',
+      ko: '장기 기억과 RAG를 위한 임베딩 저장·검색',
     },
     detail: {
       en: 'How agents remember. From vector databases for similarity search to higher-level memory layers and the embedding models that feed them, this is the retrieval backbone behind RAG and long-term context.',
@@ -198,8 +198,8 @@ export const categories: Category[] = [
         id: 'vec-db',
         label: { en: 'Vector Databases', ko: '벡터 데이터베이스' },
         description: {
-          en: 'Stores for embeddings and similarity search.',
-          ko: '임베딩 저장과 유사도 검색을 위한 데이터베이스.',
+          en: 'Stores for embeddings and similarity search',
+          ko: '임베딩 저장과 유사도 검색을 위한 데이터베이스',
         },
         detail: {
           en: 'Stores that index embeddings and answer nearest-neighbor queries fast. The core of RAG retrieval — choose by scale, hosting, and whether you want a dedicated engine or a Postgres extension.',
@@ -210,8 +210,8 @@ export const categories: Category[] = [
         id: 'vec-memory',
         label: { en: 'Agent Memory', ko: '에이전트 메모리' },
         description: {
-          en: 'Long-term memory layers for agents.',
-          ko: '에이전트를 위한 장기 기억 계층.',
+          en: 'Long-term memory layers for agents',
+          ko: '에이전트를 위한 장기 기억 계층',
         },
         detail: {
           en: 'A layer above raw vectors: it decides what an agent should remember, persists it across sessions, and recalls the relevant pieces back into context.',
@@ -222,8 +222,8 @@ export const categories: Category[] = [
         id: 'vec-embeddings',
         label: { en: 'Embedding Models', ko: '임베딩 모델' },
         description: {
-          en: 'Models that turn text into vectors.',
-          ko: '텍스트를 벡터로 변환하는 모델.',
+          en: 'Models that turn text into vectors',
+          ko: '텍스트를 벡터로 변환하는 모델',
         },
         detail: {
           en: 'Models that turn text into vectors. Their quality and dimensionality set the ceiling for everything retrieval-based downstream.',
@@ -236,8 +236,8 @@ export const categories: Category[] = [
     id: 'observability',
     label: { en: 'Observability & Eval', ko: '관측성 & 평가' },
     description: {
-      en: 'Tracing, evaluation, and monitoring for agent runs.',
-      ko: '에이전트 실행에 대한 트레이싱·평가·모니터링.',
+      en: 'Tracing, evaluation, and monitoring for agent runs',
+      ko: '에이전트 실행에 대한 트레이싱·평가·모니터링',
     },
     detail: {
       en: 'Once an agent runs in production you need to see inside it. These tools trace each step, evaluate output quality, track cost and latency, and help you catch regressions before your users do.',
@@ -249,7 +249,7 @@ export const categories: Category[] = [
         label: { en: 'Tracing & Monitoring', ko: '트레이싱 & 모니터링' },
         description: {
           en: 'Capture, inspect, and monitor agent runs step by step.',
-          ko: '에이전트 실행을 단계별로 기록·점검·모니터링.',
+          ko: '에이전트 실행을 단계별로 기록·점검·모니터링',
         },
         detail: {
           en: 'See inside a running agent — every LLM call, tool use, latency, and cost — with dashboards and alerts to catch regressions in production.',
@@ -261,7 +261,7 @@ export const categories: Category[] = [
         label: { en: 'Evaluation', ko: '평가' },
         description: {
           en: 'Score and test LLM and RAG output quality.',
-          ko: 'LLM·RAG 출력 품질을 채점하고 테스트.',
+          ko: 'LLM·RAG 출력 품질을 채점하고 테스트',
         },
         detail: {
           en: 'Measure whether output is actually good — faithfulness, relevance, correctness — with metrics and test suites you can run in CI.',
@@ -274,8 +274,8 @@ export const categories: Category[] = [
     id: 'agent-tooling',
     label: { en: 'Agent Tooling & Integrations', ko: '에이전트 도구·연동' },
     description: {
-      en: 'Capabilities you plug into an agent — web access, browser control, sandboxes, and integration hubs.',
-      ko: '에이전트에 끼워 넣는 역량 — 웹 접근·브라우저 제어·샌드박스·통합 허브.',
+      en: 'Capabilities you plug into an agent — web access, browser control, sandboxes, and integration hubs',
+      ko: '에이전트에 끼워 넣는 역량 — 웹 접근·브라우저 제어·샌드박스·통합 허브',
     },
     detail: {
       en: 'What an agent reaches for to act on the world: pull live web data, drive a browser, run code in a sandbox, or connect to hundreds of external tools. These sit beside the framework and give the agent hands.',
@@ -287,7 +287,7 @@ export const categories: Category[] = [
         label: { en: 'Web Search & Ingestion', ko: '웹 검색·수집' },
         description: {
           en: 'Search the web and turn pages into clean, LLM-ready data.',
-          ko: '웹을 검색하고 페이지를 LLM이 쓰기 좋은 데이터로 변환하는 도구.',
+          ko: '웹을 검색하고 페이지를 LLM이 쓰기 좋은 데이터로 변환하는 도구',
         },
         detail: {
           en: 'Give an agent fresh knowledge from the open web — search APIs tuned for LLMs, and crawlers that return clean markdown or structured data instead of raw HTML.',
@@ -299,7 +299,7 @@ export const categories: Category[] = [
         label: { en: 'Browser & Computer Use', ko: '브라우저·컴퓨터 사용' },
         description: {
           en: 'Let agents drive a real browser to click, type, and extract.',
-          ko: '에이전트가 실제 브라우저를 조작해 클릭·입력·추출하게 하는 도구.',
+          ko: '에이전트가 실제 브라우저를 조작해 클릭·입력·추출하게 하는 도구',
         },
         detail: {
           en: 'For tasks that live behind a UI: these frameworks let an agent control a real browser — navigate, fill forms, and read the page — when there is no API to call.',
@@ -311,7 +311,7 @@ export const categories: Category[] = [
         label: { en: 'Code Sandboxes', ko: '코드 샌드박스' },
         description: {
           en: 'Run agent-generated code safely in isolated environments.',
-          ko: '에이전트가 생성한 코드를 격리 환경에서 안전하게 실행하는 도구.',
+          ko: '에이전트가 생성한 코드를 격리 환경에서 안전하게 실행하는 도구',
         },
         detail: {
           en: 'Execute model-written code without risking your machine. Isolated, disposable runtimes spin up fast, run the code, and tear down — the safe hands behind a code-interpreter agent.',
@@ -322,8 +322,8 @@ export const categories: Category[] = [
         id: 'tool-integrations',
         label: { en: 'Tool Integrations', ko: '도구 연동' },
         description: {
-          en: 'Hubs that connect agents to hundreds of external apps and APIs.',
-          ko: '에이전트를 수백 개의 외부 앱·API에 연결하는 허브.',
+          en: 'Hubs that connect agents to hundreds of external apps and APIs',
+          ko: '에이전트를 수백 개의 외부 앱·API에 연결하는 허브',
         },
         detail: {
           en: 'One layer that wires an agent into hundreds of SaaS apps and APIs — with managed auth and ready-made tool definitions — so you skip writing each integration by hand.',
@@ -337,7 +337,7 @@ export const categories: Category[] = [
     label: { en: 'Guardrails & Safety', ko: '가드레일 & 안전' },
     description: {
       en: 'Validate, constrain, and steer model input and output at runtime.',
-      ko: '런타임에 모델 입출력을 검증·제약·유도하는 도구.',
+      ko: '런타임에 모델 입출력을 검증·제약·유도하는 도구',
     },
     detail: {
       en: 'A safety layer around the model: enforce output schemas, block unsafe or off-topic content, and keep a conversation on the rails — checked as the agent runs, not after.',
@@ -348,8 +348,8 @@ export const categories: Category[] = [
     id: 'voice-agents',
     label: { en: 'Voice Agents', ko: '음성 에이전트' },
     description: {
-      en: 'Frameworks for real-time, conversational voice and multimodal agents.',
-      ko: '실시간 대화형 음성·멀티모달 에이전트를 위한 프레임워크.',
+      en: 'Frameworks for real-time, conversational voice and multimodal agents',
+      ko: '실시간 대화형 음성·멀티모달 에이전트를 위한 프레임워크',
     },
     detail: {
       en: 'Build agents you talk to. These frameworks wire up streaming speech-to-text, the LLM, and text-to-speech with low enough latency for natural back-and-forth — plus telephony and WebRTC transport.',

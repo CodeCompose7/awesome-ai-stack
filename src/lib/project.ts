@@ -50,11 +50,17 @@ export interface ProjectHeading {
 export interface RenderedProject {
   folder: string;
   name: string;
+  date: string; // when the example was written (YYYY-MM-DD)
   readmeHtml?: string;
   headings: ProjectHeading[]; // README h2/h3, for the right-rail TOC
   files: ProjectFile[];
   folderUrl: string;
 }
+
+// When each sample was authored. Per-folder overrides go here; anything not
+// listed falls back to DEFAULT_SAMPLE_DATE.
+const DEFAULT_SAMPLE_DATE = '2026-06-28';
+const SAMPLE_DATES: Record<string, string> = {};
 
 function slugify(s: string): string {
   return s
@@ -221,7 +227,15 @@ export async function renderProjects(folders: string[], lang: string): Promise<R
       .sort((a, b) => priority(a.path) - priority(b.path) || a.path.localeCompare(b.path))) {
       files.push({ path: f.path, html: highlight(hl, f.content, langFor(f.name)) });
     }
-    out.push({ folder, name, readmeHtml, headings, files, folderUrl: `${REPO}/tree/main/samples/${folder}` });
+    out.push({
+      folder,
+      name,
+      date: SAMPLE_DATES[folder] ?? DEFAULT_SAMPLE_DATE,
+      readmeHtml,
+      headings,
+      files,
+      folderUrl: `${REPO}/tree/main/samples/${folder}`,
+    });
   }
   return out;
 }

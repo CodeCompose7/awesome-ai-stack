@@ -7,7 +7,7 @@
   color-scheme: light;
   --aas-bg: #fafafa;
   --aas-panel: #fdfdfd;
-  --aas-border: #e7e7ea;
+  --aas-border: #f4f4f4;
   --aas-text: #2b2b31;
   --aas-muted: #76767e;
   --aas-accent: #5f63c4;
@@ -53,14 +53,12 @@ html {
 /* Neutral chip surface — a subtle tint that reads on any background (page or
    the panel-colored cards), so no outline is needed. */
 .aas-chip {
-  background: color-mix(in srgb, var(--aas-text) 2.5%, transparent);
-  border: 1px solid color-mix(in srgb, var(--aas-text) 7%, transparent);
+  background: color-mix(in srgb, var(--aas-text) 5%, transparent);
   color: var(--aas-muted);
 }
 /* Deprecated / maintenance-only badge — amber warning surface. */
 .aas-deprecated {
   background: color-mix(in srgb, #d97706 16%, transparent);
-  border: 1px solid color-mix(in srgb, #d97706 35%, transparent);
   color: #b45309;
 }
 :root[data-theme='dark'] .aas-deprecated {
@@ -69,7 +67,6 @@ html {
 /* "No updates in 1+ year" — same amber warning weight as deprecated. */
 .aas-stale {
   background: color-mix(in srgb, #d97706 16%, transparent);
-  border: 1px solid color-mix(in srgb, #d97706 35%, transparent);
   color: #b45309;
 }
 :root[data-theme='dark'] .aas-stale {
@@ -77,8 +74,7 @@ html {
 }
 /* "No updates in 6+ months" — a milder, lower-contrast caution (softer yellow). */
 .aas-aging {
-  background: color-mix(in srgb, #ca8a04 9%, transparent);
-  border: 1px solid color-mix(in srgb, #ca8a04 22%, transparent);
+  background: color-mix(in srgb, #ca8a04 12%, transparent);
   color: #a16207;
 }
 :root[data-theme='dark'] .aas-aging {
@@ -86,14 +82,12 @@ html {
 }
 /* Pricing chip: a soft accent-tinted surface with a faint accent outline. */
 .aas-pricing {
-  background: color-mix(in srgb, var(--aas-accent) 12%, transparent);
-  border: 1px solid color-mix(in srgb, var(--aas-accent) 28%, transparent);
+  background: color-mix(in srgb, var(--aas-accent) 13%, transparent);
   color: var(--aas-accent);
 }
 /* "Completely free" pricing chip — a positive green to stand out from paid tiers. */
 .aas-free {
-  background: color-mix(in srgb, #16a34a 14%, transparent);
-  border: 1px solid color-mix(in srgb, #16a34a 32%, transparent);
+  background: color-mix(in srgb, #16a34a 15%, transparent);
   color: #15803d;
 }
 :root[data-theme='dark'] .aas-free {
@@ -485,31 +479,48 @@ summary {
   flex-direction: column;
   gap: 0;
   padding: 1rem;
-  min-height: 12.5rem;
-  overflow: hidden; /* clip the scaled backdrop to the card's rounded corners */
-  isolation: isolate; /* contain the z-index:-1 backdrop within the card */
+  /* radius / overflow / isolation come from the base card (rounded-3xl). */
 }
 :root[data-view='gallery'] [data-card-head] {
   flex-direction: column;
   align-items: flex-start;
   gap: 0.6rem;
 }
+/* Give the name wrapper the full tile width so the h3's `truncate` can ellipsize
+   a long title instead of overflowing the card. */
+:root[data-view='gallery'] [data-card-head] > div {
+  width: 100%;
+}
 :root[data-view='gallery'] [data-card-head] h3 {
   font-size: 1.0625rem;
   font-weight: 700;
+  /* Up to two lines, ellipsised beyond (overrides the single-line truncate).
+     The title takes its natural height; the description fills what's left. */
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.3;
 }
 :root[data-view='gallery'] [data-card-meta],
 :root[data-view='gallery'] [data-card-tags] {
   display: none;
 }
 :root[data-view='gallery'] [data-card-desc] {
-  margin-top: 0.7rem;
+  margin-top: 0.55rem;
+  /* Up to 3 lines, ellipsised; reserve 3 lines via `lh` so every card is the
+     same height. Using `lh` (not a fixed rem) keeps it correct if the font or
+     line-height changes — line-clamp always truncates at a line boundary. */
   display: -webkit-box;
   -webkit-line-clamp: 3;
   line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  font-size: 0.75rem;
+  font-size: 0.78rem;
+  line-height: 1.2rem;
+  min-height: 3lh;
   /* Fade via colour, not opacity — opacity would create a stacking context and
      lift the description above the card's full-card link overlay. */
   color: color-mix(in srgb, var(--aas-muted) 78%, transparent);
@@ -523,30 +534,51 @@ summary {
 }
 :root[data-view='gallery'] [data-card-foot] > span {
   border-color: transparent;
-  background: color-mix(in srgb, var(--aas-text) 6%, transparent);
+  background: color-mix(in srgb, var(--aas-text) 2%, transparent);
 }
-/* The blurred-logo backdrop. Hidden outside the gallery view. Kept at z-index:-1
-   (behind the static content) so the name's full-card link overlay still covers
-   the description — clicking anywhere on the card navigates. */
-.aas-gallery-bg {
+/* The open-source chip becomes an icon, pinned to the right edge; its text label
+   (which wraps awkwardly in a narrow tile) is swapped out. */
+.aas-oss-icon {
   display: none;
 }
-:root[data-view='gallery'] .aas-gallery-bg {
+:root[data-view='gallery'] [data-card-foot] [data-pricing-tag='open-source'] {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+}
+:root[data-view='gallery'] [data-card-foot] [data-pricing-tag='open-source'] [data-chip-label] {
+  display: none;
+}
+:root[data-view='gallery'] [data-card-foot] [data-pricing-tag='open-source'] .aas-oss-icon {
   display: block;
+  color: var(--aas-text); /* match the star glyph, not the accent */
+}
+/* The blurred-logo backdrop. Shown on every card, kept at z-index:-1 (behind the
+   static content) so the name's full-card link overlay still covers it — a click
+   anywhere on the card navigates. Subtle by default; a touch stronger and taller
+   in the gallery view. */
+.aas-gallery-bg {
   position: absolute;
   inset: 0 0 auto 0;
-  height: 60%;
+  height: 50%;
   z-index: -1;
   background-position: center 35%;
   background-repeat: no-repeat;
   background-size: cover;
-  filter: blur(22px) saturate(1.25);
+  filter: blur(24px) saturate(1.2);
   transform: scale(1.6);
-  opacity: 0.32;
+  opacity: 0.09;
   pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 45%, transparent);
+  mask-image: linear-gradient(to bottom, #000 45%, transparent);
+  animation: aas-bg-drift 22s ease-in-out infinite;
+}
+:root[data-view='gallery'] .aas-gallery-bg {
+  height: 60%;
+  opacity: 0.15;
+  filter: blur(22px) saturate(1.25);
   -webkit-mask-image: linear-gradient(to bottom, #000 50%, transparent);
   mask-image: linear-gradient(to bottom, #000 50%, transparent);
-  animation: aas-bg-drift 22s ease-in-out infinite;
 }
 /* A gentle, slow drift so the backdrop feels alive without distracting. */
 @keyframes aas-bg-drift {
@@ -583,4 +615,51 @@ summary {
 /* Gallery: among the pricing chips, keep only the open-source badge. */
 :root[data-view='gallery'] [data-tool] [data-pricing-tag]:not([data-pricing-tag='open-source']) {
   display: none;
+}
+
+/* Markdown horizontal rules — a light hairline, not the heavy UA default. */
+.prose :where(hr) {
+  border: 0;
+  border-top: 1px solid var(--aas-border);
+  margin: 1.75rem 0;
+}
+
+/* Card-style links rendered inside prose (e.g. a concept's inline <Tools/>
+   cards) must not pick up the prose link underline on hover. */
+.prose a.aas-lift,
+.prose a.aas-lift:hover {
+  text-decoration: none;
+}
+
+/* Collapsible card grids (related tools / related concepts): show the first 6
+   cards, hide the rest until the toggle adds [data-expanded]. Keep the 6-item
+   cutoff in sync with LIMIT in CollapsibleGrid.astro. */
+[data-collapse-grid]:not([data-expanded]) [data-collapse-items] > *:nth-child(n + 7) {
+  display: none;
+}
+[data-collapse-toggle] {
+  cursor: pointer;
+}
+[data-collapse-toggle]:hover {
+  text-decoration: underline;
+}
+
+/* Hero card backdrop on the tool detail page: a large, blurred copy of the logo
+   as an ambient tint. Static and subtle (independent of the listing view
+   toggle, unlike .aas-gallery-bg). Sits behind the card content (z-index:-1
+   within the card's `isolate`). */
+.aas-hero-bg {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 60%;
+  z-index: -1;
+  background-position: center 28%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  filter: blur(44px) saturate(1.25);
+  transform: scale(1.6);
+  opacity: 0.1;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent);
+  mask-image: linear-gradient(to bottom, #000 40%, transparent);
 }

@@ -3,8 +3,11 @@ import { render } from 'astro:content';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { getStacks, slugOf } from '../lib/stacks';
 import { categoryMap } from '../data/categories';
+import { Image } from 'astro:assets';
 import { useTranslations, type Lang } from '../i18n/ui';
+import { formatDate } from '../lib/dates';
 import ToolAvatar from './ToolAvatar.astro';
+import TocRail from './TocRail.astro';
 import type { ArticleEntry } from '../lib/articles';
 
 interface Props {
@@ -14,9 +17,11 @@ interface Props {
 
 const { entry, lang } = Astro.props;
 const t = useTranslations(lang);
-const { Content } = await render(entry);
+const { Content, headings } = await render(entry);
 const data = entry.data;
 const dateStr = data.date.toISOString().slice(0, 10);
+const updatedStr = data.updated?.toISOString().slice(0, 10);
+const tocItems = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
 
 // Forward links: resolve referenced tool slugs to their stack entries so they
 // render as the same cards used by the "related tools" section.
@@ -32,9 +37,27 @@ const referenced = data.tools
 >
 
 <header class="mt-4 border-b border-[var(--aas-border)] pb-6">
-  <time datetime={dateStr} class="text-sm text-[var(--aas-muted)]">{dateStr}</time>
+  <p class="text-sm text-[var(--aas-muted)]">
+    <time datetime={dateStr}>{formatDate(data.date, lang)}</time>
+    {data.version && <span> · {t('meta.docVersion')} {data.version}</span>}
+    {data.updated && updatedStr !== dateStr && (
+      <span>
+        {' '}
+        · {t('meta.updated')} <time datetime={updatedStr}>{formatDate(data.updated, lang)}</time>
+      </span>
+    )}
+  </p>
   <h1 class="mt-1 text-3xl font-bold tracking-tight">{data.title}</h1>
   <p class="mt-2 max-w-2xl text-lg text-[var(--aas-muted)]">{data.description}</p>
+  {
+    data.image && (
+      <Image
+        src={data.image}
+        alt={data.imageAlt ?? data.title}
+        class="mt-5 aspect-[2/1] w-full rounded-2xl border border-[var(--aas-border)] object-cover"
+      />
+    )
+  }
 
   {
     referenced.length > 0 && (
@@ -73,3 +96,5 @@ const referenced = data.tools
 <article class="prose mt-8 max-w-none">
   <Content />
 </article>
+
+<TocRail lang={lang} items={tocItems} />

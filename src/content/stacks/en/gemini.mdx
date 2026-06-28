@@ -1,19 +1,22 @@
 ---
 name: Google Gemini
+vendor: "Google"
 logo: /logos/gemini.png
 category: llm-foundation
-description: Google's Gemini models via the AI Studio API — long context, multimodal, with a free tier.
+docVersion: "1.0"
+updated: 2026-06-28
+description: Google's Gemini models via the AI Studio API — long context, multimodal, with a free tier
 website: https://aistudio.google.com
 docs: https://ai.google.dev/gemini-api/docs
 tags: [llm, multimodal, long-context, free-tier]
 language: API
 license: proprietary
 pricing: [free-tier, paid]
-pricingNote: "Free tier on Flash / Flash-Lite (rate-limited, no card). Paid prices per million tokens (input / output)."
+pricingNote: "Free tier on Flash / Flash-Lite (rate-limited, no card). Paid prices per million tokens (input / output)"
 pricingTiers:
-  - { plan: "Flash-Lite (free)", price: "$0", note: "Rate-limited, no card." }
-  - { plan: "Gemini 2.5 Flash-Lite", price: "$0.10 / $0.40", note: "Cheapest paid tier." }
-  - { plan: "Gemini 2.5 Pro", price: "$1.25 / $10", note: "Most capable." }
+  - { plan: "Flash-Lite (free)", price: "$0", note: "Rate-limited, no card" }
+  - { plan: "Gemini 2.5 Flash-Lite", price: "$0.10 / $0.40", note: "Cheapest paid tier" }
+  - { plan: "Gemini 2.5 Pro", price: "$1.25 / $10", note: "Most capable" }
 pricingSource: https://ai.google.dev/gemini-api/docs/pricing
 pricingCheckedAt: "2026-06-27"
 related: [litellm]
