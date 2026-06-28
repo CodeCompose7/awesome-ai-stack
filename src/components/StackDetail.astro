@@ -199,28 +199,28 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
         {relatedConcepts.map((c) => (
           <a
             href={getRelativeLocaleUrl(lang, `concepts/${conceptSlugOf(c)}/`)}
-            class="aas-lift relative isolate flex flex-col overflow-hidden rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-4 no-underline"
+            class="aas-lift flex items-stretch overflow-hidden rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] no-underline"
           >
             {c.data.image && (
-              <Image
-                src={c.data.image}
-                alt=""
-                class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-2/3 w-full object-cover opacity-15 [mask-image:linear-gradient(to_bottom,#000_35%,transparent)]"
-              />
+              <Image src={c.data.image} alt="" class="w-28 shrink-0 self-stretch object-cover" />
             )}
-            <span class="font-semibold text-[var(--aas-text)]">{c.data.title}</span>
-            {(c.data.version || c.data.updated) && (
-              <span class="mt-0.5 text-xs text-[var(--aas-muted)]">
-                {c.data.version && <span>v{c.data.version}</span>}
-                {c.data.version && c.data.updated && <span> · </span>}
-                {c.data.updated && (
-                  <span>
-                    {t('concept.updated')} {fmtConceptDate(c.data.updated)}
-                  </span>
-                )}
+            <div class="min-w-0 p-4">
+              <span class="block font-semibold text-[var(--aas-text)]">{c.data.title}</span>
+              {(c.data.version || c.data.updated) && (
+                <span class="mt-0.5 block text-xs text-[var(--aas-muted)]">
+                  {c.data.version && <span>v{c.data.version}</span>}
+                  {c.data.version && c.data.updated && <span> · </span>}
+                  {c.data.updated && (
+                    <span>
+                      {t('concept.updated')} {fmtConceptDate(c.data.updated)}
+                    </span>
+                  )}
+                </span>
+              )}
+              <span class="mt-1.5 line-clamp-2 text-xs leading-relaxed text-[var(--aas-muted)]">
+                {c.data.description}
               </span>
-            )}
-            <span class="mt-1.5 text-xs leading-relaxed text-[var(--aas-muted)]">{c.data.description}</span>
+            </div>
           </a>
         ))}
       </div>
