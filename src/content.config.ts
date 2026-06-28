@@ -15,9 +15,11 @@ const stacks = defineCollection({
     // Prior names after a rename/rebrand, newest first. The card shows just the
     // most recent (formerNames[0]); the detail page shows all of them.
     formerNames: z.array(z.string()).default([]),
-    // When this catalog entry's writeup was last meaningfully revised (our
-    // editorial date, distinct from the tool's own software `version` below).
-    updated: z.coerce.date().optional(), // YYYY-MM-DD
+    // Living-doc metadata for THIS catalog entry's writeup — bump on edits.
+    // Distinct from the tool's own software `version` (further below): docVersion
+    // tracks our article, `version` tracks the tool's release.
+    docVersion: z.string().optional(), // e.g. "1.0"
+    updated: z.coerce.date().optional(), // when the writeup was last revised (YYYY-MM-DD)
     // The organization / company / person that makes and maintains the tool
     // (e.g. "Microsoft"). Powers the per-vendor browse pages at /vendors/<slug>.
     vendor: z.string().optional(),
