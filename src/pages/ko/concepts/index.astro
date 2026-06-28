@@ -1,0 +1,11 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ConceptIndex from '../../../components/ConceptIndex.astro';
+import { useTranslations } from '../../../i18n/ui';
+
+const t = useTranslations('ko');
+---
+
+<BaseLayout title={`${t('concept.title')} — awesome-agent-stack`} lang="ko" path="concepts/">
+  <ConceptIndex lang="ko" />
+</BaseLayout>

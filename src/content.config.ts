@@ -105,4 +105,29 @@ const articles = defineCollection({
   }),
 });
 
-export const collections = { stacks, articles };
+/**
+ * The `concepts` collection explains higher-level patterns that compose several
+ * catalog tools into a working setup (e.g. "harness engineering"). Each concept
+ * groups the tools it uses by the role they play, and links related articles.
+ *
+ * Locale-partitioned like the others: `concepts/<lang>/<slug>.mdx`.
+ */
+const concepts = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/concepts' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    // Tools grouped by the role they play in the pattern. `role` is content, so
+    // it's written per-locale (e.g. "메모리" / "Memory"); `tools` are stack slugs.
+    tools: z
+      .array(z.object({ role: z.string(), tools: z.array(z.string()).default([]) }))
+      .default([]),
+    articles: z.array(z.string()).default([]), // related article slugs
+    related: z.array(z.string()).default([]), // related concept slugs
+    tags: z.array(z.string()).default([]),
+    order: z.number().optional(), // manual sort on the index (lower first)
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { stacks, articles, concepts };

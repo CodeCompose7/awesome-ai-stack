@@ -1,0 +1,36 @@
+---
+import ConceptCard from './ConceptCard.astro';
+import { getConcepts, conceptSlugOf } from '../lib/concepts';
+import { useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const concepts = await getConcepts(lang);
+---
+
+<section class="py-6">
+  <h1 class="text-4xl font-bold tracking-tight">{t('concept.title')}</h1>
+  <p class="mt-3 max-w-2xl text-lg text-[var(--aas-muted)]">{t('concept.tagline')}</p>
+</section>
+
+{
+  concepts.length === 0 ? (
+    <p class="mt-8 text-[var(--aas-muted)]">{t('concept.empty')}</p>
+  ) : (
+    <div class="mt-6 grid gap-4 sm:grid-cols-2">
+      {concepts.map((c) => (
+        <ConceptCard
+          lang={lang}
+          slug={conceptSlugOf(c)}
+          title={c.data.title}
+          description={c.data.description}
+          tags={c.data.tags}
+        />
+      ))}
+    </div>
+  )
+}

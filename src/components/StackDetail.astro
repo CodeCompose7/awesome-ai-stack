@@ -5,6 +5,7 @@ import { pathOf } from '../data/categories';
 import { useTranslations, type Lang } from '../i18n/ui';
 import { getStacks, slugOf, slugifyName, type StackEntry } from '../lib/stacks';
 import { getArticlesForTool, articleSlugOf } from '../lib/articles';
+import { getConceptsForTool, conceptSlugOf } from '../lib/concepts';
 import ToolAvatar from './ToolAvatar.astro';
 import ToolMeta from './ToolMeta.astro';
 import Breadcrumb from './Breadcrumb.astro';
@@ -45,8 +46,9 @@ const crumbs = [
 // Right-rail table of contents: body headings, h2–h3 only.
 const tocItems = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
 
-// Backlinks: writing that references this tool (computed reverse lookup).
+// Backlinks: writing that references this tool, and concepts that use it.
 const relatedArticles = await getArticlesForTool(lang, slugOf(entry));
+const relatedConcepts = await getConceptsForTool(lang, slugOf(entry));
 
 // Live GitHub stats (build-time), with the manual `version` as fallback.
 const stats = await getRepoStats(data.repo);
@@ -380,6 +382,28 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
               class="text-[var(--aas-accent)] no-underline hover:underline"
             >
               {a.data.title}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </aside>
+  )
+}
+
+{
+  relatedConcepts.length > 0 && (
+    <aside class="mt-10 border-t border-[var(--aas-border)] pt-6">
+      <h2 class="text-sm font-semibold tracking-wide text-[var(--aas-muted)] uppercase">
+        {t('detail.usedInConcepts')}
+      </h2>
+      <ul class="mt-3 space-y-2">
+        {relatedConcepts.map((c) => (
+          <li>
+            <a
+              href={getRelativeLocaleUrl(lang, `concepts/${conceptSlugOf(c)}/`)}
+              class="text-[var(--aas-accent)] no-underline hover:underline"
+            >
+              {c.data.title}
             </a>
           </li>
         ))}

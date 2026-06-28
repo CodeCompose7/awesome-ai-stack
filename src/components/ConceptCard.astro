@@ -1,0 +1,31 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  slug: string;
+  title: string;
+  description: string;
+  tags: string[];
+}
+
+const { lang, slug, title, description, tags } = Astro.props;
+---
+
+<a
+  href={getRelativeLocaleUrl(lang, `concepts/${slug}/`)}
+  class="aas-lift block rounded-3xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-5 no-underline"
+>
+  <h2 class="text-lg font-semibold text-[var(--aas-text)]">{title}</h2>
+  <p class="mt-1.5 text-sm leading-relaxed text-[var(--aas-muted)]">{description}</p>
+  {
+    tags.length > 0 && (
+      <div class="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-[var(--aas-muted)]">
+        {tags.map((tag) => (
+          <span class="opacity-80">#{tag}</span>
+        ))}
+      </div>
+    )
+  }
+</a>
