@@ -199,7 +199,7 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
         {relatedConcepts.map((c) => (
           <a
             href={getRelativeLocaleUrl(lang, `concepts/${conceptSlugOf(c)}/`)}
-            class="aas-lift flex items-stretch overflow-hidden rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] no-underline"
+            class="aas-lift flex items-stretch overflow-hidden rounded-2xl border border-[var(--aas-border)] bg-[var(--aas-panel)] no-underline"
           >
             {c.data.image && (
               <Image src={c.data.image} alt="" class="w-28 shrink-0 self-stretch object-cover" />
@@ -217,7 +217,7 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
                   )}
                 </span>
               )}
-              <span class="mt-1.5 line-clamp-2 text-xs leading-relaxed text-[var(--aas-muted)]">
+              <span class="mt-1.5 line-clamp-2 text-xs leading-relaxed text-[var(--aas-muted)] opacity-75">
                 {c.data.description}
               </span>
             </div>
