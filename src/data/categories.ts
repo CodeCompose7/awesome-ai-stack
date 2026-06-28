@@ -24,7 +24,7 @@ export const categories: Category[] = [
     id: 'frameworks',
     label: { en: 'Agent Frameworks', ko: '에이전트 프레임워크' },
     description: {
-      en: 'Libraries for orchestrating reasoning loops, tools, and multi-agent flows.',
+      en: 'Libraries for orchestrating reasoning loops, tools, and multi-agent flows',
       ko: '추론 루프·도구·멀티 에이전트 흐름을 오케스트레이션하는 라이브러리',
     },
     detail: {
@@ -72,11 +72,11 @@ export const categories: Category[] = [
         id: 'framework-rag',
         label: { en: 'RAG & Data Frameworks', ko: 'RAG·데이터 프레임워크' },
         description: {
-          en: 'Frameworks for retrieval-augmented generation and data-centric agents.',
+          en: 'Frameworks for retrieval-augmented generation and data-centric agents',
           ko: '검색 증강 생성(RAG)과 데이터 중심 에이전트를 위한 프레임워크',
         },
         detail: {
-          en: 'For retrieval-heavy apps — ingest, index, and query your data, then ground the model in it. The backbone of RAG pipelines and data agents.',
+          en: 'For retrieval-heavy apps — ingest, index, and query your data, then ground the model in it. The backbone of RAG pipelines and data agents',
           ko: '검색 중심 앱을 위한 것 — 데이터를 수집·색인·질의한 뒤 모델을 그 데이터에 근거하게 한다. RAG 파이프라인과 데이터 에이전트의 중심',
         },
       },
@@ -86,7 +86,7 @@ export const categories: Category[] = [
     id: 'coding-agents',
     label: { en: 'Coding Agents', ko: '코딩 에이전트' },
     description: {
-      en: 'Autonomous agents that read, write, and run code to complete software tasks.',
+      en: 'Autonomous agents that read, write, and run code to complete software tasks',
       ko: '코드를 읽고 쓰고 실행해 소프트웨어 작업을 자율적으로 수행하는 에이전트',
     },
     detail: {
@@ -98,7 +98,7 @@ export const categories: Category[] = [
         id: 'coding-cli',
         label: { en: 'Terminal & CLI', ko: '터미널 & CLI' },
         description: {
-          en: 'Coding agents you drive from the command line.',
+          en: 'Coding agents you drive from the command line',
           ko: '커맨드라인에서 다루는 코딩 에이전트',
         },
         detail: {
@@ -110,11 +110,11 @@ export const categories: Category[] = [
         id: 'coding-ide',
         label: { en: 'IDE-Integrated', ko: 'IDE 통합' },
         description: {
-          en: 'Agents that live inside your editor.',
+          en: 'Agents that live inside your editor',
           ko: '에디터 안에서 동작하는 에이전트',
         },
         detail: {
-          en: 'Agents that work inside your editor, with the open file, project context, and inline diffs right where you code.',
+          en: 'Agents that work inside your editor, with the open file, project context, and inline diffs right where you code',
           ko: '에디터 안에서 동작하는 에이전트입니다. 열린 파일과 프로젝트 컨텍스트, 인라인 diff를 코딩하는 자리에서 바로 다룹니다.',
         },
       },
@@ -122,7 +122,7 @@ export const categories: Category[] = [
         id: 'coding-autonomous',
         label: { en: 'Autonomous SWE', ko: '자율 SWE 에이전트' },
         description: {
-          en: 'Agents that resolve issues and tasks end to end.',
+          en: 'Agents that resolve issues and tasks end to end',
           ko: '이슈와 작업을 끝까지 자율적으로 해결하는 에이전트',
         },
         detail: {
@@ -136,7 +136,7 @@ export const categories: Category[] = [
     id: 'llm-providers',
     label: { en: 'LLM Providers & Gateways', ko: 'LLM 제공자 & 게이트웨이' },
     description: {
-      en: 'Foundation-model APIs — and the gateways that unify them — powering an agent’s reasoning.',
+      en: 'Foundation-model APIs — and the gateways that unify them — powering an agent’s reasoning',
       ko: '에이전트의 추론을 담당하는 파운데이션 모델 API와 이를 하나로 묶는 게이트웨이',
     },
     detail: {
@@ -148,7 +148,7 @@ export const categories: Category[] = [
         id: 'llm-foundation',
         label: { en: 'Foundation Model APIs', ko: '파운데이션 모델 API' },
         description: {
-          en: 'First-party APIs for frontier models.',
+          en: 'First-party APIs for frontier models',
           ko: '프런티어 모델의 1차 제공자 API',
         },
         detail: {
@@ -160,7 +160,7 @@ export const categories: Category[] = [
         id: 'llm-gateway',
         label: { en: 'Gateways & Routers', ko: '게이트웨이 & 라우터' },
         description: {
-          en: 'One interface that unifies many providers.',
+          en: 'One interface that unifies many providers',
           ko: '여러 제공자를 하나의 인터페이스로 통합하는 도구',
         },
         detail: {
@@ -186,7 +186,7 @@ export const categories: Category[] = [
     id: 'vector-stores',
     label: { en: 'Vector Stores & Memory', ko: '벡터 스토어 & 메모리' },
     description: {
-      en: 'Embeddings storage and retrieval for long-term memory and RAG.',
+      en: 'Embeddings storage and retrieval for long-term memory and RAG',
       ko: '장기 기억과 RAG를 위한 임베딩 저장·검색',
     },
     detail: {
@@ -198,7 +198,7 @@ export const categories: Category[] = [
         id: 'vec-db',
         label: { en: 'Vector Databases', ko: '벡터 데이터베이스' },
         description: {
-          en: 'Stores for embeddings and similarity search.',
+          en: 'Stores for embeddings and similarity search',
           ko: '임베딩 저장과 유사도 검색을 위한 데이터베이스',
         },
         detail: {
@@ -210,7 +210,7 @@ export const categories: Category[] = [
         id: 'vec-memory',
         label: { en: 'Agent Memory', ko: '에이전트 메모리' },
         description: {
-          en: 'Long-term memory layers for agents.',
+          en: 'Long-term memory layers for agents',
           ko: '에이전트를 위한 장기 기억 계층',
         },
         detail: {
@@ -222,7 +222,7 @@ export const categories: Category[] = [
         id: 'vec-embeddings',
         label: { en: 'Embedding Models', ko: '임베딩 모델' },
         description: {
-          en: 'Models that turn text into vectors.',
+          en: 'Models that turn text into vectors',
           ko: '텍스트를 벡터로 변환하는 모델',
         },
         detail: {
@@ -236,7 +236,7 @@ export const categories: Category[] = [
     id: 'observability',
     label: { en: 'Observability & Eval', ko: '관측성 & 평가' },
     description: {
-      en: 'Tracing, evaluation, and monitoring for agent runs.',
+      en: 'Tracing, evaluation, and monitoring for agent runs',
       ko: '에이전트 실행에 대한 트레이싱·평가·모니터링',
     },
     detail: {
@@ -274,7 +274,7 @@ export const categories: Category[] = [
     id: 'agent-tooling',
     label: { en: 'Agent Tooling & Integrations', ko: '에이전트 도구·연동' },
     description: {
-      en: 'Capabilities you plug into an agent — web access, browser control, sandboxes, and integration hubs.',
+      en: 'Capabilities you plug into an agent — web access, browser control, sandboxes, and integration hubs',
       ko: '에이전트에 끼워 넣는 역량 — 웹 접근·브라우저 제어·샌드박스·통합 허브',
     },
     detail: {
@@ -322,7 +322,7 @@ export const categories: Category[] = [
         id: 'tool-integrations',
         label: { en: 'Tool Integrations', ko: '도구 연동' },
         description: {
-          en: 'Hubs that connect agents to hundreds of external apps and APIs.',
+          en: 'Hubs that connect agents to hundreds of external apps and APIs',
           ko: '에이전트를 수백 개의 외부 앱·API에 연결하는 허브',
         },
         detail: {
@@ -348,7 +348,7 @@ export const categories: Category[] = [
     id: 'voice-agents',
     label: { en: 'Voice Agents', ko: '음성 에이전트' },
     description: {
-      en: 'Frameworks for real-time, conversational voice and multimodal agents.',
+      en: 'Frameworks for real-time, conversational voice and multimodal agents',
       ko: '실시간 대화형 음성·멀티모달 에이전트를 위한 프레임워크',
     },
     detail: {
