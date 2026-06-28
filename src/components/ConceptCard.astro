@@ -38,7 +38,7 @@ const updatedStr = updated
     {
       (version || updatedStr) && (
         <p class="mt-0.5 text-xs text-[var(--aas-muted)]">
-          {version && <span>v{version}</span>}
+          {version && <span>{t('meta.docVersion')} {version}</span>}
           {version && updatedStr && <span> · </span>}
           {updatedStr && (
             <span>

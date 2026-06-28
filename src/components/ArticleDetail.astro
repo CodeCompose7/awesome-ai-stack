@@ -39,7 +39,7 @@ const referenced = data.tools
 <header class="mt-4 border-b border-[var(--aas-border)] pb-6">
   <p class="text-sm text-[var(--aas-muted)]">
     <time datetime={dateStr}>{formatDate(data.date, lang)}</time>
-    {data.version && <span> · v{data.version}</span>}
+    {data.version && <span> · {t('meta.docVersion')} {data.version}</span>}
     {data.updated && updatedStr !== dateStr && (
       <span>
         {' '}

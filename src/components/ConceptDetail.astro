@@ -56,7 +56,7 @@ const fmtDate = (d: Date) =>
   {
     (data.version || data.updated) && (
       <p class="mt-1 text-sm text-[var(--aas-muted)]">
-        {data.version && <span>v{data.version}</span>}
+        {data.version && <span>{t('meta.docVersion')} {data.version}</span>}
         {data.version && data.updated && <span> · </span>}
         {data.updated && (
           <span>
