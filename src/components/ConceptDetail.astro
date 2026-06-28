@@ -6,6 +6,7 @@ import { getConcepts, conceptSlugOf, type ConceptEntry } from '../lib/concepts';
 import { assetSrc } from '../lib/asset';
 import { useTranslations, type Lang } from '../i18n/ui';
 import MermaidLoader from './MermaidLoader.astro';
+import TocRail from './TocRail.astro';
 
 interface Props {
   entry: ConceptEntry;
@@ -14,8 +15,9 @@ interface Props {
 
 const { entry, lang } = Astro.props;
 const t = useTranslations(lang);
-const { Content } = await render(entry);
+const { Content, headings } = await render(entry);
 const data = entry.data;
+const tocItems = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
 const bodyHasMermaid = (entry.body ?? '').includes('```mermaid');
 
 // The role-grouped tools are rendered inline in the body via <Tools/>; the
@@ -121,5 +123,7 @@ const fmtDate = (d: Date) =>
     </aside>
   )
 }
+
+<TocRail lang={lang} items={tocItems} />
 
 {bodyHasMermaid && <MermaidLoader />}

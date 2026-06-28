@@ -6,6 +6,7 @@ import { categoryMap } from '../data/categories';
 import { assetSrc } from '../lib/asset';
 import { useTranslations, type Lang } from '../i18n/ui';
 import ToolAvatar from './ToolAvatar.astro';
+import TocRail from './TocRail.astro';
 import type { ArticleEntry } from '../lib/articles';
 
 interface Props {
@@ -15,9 +16,10 @@ interface Props {
 
 const { entry, lang } = Astro.props;
 const t = useTranslations(lang);
-const { Content } = await render(entry);
+const { Content, headings } = await render(entry);
 const data = entry.data;
 const dateStr = data.date.toISOString().slice(0, 10);
+const tocItems = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
 const imgSrc = assetSrc(data.image);
 
 // Forward links: resolve referenced tool slugs to their stack entries so they
@@ -85,3 +87,5 @@ const referenced = data.tools
 <article class="prose mt-8 max-w-none">
   <Content />
 </article>
+
+<TocRail lang={lang} items={tocItems} />
