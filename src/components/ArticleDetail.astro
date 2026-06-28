@@ -19,6 +19,7 @@ const t = useTranslations(lang);
 const { Content, headings } = await render(entry);
 const data = entry.data;
 const dateStr = data.date.toISOString().slice(0, 10);
+const updatedStr = data.updated?.toISOString().slice(0, 10);
 const tocItems = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
 
 // Forward links: resolve referenced tool slugs to their stack entries so they
@@ -35,7 +36,16 @@ const referenced = data.tools
 >
 
 <header class="mt-4 border-b border-[var(--aas-border)] pb-6">
-  <time datetime={dateStr} class="text-sm text-[var(--aas-muted)]">{dateStr}</time>
+  <p class="text-sm text-[var(--aas-muted)]">
+    <time datetime={dateStr}>{dateStr}</time>
+    {data.version && <span> · v{data.version}</span>}
+    {updatedStr && updatedStr !== dateStr && (
+      <span>
+        {' '}
+        · {t('meta.updated')} <time datetime={updatedStr}>{updatedStr}</time>
+      </span>
+    )}
+  </p>
   <h1 class="mt-1 text-3xl font-bold tracking-tight">{data.title}</h1>
   <p class="mt-2 max-w-2xl text-lg text-[var(--aas-muted)]">{data.description}</p>
   {

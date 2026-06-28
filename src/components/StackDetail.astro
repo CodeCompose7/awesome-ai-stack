@@ -170,6 +170,17 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
   />
 
   {
+    data.updated && (
+      <p class="mt-3 text-xs text-[var(--aas-muted)]">
+        {t('meta.updated')}{' '}
+        <time datetime={data.updated.toISOString().slice(0, 10)}>
+          {data.updated.toISOString().slice(0, 10)}
+        </time>
+      </p>
+    )
+  }
+
+  {
     data.tags.length > 0 && (
       <div class="mt-4 flex flex-wrap gap-x-3 gap-y-1 text-xs text-[var(--aas-muted)]">
         {data.tags.map((tag) => (

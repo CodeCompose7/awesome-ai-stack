@@ -13,9 +13,10 @@ interface Props {
   tags: string[];
   image?: ImageMetadata;
   imageAlt?: string;
+  version?: string;
 }
 
-const { slug, lang, title, description, date, tags, image, imageAlt } = Astro.props;
+const { slug, lang, title, description, date, tags, image, imageAlt, version } = Astro.props;
 const href = getRelativeLocaleUrl(lang, `blog/${slug}/`);
 const dateStr = date.toISOString().slice(0, 10);
 ---
@@ -26,7 +27,10 @@ const dateStr = date.toISOString().slice(0, 10);
 >
   {image && <Image src={image} alt={imageAlt ?? title} class="aspect-[16/9] w-full object-cover" />}
   <div class="p-5">
-    <time datetime={dateStr} class="text-xs text-[var(--aas-muted)]">{dateStr}</time>
+    <p class="text-xs text-[var(--aas-muted)]">
+      <time datetime={dateStr}>{dateStr}</time>
+      {version && <span> · v{version}</span>}
+    </p>
     <h3 class="mt-1 text-lg font-semibold text-[var(--aas-text)]">{title}</h3>
     <p class="mt-2 text-sm leading-relaxed text-[var(--aas-muted)]">{description}</p>
     {

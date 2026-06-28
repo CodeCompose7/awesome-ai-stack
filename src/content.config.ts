@@ -15,6 +15,9 @@ const stacks = defineCollection({
     // Prior names after a rename/rebrand, newest first. The card shows just the
     // most recent (formerNames[0]); the detail page shows all of them.
     formerNames: z.array(z.string()).default([]),
+    // When this catalog entry's writeup was last meaningfully revised (our
+    // editorial date, distinct from the tool's own software `version` below).
+    updated: z.coerce.date().optional(), // YYYY-MM-DD
     // The organization / company / person that makes and maintains the tool
     // (e.g. "Microsoft"). Powers the per-vendor browse pages at /vendors/<slug>.
     vendor: z.string().optional(),
@@ -99,7 +102,10 @@ const articles = defineCollection({
     z.object({
       title: z.string(),
       description: z.string(),
-      date: z.coerce.date(),
+      date: z.coerce.date(), // first published
+      // Living-doc metadata, mirroring concepts: bump on meaningful edits.
+      version: z.string().optional(), // e.g. "1.0"
+      updated: z.coerce.date().optional(), // last meaningful update (YYYY-MM-DD)
       image: image().optional(), // hero / card image (optimized; relative to the file)
       imageAlt: z.string().optional(),
       tools: z.array(z.string()).default([]),
