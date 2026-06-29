@@ -23,7 +23,7 @@ const target = concepts.find((c) => conceptSlugOf(c) === slug) as ConceptEntry |
 {
   target && (
     <a
-      href={getRelativeLocaleUrl(lang, `concepts/${conceptSlugOf(target)}/`)}
+      href={getRelativeLocaleUrl(lang, `concept/${conceptSlugOf(target)}/`)}
       target="_blank"
       rel="noopener noreferrer"
       class="aas-lift mt-3 flex items-center gap-4 rounded-xl border p-4 no-underline"

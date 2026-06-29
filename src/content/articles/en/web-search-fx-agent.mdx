@@ -18,7 +18,7 @@ tags: [tools, web-search, agent, tutorial]
 
 import SampleProject from '../../../components/SampleProject.astro';
 
-The [Tools](../../concepts/agent-tools/) concept uses "asking today's FX rate"
+The [Tools](../../concept/agent-tools/) concept uses "asking today's FX rate"
 as an example. A model's knowledge stops at its training cutoff, so a value
 that changes daily — like an exchange rate — is out of reach; a *web-search
 tool* is what bridges that gap. Here we turn that example into a working agent.
@@ -111,4 +111,4 @@ through LiteLLM, so the same code runs on Claude, OpenAI, or Gemini.
 Swap the tool for [scraping (Firecrawl)](../web-scraping-agent/) in the same
 loop and it reads a page in as Markdown; swap it for browser automation and it
 pulls in a different kind of "now" data. The full set of tool kinds is laid out
-in the [Tools](../../concepts/agent-tools/) concept.
+in the [Tools](../../concept/agent-tools/) concept.

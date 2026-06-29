@@ -19,7 +19,7 @@ interface Props {
 
 const { slug, lang, title, description, date, tags, image, imageAlt, version } = Astro.props;
 const t = useTranslations(lang);
-const href = getRelativeLocaleUrl(lang, `articles/${slug}/`);
+const href = getRelativeLocaleUrl(lang, `article/${slug}/`);
 const dateStr = date.toISOString().slice(0, 10);
 ---
 

@@ -272,7 +272,7 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
       <CollapsibleGrid lang={lang} count={relatedConcepts.length}>
         {relatedConcepts.map((c) => (
           <a
-            href={getRelativeLocaleUrl(lang, `concepts/${conceptSlugOf(c)}/`)}
+            href={getRelativeLocaleUrl(lang, `concept/${conceptSlugOf(c)}/`)}
             target="_blank"
             rel="noopener noreferrer"
             class="aas-lift flex items-stretch overflow-hidden rounded-2xl border border-[var(--aas-border)] bg-[var(--aas-panel)] no-underline"
@@ -502,7 +502,7 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
         {relatedArticles.map((a) => (
           <li>
             <a
-              href={getRelativeLocaleUrl(lang, `articles/${articleSlugOf(a)}/`)}
+              href={getRelativeLocaleUrl(lang, `article/${articleSlugOf(a)}/`)}
               target="_blank"
               rel="noopener noreferrer"
               class="text-[var(--aas-accent)] no-underline hover:underline"

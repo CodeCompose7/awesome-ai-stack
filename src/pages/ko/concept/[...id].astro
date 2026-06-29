@@ -1,11 +1,11 @@
 ---
 import type { GetStaticPaths } from 'astro';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import ConceptDetail from '../../components/ConceptDetail.astro';
-import { getConcepts, conceptSlugOf } from '../../lib/concepts';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ConceptDetail from '../../../components/ConceptDetail.astro';
+import { getConcepts, conceptSlugOf } from '../../../lib/concepts';
 
 export const getStaticPaths = (async () => {
-  const entries = await getConcepts('en');
+  const entries = await getConcepts('ko');
   return entries.map((entry) => ({ params: { id: conceptSlugOf(entry) }, props: { entry } }));
 }) satisfies GetStaticPaths;
 
@@ -16,8 +16,8 @@ const slug = conceptSlugOf(entry);
 <BaseLayout
   title={`${entry.data.title} — awesome-agent-stack`}
   description={entry.data.description}
-  lang="en"
-  path={`concepts/${slug}/`}
+  lang="ko"
+  path={`concept/${slug}/`}
 >
-  <ConceptDetail entry={entry} lang="en" />
+  <ConceptDetail entry={entry} lang="ko" />
 </BaseLayout>
