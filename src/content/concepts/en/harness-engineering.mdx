@@ -77,18 +77,18 @@ Each row is solved by a layer *outside* the model, not by a smarter one. Growing
 
 ### Silent wrong answers
 
-Instead of saying "I don't know," a model hands you a confident, plausible falsehood, and it slips by until a human checks each claim. **Evaluation and tracing** close the gap — score each claim on faithfulness and block the ones below a threshold to re-check their sources.
+Instead of saying "I don't know," a model hands you a confident, plausible falsehood, and it slips by until a human checks each claim. **Evaluation and tracing** close the gap — rather than trusting a claim, pick the check that fits it: factual claims are scored against trusted sources or a reference, while code and API claims are run in a sandbox or statically checked.
 
 <details open>
 <summary>Concrete examples</summary>
 
-Silent wrong answers show up in several shapes.
+Silent wrong answers come in several shapes, each caught a different way.
 
-- **Unsourced numbers** — asserting "this job used 20 GPUs" with no basis
-- **Subtly wrong facts** — "supported since Python 3.9" when it's really 3.11
-- **Nonexistent APIs** — calls like `pandas.read_yaml()` that don't exist
+- **Unsourced numbers** — asserting "this job used 20 GPUs" with no basis → scored against the source
+- **Subtly wrong facts** — "supported since Python 3.9" when it's really 3.11 → checked against a reference
+- **Nonexistent APIs** — calls like `pandas.read_yaml()` that don't exist → run it and it errors; a linter catches it too
 
-Evaluation scores each claim and filters out the ones below a threshold.
+Factual claims get scored against their source, and anything below a threshold is filtered out. Code and API claims are verified by running them, like the _code sandbox_ above.
 
 ```mermaid
 flowchart LR
