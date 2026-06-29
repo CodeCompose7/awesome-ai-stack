@@ -77,22 +77,27 @@ Each row is solved by a layer *outside* the model, not by a smarter one. Growing
 
 ### Silent wrong answers
 
-Instead of saying "I don't know," a model hands you a confident, plausible falsehood — and it slips by until a human checks each claim.
+Instead of saying "I don't know," a model hands you a confident, plausible falsehood, and it slips by until a human checks each claim. **Evaluation and tracing** close the gap — score each claim on faithfulness and block the ones below a threshold to re-check their sources.
 
 <details>
-<summary>Concrete examples</summary>
+<summary>Concrete example — scoring the citations</summary>
 
-- Invented citations and statistics, with no source
-- Subtly wrong dates and numbers
-- API or function names that don't exist
+```mermaid
+flowchart LR
+  ans["model answer"] --> a["claim A · 20 GPUs used"]
+  ans --> b["claim B · CPU barely used"]
+  ans --> c["claim C · memory is the bottleneck"]
+  a --> sa["faithfulness 20"]
+  b --> sb["faithfulness 80"]
+  c --> sc["faithfulness 60"]
+  sa --> gate{"below 70?"}
+  sb --> gate
+  sc --> gate
+  gate -- yes --> block["block → re-check source"]
+  gate -- no --> ok["accept"]
+```
 
 </details>
-
-**Evaluation and tracing** close the gap.
-
-- Score outputs automatically on faithfulness and accuracy
-- Trace every step to find where it went wrong
-- Let the pipeline catch regressions before your users do
 
 ### Runaway loops
 

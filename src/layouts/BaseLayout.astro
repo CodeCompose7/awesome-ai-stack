@@ -239,20 +239,21 @@ const isDefaultHome = path === '' && lang === 'en';
       })();
 
       // Close any open <details> dropdown when clicking outside it (or on Esc).
-      // The file-tree folders (.aas-tree-dir) are not dropdowns — leave them be.
+      // Only nav dropdowns — leave file-tree folders (.aas-tree-dir) and prose
+      // content reveals (inside .prose, e.g. "구체적인 예시") alone; those toggle
+      // only via their own summary.
+      const isDropdown = (d: Element) => !d.closest('.aas-tree-dir') && !d.closest('.prose');
       document.addEventListener('click', (e) => {
         const target = e.target as Node;
-        document
-          .querySelectorAll<HTMLDetailsElement>('details[open]:not(.aas-tree-dir)')
-          .forEach((d) => {
-            if (!d.contains(target)) d.open = false;
-          });
+        document.querySelectorAll<HTMLDetailsElement>('details[open]').forEach((d) => {
+          if (isDropdown(d) && !d.contains(target)) d.open = false;
+        });
       });
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape')
           document
-            .querySelectorAll<HTMLDetailsElement>('details[open]:not(.aas-tree-dir)')
-            .forEach((d) => (d.open = false));
+            .querySelectorAll<HTMLDetailsElement>('details[open]')
+            .forEach((d) => isDropdown(d) && (d.open = false));
       });
     </script>
   </body>
