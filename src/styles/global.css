@@ -172,20 +172,18 @@ html {
   color: var(--aas-text);
 }
 
-/* Doc layout (concept / article pages): content and a sticky right-rail TOC laid
-   out as columns, centered together inside the page container. The rail appears
-   at ≥1200px — narrow enough for a typical laptop — and below that the content
-   simply spans the full width. Unlike StackDetail's `.aas-toc-rail` (fixed, out
-   of flow, needs the ~1536px margin), this keeps the rail beside the content so
-   it fits much sooner. */
+/* Doc layout (concept / article pages): the prose column stays centered in the
+   viewport — the body is the visual focus — and the TOC rail is parked in the
+   right margin, fixed and out of flow so it never shifts the content. The
+   narrower column (44rem) leaves room for the rail to appear from ≥1200px (a
+   typical laptop) instead of StackDetail's ~1536px. Below that the rail hides
+   and the centered column stands alone. */
 .aas-doc {
-  display: flex;
-  gap: 2rem;
-  align-items: flex-start;
+  max-width: 44rem;
+  margin-inline: auto;
 }
 .aas-doc-main {
-  min-width: 0; /* let the prose column shrink instead of overflowing */
-  flex: 1;
+  min-width: 0;
 }
 .aas-doc-rail {
   display: none;
@@ -194,11 +192,11 @@ html {
   .aas-doc-rail {
     display: flex;
     flex-direction: column;
-    position: sticky;
+    position: fixed;
     top: 7rem;
-    align-self: flex-start;
+    /* just right of the centered 44rem column (half-width 22rem + 1.5rem gap) */
+    left: calc(50% + 23.5rem);
     width: 13rem;
-    flex-shrink: 0;
     max-height: calc(100vh - 9rem);
   }
 }
