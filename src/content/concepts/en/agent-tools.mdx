@@ -183,9 +183,9 @@ flowchart LR
 
 To call a tool reliably, the model has to be told *what* it can call and *in what shape*.
 
-1. **Schema** — each tool's name, description, and input shape are handed to the model, which reads the spec to judge which tool fits.
-2. **Filling arguments** — the model picks a tool and generates the input arguments as JSON; a malformed shape is caught by validation and retried.
-3. **Using the result** — the call's result feeds back into reasoning to decide the next action — sometimes one call, sometimes several tools chained.
+- **Schema** — each tool's name, description, and input shape are handed to the model, which reads the spec to judge which tool fits.
+- **Filling arguments** — the model picks a tool and generates the input arguments as JSON; a malformed shape is caught by validation and retried.
+- **Using the result** — the call's result feeds back into reasoning to decide the next action — sometimes one call, sometimes several tools chained.
 
 Passing tool specs over a standard protocol is taking hold too — **MCP (Model Context Protocol)** is one example, standardizing how tools and data sources attach to a model.
 
