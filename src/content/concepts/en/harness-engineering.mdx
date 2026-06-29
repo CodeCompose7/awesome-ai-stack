@@ -73,7 +73,7 @@ Most of the demo-to-production gap is harness, not model. A demo only has to suc
 | **Silent wrong answers** — confident, plausible falsehoods | [Evaluation · tracing](#evaluation) |
 | **"Worked yesterday"** — quiet quality drops or cost spikes after a change | [Observability](#observability) |
 
-Each row is solved by a layer *outside* the model, not by a smarter one — how each one works is covered in *the roles* below.
+Each row is solved by a layer *outside* the model, not by a smarter one — how each one works is covered in *the safety layers* below.
 
 ## Orchestration — the spine that drives the cycle
 
@@ -108,9 +108,9 @@ flowchart LR
 
 <Tools slugs={["langgraph", "openai-agents-sdk", "crewai", "agno"]} />
 
-## The roles — what the loop calls at each step
+## Capabilities — reasoning and acting
 
-Each role is swappable on its own, and you don't need them all up front — add a layer only where there's a risk to cover. *Model* fills reasoning, *tools & web* and the *code sandbox* fill acting, and guardrails, evaluation, and observability wrap the cycle to validate and measure it.
+These are the substrate the loop calls at each step of the cycle: *the model* does the reasoning, and *tools & web access* do the acting that touches the world. They decide what the agent *can* do — the layers that make it reliable come next.
 
 ### Model
 
@@ -168,6 +168,10 @@ flowchart LR
 ```
 
 <Tools slugs={["composio", "tavily", "firecrawl", "exa", "browser-use"]} />
+
+## Safety layers — guarding against failure
+
+Capability alone doesn't make it reliable. Each layer below guards against one of the failure modes in *Why it matters* above — you don't need them all up front, only where a risk shows.
 
 ### Code sandbox
 
