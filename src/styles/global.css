@@ -300,79 +300,50 @@ html {
   color: var(--aas-text);
 }
 
-/* Doc layout (concept / article pages): the prose column stays centered in the
-   viewport — the body is the visual focus — and the TOC rail is parked in the
-   right margin, fixed and out of flow so it never shifts the content. The
-   narrower column (44rem) leaves room for the rail to appear from ≥1200px (a
-   typical laptop) instead of StackDetail's ~1536px. Below that the rail hides
-   and the centered column stands alone. */
-.aas-doc {
-  max-width: 50rem;
-  margin-inline: auto;
-}
-.aas-doc-main {
-  min-width: 0;
-}
-.aas-doc-rail {
-  display: none;
-}
-@media (min-width: 1280px) {
-  .aas-doc-rail {
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    top: 7rem;
-    /* Just right of the centered 50rem column (half-width 25rem + 1.5rem gap),
-       clamped so the rail never crosses the viewport's right margin (13rem wide
-       + 1.5rem margin = 14.5rem) on the tighter end of the range. */
-    left: min(calc(50% + 26.5rem), calc(100vw - 14.5rem));
-    width: 13rem;
-    max-height: calc(100vh - 9rem);
-  }
-}
-
-/* Medium-style reading body: a larger MaruBuri serif column for the concept /
-   article prose. Headings stay sans for contrast, inline tool cards stay sans,
-   and code stays monospace — only the running text becomes serif. */
-:is(.aas-doc .prose, .aas-reading) {
+/* Medium-style reading body: a larger MaruBuri serif column for the concept,
+   article, and stack prose (anything tagged .aas-reading). Headings stay sans
+   for contrast, inline tool cards stay sans, and code stays monospace — only
+   the running text becomes serif. Concept/article/stack share the same width
+   and the .aas-toc-rail TOC, so there is no separate doc layout. */
+.aas-reading {
   font-family: 'MaruBuri', ui-serif, Georgia, serif;
   font-size: 1.2rem;
   line-height: 1.85;
 }
-:is(.aas-doc .prose, .aas-reading) :where(p, ul, ol, blockquote, td, th) {
+.aas-reading :where(p, ul, ol, blockquote, td, th) {
   line-height: 1.85;
 }
-:is(.aas-doc .prose, .aas-reading) :where(h2) {
+.aas-reading :where(h2) {
   font-size: 1.7rem;
 }
-:is(.aas-doc .prose, .aas-reading) :where(h3) {
+.aas-reading :where(h3) {
   font-size: 1.35rem;
 }
-:is(.aas-doc .prose, .aas-reading) :where(h1, h2, h3, h4, h5, h6),
-:is(.aas-doc .prose, .aas-reading) :where(table),
-:is(.aas-doc .prose, .aas-reading) a.aas-lift {
+.aas-reading :where(h1, h2, h3, h4, h5, h6),
+.aas-reading :where(table),
+.aas-reading a.aas-lift {
   font-family: var(--aas-sans);
 }
-:is(.aas-doc .prose, .aas-reading) :where(code, pre, kbd, samp) {
+.aas-reading :where(code, pre, kbd, samp) {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 /* Doc tables: a touch larger, centered (shrink-to-content), roomier cells, and
    a full-row hover highlight. `fit-content` + `margin-inline: auto` centers the
    table block while `max-width`/overflow (from the base .prose rule) keep it
    scrollable if it ever outgrows the column. */
-:is(.aas-doc .prose, .aas-reading) :where(table) {
+.aas-reading :where(table) {
   width: fit-content;
   max-width: 100%;
   margin-inline: auto;
   font-size: 1.05rem;
 }
-:is(.aas-doc .prose, .aas-reading) :where(th, td) {
+.aas-reading :where(th, td) {
   padding: 0.7rem 1.25rem;
 }
-:is(.aas-doc .prose, .aas-reading) :where(tbody tr) {
+.aas-reading :where(tbody tr) {
   transition: background-color 0.15s;
 }
-:is(.aas-doc .prose, .aas-reading) tbody tr:hover {
+.aas-reading tbody tr:hover {
   background: var(--aas-tint);
 }
 
