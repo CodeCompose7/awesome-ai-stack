@@ -273,6 +273,8 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
         {relatedConcepts.map((c) => (
           <a
             href={getRelativeLocaleUrl(lang, `concepts/${conceptSlugOf(c)}/`)}
+            target="_blank"
+            rel="noopener noreferrer"
             class="aas-lift flex items-stretch overflow-hidden rounded-2xl border border-[var(--aas-border)] bg-[var(--aas-panel)] no-underline"
           >
             {c.data.image && (
@@ -501,6 +503,8 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
           <li>
             <a
               href={getRelativeLocaleUrl(lang, `blog/${articleSlugOf(a)}/`)}
+              target="_blank"
+              rel="noopener noreferrer"
               class="text-[var(--aas-accent)] no-underline hover:underline"
             >
               {a.data.title}

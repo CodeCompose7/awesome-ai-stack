@@ -93,6 +93,8 @@ const fmtDate = (d: Date) =>
           <li>
             <a
               href={getRelativeLocaleUrl(lang, `blog/${articleSlugOf(a)}/`)}
+              target="_blank"
+              rel="noopener noreferrer"
               class="text-[var(--aas-accent)] no-underline hover:underline"
             >
               {a.data.title}
@@ -113,6 +115,8 @@ const fmtDate = (d: Date) =>
           <li>
             <a
               href={getRelativeLocaleUrl(lang, `concepts/${conceptSlugOf(c)}/`)}
+              target="_blank"
+              rel="noopener noreferrer"
               class="text-[var(--aas-accent)] no-underline hover:underline"
             >
               {c.data.title}

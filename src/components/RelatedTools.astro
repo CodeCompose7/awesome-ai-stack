@@ -31,6 +31,8 @@ const related = slugs.map((s) => bySlug.get(s)).filter(Boolean) as NonNullable<
         {related.map((e) => (
           <a
             href={getRelativeLocaleUrl(lang, `stacks/${slugOf(e)}/`)}
+            target="_blank"
+            rel="noopener noreferrer"
             class="aas-lift flex items-center gap-3 rounded-2xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-3 no-underline"
           >
             <ToolAvatar name={e.data.name} logo={e.data.logo} logoDark={e.data.logoDark} category={e.data.category} size={36} />
