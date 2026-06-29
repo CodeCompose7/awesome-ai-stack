@@ -81,7 +81,7 @@ Instead of saying "I don't know," a model hands you a confident, plausible false
 
 - **Evaluation** — don't take a claim at face value; pick the check that fits
   - Factual claims, scored against a trusted source or reference
-  - Code and API claims, run in a sandbox or statically checked
+  - Whether the APIs and functions the code uses exist, run in a sandbox or statically checked
 - **Tracing** — every step logged, so you can trace back where it broke
 
 #### Example 1. Source & reference check
@@ -115,9 +115,9 @@ flowchart LR
 
 #### Example 2. Code
 
-Code and API claims are verified for real. A **static check** doesn't run the code — it uses the installed package or type stubs to confirm the symbols and types exist; a **sandbox** runs it in an isolated environment with dependencies in place, catching errors like `AttributeError`.
+Does the API or function the model's code uses actually exist? This isn't about API requests to a service — it's whether a call like `pandas.read_yaml` is a real function. A **static check** doesn't run the code — it uses the installed package or type stubs to confirm the symbols and types exist; a **sandbox** runs it in an isolated environment with dependencies in place, catching errors like `AttributeError`.
 
-- **Nonexistent APIs** — calls like `pandas.read_yaml()` that don't exist
+- **Nonexistent APIs** — code calling a function that doesn't exist, like `pandas.read_yaml()`
 
 ```mermaid
 flowchart LR
