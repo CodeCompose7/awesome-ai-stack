@@ -30,7 +30,7 @@ const related = slugs.map((s) => bySlug.get(s)).filter(Boolean) as NonNullable<
       <CollapsibleGrid lang={lang} count={related.length}>
         {related.map((e) => (
           <a
-            href={getRelativeLocaleUrl(lang, `stacks/${slugOf(e)}/`)}
+            href={getRelativeLocaleUrl(lang, `stack/${slugOf(e)}/`)}
             target="_blank"
             rel="noopener noreferrer"
             class="aas-lift flex items-center gap-3 rounded-2xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-3 no-underline"

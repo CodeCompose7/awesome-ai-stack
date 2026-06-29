@@ -32,7 +32,7 @@ const tools = list.map((s) => bySlug.get(s)).filter(Boolean) as StackEntry[];
     <div class="mt-3 grid gap-3 sm:grid-cols-2">
       {tools.map((e) => (
         <a
-          href={getRelativeLocaleUrl(lang, `stacks/${slugOf(e)}/`)}
+          href={getRelativeLocaleUrl(lang, `stack/${slugOf(e)}/`)}
           target="_blank"
           rel="noopener noreferrer"
           class="aas-lift flex items-center gap-3 rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-3 no-underline"

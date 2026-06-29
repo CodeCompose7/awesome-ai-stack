@@ -29,7 +29,7 @@ interface Props {
 const { slug, lang, name, formerNames = [], vendor, description, tags, pricing, license, language, category, logo, logoDark, repo, version, deprecated } =
   Astro.props;
 const t = useTranslations(lang);
-const href = getRelativeLocaleUrl(lang, `stacks/${slug}/`);
+const href = getRelativeLocaleUrl(lang, `stack/${slug}/`);
 
 // Resolved logo URL (for the blurred backdrop in the gallery view). Only image
 // logos qualify; monograms/emoji have nothing to blur.

@@ -11,7 +11,7 @@ tags: [observability, eval, comparison]
 Once an agent does more than one model call, logs stop being enough: you need to
 see the **trace** — every model and tool step, with inputs, outputs, latency, and
 cost. Two tools dominate that space for AI agents:
-[Langfuse](../../stacks/langfuse/) and [LangSmith](../../stacks/langsmith/).
+[Langfuse](../../stack/langfuse/) and [LangSmith](../../stack/langsmith/).
 They overlap a lot, so the decision usually comes down to a few axes.
 
 ## At a glance
@@ -26,7 +26,7 @@ They overlap a lot, so the decision usually comes down to a few axes.
 
 ## Where Langfuse shines
 
-[Langfuse](../../stacks/langfuse/) is open source, so you can **self-host** and
+[Langfuse](../../stack/langfuse/) is open source, so you can **self-host** and
 keep prompts and user data inside your own infrastructure — often the deciding
 factor in regulated or privacy-sensitive settings. It's deliberately
 framework-agnostic: the SDK and OpenTelemetry support drop into any stack,
@@ -34,7 +34,7 @@ whether or not you use LangChain.
 
 ## Where LangSmith shines
 
-[LangSmith](../../stacks/langsmith/) is the most frictionless option if you're
+[LangSmith](../../stack/langsmith/) is the most frictionless option if you're
 already building on LangChain or LangGraph — tracing lights up with almost no
 wiring. As a managed product it leans into a polished, batteries-included
 experience for datasets, evaluations, and production monitoring.

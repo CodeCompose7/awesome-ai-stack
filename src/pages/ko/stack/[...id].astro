@@ -1,30 +1,30 @@
 ---
 import type { GetStaticPaths } from 'astro';
 import { getRelativeLocaleUrl } from 'astro:i18n';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import StackDetail from '../../components/StackDetail.astro';
-import { getStacks, getStackAliases, slugOf, type StackEntry } from '../../lib/stacks';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import StackDetail from '../../../components/StackDetail.astro';
+import { getStacks, getStackAliases, slugOf, type StackEntry } from '../../../lib/stacks';
 
 export const getStaticPaths = (async () => {
-  const entries = await getStacks('en');
+  const entries = await getStacks('ko');
   const paths: Awaited<ReturnType<GetStaticPaths>> = entries.map((entry) => ({
     params: { id: slugOf(entry) },
     props: { entry, redirectTo: null },
   }));
-  // Former-name aliases (e.g. /stacks/roo-code/ → /stacks/roomote/).
-  for (const { alias, target } of await getStackAliases('en')) {
+  // Former-name aliases (e.g. /ko/stack/roo-code/ → /ko/stack/roomote/).
+  for (const { alias, target } of await getStackAliases('ko')) {
     paths.push({ params: { id: alias }, props: { entry: null, redirectTo: target } });
   }
   return paths;
 }) satisfies GetStaticPaths;
 
 const { entry, redirectTo } = Astro.props as { entry: StackEntry | null; redirectTo: string | null };
-const target = redirectTo ? getRelativeLocaleUrl('en', `stacks/${redirectTo}/`) : null;
+const target = redirectTo ? getRelativeLocaleUrl('ko', `stack/${redirectTo}/`) : null;
 ---
 
 {
   target ? (
-    <html lang="en">
+    <html lang="ko">
       <head>
         <meta charset="utf-8" />
         <meta http-equiv="refresh" content={`0; url=${target}`} />
@@ -41,10 +41,10 @@ const target = redirectTo ? getRelativeLocaleUrl('en', `stacks/${redirectTo}/`) 
     <BaseLayout
       title={`${entry!.data.name} — awesome-agent-stack`}
       description={entry!.data.description}
-      lang="en"
-      path={`stacks/${slugOf(entry!)}/`}
+      lang="ko"
+      path={`stack/${slugOf(entry!)}/`}
     >
-      <StackDetail entry={entry!} lang="en" />
+      <StackDetail entry={entry!} lang="ko" />
     </BaseLayout>
   )
 }
