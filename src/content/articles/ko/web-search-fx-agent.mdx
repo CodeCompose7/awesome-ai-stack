@@ -1,0 +1,59 @@
+---
+title: 웹 검색 에이전트 만들기 — 오늘의 환율 묻기
+description: |-
+  "오늘 환율?"은 모델 혼자서는 못 답합니다. Tavily 웹 검색 도구를 하나 붙인
+  LangGraph 에이전트로, 도구가 학습 컷오프 너머를 어떻게 메우는지 직접 만들어 봅니다.
+date: 2026-06-29
+version: '1.0'
+updated: 2026-06-29
+tools: [tavily, langgraph]
+tags: [tools, web-search, agent, tutorial]
+---
+
+import SampleProject from '../../../components/SampleProject.astro';
+
+[도구](../../concepts/agent-tools/) 개념에서 "오늘의 환율 묻기"를 예로 들었습니다.
+모델의 지식은 학습 시점에 멈춰 있어 환율처럼 매일 바뀌는 값은 알 수 없고, 그 빈틈을
+메우는 게 *웹 검색 도구*입니다. 이 글에서는 그 예시를 실제로 돌아가는 에이전트로
+만들어 봅니다.
+
+## 무엇을 만드나
+
+질문을 받으면 모델이 스스로 "이건 검색해야겠다"고 판단해 Tavily로 웹을 검색하고,
+최신 결과를 읽어 환율과 출처를 함께 답하는 에이전트입니다.
+
+```mermaid
+flowchart LR
+  q["질문 — 오늘 USD/KRW 환율?"] --> model["모델"]
+  model -- 검색어 --> tool["web_search · Tavily"]
+  tool --> data[("검색 결과 · 출처")]
+  data --> model
+  model --> ans["답변 + 출처"]
+  class model roleModel
+  class tool roleTool
+  class data roleSource
+```
+
+도구가 없으면 모델은 낡은 값을 추측할 뿐이지만, 도구 하나로 답이 오늘의 웹에
+근거하게 됩니다.
+
+## 구현
+
+LangGraph의 ReAct 루프에 `web_search` 도구 하나만 붙였습니다. 모델은 LiteLLM을
+통해 라우팅되므로 같은 코드가 Claude·OpenAI·Gemini에서 모두 동작합니다.
+
+<SampleProject folder="tavily_1" />
+
+## 핵심만 짚으면
+
+- **도구는 함수다** — `@tool`로 감싼 `web_search(query)` 하나가 전부입니다. docstring이
+  곧 모델용 설명서라, 모델은 이걸 보고 "언제 검색할지"를 판단합니다.
+- **루프가 호출을 엮는다** — `create_agent(model, tools=[web_search])`가 추론→도구
+  호출→관찰을 돌리며, 도구를 부를지·결과를 받고 한 번 더 부를지를 정합니다.
+- **결과는 근거가 된다** — Tavily가 돌려준 답과 출처가 추론에 들어가, 환각 대신 조회한
+  값으로 답합니다.
+- **제공자는 갈아끼운다** — `.env`의 `MODEL`만 바꾸면 같은 코드로 다른 모델을 씁니다.
+
+검색 도구를 스크래핑(Firecrawl)이나 브라우저 자동화(Browser Use)로 바꾸면 같은
+루프로 다른 종류의 "지금" 데이터를 끌어올 수 있습니다. 도구의 갈래는
+[도구](../../concepts/agent-tools/) 개념에 정리해 두었습니다.

@@ -8,6 +8,7 @@ import { useTranslations, type Lang } from '../i18n/ui';
 import { formatDate } from '../lib/dates';
 import ToolAvatar from './ToolAvatar.astro';
 import TocRail from './TocRail.astro';
+import MermaidLoader from './MermaidLoader.astro';
 import type { ArticleEntry } from '../lib/articles';
 
 interface Props {
@@ -22,6 +23,9 @@ const data = entry.data;
 const dateStr = data.date.toISOString().slice(0, 10);
 const updatedStr = data.updated?.toISOString().slice(0, 10);
 const tocItems = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
+// Articles may embed Mermaid diagrams (and a <SampleProject/> whose README can
+// too); load the client renderer when the body uses any.
+const bodyHasMermaid = (entry.body ?? '').includes('```mermaid');
 
 // Forward links: resolve referenced tool slugs to their stack entries so they
 // render as the same cards used by the "related tools" section.
@@ -102,3 +106,5 @@ const referenced = data.tools
 
 <TocRail lang={lang} items={tocItems} />
 </div>
+
+{bodyHasMermaid && <MermaidLoader />}

@@ -1,0 +1,28 @@
+---
+// Inline runnable-sample viewer for use inside an article's MDX body, e.g.
+//   <SampleProject folder="tavily_1" />
+// Reuses the catalog's ProjectViewer (file tree + README) so an article shows
+// the real samples/<folder>/ files — one source of truth, no copy-paste. Locale
+// is resolved from the current page (articles are served under /<lang>/...).
+import { renderProjects } from '../lib/project';
+import ProjectViewer from './ProjectViewer.astro';
+import type { RelatedTool } from './ProjectRelatedTools.astro';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  folder: string;
+}
+
+const { folder } = Astro.props;
+const lang: Lang = Astro.currentLocale === 'ko' ? 'ko' : 'en';
+const projects = await renderProjects([folder], lang);
+const related = new Map<string, RelatedTool[]>();
+---
+
+{
+  projects.length > 0 && (
+    <div class="my-6">
+      <ProjectViewer lang={lang} projects={projects} related={related} />
+    </div>
+  )
+}
