@@ -24,7 +24,7 @@ const target = articles.find((a) => articleSlugOf(a) === slug) as ArticleEntry |
 {
   target && (
     <a
-      href={getRelativeLocaleUrl(lang, `blog/${articleSlugOf(target)}/`)}
+      href={getRelativeLocaleUrl(lang, `articles/${articleSlugOf(target)}/`)}
       target="_blank"
       rel="noopener noreferrer"
       class="aas-lift mt-3 flex items-start gap-4 rounded-xl border border-l-4 p-4 no-underline"

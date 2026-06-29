@@ -502,7 +502,7 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
         {relatedArticles.map((a) => (
           <li>
             <a
-              href={getRelativeLocaleUrl(lang, `blog/${articleSlugOf(a)}/`)}
+              href={getRelativeLocaleUrl(lang, `articles/${articleSlugOf(a)}/`)}
               target="_blank"
               rel="noopener noreferrer"
               class="text-[var(--aas-accent)] no-underline hover:underline"
