@@ -1,4 +1,5 @@
 // @ts-check
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
@@ -100,6 +101,14 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
+
+    // `@assets/...` is shorthand for `src/assets/...`, so in-body images can be
+    // referenced without long `../../../assets/...` relative paths.
+    resolve: {
+      alias: {
+        '@assets': fileURLToPath(new URL('./src/assets', import.meta.url)),
+      },
+    },
 
     // This project is developed inside a Docker bind-mount devcontainer
     // (linuxkit). Native inotify events are unreliable across the mount and
