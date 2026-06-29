@@ -36,8 +36,6 @@ import Tools from "../../../components/ConceptTools.astro";
 
 **하네스 엔지니어링**은 모델 _주위에_ 스캐폴딩(제어 루프, 호출할 도구, 코드 샌드박스, 입출력 검증, 그리고 동작을 증명하는 측정)을 짜는 일입니다. 모델은 한 부품일 뿐이고, 하네스는 그 모델을 믿을 수 있게 만드는 나머지 전부입니다.
 
-지난 몇 년 사이 무게중심은 _프롬프트_ 엔지니어링에서 _하네스_ 엔지니어링으로 옮겨 갔습니다. 더 영리한 문장을 찾는 일보다, 모델이 틀릴 수 있다는 전제 위에서 그 둘레를 설계하는 일이 신뢰성을 좌우합니다.
-
 ```mermaid
 flowchart LR
   subgraph harness [harness]
@@ -51,6 +49,22 @@ flowchart LR
   loop --> model[(LLM)]
   model --> loop
   loop --> out[result]
+```
+
+지난 몇 년 사이 무게중심은 _프롬프트_ 엔지니어링에서 _하네스_ 엔지니어링으로 옮겨 갔습니다. 더 영리한 문장을 찾는 일보다, 모델이 틀릴 수 있다는 전제 위에서 그 둘레를 설계하는 일이 신뢰성을 좌우합니다.
+
+```mermaid
+flowchart TB
+  subgraph pe ["prompt engineering — tune the wording"]
+    direction LR
+    a1["clever prompt"] --> a2[("LLM")] --> a3["output"]
+  end
+  subgraph he ["harness engineering — design the surroundings"]
+    direction LR
+    b1["task"] --> b2["loop · tools · sandbox · guardrails · eval"]
+    b2 <--> b3[("LLM")]
+    b2 --> b4["reliable output"]
+  end
 ```
 
 ## 왜 중요한가

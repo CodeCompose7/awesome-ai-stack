@@ -28,8 +28,6 @@ A raw LLM call is capable but unreliable on its own. The same prompt passes yest
 
 **Harness engineering** is building the scaffolding *around* the model — the control loop, the tools it can reach, a code sandbox, checks on its I/O, and the measurement that proves it works. The model is one part; the harness is everything else that makes it dependable.
 
-Over the past few years the center of gravity has shifted from *prompt* engineering to *harness* engineering. Finding a cleverer sentence matters less than designing the system around a model that can be wrong — that is what decides reliability.
-
 ```mermaid
 flowchart LR
   subgraph harness [harness]
@@ -43,6 +41,22 @@ flowchart LR
   loop --> model[(LLM)]
   model --> loop
   loop --> out[result]
+```
+
+Over the past few years the center of gravity has shifted from *prompt* engineering to *harness* engineering. Finding a cleverer sentence matters less than designing the system around a model that can be wrong — that is what decides reliability.
+
+```mermaid
+flowchart TB
+  subgraph pe ["prompt engineering — tune the wording"]
+    direction LR
+    a1["clever prompt"] --> a2[("LLM")] --> a3["output"]
+  end
+  subgraph he ["harness engineering — design the surroundings"]
+    direction LR
+    b1["task"] --> b2["loop · tools · sandbox · guardrails · eval"]
+    b2 <--> b3[("LLM")]
+    b2 --> b4["reliable output"]
+  end
 ```
 
 ## Why it matters
