@@ -2,11 +2,14 @@
 import { render } from 'astro:content';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { getArticles, articleSlugOf, type ArticleEntry } from '../lib/articles';
-import { getConcepts, conceptSlugOf, type ConceptEntry } from '../lib/concepts';
+import { getConcepts, conceptSlugOf, conceptToolSlugs, type ConceptEntry } from '../lib/concepts';
 import { Image } from 'astro:assets';
 import { useTranslations, type Lang } from '../i18n/ui';
 import MermaidLoader from './MermaidLoader.astro';
 import TocRail from './TocRail.astro';
+import RelatedTools from './RelatedTools.astro';
+import RelatedConcepts from './RelatedConcepts.astro';
+import RelatedArticles from './RelatedArticles.astro';
 
 interface Props {
   entry: ConceptEntry;
@@ -20,10 +23,8 @@ const data = entry.data;
 const tocItems = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
 const bodyHasMermaid = (entry.body ?? '').includes('```mermaid');
 
-// The role-grouped tools are rendered inline in the body via <Tools/>; the
-// frontmatter `tools` still powers the tool→concept backlinks.
-
-// Related articles + related concepts (resolved from slugs).
+// Related sections (cards), like a stack detail page: the tools this concept
+// uses (flattened from its role groups), sibling concepts, and linked writing.
 const articles = await getArticles(lang);
 const articleBySlug = new Map(articles.map((a) => [articleSlugOf(a), a]));
 const relatedArticles = data.articles
@@ -36,7 +37,6 @@ const relatedConcepts = data.related
   .map((sl) => conceptBySlug.get(sl))
   .filter(Boolean) as ConceptEntry[];
 
-const sectionHead = 'text-sm font-semibold tracking-wide text-[var(--aas-muted)] uppercase';
 const fmtDate = (d: Date) =>
   new Intl.DateTimeFormat(lang === 'ko' ? 'ko-KR' : 'en-US', {
     year: 'numeric',
@@ -46,8 +46,6 @@ const fmtDate = (d: Date) =>
   }).format(d);
 ---
 
-<div class="flex items-start gap-8">
-<div class="min-w-0 flex-1">
 <a
   href={getRelativeLocaleUrl(lang, 'concept/')}
   class="text-sm text-[var(--aas-accent)] no-underline">&larr; {t('concept.backToConcepts')}</a
@@ -80,57 +78,15 @@ const fmtDate = (d: Date) =>
   }
 </header>
 
-<article class="prose max-w-none aas-reading">
-  <Content />
-</article>
+<RelatedTools lang={lang} slugs={conceptToolSlugs(entry)} />
+<RelatedConcepts lang={lang} concepts={relatedConcepts} />
+<RelatedArticles lang={lang} articles={relatedArticles} />
 
-{
-  relatedArticles.length > 0 && (
-    <aside class="mt-10 border-t border-[var(--aas-border)] pt-6">
-      <h2 class={sectionHead}>{t('detail.relatedWriting')}</h2>
-      <ul class="mt-3 space-y-2">
-        {relatedArticles.map((a) => (
-          <li>
-            <a
-              href={getRelativeLocaleUrl(lang, `article/${articleSlugOf(a)}/`)}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-[var(--aas-accent)] no-underline hover:underline"
-            >
-              {a.data.title}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </aside>
-  )
-}
-
-{
-  relatedConcepts.length > 0 && (
-    <aside class="mt-10 border-t border-[var(--aas-border)] pt-6">
-      <h2 class={sectionHead}>{t('concept.relatedConcepts')}</h2>
-      <ul class="mt-3 space-y-2">
-        {relatedConcepts.map((c) => (
-          <li>
-            <a
-              href={getRelativeLocaleUrl(lang, `concept/${conceptSlugOf(c)}/`)}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-[var(--aas-accent)] no-underline hover:underline"
-            >
-              {c.data.title}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </aside>
-  )
-}
-
-</div>
-
-<TocRail lang={lang} items={tocItems} />
+<div class="mt-8 flex items-start gap-8">
+  <article class="prose max-w-none aas-reading min-w-0 flex-1">
+    <Content />
+  </article>
+  <TocRail lang={lang} items={tocItems} />
 </div>
 
 {bodyHasMermaid && <MermaidLoader />}

@@ -2,16 +2,17 @@
 import { render } from 'astro:content';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { getStacks, slugOf } from '../lib/stacks';
-import { categoryMap } from '../data/categories';
+import { articleSlugOf, type ArticleEntry } from '../lib/articles';
+import { getConcepts, type ConceptEntry } from '../lib/concepts';
 import { Image } from 'astro:assets';
 import { useTranslations, type Lang } from '../i18n/ui';
 import { formatDate } from '../lib/dates';
-import ToolAvatar from './ToolAvatar.astro';
 import TocRail from './TocRail.astro';
 import MermaidLoader from './MermaidLoader.astro';
+import RelatedTools from './RelatedTools.astro';
+import RelatedConcepts from './RelatedConcepts.astro';
 import { renderProjects } from '../lib/project';
 import type { RelatedTool } from './ProjectRelatedTools.astro';
-import type { ArticleEntry } from '../lib/articles';
 
 interface Props {
   entry: ArticleEntry;
@@ -29,18 +30,18 @@ const tocItems = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
 // too); load the client renderer when the body uses any.
 const bodyHasMermaid = (entry.body ?? '').includes('```mermaid');
 
-// Forward links: resolve referenced tool slugs to their stack entries so they
-// render as the same cards used by the "related tools" section.
-const stacks = await getStacks(lang);
-const bySlug = new Map(stacks.map((s) => [slugOf(s), s]));
-const referenced = data.tools
-  .map((slug) => bySlug.get(slug))
-  .filter(Boolean) as NonNullable<ReturnType<typeof bySlug.get>>[];
+// Related concepts: concepts whose frontmatter lists this article (backlink).
+const articleSlug = articleSlugOf(entry);
+const relatedConcepts = (await getConcepts(lang)).filter((c) =>
+  c.data.articles.includes(articleSlug),
+) as ConceptEntry[];
 
 // Optional embedded sample (samples/<folder>/): its file list + related tools
 // go in the right rail, mirroring a stack's implementation tab. The body still
 // renders the viewer via <SampleProject folder="…"/>; both share the folder, so
 // the rail's file buttons wire to the body viewer (matched document-wide).
+const stacks = await getStacks(lang);
+const bySlug = new Map(stacks.map((s) => [slugOf(s), s]));
 const projectSpec = data.project
   ? typeof data.project === 'string'
     ? { folder: data.project, related: [] as string[] }
@@ -60,19 +61,17 @@ function resolveTool(slug: string): RelatedTool {
     deprecated: e.data.deprecated,
   };
 }
-const relatedTools = projectSpec ? projectSpec.related.map(resolveTool) : [];
+const railTools = projectSpec ? projectSpec.related.map(resolveTool) : [];
 const projectFiles = renderedProject
   ? { folder: renderedProject.folder, files: renderedProject.files }
   : undefined;
 ---
 
-<div class="flex items-start gap-8">
-<div class="min-w-0 flex-1">
 <a href={getRelativeLocaleUrl(lang, 'article/')} class="text-sm text-[var(--aas-accent)] no-underline"
   >&larr; {t('article.backToBlog')}</a
 >
 
-<header class="mt-4 border-b border-[var(--aas-border)] pb-6">
+<header class="mt-4 pb-6">
   <p class="text-sm text-[var(--aas-muted)]">
     <time datetime={dateStr}>{formatDate(data.date, lang)}</time>
     {data.version && <span> · {t('meta.docVersion')} {data.version}</span>}
@@ -94,49 +93,16 @@ const projectFiles = renderedProject
       />
     )
   }
-
-  {
-    referenced.length > 0 && (
-      <div class="mt-5">
-        <span class="text-xs tracking-wide text-[var(--aas-muted)] uppercase">
-          {t('article.referencedTools')}
-        </span>
-        <div class="mt-2 grid gap-3 sm:grid-cols-2">
-          {referenced.map((e) => (
-            <a
-              href={getRelativeLocaleUrl(lang, `stacks/${slugOf(e)}/`)}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="aas-lift flex items-center gap-3 rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-3 no-underline"
-            >
-              <ToolAvatar name={e.data.name} logo={e.data.logo} logoDark={e.data.logoDark} category={e.data.category} size={36} />
-              <div class="min-w-0">
-                <div class="flex items-center gap-2">
-                  <span class="truncate font-semibold text-[var(--aas-text)]">{e.data.name}</span>
-                  {e.data.deprecated && (
-                    <span class="aas-deprecated shrink-0 rounded px-1.5 py-0.5 text-[0.65rem]">
-                      {t('meta.deprecated')}
-                    </span>
-                  )}
-                </div>
-                <div class="truncate text-xs text-[var(--aas-muted)]">
-                  {categoryMap.get(e.data.category)?.label[lang]}
-                </div>
-              </div>
-            </a>
-          ))}
-        </div>
-      </div>
-    )
-  }
 </header>
 
-<article class="prose mt-8 max-w-none aas-reading">
-  <Content />
-</article>
-</div>
+<RelatedTools lang={lang} slugs={data.tools} />
+<RelatedConcepts lang={lang} concepts={relatedConcepts} />
 
-<TocRail lang={lang} items={tocItems} relatedTools={relatedTools} projectFiles={projectFiles} />
+<div class="mt-8 flex items-start gap-8">
+  <article class="prose max-w-none aas-reading min-w-0 flex-1">
+    <Content />
+  </article>
+  <TocRail lang={lang} items={tocItems} relatedTools={railTools} projectFiles={projectFiles} />
 </div>
 
 {bodyHasMermaid && <MermaidLoader />}
