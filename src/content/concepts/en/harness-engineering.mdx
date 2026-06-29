@@ -79,8 +79,16 @@ Each row is solved by a layer *outside* the model, not by a smarter one. Growing
 
 Instead of saying "I don't know," a model hands you a confident, plausible falsehood, and it slips by until a human checks each claim. **Evaluation and tracing** close the gap — score each claim on faithfulness and block the ones below a threshold to re-check their sources.
 
-<details>
-<summary>Concrete example — scoring the citations</summary>
+<details open>
+<summary>Concrete examples</summary>
+
+Silent wrong answers show up in several shapes.
+
+- **Unsourced numbers** — asserting "this job used 20 GPUs" with no basis
+- **Subtly wrong facts** — "supported since Python 3.9" when it's really 3.11
+- **Nonexistent APIs** — calls like `pandas.read_yaml()` that don't exist
+
+Evaluation scores each claim and filters out the ones below a threshold.
 
 ```mermaid
 flowchart LR
@@ -110,7 +118,7 @@ flowchart LR
   check -- yes --> stop["stop"]
 ```
 
-<details>
+<details open>
 <summary>Concrete examples</summary>
 
 - An infinite loop repeating the same search
@@ -130,7 +138,7 @@ flowchart LR
   guard -- violation --> block["block / rewrite"]
 ```
 
-<details>
+<details open>
 <summary>Concrete examples</summary>
 
 - Personal data or secret keys leaked verbatim
@@ -149,7 +157,7 @@ flowchart LR
   sandbox -. isolates .- host["your machine · data"]
 ```
 
-<details>
+<details open>
 <summary>Concrete examples</summary>
 
 - Accidentally deleting files or directories
@@ -162,7 +170,7 @@ flowchart LR
 
 A small change to the model or the prompt, and quality quietly degrades or cost spikes. **Observability** traces every step, token, and cost, surfacing regressions before your users hit them.
 
-<details>
+<details open>
 <summary>Concrete examples</summary>
 
 - A subtle accuracy drop after swapping models

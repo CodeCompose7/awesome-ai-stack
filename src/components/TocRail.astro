@@ -25,9 +25,21 @@ const t = useTranslations(lang);
       <div class="aas-toc-scroll">
         <Toc items={items} title={t('toc.onThisPage')} />
       </div>
-      <button type="button" class="aas-toc-top" data-back-to-top>
-        ↑ {t('top.label')}
-      </button>
+      <div class="aas-toc-foot">
+        <button type="button" class="aas-toc-top" data-back-to-top>
+          ↑ {t('top.label')}
+        </button>
+        <button
+          type="button"
+          class="aas-toc-allbtn"
+          data-toggle-all
+          data-collapse={t('toc.collapseAll')}
+          data-expand={t('toc.expandAll')}
+          hidden
+        >
+          {t('toc.collapseAll')}
+        </button>
+      </div>
     </aside>
   )
 }
@@ -55,5 +67,39 @@ const t = useTranslations(lang);
     rail
       .querySelector('[data-back-to-top]')
       ?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+    // Prose reveals (<details> like "구체적인 예시"): open by default, remembered
+    // per page in localStorage, with a "collapse / expand all" toggle here.
+    const reveals = Array.from(
+      document.querySelectorAll<HTMLDetailsElement>('.prose details:not(.aas-tree-dir)'),
+    );
+    const allBtn = rail.querySelector<HTMLButtonElement>('[data-toggle-all]');
+    if (reveals.length) {
+      const key = (i: number) => `aas:reveal:${location.pathname}:${i}`;
+      const syncAll = () => {
+        if (!allBtn) return;
+        const anyOpen = reveals.some((d) => d.open);
+        allBtn.textContent = anyOpen ? allBtn.dataset.collapse! : allBtn.dataset.expand!;
+      };
+      reveals.forEach((d, i) => {
+        const saved = localStorage.getItem(key(i));
+        if (saved === '0') d.open = false;
+        else if (saved === '1') d.open = true;
+        d.addEventListener('toggle', () => {
+          try {
+            localStorage.setItem(key(i), d.open ? '1' : '0');
+          } catch {}
+          syncAll();
+        });
+      });
+      if (allBtn) {
+        allBtn.hidden = false;
+        allBtn.addEventListener('click', () => {
+          const open = !reveals.some((d) => d.open);
+          reveals.forEach((d) => (d.open = open));
+        });
+        syncAll();
+      }
+    }
   }
 </script>

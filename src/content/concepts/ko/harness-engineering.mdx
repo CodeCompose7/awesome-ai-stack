@@ -87,8 +87,16 @@ flowchart LR
 
 모델은 "모른다"고 말하는 대신 그럴듯한 거짓을 자신 있게 내놓습니다. 사람이 일일이 들여다보기 전까진 드러나지 않는 게 문제입니다. **평가·트레이싱**으로 막습니다 — 답변 속 각 주장을 충실도 지표로 채점하고, 임계값 미만은 차단해 출처를 다시 확인합니다.
 
-<details>
-<summary>구체적인 예시 — 인용 채점</summary>
+<details open>
+<summary>구체적인 예시</summary>
+
+조용한 오답은 여러 모습으로 나타납니다.
+
+- **출처 없는 수치** — "이 작업은 GPU를 20개 썼다"처럼 근거 없이 단언
+- **미묘하게 틀린 사실** — "Python 3.9부터 지원"이라지만 실제로는 3.11
+- **없는 API·함수** — `pandas.read_yaml()`처럼 존재하지 않는 호출
+
+평가는 답변 속 각 주장을 채점해 임계값 미만을 걸러냅니다.
 
 ```mermaid
 flowchart LR
@@ -118,7 +126,7 @@ flowchart LR
   check -- 예 --> stop["중단"]
 ```
 
-<details>
+<details open>
 <summary>구체적인 예시</summary>
 
 - 같은 검색을 반복하는 무한 루프
@@ -138,7 +146,7 @@ flowchart LR
   guard -- 위반 --> block["차단·재작성"]
 ```
 
-<details>
+<details open>
 <summary>구체적인 예시</summary>
 
 - 개인정보·비밀키가 그대로 노출
@@ -157,7 +165,7 @@ flowchart LR
   sandbox -. 격리 .- host["내 머신·데이터"]
 ```
 
-<details>
+<details open>
 <summary>구체적인 예시</summary>
 
 - 실수로 파일·디렉터리 삭제
@@ -170,7 +178,7 @@ flowchart LR
 
 모델이나 프롬프트를 살짝 손봤을 뿐인데 품질이 조용히 무너지거나 비용이 튑니다. **관측**은 모든 단계·토큰·비용을 트레이싱해, 회귀를 사용자가 마주치기 전에 포착합니다.
 
-<details>
+<details open>
 <summary>구체적인 예시</summary>
 
 - 모델 교체 뒤 미묘하게 떨어진 정확도
