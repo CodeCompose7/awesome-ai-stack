@@ -99,6 +99,16 @@ Caveats:
 - This is the one case where the ~90-column wrap rule below does **not** apply: a
   line laid out for a deliberate break stays on its own line even if it runs long.
 
+## Emphasis: use `*` for italic and `**` for bold, not `_`
+
+Use asterisks for emphasis — `*italic*` and `**bold**` — never the underscore
+forms `_italic_` / `__bold__`. Asterisks work consistently mid-word and across
+scripts (including Korean, where `_…_` between non-space characters often fails
+to render), and keeping one style makes the source uniform.
+
+- ❌ `모델 _주위에_ 스캐폴딩을 짭니다`
+- ✅ `모델 *주위에* 스캐폴딩을 짭니다`
+
 ## General
 
 - Tag every fenced code block with its language (` ```bash `, ` ```python `,
