@@ -623,20 +623,18 @@ summary {
 .mermaid g.cluster rect {
   rx: 18px;
   ry: 18px;
-}
-/* Subgraphs opt into a zone colour per-diagram via `class <id> <zone>` (not a
-   blanket renderer rule). `aaszone` = warm amber for the emphasized region (the
-   harness); `defaultzone` = the calm blue for a neutral region. These override
-   Mermaid's transparent clusterBkg. */
-.mermaid g.cluster.aaszone rect {
-  fill: color-mix(in srgb, var(--aas-diagram-zone-warm) 14%, transparent) !important;
-  stroke: color-mix(in srgb, var(--aas-diagram-zone-warm) 48%, transparent) !important;
-  stroke-width: 1.5px !important;
-}
-.mermaid g.cluster.defaultzone rect {
+  /* Default zone colour — a calm blue for any cluster (overrides Mermaid's
+     transparent clusterBkg). A subgraph opts into another zone per-diagram via
+     `class <id> <zone>`. */
   fill: color-mix(in srgb, var(--aas-diagram-zone) 13%, transparent) !important;
   stroke: color-mix(in srgb, var(--aas-diagram-zone) 42%, transparent) !important;
   stroke-width: 1.5px !important;
+}
+/* Emphasized region — warm amber. Opt in with `class <id> aaszone` (e.g. the
+   harness we're describing). */
+.mermaid g.cluster.aaszone rect {
+  fill: color-mix(in srgb, var(--aas-diagram-zone-warm) 14%, transparent) !important;
+  stroke: color-mix(in srgb, var(--aas-diagram-zone-warm) 48%, transparent) !important;
 }
 
 
