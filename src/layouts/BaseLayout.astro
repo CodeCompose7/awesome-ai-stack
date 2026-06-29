@@ -97,6 +97,7 @@ const isDefaultHome = path === '' && lang === 'en';
       <div class:list={['mx-auto flex items-center justify-between gap-3 px-5 py-4', container]}>
         <a
           href={home}
+          data-keep-filters
           aria-label="awesome-agent-stack"
           class="flex min-w-0 items-center gap-1.5 text-base font-bold tracking-tight whitespace-nowrap no-underline sm:text-lg"
         >
@@ -108,6 +109,7 @@ const isDefaultHome = path === '' && lang === 'en';
         <nav class="flex shrink-0 items-center gap-3 text-sm text-[var(--aas-muted)] sm:gap-4">
           <a
             href={`${home}#categories`}
+            data-keep-filters
             class="flex items-center no-underline hover:text-[var(--aas-text)]"
             aria-label={t('nav.browse')}
           >
