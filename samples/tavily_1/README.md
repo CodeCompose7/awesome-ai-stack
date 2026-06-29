@@ -84,8 +84,8 @@ the answer is grounded in today's web.
 
 > Output varies by model and run — LLMs are non-deterministic, so the exact
 > wording (and an agent's steps) differ each time. Below is one run with
-> `claude-opus-4-8`.
+> `gemini/gemini-2.5-flash` (the answer is Korean because the question is).
 
 ```text
-Today (as of 2026-06-29) USD/KRW is about ₩1,370. (source: top search result)
+오늘 USD/KRW 환율은 약 1,543.45원입니다. 이 환율은 시장 상황에 따라 변동될 수 있으므로, 가장 최신 정보는 금융 뉴스 또는 환율 웹사이트에서 확인하시는 것이 좋습니다.
 ```
