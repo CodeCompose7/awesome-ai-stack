@@ -39,6 +39,23 @@ const menuClass =
   'absolute left-0 z-10 mt-1 max-h-72 min-w-[12rem] overflow-y-auto rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] p-1 shadow-lg';
 ---
 
+<script is:inline>
+  // Pre-paint: if the URL carries a filter/sort, hide the catalog (via
+  // [data-prefilter] on <html>) until the controls script below applies it, so
+  // the list never flashes unfiltered first. Runs synchronously during parse,
+  // before the controls + grids render. Cleared in that script's load sequence.
+  try {
+    if (/[?&](q|pricing|license|language|updated|sort)=/.test(location.search)) {
+      document.documentElement.setAttribute('data-prefilter', '');
+      // Safety net: never leave the catalog hidden if the module script fails to
+      // load/run (it clears this far sooner on a normal load).
+      setTimeout(function () {
+        document.documentElement.removeAttribute('data-prefilter');
+      }, 1500);
+    }
+  } catch (e) {}
+</script>
+
 <div id={anchorId} class="flex flex-col gap-3" data-controls>
   <input
     type="search"
@@ -354,8 +371,13 @@ const menuClass =
       apply();
     });
 
-    readUrl();
-    apply(false); // restore from URL without rewriting it
+    try {
+      readUrl();
+      apply(false); // restore from URL without rewriting it
+    } finally {
+      // Reveal the now-filtered catalog (always, even if the above throws).
+      document.documentElement.removeAttribute('data-prefilter');
+    }
   }
 </script>
 

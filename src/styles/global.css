@@ -933,3 +933,13 @@ summary {
   -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent);
   mask-image: linear-gradient(to bottom, #000 40%, transparent);
 }
+
+/* Avoid a flash of unfiltered catalog: when arriving with a filter/sort in the
+   URL, a pre-paint inline script sets [data-prefilter] on <html>; that hides the
+   controls bar + result grids until FilterControls restores and applies the
+   state, then removes the marker to reveal the final view in one paint. The
+   marker is only ever set by JS, so no-JS users still see the content. */
+[data-prefilter] [data-controls],
+[data-prefilter] [data-section] {
+  visibility: hidden;
+}
