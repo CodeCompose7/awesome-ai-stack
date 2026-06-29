@@ -110,9 +110,11 @@
      Applied site-wide via the `body` rule below; the concept/article reading
      body opts into MaruBuri serif. */
   --aas-sans: 'Pretendard', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  /* Mermaid cluster ("zone") highlight — the accent nudged toward teal so a
-     grouped region reads as a distinct colour from the indigo nodes inside. */
+  /* Mermaid cluster ("zone") highlight colours. `defaultzone` is the accent
+     nudged toward teal (a calm blue); `aaszone` is a warm amber that stands out
+     as the emphasized region (e.g. the harness we're describing). */
   --aas-diagram-zone: color-mix(in srgb, var(--aas-accent) 65%, #2dd4bf);
+  --aas-diagram-zone-warm: #f59e0b;
 }
 
 :root[data-theme="dark"] {
@@ -622,11 +624,16 @@ summary {
   rx: 18px;
   ry: 18px;
 }
-/* Only subgraphs the diagram opts in with `class <id> aaszone` get the highlight
-   fill — e.g. the harness box. A distinct teal-shifted tint so the zone reads as
-   a different colour from the indigo nodes (Mermaid's clusterBkg is transparent;
-   this overrides it). Per-diagram, not a blanket renderer rule. */
+/* Subgraphs opt into a zone colour per-diagram via `class <id> <zone>` (not a
+   blanket renderer rule). `aaszone` = warm amber for the emphasized region (the
+   harness); `defaultzone` = the calm blue for a neutral region. These override
+   Mermaid's transparent clusterBkg. */
 .mermaid g.cluster.aaszone rect {
+  fill: color-mix(in srgb, var(--aas-diagram-zone-warm) 14%, transparent) !important;
+  stroke: color-mix(in srgb, var(--aas-diagram-zone-warm) 48%, transparent) !important;
+  stroke-width: 1.5px !important;
+}
+.mermaid g.cluster.defaultzone rect {
   fill: color-mix(in srgb, var(--aas-diagram-zone) 13%, transparent) !important;
   stroke: color-mix(in srgb, var(--aas-diagram-zone) 42%, transparent) !important;
   stroke-width: 1.5px !important;
