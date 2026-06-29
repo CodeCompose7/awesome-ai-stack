@@ -75,9 +75,9 @@ Most of the demo-to-production gap is harness, not model. A demo only has to suc
 
 Each row is solved by a layer *outside* the model, not by a smarter one — how each one works is covered in *the roles* below.
 
-## The roles — and the tools that fill them
+## Orchestration — the spine that drives the cycle
 
-A harness isn't one tool but a set of roles. Each is swappable on its own, and you don't need them all up front — add a layer only where there's a risk to cover.
+A harness isn't one tool but a set of roles, and at its center sits the loop that drives the cycle. It calls reason→act→observe in turn — the spine — and the roles below fill each of those steps.
 
 ### Agent loop
 
@@ -107,6 +107,10 @@ flowchart LR
 ```
 
 <Tools slugs={["langgraph", "openai-agents-sdk", "crewai", "agno"]} />
+
+## The roles — what the loop calls at each step
+
+Each role is swappable on its own, and you don't need them all up front — add a layer only where there's a risk to cover. *Model* fills reasoning, *tools & web* and the *code sandbox* fill acting, and guardrails, evaluation, and observability wrap the cycle to validate and measure it.
 
 ### Model
 
