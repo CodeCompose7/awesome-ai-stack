@@ -78,9 +78,7 @@ const fmtDate = (d: Date) =>
   }
 </header>
 
-<RelatedTools lang={lang} slugs={conceptToolSlugs(entry)} />
 <RelatedConcepts lang={lang} concepts={relatedConcepts} />
-<RelatedArticles lang={lang} articles={relatedArticles} />
 
 <div class="mt-8 flex items-start gap-8">
   <article class="prose max-w-none aas-reading min-w-0 flex-1">
@@ -88,5 +86,8 @@ const fmtDate = (d: Date) =>
   </article>
   <TocRail lang={lang} items={tocItems} />
 </div>
+
+<RelatedTools lang={lang} slugs={conceptToolSlugs(entry)} />
+<RelatedArticles lang={lang} articles={relatedArticles} />
 
 {bodyHasMermaid && <MermaidLoader />}

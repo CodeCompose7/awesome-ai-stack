@@ -95,7 +95,6 @@ const projectFiles = renderedProject
   }
 </header>
 
-<RelatedTools lang={lang} slugs={data.tools} />
 <RelatedConcepts lang={lang} concepts={relatedConcepts} />
 
 <div class="mt-8 flex items-start gap-8">
@@ -104,5 +103,7 @@ const projectFiles = renderedProject
   </article>
   <TocRail lang={lang} items={tocItems} relatedTools={railTools} projectFiles={projectFiles} />
 </div>
+
+<RelatedTools lang={lang} slugs={data.tools} />
 
 {bodyHasMermaid && <MermaidLoader />}
