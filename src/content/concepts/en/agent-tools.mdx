@@ -1,6 +1,8 @@
 ---
 title: Tools
 description: The functions that connect a model to the outside world — web search, scraping, browser control, and app integration that bridge to real data and actions beyond the training cutoff.
+image: ../../../assets/concepts/agent-tools.jpeg
+imageAlt: Tools — the functions that connect a model to the outside world.
 version: "1.0"
 updated: 2026-06-29
 tools:
@@ -25,8 +27,8 @@ The flow is simple. The model is handed a list of available tools and each one's
 
 ```mermaid
 flowchart LR
-  model["model"] -- pick tool · args --> call["tool call"]
-  call --> tool["tool — search · API · browser"]
+  model["model"] -- pick tool · args --> sel["tool call"]
+  sel --> tool["tool — search · API · browser"]
   tool --> result[("result")]
   result --> model
   model --> answer["answer"]

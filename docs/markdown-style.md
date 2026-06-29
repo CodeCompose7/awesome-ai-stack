@@ -109,6 +109,15 @@ to render), and keeping one style makes the source uniform.
 - ❌ `모델 _주위에_ 스캐폴딩을 짭니다`
 - ✅ `모델 *주위에* 스캐폴딩을 짭니다`
 
+**Close emphasis at a clean boundary — don't let it end on `)` against CJK.**
+A closing `**`/`*` right after a `)` and immediately followed by a CJK
+character (no space) is often *not* recognized as a closing delimiter, so the
+markers render literally. Keep the emphasis on the core term and push any
+parenthetical or particle outside it.
+
+- ❌ `**function calling(도구 호출)**입니다` — renders a literal `**`
+- ✅ `**function calling**(도구 호출)입니다`
+
 ## General
 
 - Tag every fenced code block with its language (` ```bash `, ` ```python `,
