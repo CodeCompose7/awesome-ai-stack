@@ -75,42 +75,9 @@ Most of the demo-to-production gap is harness, not model. A demo only has to suc
 
 Each row is solved by a layer *outside* the model, not by a smarter one — how each one works is covered in *the safety layers* below.
 
-## Orchestration — the spine that drives the cycle
-
-A harness isn't one tool but a set of roles, and at its center sits the loop that drives the cycle. It calls reason→act→observe in turn — the spine — and the roles below fill each of those steps.
-
-### Agent loop
-
-Orchestrates the reason→act cycle, manages state, and decides when to call a tool versus stop. The loop *is* your control flow: make step counts, retries, and branches explicit, and a wandering model stops at a set limit instead of spinning forever — the guard against a **runaway loop** that circles or retries without end.
-
-#### Example. Stopping at a step cap
-
-The loop runs reason→call-tool→observe, then stops and reports once it passes a cap.
-
-- An infinite loop repeating the same search
-- Endless retries of a failing tool call
-- Reasoning that circles without nearing an answer
-
-```mermaid
-flowchart LR
-  task["task"] --> reason["reason"]
-  reason --> tool["call tool"]
-  tool --> obs["observe"]
-  obs --> gate{"over a cap?"}
-  gate -- no --> reason
-  gate -- yes --> stop["stop · report"]
-  reason -.log.-> trace[("tracing")]
-  tool -.log.-> trace
-  class reason roleModel
-  class tool roleTool
-  class trace roleTrace
-```
-
-<Tools slugs={["langgraph", "openai-agents-sdk", "crewai", "agno"]} />
-
 ## Capabilities — reasoning and acting
 
-These are the substrate the loop calls at each step of the cycle: *the model* does the reasoning, and *tools & web access* do the acting that touches the world. They decide what the agent *can* do — the layers that make it reliable come next.
+A harness isn't one tool but a set of roles. The innermost is the substrate the agent reasons and acts with: *the model* does the reasoning, and *tools & web access* do the acting that touches the world. They decide what the agent *can* do — the layers that make it reliable come next.
 
 ### Model
 
@@ -221,56 +188,23 @@ flowchart LR
 
 Score quality with metrics and test suites, so you know a change actually helped. Run faithfulness, relevance, and correctness checks in CI instead of eyeballing, and the pipeline catches regressions before a person does — filtering out the **silent wrong answers** a model hands you with confidence. It doesn't take a claim at face value but picks the check that fits, and each step is logged to *observability* (tracing).
 
-#### Example 1. Source & reference check
+#### Example. Scoring claims against a source
 
-A factual claim is scored by **evaluation** against a **source** (the retrieved context or a reference), filtering out anything below a threshold. In RAG, the very context the model retrieved is what evaluation grades against.
+A factual claim is scored by **evaluation** against a **source** — the retrieved context or a reference. In RAG, the very context the model retrieved is what it grades against. A code claim like `pandas.read_yaml` is checked for real existence by a static check or by running it in the *code sandbox*. How those scores are then thresholded to block or retry is covered under *orchestration* below.
 
 - **Unsourced numbers** — asserting "this job used 20 GPUs" with no basis
 - **Subtly wrong facts** — "supported since Python 3.9" when it's really 3.11
+- **Nonexistent APIs** — calling a function that doesn't exist, like `pandas.read_yaml()`
 
 ```mermaid
 flowchart LR
-  q["question"] --> model["model"]
-  model --> ans["answer — claims A·B·C"]
-  ans --> eval["evaluation"]
+  ans["answer claims — A·B·C"] --> eval["evaluation"]
   src[("source · retrieved context/reference")] --> eval
   eval --> sa["claim A · 20"]
   eval --> sb["claim B · 80"]
   eval --> sc["claim C · 60"]
-  sa --> gate{"below 70?"}
-  sb --> gate
-  sc --> gate
-  gate -- yes --> block["block → re-check source"]
-  gate -- no --> ok["accept"]
-  model -.log.-> trace[("tracing")]
-  eval -.log.-> trace
-  class model roleModel
   class eval roleEval
-  class trace roleTrace
   class src roleSource
-```
-
-#### Example 2. Code
-
-Does the API or function the model's code uses actually exist? This isn't about API requests to a service — it's whether a call like `pandas.read_yaml` is a real function. A **static check** doesn't run the code — it uses the installed package or type stubs to confirm the symbols and types exist. A **sandbox** — the same *code sandbox* role above — runs it with dependencies in place, surfacing errors like `AttributeError`.
-
-- **Nonexistent APIs** — code calling a function that doesn't exist, like `pandas.read_yaml()`
-
-```mermaid
-flowchart LR
-  q["question"] --> model["model"]
-  model --> code["code — pandas.read_yaml()"]
-  code --> check["run in sandbox · static check"]
-  env[("exec env · deps/stubs")] --> check
-  check --> err{"error / missing?"}
-  err -- yes --> fix["fix · retry"]
-  err -- no --> pass["accept"]
-  model -.log.-> trace[("tracing")]
-  check -.log.-> trace
-  class model roleModel
-  class check roleEval
-  class trace roleTrace
-  class env roleSource
 ```
 
 <Tools slugs={["deepeval", "ragas", "opik"]} />
@@ -297,6 +231,86 @@ flowchart LR
 ```
 
 <Tools slugs={["langfuse", "langsmith", "arize-phoenix", "helicone"]} />
+
+## Orchestration — the spine that drives the cycle
+
+Now the pieces come together. The loop calls reason→act→observe in turn — the spine — deciding at each gate whether to stop, retry, or pass, and logging every step to *observability* (tracing). The model, tools, evaluation, and sandbox above fill each of its steps.
+
+### Agent loop
+
+Orchestrates the reason→act cycle, manages state, and decides when to call a tool versus stop. The loop *is* your control flow: make step counts, retries, and branches explicit, and a wandering model stops at a set limit instead of spinning forever — the guard against a **runaway loop** that circles or retries without end.
+
+#### Example 1. Stopping at a step cap
+
+The loop runs reason→call-tool→observe, then stops and reports once it passes a cap.
+
+- An infinite loop repeating the same search
+- Endless retries of a failing tool call
+- Reasoning that circles without nearing an answer
+
+```mermaid
+flowchart LR
+  task["task"] --> reason["reason"]
+  reason --> tool["call tool"]
+  tool --> obs["observe"]
+  obs --> gate{"over a cap?"}
+  gate -- no --> reason
+  gate -- yes --> stop["stop · report"]
+  reason -.log.-> trace[("tracing")]
+  tool -.log.-> trace
+  class reason roleModel
+  class tool roleTool
+  class trace roleTrace
+```
+
+#### Example 2. Gating on evaluation scores
+
+The loop thresholds the scores *evaluation* assigns: below the bar it blocks and re-checks the source, above it accepts.
+
+```mermaid
+flowchart LR
+  q["question"] --> model["model"]
+  model --> ans["answer — claims A·B·C"]
+  ans --> eval["evaluation"]
+  src[("source · retrieved context/reference")] --> eval
+  eval --> sa["claim A · 20"]
+  eval --> sb["claim B · 80"]
+  eval --> sc["claim C · 60"]
+  sa --> gate{"below 70?"}
+  sb --> gate
+  sc --> gate
+  gate -- yes --> block["block → re-check source"]
+  gate -- no --> ok["accept"]
+  model -.log.-> trace[("tracing")]
+  eval -.log.-> trace
+  class model roleModel
+  class eval roleEval
+  class trace roleTrace
+  class src roleSource
+```
+
+#### Example 3. Verifying code, then retrying
+
+Model-written code runs through the *code sandbox* or a static check; on an error it's fixed and retried, otherwise accepted. A nonexistent function like `pandas.read_yaml()` surfaces as an `AttributeError`.
+
+```mermaid
+flowchart LR
+  q["question"] --> model["model"]
+  model --> code["code — pandas.read_yaml()"]
+  code --> check["run in sandbox · static check"]
+  env[("exec env · deps/stubs")] --> check
+  check --> err{"error / missing?"}
+  err -- yes --> fix["fix · retry"]
+  err -- no --> pass["accept"]
+  model -.log.-> trace[("tracing")]
+  check -.log.-> trace
+  class model roleModel
+  class check roleEval
+  class trace roleTrace
+  class env roleSource
+```
+
+<Tools slugs={["langgraph", "openai-agents-sdk", "crewai", "agno"]} />
 
 ## How to approach it
 
