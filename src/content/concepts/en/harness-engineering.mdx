@@ -67,11 +67,11 @@ Most of the demo-to-production gap is harness, not model. A demo only has to suc
 
 | Common failure | Fixed by |
 | --- | --- |
-| Silent wrong answers | Evaluation · tracing |
-| Runaway loops | A bounded agent loop |
-| Unsafe / off-topic output | Guardrails |
-| Risky side effects | A code sandbox |
-| "Worked yesterday" | Observability |
+| **Silent wrong answers** — plausible-but-false facts, invented citations and numbers | **Evaluation · tracing** — score for faithfulness and accuracy, then trace each step to find where it broke |
+| **Runaway loops** — calling the same tool forever, retries that never exit | **A bounded agent loop** — caps on steps, time, and cost, stopping when there's no progress |
+| **Unsafe / off-topic output** — leaked sensitive data, answers off the topic | **Guardrails** — an enforced output schema, blocking unsafe content at runtime before it reaches a user |
+| **Risky side effects** — deleting files, making arbitrary network calls | **A code sandbox** — execution in an isolated, disposable environment, away from your machine and data |
+| **"Worked yesterday"** — silent quality drops after a change, cost spikes | **Observability** — traces of every step, token, and cost that surface regressions before users |
 
 Each row is solved by a layer *outside* the model, not by a smarter one. Growing the harness is how you grow reliability.
 
