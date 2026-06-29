@@ -4,7 +4,7 @@ import StackCard from './StackCard.astro';
 import Breadcrumb from './Breadcrumb.astro';
 import FilterControls from './FilterControls.astro';
 import { categoryMap, childrenOf, pathOf } from '../data/categories';
-import { getStacksByCategory, slugOf, type StackEntry } from '../lib/stacks';
+import { getStacks, getStacksByCategory, slugOf, type StackEntry } from '../lib/stacks';
 import { pricingTags } from '../lib/pricing';
 import { useTranslations, pricingLabels, licenseLabel, type Lang } from '../i18n/ui';
 
@@ -36,12 +36,14 @@ const childGroups = await Promise.all(
   children.map(async (c) => ({ cat: c, items: await getStacksByCategory(lang, c.id) })),
 );
 
-// Filter facets, derived from every tool shown on this page (direct + subtrees).
-const allEntries = [...direct, ...childGroups.flatMap((g) => g.items)];
+// Filter facets are built from the WHOLE catalog (not just this page's tools) so
+// they're identical on every page — a sort/filter carried in from elsewhere can
+// always be restored here, even if no tool in this category has that value.
+const facetEntries = await getStacks(lang);
 const pricingOrder = ['completely-free', 'open-source', 'free-tier', 'paid', 'free'];
-const usedPricing = new Set<string>(allEntries.flatMap((e) => pricingTags(e.data.pricing)));
+const usedPricing = new Set<string>(facetEntries.flatMap((e) => pricingTags(e.data.pricing)));
 const langSet = new Set(
-  allEntries.flatMap((e) =>
+  facetEntries.flatMap((e) =>
     (e.data.language ?? '')
       .split('/')
       .map((s) => s.trim())
@@ -59,7 +61,7 @@ const facets = [
   {
     key: 'license',
     label: t('detail.license'),
-    options: [...new Set(allEntries.map((e) => e.data.license).filter(Boolean))]
+    options: [...new Set(facetEntries.map((e) => e.data.license).filter(Boolean))]
       .sort()
       .map((l) => ({ value: l as string, label: licenseLabel(lang, l as string) })),
   },
