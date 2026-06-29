@@ -41,6 +41,7 @@ flowchart LR
   loop --> model[(LLM)]
   model --> loop
   loop --> out[result]
+  class harness aaszone
 ```
 
 Over the past few years the center of gravity has shifted from *prompt* engineering to *harness* engineering. Finding a cleverer sentence matters less than designing the system around a model that can be wrong — that is what decides reliability.
@@ -57,6 +58,7 @@ flowchart LR
     b2 <--> b3[("LLM")]
     b2 --> b4["reliable output"]
   end
+  class he aaszone
 ```
 
 ## Why it matters

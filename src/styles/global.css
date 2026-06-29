@@ -621,9 +621,12 @@ summary {
 .mermaid g.cluster rect {
   rx: 18px;
   ry: 18px;
-  /* A distinct teal-shifted tint so the grouped region reads as a highlighted
-     zone, separate from the indigo nodes (Mermaid's clusterBkg is transparent;
-     this overrides it). */
+}
+/* Only subgraphs the diagram opts in with `class <id> aaszone` get the highlight
+   fill — e.g. the harness box. A distinct teal-shifted tint so the zone reads as
+   a different colour from the indigo nodes (Mermaid's clusterBkg is transparent;
+   this overrides it). Per-diagram, not a blanket renderer rule. */
+.mermaid g.cluster.aaszone rect {
   fill: color-mix(in srgb, var(--aas-diagram-zone) 13%, transparent) !important;
   stroke: color-mix(in srgb, var(--aas-diagram-zone) 42%, transparent) !important;
   stroke-width: 1.5px !important;
