@@ -32,14 +32,17 @@ Over the past few years the center of gravity has shifted from *prompt* engineer
 
 ```mermaid
 flowchart LR
-  task[task] --> loop[agent loop]
+  subgraph harness [harness]
+    loop[agent loop]
+    loop --> tools[tools / web]
+    loop --> sandbox[code sandbox]
+    loop -.-> guard[guardrails]
+    loop --> obs[(tracing / eval)]
+  end
+  task[task] --> loop
   loop --> model[(LLM)]
   model --> loop
-  loop --> tools[tools / web]
-  loop --> sandbox[code sandbox]
-  loop -.-> guard[guardrails]
   loop --> out[result]
-  loop --> obs[(tracing / eval)]
 ```
 
 ## Why it matters

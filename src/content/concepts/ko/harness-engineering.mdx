@@ -40,14 +40,17 @@ import Tools from "../../../components/ConceptTools.astro";
 
 ```mermaid
 flowchart LR
-  task[task] --> loop[agent loop]
+  subgraph harness [harness]
+    loop[agent loop]
+    loop --> tools[tools / web]
+    loop --> sandbox[code sandbox]
+    loop -.-> guard[guardrails]
+    loop --> obs[(tracing / eval)]
+  end
+  task[task] --> loop
   loop --> model[(LLM)]
   model --> loop
-  loop --> tools[tools / web]
-  loop --> sandbox[code sandbox]
-  loop -.-> guard[guardrails]
   loop --> out[result]
-  loop --> obs[(tracing / eval)]
 ```
 
 ## 왜 중요한가
