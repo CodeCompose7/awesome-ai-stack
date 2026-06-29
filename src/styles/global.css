@@ -618,9 +618,10 @@ summary {
 .mermaid g.cluster rect {
   rx: 18px;
   ry: 18px;
-  /* A stronger tint than the nodes so the grouped region reads as highlighted. */
-  fill: color-mix(in srgb, var(--aas-accent) 13%, transparent) !important;
-  stroke: color-mix(in srgb, var(--aas-accent) 40%, transparent) !important;
+  /* A clearly stronger tint than the nodes so the grouped region reads as a
+     highlighted zone (Mermaid's clusterBkg is transparent; this overrides it). */
+  fill: color-mix(in srgb, var(--aas-accent) 18%, transparent) !important;
+  stroke: color-mix(in srgb, var(--aas-accent) 50%, transparent) !important;
   stroke-width: 1.5px !important;
 }
 

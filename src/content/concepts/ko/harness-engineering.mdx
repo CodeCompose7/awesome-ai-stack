@@ -38,32 +38,32 @@ import Tools from "../../../components/ConceptTools.astro";
 
 ```mermaid
 flowchart LR
-  subgraph harness [harness]
-    loop[agent loop]
-    loop --> tools[tools / web]
-    loop --> sandbox[code sandbox]
-    loop -.-> guard[guardrails]
-    loop --> obs[(tracing / eval)]
+  subgraph harness [하네스]
+    loop[에이전트 루프]
+    loop --> tools["도구·웹"]
+    loop --> sandbox[코드 샌드박스]
+    loop -.-> guard[가드레일]
+    loop --> obs[("트레이싱·평가")]
   end
-  task[task] --> loop
+  task[작업] --> loop
   loop --> model[(LLM)]
   model --> loop
-  loop --> out[result]
+  loop --> out[결과]
 ```
 
 지난 몇 년 사이 무게중심은 _프롬프트_ 엔지니어링에서 _하네스_ 엔지니어링으로 옮겨 갔습니다. 더 영리한 문장을 찾는 일보다, 모델이 틀릴 수 있다는 전제 위에서 그 둘레를 설계하는 일이 신뢰성을 좌우합니다.
 
 ```mermaid
 flowchart LR
-  subgraph pe ["prompt engineering — tune the wording"]
+  subgraph pe ["프롬프트 엔지니어링 — 문장을 다듬기"]
     direction LR
-    a1["clever prompt"] --> a2[("LLM")] --> a3["output"]
+    a1["영리한 프롬프트"] --> a2[("LLM")] --> a3["출력"]
   end
-  subgraph he ["harness engineering — design the surroundings"]
+  subgraph he ["하네스 엔지니어링 — 둘레를 설계하기"]
     direction LR
-    b1["task"] --> b2["loop · tools · sandbox · guardrails · eval"]
+    b1["작업"] --> b2["루프·도구·샌드박스·가드레일·평가"]
     b2 <--> b3[("LLM")]
-    b2 --> b4["reliable output"]
+    b2 --> b4["신뢰할 수 있는 출력"]
   end
 ```
 
