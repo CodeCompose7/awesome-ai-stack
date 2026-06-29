@@ -66,8 +66,7 @@ const projectFiles = renderedProject
   : undefined;
 ---
 
-<div class="aas-doc">
-<div class="aas-doc-main">
+<div class="min-w-0">
 <a href={getRelativeLocaleUrl(lang, 'article/')} class="text-sm text-[var(--aas-accent)] no-underline"
   >&larr; {t('article.backToBlog')}</a
 >
@@ -131,12 +130,11 @@ const projectFiles = renderedProject
   }
 </header>
 
-<article class="prose mt-8 max-w-none">
+<article class="prose mt-8 max-w-none aas-reading">
   <Content />
 </article>
 </div>
 
 <TocRail lang={lang} items={tocItems} relatedTools={relatedTools} projectFiles={projectFiles} />
-</div>
 
 {bodyHasMermaid && <MermaidLoader />}

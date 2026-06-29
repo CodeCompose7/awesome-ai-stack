@@ -29,7 +29,7 @@ const hasContent = items.length > 0 || relatedTools.length > 0 || Boolean(projec
 
 {
   hasContent && (
-    <aside class="aas-doc-rail" data-toc-rail>
+    <aside class="aas-toc-rail" data-toc-rail>
       <div class="aas-toc-scroll">
         {items.length > 0 && <Toc items={items} title={t('toc.onThisPage')} />}
         {relatedTools.length > 0 && (

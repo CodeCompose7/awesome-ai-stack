@@ -46,8 +46,7 @@ const fmtDate = (d: Date) =>
   }).format(d);
 ---
 
-<div class="aas-doc">
-<div class="aas-doc-main">
+<div class="min-w-0">
 <a
   href={getRelativeLocaleUrl(lang, 'concept/')}
   class="text-sm text-[var(--aas-accent)] no-underline">&larr; {t('concept.backToConcepts')}</a
@@ -80,7 +79,7 @@ const fmtDate = (d: Date) =>
   }
 </header>
 
-<article class="prose max-w-none">
+<article class="prose max-w-none aas-reading">
   <Content />
 </article>
 
@@ -131,6 +130,5 @@ const fmtDate = (d: Date) =>
 </div>
 
 <TocRail lang={lang} items={tocItems} />
-</div>
 
 {bodyHasMermaid && <MermaidLoader />}

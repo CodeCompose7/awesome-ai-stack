@@ -305,7 +305,7 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
 }
 
 {/* Full-width content; the TOC is a fixed right rail, out of this flow. */}
-<div class="mt-8 min-w-0">
+<div class="mt-8 min-w-0 aas-reading">
   {
     hasTabs ? (
       <DetailTabs
@@ -314,7 +314,7 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
         codeLabel={hasSamples ? t('tab.code') : undefined}
         implLabel={hasProject ? t('tab.impl') : undefined}
       >
-        <article slot="overview" class="prose max-w-none aas-reading">
+        <article slot="overview" class="prose max-w-none">
           <Content />
         </article>
         {hasPricing && (
@@ -340,7 +340,7 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
         )}
       </DetailTabs>
     ) : (
-      <article class="prose max-w-none aas-reading">
+      <article class="prose max-w-none">
         <Content />
       </article>
     )
