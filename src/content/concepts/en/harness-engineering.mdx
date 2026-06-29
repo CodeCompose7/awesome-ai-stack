@@ -84,16 +84,12 @@ Instead of saying "I don't know," a model hands you a confident, plausible false
   - Code and API claims, run in a sandbox or statically checked
 - **Tracing** — every step logged, so you can trace back where it broke
 
-<details open>
-<summary>Concrete examples</summary>
+#### Example 1. Source & reference check
 
-Silent wrong answers come in several shapes, each caught a different way.
+A factual claim is scored by **evaluation** against a **source** (the retrieved context or a reference), filtering out anything below a threshold. In RAG, the very context the model retrieved is what evaluation grades against.
 
-- **Unsourced numbers** — asserting "this job used 20 GPUs" with no basis → scored against the source
-- **Subtly wrong facts** — "supported since Python 3.9" when it's really 3.11 → checked against a reference
-- **Nonexistent APIs** — calls like `pandas.read_yaml()` that don't exist → run it and it errors; a linter catches it too
-
-For a **factual claim**, the **model** answers and **evaluation** scores it against a **source** (the retrieved context or a reference), filtering out anything below a threshold. In RAG, the very context the model retrieved is what evaluation grades against. Each step — model, evaluation — is logged to **tracing**.
+- **Unsourced numbers** — asserting "this job used 20 GPUs" with no basis
+- **Subtly wrong facts** — "supported since Python 3.9" when it's really 3.11
 
 ```mermaid
 flowchart LR
@@ -117,7 +113,11 @@ flowchart LR
   class src roleSource
 ```
 
-**Code and API claims** are verified like the _code sandbox_ above. A **static check** doesn't run the code — it inspects whether the symbols and types exist in the real API, using the installed package or type stubs. A **sandbox** actually runs it in an isolated environment with dependencies in place, catching errors like `AttributeError`, so that execution environment has to be prepared ahead of time.
+#### Example 2. Code
+
+Code and API claims are verified for real. A **static check** doesn't run the code — it uses the installed package or type stubs to confirm the symbols and types exist; a **sandbox** runs it in an isolated environment with dependencies in place, catching errors like `AttributeError`.
+
+- **Nonexistent APIs** — calls like `pandas.read_yaml()` that don't exist
 
 ```mermaid
 flowchart LR
@@ -135,8 +135,6 @@ flowchart LR
   class trace roleTrace
   class env roleSource
 ```
-
-</details>
 
 ### Runaway loops
 
