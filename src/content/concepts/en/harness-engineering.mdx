@@ -88,21 +88,23 @@ Silent wrong answers come in several shapes, each caught a different way.
 - **Subtly wrong facts** — "supported since Python 3.9" when it's really 3.11 → checked against a reference
 - **Nonexistent APIs** — calls like `pandas.read_yaml()` that don't exist → run it and it errors; a linter catches it too
 
-**Factual claims** get scored against their source, and anything below a threshold is filtered out.
+For a **factual claim**, the **model** answers and **evaluation** scores it against the source, filtering out anything below a threshold. **Tracing** records each step — question, model, evaluation — so you can trace back where it went wrong.
 
 ```mermaid
 flowchart LR
-  ans["model answer"] --> a["claim A · 20 GPUs used"]
-  ans --> b["claim B · CPU barely used"]
-  ans --> c["claim C · memory is the bottleneck"]
-  a --> sa["faithfulness 20"]
-  b --> sb["faithfulness 80"]
-  c --> sc["faithfulness 60"]
+  q["question"] --> model["model"]
+  model --> ans["answer — claims A·B·C"]
+  ans --> eval["evaluation"]
+  eval --> sa["claim A · 20"]
+  eval --> sb["claim B · 80"]
+  eval --> sc["claim C · 60"]
   sa --> gate{"below 70?"}
   sb --> gate
   sc --> gate
   gate -- yes --> block["block → re-check source"]
   gate -- no --> ok["accept"]
+  model -.log.-> trace[("tracing")]
+  eval -.log.-> trace
 ```
 
 **Code and API claims** are verified by actually running them, like the _code sandbox_ above, or by a static check.
