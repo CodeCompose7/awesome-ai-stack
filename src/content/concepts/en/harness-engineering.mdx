@@ -88,13 +88,14 @@ Silent wrong answers come in several shapes, each caught a different way.
 - **Subtly wrong facts** — "supported since Python 3.9" when it's really 3.11 → checked against a reference
 - **Nonexistent APIs** — calls like `pandas.read_yaml()` that don't exist → run it and it errors; a linter catches it too
 
-For a **factual claim**, the **model** answers and **evaluation** scores it against the source, filtering out anything below a threshold. **Tracing** records each step — question, model, evaluation — so you can trace back where it went wrong.
+For a **factual claim**, the **model** answers and **evaluation** scores it against a **source** (the retrieved context or a reference), filtering out anything below a threshold. In RAG, the very context the model retrieved is what evaluation grades against. **Tracing** records each step — question, model, evaluation — so you can trace back where it went wrong.
 
 ```mermaid
 flowchart LR
   q["question"] --> model["model"]
   model --> ans["answer — claims A·B·C"]
   ans --> eval["evaluation"]
+  src[("source · retrieved context/reference")] --> eval
   eval --> sa["claim A · 20"]
   eval --> sb["claim B · 80"]
   eval --> sc["claim C · 60"]
@@ -108,15 +109,17 @@ flowchart LR
   class model roleModel
   class eval roleEval
   class trace roleTrace
+  class src roleSource
 ```
 
-**Code and API claims** are verified by actually running them, like the _code sandbox_ above, or by a static check.
+**Code and API claims** are verified like the _code sandbox_ above. A **static check** doesn't run the code — it inspects whether the symbols and types exist in the real API, using the installed package or type stubs. A **sandbox** actually runs it in an isolated environment with dependencies in place, catching errors like `AttributeError`, so that execution environment has to be prepared ahead of time.
 
 ```mermaid
 flowchart LR
   q["question"] --> model["model"]
   model --> code["code — pandas.read_yaml()"]
   code --> check["run in sandbox · static check"]
+  env[("exec env · deps/stubs")] --> check
   check --> err{"error / missing?"}
   err -- yes --> fix["fix · retry"]
   err -- no --> pass["accept"]
@@ -125,6 +128,7 @@ flowchart LR
   class model roleModel
   class check roleEval
   class trace roleTrace
+  class env roleSource
 ```
 
 </details>

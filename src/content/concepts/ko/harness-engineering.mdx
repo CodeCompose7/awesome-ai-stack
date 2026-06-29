@@ -96,13 +96,14 @@ flowchart LR
 - **미묘하게 틀린 사실** — "Python 3.9부터 지원"이라지만 실제로는 3.11 → 레퍼런스와 대조
 - **없는 API·함수** — `pandas.read_yaml()`처럼 존재하지 않는 호출 → 실행하면 에러, 정적 검사로도 적발
 
-**사실 주장**이라면 **모델**의 답변을 **평가**가 출처와 대조해 채점하고, 임계값 미만은 걸러냅니다. **트레이싱**은 질문·모델·평가의 각 단계를 기록해 두므로, 어느 단계에서 어긋났는지 되짚을 수 있습니다.
+**사실 주장**이라면 **모델**의 답변을 **평가**가 **근거**(검색 문맥이나 레퍼런스)와 대조해 채점하고, 임계값 미만은 걸러냅니다. RAG라면 모델이 참고한 바로 그 검색 문맥이 곧 채점 기준입니다. **트레이싱**은 질문·모델·평가의 각 단계를 기록해 두므로, 어느 단계에서 어긋났는지 되짚을 수 있습니다.
 
 ```mermaid
 flowchart LR
   q["질문"] --> model["모델"]
   model --> ans["답변 — 인용 A·B·C"]
   ans --> eval["평가"]
+  src[("근거 · 검색 문맥/레퍼런스")] --> eval
   eval --> sa["인용 A · 20점"]
   eval --> sb["인용 B · 80점"]
   eval --> sc["인용 C · 60점"]
@@ -116,15 +117,17 @@ flowchart LR
   class model roleModel
   class eval roleEval
   class trace roleTrace
+  class src roleSource
 ```
 
-**코드·API 주장**은 위 *코드 샌드박스*처럼 실제로 실행하거나 정적으로 확인합니다.
+**코드·API 주장**은 위 *코드 샌드박스*처럼 검증합니다. **정적 검사**는 코드를 실행하지 않고, 설치된 패키지나 타입 스텁을 근거로 심볼·타입이 실제 API에 있는지 확인합니다. **샌드박스**는 의존성이 갖춰진 격리 환경에서 실제로 돌려 `AttributeError` 같은 오류로 잡으므로, 실행 환경을 미리 준비해 두어야 합니다.
 
 ```mermaid
 flowchart LR
   q["질문"] --> model["모델"]
   model --> code["코드 — pandas.read_yaml()"]
   code --> check["샌드박스 실행 · 정적 검사"]
+  env[("실행 환경 · 의존성/스텁")] --> check
   check --> err{"에러·미존재?"}
   err -- 예 --> fix["수정·재시도"]
   err -- 아니오 --> pass["통과"]
@@ -133,6 +136,7 @@ flowchart LR
   class model roleModel
   class check roleEval
   class trace roleTrace
+  class env roleSource
 ```
 
 </details>

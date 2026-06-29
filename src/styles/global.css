@@ -115,10 +115,12 @@
      as the emphasized region (e.g. the harness we're describing). */
   --aas-diagram-zone: color-mix(in srgb, var(--aas-accent) 65%, #2dd4bf);
   --aas-diagram-zone-warm: #f59e0b;
-  /* Diagram role colours: the model, the evaluator/checker, the tracing store. */
+  /* Diagram role colours: the model, the evaluator/checker, the tracing store,
+     and the reference it checks against (a source DB or an execution env). */
   --aas-role-model: #3b82f6;
   --aas-role-eval: #22c55e;
   --aas-role-trace: #f59e0b;
+  --aas-role-source: #14b8a6;
 }
 
 :root[data-theme="dark"] {
@@ -658,6 +660,10 @@ summary {
 .mermaid g.node.roleTrace :is(rect, polygon, path) {
   fill: color-mix(in srgb, var(--aas-role-trace) 15%, var(--aas-panel)) !important;
   stroke: color-mix(in srgb, var(--aas-role-trace) 55%, transparent) !important;
+}
+.mermaid g.node.roleSource :is(rect, polygon, path) {
+  fill: color-mix(in srgb, var(--aas-role-source) 15%, var(--aas-panel)) !important;
+  stroke: color-mix(in srgb, var(--aas-role-source) 55%, transparent) !important;
 }
 .mermaid g.cluster rect {
   rx: 18px;
