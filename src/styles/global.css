@@ -110,6 +110,9 @@
      Applied site-wide via the `body` rule below; the concept/article reading
      body opts into MaruBuri serif. */
   --aas-sans: 'Pretendard', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* Mermaid cluster ("zone") highlight — the accent nudged toward teal so a
+     grouped region reads as a distinct colour from the indigo nodes inside. */
+  --aas-diagram-zone: color-mix(in srgb, var(--aas-accent) 65%, #2dd4bf);
 }
 
 :root[data-theme="dark"] {
@@ -618,10 +621,11 @@ summary {
 .mermaid g.cluster rect {
   rx: 18px;
   ry: 18px;
-  /* A clearly stronger tint than the nodes so the grouped region reads as a
-     highlighted zone (Mermaid's clusterBkg is transparent; this overrides it). */
-  fill: color-mix(in srgb, var(--aas-accent) 18%, transparent) !important;
-  stroke: color-mix(in srgb, var(--aas-accent) 50%, transparent) !important;
+  /* A distinct teal-shifted tint so the grouped region reads as a highlighted
+     zone, separate from the indigo nodes (Mermaid's clusterBkg is transparent;
+     this overrides it). */
+  fill: color-mix(in srgb, var(--aas-diagram-zone) 13%, transparent) !important;
+  stroke: color-mix(in srgb, var(--aas-diagram-zone) 42%, transparent) !important;
   stroke-width: 1.5px !important;
 }
 
