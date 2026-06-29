@@ -108,6 +108,7 @@ through LiteLLM, so the same code runs on Claude, OpenAI, or Gemini.
 - **The provider is swappable** — change `MODEL` in `.env` to run the same code
   on a different model.
 
-Swap the search tool for scraping (Firecrawl) or browser automation (Browser
-Use) and the same loop pulls in a different kind of "now" data. The full set of
-tool kinds is laid out in the [Tools](../../concepts/agent-tools/) concept.
+Swap the tool for [scraping (Firecrawl)](../web-scraping-agent/) in the same
+loop and it reads a page in as Markdown; swap it for browser automation and it
+pulls in a different kind of "now" data. The full set of tool kinds is laid out
+in the [Tools](../../concepts/agent-tools/) concept.
