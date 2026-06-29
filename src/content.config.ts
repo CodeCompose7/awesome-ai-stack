@@ -111,6 +111,16 @@ const articles = defineCollection({
       image: image().optional(), // hero / card image (optimized; relative to the file)
       imageAlt: z.string().optional(),
       tools: z.array(z.string()).default([]),
+      // Optional runnable sample (samples/<folder>/) the article walks through.
+      // Embed its viewer in the body with <SampleProject folder="…"/>; this
+      // field powers the right-rail file list + related tools (like a stack's
+      // implementation tab). A bare folder name, or { folder, related: [slugs] }.
+      project: z
+        .union([
+          z.string(),
+          z.object({ folder: z.string(), related: z.array(z.string()).default([]) }),
+        ])
+        .optional(),
       tags: z.array(z.string()).default([]),
       draft: z.boolean().default(false),
     }),
