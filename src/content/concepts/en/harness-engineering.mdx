@@ -67,13 +67,33 @@ Most of the demo-to-production gap is harness, not model. A demo only has to suc
 
 | Common failure | Fixed by |
 | --- | --- |
-| **Silent wrong answers** — plausible-but-false facts, invented citations and numbers | **Evaluation · tracing** — score for faithfulness and accuracy, then trace each step to find where it broke |
-| **Runaway loops** — calling the same tool forever, retries that never exit | **A bounded agent loop** — caps on steps, time, and cost, stopping when there's no progress |
-| **Unsafe / off-topic output** — leaked sensitive data, answers off the topic | **Guardrails** — an enforced output schema, blocking unsafe content at runtime before it reaches a user |
-| **Risky side effects** — deleting files, making arbitrary network calls | **A code sandbox** — execution in an isolated, disposable environment, away from your machine and data |
-| **"Worked yesterday"** — silent quality drops after a change, cost spikes | **Observability** — traces of every step, token, and cost that surface regressions before users |
+| Silent wrong answers | Evaluation · tracing |
+| Runaway loops | A bounded agent loop |
+| Unsafe / off-topic output | Guardrails |
+| Risky side effects | A code sandbox |
+| "Worked yesterday" | Observability |
 
 Each row is solved by a layer *outside* the model, not by a smarter one. Growing the harness is how you grow reliability.
+
+### Silent wrong answers
+
+Instead of saying "I don't know," a model hands you a confident, plausible falsehood. Uncited claims, invented numbers, and subtly wrong facts slip through unnoticed until a human checks each one. **Evaluation and tracing** close that gap — score outputs automatically on faithfulness and accuracy, and trace every step to find where it went wrong, so the pipeline catches regressions before your users do.
+
+### Runaway loops
+
+Between calling a tool, reading the result, and calling again, an agent can circle the same spot or fall into retries that never end — burning cost and latency with no answer. **A bounded agent loop** caps steps, time, and cost, and is built to stop when there's no progress, containing the runaway structurally.
+
+### Unsafe / off-topic output
+
+Sometimes an answer comes back, but it's unsafe or off-topic — leaked sensitive data, inappropriate language, a detour into things nobody asked about. **Guardrails** enforce an output schema and block unsafe or off-policy content at runtime, before it reaches a user — checked while the agent runs, not after the fact.
+
+### Risky side effects
+
+An agent that runs code can delete files, fire off arbitrary network calls, or wreck its environment. **A code sandbox** runs model-written code in an isolated, disposable environment, so a bad command can't touch your machine or your data.
+
+### "Worked yesterday"
+
+A small change to the model or the prompt, and quality quietly degrades or cost spikes. If you can't see what changed, you can't roll it back. **Observability** traces every step, token, and cost, surfacing regressions before your users hit them.
 
 ## The roles — and the tools that fill them
 
