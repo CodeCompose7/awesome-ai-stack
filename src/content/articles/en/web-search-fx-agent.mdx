@@ -49,6 +49,51 @@ through LiteLLM, so the same code runs on Claude, OpenAI, or Gemini.
 
 <SampleProject folder="tavily_1" />
 
+## Reading the code
+
+The whole flow in `app.py` splits into three functions — `main()` wires the
+model and the agent, `web_search()` is the tool the model calls, and
+`message_text()` cleans up the final answer.
+
+```mermaid
+flowchart TB
+  q["question (sys.argv)"] --> build["main() — build model + agent"]
+  build --> react{"ReAct loop"}
+  react -- reason --> model["model (ChatLiteLLM)"]
+  model -- tool call --> tool["web_search(query)"]
+  tool --> tavily[("Tavily.search")]
+  tavily -- answer · results --> tool
+  tool -- observe --> react
+  react -- done --> msg["message_text(content)"]
+  msg --> out["print → stdout"]
+  class model roleModel
+  class tool roleTool
+  class tavily roleSource
+```
+
+**`web_search(query)` — the tool**
+
+A single `@tool` decorator turns a plain Python function into something the model
+can call. Its docstring is the model's manual, so the model reads it to decide
+*when* to call the tool. Inside, `_tavily.search(query, include_answer=True,
+max_results=5)` hits Tavily, and the returned `answer` and `results` are folded
+into one block of text — that string becomes the input to the next reasoning step.
+
+**`message_text(content)` — cleaning the output**
+
+A model reply's `content` isn't uniformly shaped: cloud models return a string,
+while some local models return a list of blocks like `[{type: "text", …}, …]`.
+For a list it keeps only the text of `type == "text"` blocks, and a string passes
+straight through — so any provider prints as one clean line.
+
+**`main()` — the wiring**
+
+It builds `ChatLiteLLM` from the `MODEL` env var and assembles the ReAct loop
+with `create_agent(model, tools=[web_search])`. `agent.invoke({"messages": […]})`
+runs reason→call-tool→observe; when it finishes, the last message's `content` is
+cleaned by `message_text()` and printed. Whether to call the tool — and whether
+to call again after seeing the result — is entirely the loop's decision.
+
 ## The key parts
 
 - **A tool is a function** — the whole tool is one `@tool`-wrapped
