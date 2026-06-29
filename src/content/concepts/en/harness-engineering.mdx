@@ -77,7 +77,7 @@ Each row is solved by a layer *outside* the model, not by a smarter one. Growing
 
 ### Silent wrong answers
 
-Instead of saying "I don't know," a model hands you a confident, plausible falsehood, and it slips by until a human checks each claim. **Evaluation and tracing** close the gap — rather than trusting a claim, pick the check that fits it: factual claims are scored against trusted sources or a reference, while code and API claims are run in a sandbox or statically checked.
+Instead of saying "I don't know," a model hands you a confident, plausible falsehood, and it slips by until a human checks each claim. **Evaluation** catches it; **tracing** records it. Evaluation doesn't take a claim at face value — it picks the check that fits: factual claims are scored against trusted sources or a reference, while code and API claims are run in a sandbox or statically checked. Tracing logs each step so you can trace back where it broke.
 
 <details open>
 <summary>Concrete examples</summary>
@@ -88,7 +88,7 @@ Silent wrong answers come in several shapes, each caught a different way.
 - **Subtly wrong facts** — "supported since Python 3.9" when it's really 3.11 → checked against a reference
 - **Nonexistent APIs** — calls like `pandas.read_yaml()` that don't exist → run it and it errors; a linter catches it too
 
-For a **factual claim**, the **model** answers and **evaluation** scores it against a **source** (the retrieved context or a reference), filtering out anything below a threshold. In RAG, the very context the model retrieved is what evaluation grades against. **Tracing** records each step — question, model, evaluation — so you can trace back where it went wrong.
+For a **factual claim**, the **model** answers and **evaluation** scores it against a **source** (the retrieved context or a reference), filtering out anything below a threshold. In RAG, the very context the model retrieved is what evaluation grades against. Each step — model, evaluation — is logged to **tracing**.
 
 ```mermaid
 flowchart LR
