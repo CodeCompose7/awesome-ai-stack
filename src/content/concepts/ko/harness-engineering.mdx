@@ -29,6 +29,7 @@ order: 1
 ---
 
 import Tools from "../../../components/ConceptTools.astro";
+import ConceptLink from "../../../components/ConceptLink.astro";
 
 ## 무엇인가
 
@@ -122,25 +123,7 @@ flowchart LR
 
 에이전트가 *실제로* 할 수 있는 일을 정합니다 — 앱 호출, 검색, 최신 데이터 수집, 브라우저 조작. 모델의 지식은 학습 시점에 멈춰 있으니, 지금의 실제 데이터는 도구를 통해 들어옵니다.
 
-#### 예시. 최신 데이터 가져오기
-
-모델 지식에 없는 지금의 정보를 도구로 들여옵니다.
-
-- 학습 시점 이후의 사실·시세·뉴스
-- 사내 문서·DB 조회
-- 브라우저로 UI 뒤 작업 수행
-
-```mermaid
-flowchart LR
-  q["질문 — 오늘 환율?"] --> model["모델"]
-  model -. 모름 .-> tool["웹 검색 도구"]
-  tool --> data[("최신 데이터")]
-  data --> model
-  model --> out["답변"]
-  class model roleModel
-  class tool roleTool
-  class data roleSource
-```
+<ConceptLink slug="agent-tools" />
 
 <Tools slugs={["composio", "tavily", "firecrawl", "exa", "browser-use"]} />
 

@@ -21,6 +21,7 @@ order: 1
 ---
 
 import Tools from '../../../components/ConceptTools.astro';
+import ConceptLink from '../../../components/ConceptLink.astro';
 
 ## What it is
 
@@ -114,25 +115,7 @@ flowchart LR
 
 What the agent can actually *do* — call apps, search, pull fresh data, and drive a browser. A model's knowledge stops at its training cutoff, so anything current and real has to arrive through tools.
 
-#### Example. Fetching fresh data
-
-Anything the model's training doesn't have comes in through a tool.
-
-- Facts, prices, or news after the training cutoff
-- Internal docs or database lookups
-- Working behind a UI via a browser
-
-```mermaid
-flowchart LR
-  q["question — today's FX rate?"] --> model["model"]
-  model -. doesn't know .-> tool["web search tool"]
-  tool --> data[("fresh data")]
-  data --> model
-  model --> out["answer"]
-  class model roleModel
-  class tool roleTool
-  class data roleSource
-```
+<ConceptLink slug="agent-tools" />
 
 <Tools slugs={["composio", "tavily", "firecrawl", "exa", "browser-use"]} />
 
