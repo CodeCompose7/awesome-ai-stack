@@ -9,7 +9,6 @@ tools:
   - { role: "Agent loop", tools: [langgraph, openai-agents-sdk, crewai, agno] }
   - { role: "Model", tools: [anthropic-claude, openai, gemini] }
   - { role: "Model gateway", tools: [litellm, openrouter] }
-  - { role: "Tools & web access", tools: [composio, tavily, firecrawl, exa, browser-use] }
   - { role: "Code sandbox", tools: [e2b] }
   - { role: "Guardrails", tools: [guardrails-ai, nemo-guardrails] }
   - { role: "Evaluation", tools: [deepeval, ragas, opik] }
@@ -116,8 +115,6 @@ flowchart LR
 What the agent can actually *do* — call apps, search, pull fresh data, and drive a browser. A model's knowledge stops at its training cutoff, so anything current and real has to arrive through tools.
 
 <ConceptLink slug="agent-tools" />
-
-<Tools slugs={["composio", "tavily", "firecrawl", "exa", "browser-use"]} />
 
 ## Safety layers — guarding against failure
 

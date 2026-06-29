@@ -14,10 +14,6 @@ tools:
     }
   - { role: "모델", tools: [anthropic-claude, openai, gemini] }
   - { role: "모델 게이트웨이", tools: [litellm, openrouter] }
-  - {
-      role: "도구·웹 접근",
-      tools: [composio, tavily, firecrawl, exa, browser-use],
-    }
   - { role: "코드 샌드박스", tools: [e2b] }
   - { role: "가드레일", tools: [guardrails-ai, nemo-guardrails] }
   - { role: "평가", tools: [deepeval, ragas, opik] }
@@ -124,8 +120,6 @@ flowchart LR
 에이전트가 *실제로* 할 수 있는 일을 정합니다 — 앱 호출, 검색, 최신 데이터 수집, 브라우저 조작. 모델의 지식은 학습 시점에 멈춰 있으니, 지금의 실제 데이터는 도구를 통해 들어옵니다.
 
 <ConceptLink slug="agent-tools" />
-
-<Tools slugs={["composio", "tavily", "firecrawl", "exa", "browser-use"]} />
 
 ## 안전장치 — 실패를 막는 층
 
