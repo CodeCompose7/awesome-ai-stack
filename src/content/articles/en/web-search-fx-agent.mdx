@@ -66,29 +66,25 @@ flowchart TB
 
 **`web_search(query)` — the tool**
 
-A single `@tool` decorator turns a plain Python function into something the model
-can call. Its docstring is the model's manual, so the model reads it to decide
-*when* to call the tool. Inside, `_tavily.search(query, include_answer=True,
-max_results=5)` hits Tavily, and the returned `answer` and `results` are folded
-into one block of text — that string becomes the input to the next reasoning step.
+- A single `@tool` decorator turns a plain Python function into a tool the model can call
+- Its docstring is the model's manual — the model reads it to decide *when* to call
+- Inside, `_tavily.search(query, include_answer=True, max_results=5)` hits Tavily
+- The returned `answer` and `results` are folded into one block of text — the next reasoning step's input
 
 **`message_text(content)` — cleaning the output**
 
-A model reply's `content` isn't uniformly shaped: cloud models return a string,
-while some local models return a list of blocks like `[{type: "text", …}, …]`.
-For a list it keeps only the text of `type == "text"` blocks, and a string passes
-straight through — so any provider prints as one clean line.
+- A reply's `content` isn't uniformly shaped — cloud models return a string, some local models a list of blocks like `[{type: "text", …}, …]`
+- For a list, it keeps only the text of `type == "text"` blocks
+- For a string, it passes straight through
+- So any provider prints as one clean line
 
 **`main()` — the wiring**
 
-It builds `ChatLiteLLM` from the `MODEL` env var and assembles the ReAct loop
-with `create_agent(model, tools=[web_search])`. `ChatLiteLLM` here is a thin
-adapter that wraps *LiteLLM* as a LangChain model — LiteLLM does the provider
-routing (which API to call), and `ChatLiteLLM` exposes it through the LangChain
-interface that `create_agent` expects. `agent.invoke({"messages": […]})` runs
-reason→call-tool→observe; when it finishes, the last message's `content` is
-cleaned by `message_text()` and printed. Whether to call the tool — and whether
-to call again after seeing the result — is entirely the loop's decision.
+- Builds `ChatLiteLLM` from `MODEL` and assembles the ReAct loop with `create_agent(model, tools=[web_search])`
+- `ChatLiteLLM` wraps *LiteLLM* as a LangChain model — LiteLLM does provider routing (which API), `ChatLiteLLM` is the interface `create_agent` expects
+- `agent.invoke({"messages": […]})` runs reason→call-tool→observe
+- When it finishes, the last message's `content` is cleaned by `message_text()` and printed
+- Whether to call the tool — and whether to call again — is entirely the loop's decision
 
 ## The implementation
 
