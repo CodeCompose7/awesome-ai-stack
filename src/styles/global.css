@@ -600,6 +600,29 @@ summary {
   margin-inline: auto;
 }
 
+/* Mermaid theme: rounded corners + soft pastel fills, derived from the site
+   accent so it adapts to light/dark. `!important` overrides Mermaid's own
+   id-scoped <style> block. Applies wherever a diagram renders (prose + samples). */
+.mermaid g.node rect,
+.mermaid g.node polygon {
+  rx: 12px;
+  ry: 12px;
+}
+.mermaid g.node rect,
+.mermaid g.node polygon,
+.mermaid g.node path {
+  fill: color-mix(in srgb, var(--aas-accent) 9%, var(--aas-panel)) !important;
+  stroke: color-mix(in srgb, var(--aas-accent) 45%, transparent) !important;
+  stroke-width: 1.5px !important;
+}
+.mermaid g.cluster rect {
+  rx: 18px;
+  ry: 18px;
+  fill: color-mix(in srgb, var(--aas-accent) 5%, transparent) !important;
+  stroke: color-mix(in srgb, var(--aas-accent) 35%, transparent) !important;
+  stroke-width: 1.5px !important;
+}
+
 
 /* Markdown tables — without these, columns collapse together. */
 .prose :where(table) {
