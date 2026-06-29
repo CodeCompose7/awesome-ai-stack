@@ -163,23 +163,28 @@ flowchart LR
 
 ### Guardrails
 
-Validate and constrain input/output at runtime, before a bad result reaches a user. Enforce an output schema and block unsafe or off-topic content — checked while the agent runs, not after the fact — stopping **unsafe / off-topic output** before it reaches a user.
+Validate and constrain both input and output at runtime, before anything bad flows. On the way in, catch prompt injection and jailbreaks; on the way out, enforce an output schema and block unsafe or off-topic content. Checked while the agent runs, not after the fact — stopping **unsafe / off-topic output** before it reaches a user.
 
 #### Example. Stopping it before it lands
 
-Before output reaches a user, it's checked at runtime, and a violation is blocked or rewritten. For example, `my email is abc@test.com` becomes `my email is [redacted email]`.
+Both input and output are checked at runtime, and a violation is blocked or rewritten. On the way in, an injection hidden in retrieved data — "ignore previous instructions…" — is dropped; on the way out, `my email is abc@test.com` becomes `my email is [redacted email]`.
 
+- A prompt injection or jailbreak hidden in input or retrieved data — "ignore previous instructions…"
 - Personal data or secret keys leaked verbatim
 - Profanity, hate, or other unsafe language
 - Drifting into a topic nobody asked about
 
 ```mermaid
 flowchart LR
-  out["output: my email is abc@test.com"] --> guard{"guardrails"}
-  guard -- pass --> user["user"]
-  guard -- violation --> fix["mask: my email is ⟨redacted⟩"]
+  inp["input — …ignore previous instructions…"] --> ginp{"guardrails · in"}
+  ginp -- injection --> drop["reject"]
+  ginp -- pass --> loop["agent loop"]
+  loop --> gout{"guardrails · out"}
+  gout -- violation --> fix["mask — ⟨redacted⟩"]
+  gout -- pass --> user["user"]
   fix --> user
-  class guard roleGuard
+  class ginp roleGuard
+  class gout roleGuard
 ```
 
 <Tools slugs={["guardrails-ai", "nemo-guardrails"]} />
