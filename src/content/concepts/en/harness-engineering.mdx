@@ -83,21 +83,23 @@ A harness isn't one tool but a set of roles. Each is swappable on its own, and y
 
 Orchestrates the reason→act cycle, manages state, and decides when to call a tool versus stop. The loop *is* your control flow: make step counts, retries, and branches explicit, and a wandering model stops at a set limit instead of spinning forever — the guard against a **runaway loop** that circles or retries without end.
 
-```mermaid
-flowchart LR
-  step["one action step"] --> check{"over a cap?"}
-  check -- no --> step
-  check -- yes --> stop["stop"]
-```
+#### Example. Stopping at a step cap
 
-<details open>
-<summary>Concrete examples — runaway loops</summary>
+The loop runs reason→call-tool→observe, then stops and reports once it passes a cap.
 
 - An infinite loop repeating the same search
 - Endless retries of a failing tool call
 - Reasoning that circles without nearing an answer
 
-</details>
+```mermaid
+flowchart LR
+  task["task"] --> step["reason → call tool → observe"]
+  step --> gate{"over a cap?"}
+  gate -- no --> step
+  gate -- yes --> stop["stop · report"]
+  step -.log.-> trace[("tracing")]
+  class trace roleTrace
+```
 
 <Tools slugs={["langgraph", "openai-agents-sdk", "crewai", "agno"]} />
 
@@ -113,9 +115,47 @@ The reasoning engine. Keep it swappable across cost, latency, and capability so 
 
 <Tools slugs={["litellm", "openrouter"]} />
 
+#### Example. Gateway fallback
+
+When one provider goes down or slows, the gateway routes to another model automatically.
+
+- A primary model times out or 5xxes → fall back to a backup
+- Route by cost or latency
+- Caller code stays the same; only the model swaps
+
+```mermaid
+flowchart LR
+  call["call"] --> gw{"gateway"}
+  gw --> m1["model A"]
+  m1 -. fails · slow .-> gw
+  gw -. fallback .-> m2["model B"]
+  m2 --> out["response"]
+  class m1 roleModel
+  class m2 roleModel
+```
+
 ### Tools & web access
 
 What the agent can actually *do* — call apps, search, pull fresh data, and drive a browser. A model's knowledge stops at its training cutoff, so anything current and real has to arrive through tools.
+
+#### Example. Fetching fresh data
+
+Anything the model's training doesn't have comes in through a tool.
+
+- Facts, prices, or news after the training cutoff
+- Internal docs or database lookups
+- Working behind a UI via a browser
+
+```mermaid
+flowchart LR
+  q["question — today's FX rate?"] --> model["model"]
+  model -. doesn't know .-> tool["web search tool"]
+  tool --> data[("fresh data")]
+  data --> model
+  model --> out["answer"]
+  class model roleModel
+  class data roleSource
+```
 
 <Tools slugs={["composio", "tavily", "firecrawl", "exa", "browser-use"]} />
 
@@ -123,20 +163,19 @@ What the agent can actually *do* — call apps, search, pull fresh data, and dri
 
 Runs model-written code in isolation, so a bad command can't touch your machine or your data. Disposable runtimes spin up and tear down fast, which is what makes them the safety net behind a code-running agent — isolating **risky side effects** like deleted files or arbitrary network calls. The same isolated runtime is also a verification tool: *evaluation* runs the model's code here to catch errors like a call to a nonexistent API.
 
-```mermaid
-flowchart LR
-  code["model-written code"] --> sandbox["code sandbox"]
-  sandbox -. isolates .- host["your machine · data"]
-```
+#### Example. Isolating side effects
 
-<details open>
-<summary>Concrete examples — risky side effects</summary>
+Model-written code runs in a disposable, isolated environment, so a bad command can't reach the host.
 
 - Accidentally deleting files or directories
 - Arbitrary outbound network requests
 - Corrupting system config or dependencies
 
-</details>
+```mermaid
+flowchart LR
+  code["model-written code"] --> sandbox["code sandbox"]
+  sandbox -. isolates .- host["your machine · data"]
+```
 
 <Tools slugs={["e2b"]} />
 
@@ -144,21 +183,20 @@ flowchart LR
 
 Validate and constrain input/output at runtime, before a bad result reaches a user. Enforce an output schema and block unsafe or off-topic content — checked while the agent runs, not after the fact — stopping **unsafe / off-topic output** before it reaches a user.
 
+#### Example. Stopping it before it lands
+
+Before output reaches a user, it's checked at runtime, and a violation is blocked or rewritten.
+
+- Personal data or secret keys leaked verbatim
+- Profanity, hate, or other unsafe language
+- Drifting into a topic nobody asked about
+
 ```mermaid
 flowchart LR
   out["model output"] --> guard{"guardrails"}
   guard -- pass --> user["user"]
   guard -- violation --> block["block / rewrite"]
 ```
-
-<details open>
-<summary>Concrete examples — unsafe / off-topic output</summary>
-
-- Personal data or secret keys leaked verbatim
-- Profanity, hate, or other unsafe language
-- Drifting into a topic nobody asked about
-
-</details>
 
 <Tools slugs={["guardrails-ai", "nemo-guardrails"]} />
 
@@ -224,14 +262,22 @@ flowchart LR
 
 Trace every step, token, and cost in production to catch regressions early. If you can't see what was called, where it slowed down, and where the cost went, you can't fix it — catching the **"worked yesterday"** regressions that quietly appear after a change, before your users do.
 
-<details open>
-<summary>Concrete examples — "worked yesterday"</summary>
+#### Example. Catching regressions early
+
+Tracing every step, token, and cost surfaces a regression after a change before your users hit it.
 
 - A subtle accuracy drop after swapping models
 - More tokens and cost after a prompt edit
 - A flow broken by an external tool change
 
-</details>
+```mermaid
+flowchart LR
+  run["production run"] --> trace[("tracing — steps · tokens · cost")]
+  trace --> gate{"regression?"}
+  gate -- yes --> notify["alert · trace the cause"]
+  gate -- no --> ok["healthy"]
+  class trace roleTrace
+```
 
 <Tools slugs={["langfuse", "langsmith", "arize-phoenix", "helicone"]} />
 
