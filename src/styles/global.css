@@ -322,6 +322,25 @@ html {
 .aas-doc .prose :where(code, pre, kbd, samp) {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
+/* Doc tables: a touch larger, centered (shrink-to-content), roomier cells, and
+   a full-row hover highlight. `fit-content` + `margin-inline: auto` centers the
+   table block while `max-width`/overflow (from the base .prose rule) keep it
+   scrollable if it ever outgrows the column. */
+.aas-doc .prose :where(table) {
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  font-size: 1.05rem;
+}
+.aas-doc .prose :where(th, td) {
+  padding: 0.7rem 1.25rem;
+}
+.aas-doc .prose :where(tbody tr) {
+  transition: background-color 0.15s;
+}
+.aas-doc .prose tbody tr:hover {
+  background: var(--aas-tint);
+}
 
 /* "#" copy-link anchor prepended to headings (h2/h3). Faint by default, fully
    shown on hover/focus. `a.aas-anchor` outranks `.prose :where(a)` so it keeps
