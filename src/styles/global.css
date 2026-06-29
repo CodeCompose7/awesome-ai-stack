@@ -333,13 +333,30 @@ html {
    table block while `max-width`/overflow (from the base .prose rule) keep it
    scrollable if it ever outgrows the column. */
 .aas-reading.aas-reading :where(table) {
+  display: table;
   width: fit-content;
   max-width: 100%;
   margin-inline: auto;
   font-size: 1.05rem;
+  /* Rounded outer corners need separated borders + clipping (border-collapse
+     can't round). The table draws the outer frame; cells draw the inner grid. */
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--aas-border);
+  border-radius: 0.75rem;
+  overflow: hidden;
 }
 .aas-reading.aas-reading :where(th, td) {
   padding: 0.7rem 1.25rem;
+  border: 0;
+  border-right: 1px solid var(--aas-border);
+  border-bottom: 1px solid var(--aas-border);
+}
+.aas-reading.aas-reading :where(tr > :last-child) {
+  border-right: 0;
+}
+.aas-reading.aas-reading :where(tr:last-child > *) {
+  border-bottom: 0;
 }
 .aas-reading.aas-reading :where(tbody tr) {
   transition: background-color 0.15s;
