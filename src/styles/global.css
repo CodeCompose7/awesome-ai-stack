@@ -232,20 +232,21 @@ html {
   }
 }
 
-/* Fixed right-rail TOC: out of the content flow, parked in the right margin.
-   Only shown on wide screens where it won't overlap the centered content. A
-   flex column so a long TOC scrolls internally while the back-to-top button
-   stays pinned at the bottom. */
+/* Right-rail TOC: an in-flow sticky column beside the content, shown once the
+   viewport is wide enough to hold both (≥1200px). Below that it hides and the
+   content spans the full column. A flex column so a long TOC scrolls internally
+   while the back-to-top button stays pinned at the bottom. */
 .aas-toc-rail {
   display: none;
 }
-@media (min-width: 1536px) {
+@media (min-width: 1200px) {
   .aas-toc-rail {
     display: flex;
     flex-direction: column;
-    position: fixed;
+    position: sticky;
     top: 7rem;
-    right: max(1.5rem, calc((100vw - 64rem) / 2 - 15rem));
+    align-self: flex-start;
+    flex: none;
     width: 13rem;
     max-height: calc(100vh - 9rem);
   }

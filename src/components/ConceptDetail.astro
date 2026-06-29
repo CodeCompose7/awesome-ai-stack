@@ -46,7 +46,8 @@ const fmtDate = (d: Date) =>
   }).format(d);
 ---
 
-<div class="min-w-0">
+<div class="flex items-start gap-8">
+<div class="min-w-0 flex-1">
 <a
   href={getRelativeLocaleUrl(lang, 'concept/')}
   class="text-sm text-[var(--aas-accent)] no-underline">&larr; {t('concept.backToConcepts')}</a
@@ -130,5 +131,6 @@ const fmtDate = (d: Date) =>
 </div>
 
 <TocRail lang={lang} items={tocItems} />
+</div>
 
 {bodyHasMermaid && <MermaidLoader />}

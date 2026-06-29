@@ -66,7 +66,8 @@ const projectFiles = renderedProject
   : undefined;
 ---
 
-<div class="min-w-0">
+<div class="flex items-start gap-8">
+<div class="min-w-0 flex-1">
 <a href={getRelativeLocaleUrl(lang, 'article/')} class="text-sm text-[var(--aas-accent)] no-underline"
   >&larr; {t('article.backToBlog')}</a
 >
@@ -136,5 +137,6 @@ const projectFiles = renderedProject
 </div>
 
 <TocRail lang={lang} items={tocItems} relatedTools={relatedTools} projectFiles={projectFiles} />
+</div>
 
 {bodyHasMermaid && <MermaidLoader />}

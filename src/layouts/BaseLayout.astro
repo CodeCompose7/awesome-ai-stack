@@ -20,7 +20,7 @@ const t = useTranslations(lang);
 // Collapse any authored line breaks (used for on-page wrapping) to a single
 // space so the SEO meta description stays one clean line.
 const description = (Astro.props.description ?? t('site.tagline')).replace(/\s*\n\s*/g, ' ');
-const container = wide ? 'max-w-6xl' : 'max-w-5xl';
+const container = wide ? 'max-w-[81rem]' : 'max-w-[75rem]';
 
 const home = getRelativeLocaleUrl(lang, '');
 const base = import.meta.env.BASE_URL;

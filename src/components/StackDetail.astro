@@ -304,8 +304,9 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
   )
 }
 
-{/* Full-width content; the TOC is a fixed right rail, out of this flow. */}
-<div class="mt-8 min-w-0 aas-reading">
+{/* Content + a sticky right-rail TOC, side by side in one centered column. */}
+<div class="mt-8 flex items-start gap-8">
+<div class="min-w-0 flex-1 aas-reading">
   {
     hasTabs ? (
       <DetailTabs
@@ -381,6 +382,7 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
   </div>
   <button type="button" class="aas-toc-top" data-back-to-top>↑ {t('top.label')}</button>
 </aside>
+</div>
 
 {(hasSamples || hasProject || overviewHasMermaid) && <MermaidLoader />}
 
