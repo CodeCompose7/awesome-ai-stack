@@ -105,16 +105,26 @@ flowchart LR
   gate -- no --> ok["accept"]
   model -.log.-> trace[("tracing")]
   eval -.log.-> trace
+  class model roleModel
+  class eval roleEval
+  class trace roleTrace
 ```
 
 **Code and API claims** are verified by actually running them, like the _code sandbox_ above, or by a static check.
 
 ```mermaid
 flowchart LR
-  call["pandas.read_yaml()"] --> run["run in sandbox · static check"]
-  run --> err{"error / missing?"}
+  q["question"] --> model["model"]
+  model --> code["code — pandas.read_yaml()"]
+  code --> check["run in sandbox · static check"]
+  check --> err{"error / missing?"}
   err -- yes --> fix["fix · retry"]
   err -- no --> pass["accept"]
+  model -.log.-> trace[("tracing")]
+  check -.log.-> trace
+  class model roleModel
+  class check roleEval
+  class trace roleTrace
 ```
 
 </details>

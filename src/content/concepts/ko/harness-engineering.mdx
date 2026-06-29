@@ -113,16 +113,26 @@ flowchart LR
   gate -- 아니오 --> ok["채택"]
   model -.기록.-> trace[("트레이싱")]
   eval -.기록.-> trace
+  class model roleModel
+  class eval roleEval
+  class trace roleTrace
 ```
 
 **코드·API 주장**은 위 *코드 샌드박스*처럼 실제로 실행하거나 정적으로 확인합니다.
 
 ```mermaid
 flowchart LR
-  call["pandas.read_yaml()"] --> run["샌드박스 실행 · 정적 검사"]
-  run --> err{"에러·미존재?"}
+  q["질문"] --> model["모델"]
+  model --> code["코드 — pandas.read_yaml()"]
+  code --> check["샌드박스 실행 · 정적 검사"]
+  check --> err{"에러·미존재?"}
   err -- 예 --> fix["수정·재시도"]
   err -- 아니오 --> pass["통과"]
+  model -.기록.-> trace[("트레이싱")]
+  check -.기록.-> trace
+  class model roleModel
+  class check roleEval
+  class trace roleTrace
 ```
 
 </details>

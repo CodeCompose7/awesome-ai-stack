@@ -115,6 +115,10 @@
      as the emphasized region (e.g. the harness we're describing). */
   --aas-diagram-zone: color-mix(in srgb, var(--aas-accent) 65%, #2dd4bf);
   --aas-diagram-zone-warm: #f59e0b;
+  /* Diagram role colours: the model, the evaluator/checker, the tracing store. */
+  --aas-role-model: #3b82f6;
+  --aas-role-eval: #22c55e;
+  --aas-role-trace: #f59e0b;
 }
 
 :root[data-theme="dark"] {
@@ -640,6 +644,20 @@ summary {
   fill: color-mix(in srgb, var(--aas-accent) 9%, var(--aas-panel)) !important;
   stroke: color-mix(in srgb, var(--aas-accent) 45%, transparent) !important;
   stroke-width: 1.5px !important;
+}
+/* Role-coloured nodes — opt in per diagram with `class <node> role…`. The model,
+   the evaluator/checker, and the tracing store each read as a distinct colour. */
+.mermaid g.node.roleModel :is(rect, polygon, path) {
+  fill: color-mix(in srgb, var(--aas-role-model) 14%, var(--aas-panel)) !important;
+  stroke: color-mix(in srgb, var(--aas-role-model) 55%, transparent) !important;
+}
+.mermaid g.node.roleEval :is(rect, polygon, path) {
+  fill: color-mix(in srgb, var(--aas-role-eval) 15%, var(--aas-panel)) !important;
+  stroke: color-mix(in srgb, var(--aas-role-eval) 55%, transparent) !important;
+}
+.mermaid g.node.roleTrace :is(rect, polygon, path) {
+  fill: color-mix(in srgb, var(--aas-role-trace) 15%, var(--aas-panel)) !important;
+  stroke: color-mix(in srgb, var(--aas-role-trace) 55%, transparent) !important;
 }
 .mermaid g.cluster rect {
   rx: 18px;
