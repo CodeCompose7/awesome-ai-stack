@@ -1,8 +1,8 @@
 ---
 title: "Building a code-sandbox agent: model-written code in Docker"
 description: |-
-  Running model-written code straight on the host is risky. We build a LangGraph
-  agent with one `run_python` tool that pens the code into a throwaway Docker container.
+  Running model-written code straight on the host is risky.
+  We build a LangGraph agent with one `run_python` tool that pens the code into a throwaway Docker container.
 date: 2026-06-30
 version: '1.0'
 updated: 2026-06-30
@@ -12,15 +12,16 @@ tools: [docker, langgraph]
 related: [web-search-fx-agent, web-scraping-agent]
 project:
   folder: docker_1
-  related: [docker, e2b]
+  related: [docker, langgraph, litellm]
 category: article-build-agents
 tags: [sandbox, docker, agent, tutorial]
 ---
 
 import SampleProject from '../../../components/SampleProject.astro';
 
-The [Sandboxing](../../concept/sandboxing/) concept makes the case that model-written code is *outside* the trust boundary and belongs in a throwaway, isolated environment. 
-Here we turn that *code execution* role into a working agent — the tool never `exec`s the code, it pipes it into a fresh Docker container every time.
+The [Sandboxing](../../concept/sandboxing/) concept makes the case that model-written code is *outside* the trust boundary and belongs in a throwaway, isolated environment.  
+Here we turn that *code execution* role into a working agent. 
+The tool never `exec`s the code — it pipes it into a fresh Docker container every time.
 
 ## What we're building \{#what-were-building}
 
@@ -39,11 +40,16 @@ flowchart LR
   class out roleSource
 ```
 
-The code never runs on the host. `--network none` cuts the network, caps bound memory/CPU/process count, and `--rm` throws the container away when it exits.
+The code never runs on the host.
+- `--network none` cuts the network and caps memory/CPU/process count,
+- `--rm` throws the container away when it exits.
 
 ## Reading the code \{#reading-the-code}
 
-`app.py` splits into three functions — `main()` wires up the model and agent, `run_python()` is the tool the model calls, and `message_text()` cleans up the final answer.
+`app.py` splits into three functions.
+- `main()` wires up the model and agent,
+- `run_python()` is the tool the model calls,
+- `message_text()` cleans up the final answer.
 
 ```mermaid
 flowchart TB
@@ -61,37 +67,46 @@ flowchart TB
   class dock roleSource
 ```
 
-**`run_python(code)` — the tool**
+- **`run_python(code)` — the tool**
+  - A single `@tool`-wrapped function
+    - its docstring tells the model *when* to reach for code
+  - Doesn't run the code in-process; pipes it to `docker run` via `subprocess`
+    - `python -` reads the program from stdin
+  - The isolation is in the flags
+    - `--network none` (no network),
+    - `--memory` / `--cpus` / `--pids-limit` (resource caps),
+    - `--user 65534` (non-root),
+    - `--rm` (throwaway)
+  - `timeout=30` kills runaway code; output is truncated to the first 4,000 chars
 
-- A single `@tool`-wrapped function — its docstring tells the model *when* to reach for code
-- It doesn't run the code in-process; it pipes it to `docker run` via `subprocess`, with `python -` reading the program from stdin
-- The isolation is in the flags — `--network none` (no network), `--memory` / `--cpus` / `--pids-limit` (resource caps), `--user 65534` (non-root), `--rm` (throwaway)
-- `timeout=30` kills runaway code; output is truncated to the first 4,000 chars
+- **`message_text(content)` — tidying output**
+  - A model's `content` varies
+    - a string from cloud models, a list of blocks from some local ones
+  - Join the `type == "text"` blocks if it's a list; leave a string as-is
 
-**`message_text(content)` — tidying output**
-
-- A model's `content` varies — a string from cloud models, a list of blocks from some local ones
-- Join the `type == "text"` blocks if it's a list; leave a string as-is
-
-**`main()` — wiring**
-
-- Build `ChatLiteLLM` from `MODEL` and a ReAct loop with `create_agent(model, tools=[run_python])`
-- `agent.invoke({"messages": […]})` runs reason → tool call → observe
-- When it finishes, clean the last message with `message_text()` and print it
+- **`main()` — wiring**
+  - Build `ChatLiteLLM` from `MODEL` and a ReAct loop with `create_agent(model, tools=[run_python])`
+  - `agent.invoke({"messages": […]})` runs reason → tool call → observe
+  - When it finishes, clean the last message with `message_text()` and print it
 
 ## The implementation \{#the-implementation}
 
-One `run_python` tool on a LangGraph ReAct loop. 
+One `run_python` tool on a LangGraph ReAct loop.  
 The tool's body is essentially a single `docker run`, and the safety comes from the flags hung off it.
 
 <SampleProject folder="docker_1" />
 
 ## The key parts \{#the-key-parts}
 
-- **The tool is the isolation boundary** — `run_python` pipes code to a fresh container instead of `exec`ing it, so a mishap ends in a throwaway box, not on the host.
-- **The isolation lives in the flags** — no network, resource caps, non-root, and ephemeral together shrink the blast radius.
-- **Docker if you self-host, E2B / Modal if you don't** — the same role, run yourself (Docker) or delegated behind one API call.
-- **Swap the provider** — change `MODEL` in `.env` and the same code runs on a different model.
+- **The tool is the isolation boundary**
+  - `run_python` pipes code to a fresh container instead of `exec`ing it,
+  - so a mishap ends in a throwaway box, not on the host.
+- **The isolation lives in the flags**
+  - no network, resource caps, non-root, and ephemeral together shrink the blast radius.
+- **Docker if you self-host, E2B / Modal if you don't**
+  - the same role, run yourself (Docker) or delegated behind one API call.
+- **Swap the provider**
+  - change `MODEL` in `.env` and the same code runs on a different model.
 
-Swap the tool for search and you get [asking today's FX rate](../web-search-fx-agent/); swap it for scraping and you get [a docs page to Markdown](../web-scraping-agent/). 
+Swap the tool for search and you get [asking today's FX rate](../web-search-fx-agent/); swap it for scraping and you get [a docs page to Markdown](../web-scraping-agent/).  
 Why and how to isolate is laid out in the [Sandboxing](../../concept/sandboxing/) concept.
