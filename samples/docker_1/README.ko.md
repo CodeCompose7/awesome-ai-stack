@@ -6,7 +6,7 @@
 컨테이너 안에서** 실행하며(네트워크 없음·CPU/메모리 제한·자동 삭제), 에이전트는 그
 출력을 읽고 답합니다. 코드는 호스트에서 절대 돌지 않습니다. 모델은 LiteLLM으로
 라우팅되므로 **같은 코드**가 **Anthropic Claude**·**OpenAI**·**Google AI
-Studio(Gemini)**에서 그대로 동작합니다 — 코드가 아니라 `.env`의 `MODEL`만 바꾸면
+Studio**(Gemini)에서 그대로 동작합니다 — 코드가 아니라 `.env`의 `MODEL`만 바꾸면
 됩니다.
 
 ## 설정
@@ -52,6 +52,11 @@ docker run --rm --env-file .env \
   -v /var/run/docker.sock:/var/run/docker.sock \
   aas-code-sandbox "30번째 피보나치 수는? 코드로 계산해줘"
 ```
+
+소켓을 마운트하면 에이전트 *안에서* 부르는 `docker run`이 **호스트**의 Docker 데몬과
+통신하므로, 각 샌드박스는 중첩이 아니라 호스트의 **형제** 컨테이너로 뜹니다. 이것이
+Docker-out-of-Docker(DooD) 패턴으로, 이 저장소가 도는 데브컨테이너가 에이전트에게
+다룰 수 있는 Docker를 내주는 방식과 같습니다.
 
 ## 어떻게 동작하나
 

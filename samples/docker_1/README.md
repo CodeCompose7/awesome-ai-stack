@@ -53,6 +53,11 @@ docker run --rm --env-file .env \
   aas-code-sandbox "What is the 30th Fibonacci number? Use code."
 ```
 
+The mounted socket means the `docker run` *inside* the agent talks to the **host's**
+Docker daemon, so each sandbox is a **sibling** container on the host, not a nested
+one. That's the Docker-out-of-Docker (DooD) pattern — the same way a dev container
+(like the one this repo runs in) hands an agent a Docker it can drive.
+
 ## How it works
 
 ```mermaid
