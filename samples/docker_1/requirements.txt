@@ -1,8 +1,4 @@
 langgraph>=1.2
 langchain>=1.0
 langchain-litellm>=0.7
-# litellm 1.90.1 hijacks the container's stdout/stderr on import, so the agent's
-# answer never reaches the console (the agent still runs). Pin below it.
-# langchain-litellm 0.7 requires litellm>=1.83.14, so we stay inside that range.
-litellm>=1.83.14,<1.90
 python-dotenv>=1.1
