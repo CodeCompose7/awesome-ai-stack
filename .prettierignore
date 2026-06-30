@@ -1,0 +1,14 @@
+# Build output & generated
+dist/
+node_modules/
+.astro/
+
+# Markdown & MDX are hand-authored to conventions Prettier cannot honor — see
+# docs/markdown-style.md. With no option to disable, Prettier would:
+#   - rewrite `*emphasis*` to `_emphasis_` (the guide requires `*`)
+#   - reflow prose and collapse the authored line breaks that frontmatter
+#     `description` fields render verbatim
+#   - mangle escaped heading anchors (\{#id})
+# So keep all Markdown out of Prettier and format it by hand.
+*.md
+*.mdx
