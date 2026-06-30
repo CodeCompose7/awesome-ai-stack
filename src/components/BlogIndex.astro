@@ -3,6 +3,7 @@ import { getRelativeLocaleUrl } from 'astro:i18n';
 import ArticleCard from './ArticleCard.astro';
 import Breadcrumb from './Breadcrumb.astro';
 import ListControls from './ListControls.astro';
+import ArrowUpRight from './ArrowUpRight.astro';
 
 const PAGE = 12;
 import { articleTree, articleCatOf } from '../data/article-categories';
@@ -110,7 +111,7 @@ const card = (a: ArticleEntry) => ({
               class="text-[var(--aas-text)] no-underline hover:text-[var(--aas-accent)]"
             >
               {cat.label[lang]}
-              <span class="text-[var(--aas-muted)]"> &nearr;</span>
+              <ArrowUpRight size={20} class="ml-1 text-[var(--aas-muted)]" />
             </a>
           </h2>
           <p class="mt-1 text-sm text-[var(--aas-muted)]">{cat.description[lang]}</p>
