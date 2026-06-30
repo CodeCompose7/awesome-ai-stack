@@ -42,7 +42,7 @@ const relatedConcepts = (await getConcepts(lang)).filter((c) =>
 // Related writing: articles this one explicitly cross-links (frontmatter
 // `related`), kept in the authored order.
 const articlesBySlug = new Map((await getArticles(lang)).map((a) => [articleSlugOf(a), a]));
-const relatedArticles = data.related
+const relatedArticles = (data.related ?? [])
   .map((s) => articlesBySlug.get(s))
   .filter((a): a is ArticleEntry => Boolean(a) && articleSlugOf(a!) !== articleSlug);
 
@@ -100,7 +100,7 @@ const crumbs = [
     )}
   </p>
   <h1 class="mt-1 text-3xl font-bold tracking-tight">{data.title}</h1>
-  <p class="mt-2 max-w-2xl text-lg whitespace-pre-line text-[var(--aas-muted)]">{data.description}</p>
+  <p class="mt-2 text-lg whitespace-pre-line text-[var(--aas-muted)]">{data.description}</p>
   {
     data.image && (
       <Image
