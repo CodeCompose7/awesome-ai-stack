@@ -1,7 +1,14 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import type { Lang } from '../i18n/ui';
+import { articleTree } from '../data/article-categories';
 
 export type ArticleEntry = CollectionEntry<'articles'>;
+
+/** Articles in a locale whose category is `catId` or a descendant of it. */
+export async function getArticlesByCategory(lang: Lang, catId: string): Promise<ArticleEntry[]> {
+  const ids = new Set(articleTree.descendantIds(catId));
+  return (await getArticles(lang)).filter((a) => a.data.category && ids.has(a.data.category));
+}
 
 /** The url slug of an article, i.e. its id with the `<lang>/` prefix removed. */
 export function articleSlugOf(entry: ArticleEntry): string {

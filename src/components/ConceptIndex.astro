@@ -1,40 +1,111 @@
 ---
+import { getRelativeLocaleUrl } from 'astro:i18n';
 import ConceptCard from './ConceptCard.astro';
-import { getConcepts, conceptSlugOf } from '../lib/concepts';
+import Breadcrumb from './Breadcrumb.astro';
+import { conceptTree } from '../data/concept-categories';
+import { getConcepts, conceptSlugOf, type ConceptEntry } from '../lib/concepts';
 import { useTranslations, type Lang } from '../i18n/ui';
 
+// Doubles as the concept index (no `categoryId` → all concepts, grouped by
+// category) and a category browse page (`categoryId` → that category, with a
+// breadcrumb, its direct concepts, and a section per subcategory).
 interface Props {
   lang: Lang;
+  categoryId?: string;
 }
 
-const { lang } = Astro.props;
+const { lang, categoryId } = Astro.props;
 const t = useTranslations(lang);
-const concepts = await getConcepts(lang);
+const all = await getConcepts(lang);
+const catUrl = (cid: string) => getRelativeLocaleUrl(lang, `concept/category/${cid}/`);
+
+const itemsIn = (cid: string): ConceptEntry[] => {
+  const ids = new Set(conceptTree.descendantIds(cid));
+  return all.filter((c) => c.data.category && ids.has(c.data.category));
+};
+
+const node = categoryId ? conceptTree.map.get(categoryId) : undefined;
+const sections = node ? conceptTree.childrenOf(node.id) : conceptTree.roots;
+const direct = node ? all.filter((c) => c.data.category === node.id) : [];
+
+const path = node ? conceptTree.pathOf(node.id) : [];
+const crumbs = node
+  ? [
+      { label: t('concept.backToConcepts'), href: getRelativeLocaleUrl(lang, 'concept/') },
+      ...path.map((c, i) => ({
+        label: c.label[lang],
+        href: i === path.length - 1 ? undefined : catUrl(c.id),
+      })),
+    ]
+  : [];
+
+const card = (c: ConceptEntry) => ({
+  lang,
+  slug: conceptSlugOf(c),
+  title: c.data.title,
+  description: c.data.description,
+  tags: c.data.tags,
+  image: c.data.image,
+  imageAlt: c.data.imageAlt,
+  version: c.data.version,
+  updated: c.data.updated,
+});
 ---
 
-<section class="py-6">
-  <h1 class="text-4xl font-bold tracking-tight">{t('concept.title')}</h1>
-  <p class="mt-3 max-w-2xl text-lg text-[var(--aas-muted)]">{t('concept.tagline')}</p>
-</section>
+{
+  node ? (
+    <>
+      <Breadcrumb segments={crumbs} />
+      <header class="mt-4">
+        <h1 class="text-3xl font-bold tracking-tight">{node.label[lang]}</h1>
+        <p class="mt-2 max-w-2xl text-lg text-[var(--aas-muted)]">
+          {node.detail?.[lang] ?? node.description[lang]}
+        </p>
+      </header>
+    </>
+  ) : (
+    <section class="py-6">
+      <h1 class="text-4xl font-bold tracking-tight">{t('concept.title')}</h1>
+      <p class="mt-3 max-w-2xl text-lg text-[var(--aas-muted)]">{t('concept.tagline')}</p>
+    </section>
+  )
+}
+
+{all.length === 0 && <p class="mt-8 text-[var(--aas-muted)]">{t('concept.empty')}</p>}
 
 {
-  concepts.length === 0 ? (
-    <p class="mt-8 text-[var(--aas-muted)]">{t('concept.empty')}</p>
-  ) : (
-    <div class="mt-6 grid gap-4 sm:grid-cols-2">
-      {concepts.map((c) => (
-        <ConceptCard
-          lang={lang}
-          slug={conceptSlugOf(c)}
-          title={c.data.title}
-          description={c.data.description}
-          tags={c.data.tags}
-          image={c.data.image}
-          imageAlt={c.data.imageAlt}
-          version={c.data.version}
-          updated={c.data.updated}
-        />
+  direct.length > 0 && (
+    <div class="mt-6 grid gap-5 sm:grid-cols-2">
+      {direct.map((c) => (
+        <ConceptCard {...card(c)} />
       ))}
     </div>
   )
+}
+
+{
+  sections.map((cat) => {
+    const items = itemsIn(cat.id);
+    return (
+      items.length > 0 && (
+        <section class="mt-8">
+          <h2 class="text-2xl font-semibold">
+            <a
+              href={catUrl(cat.id)}
+              class="text-[var(--aas-text)] no-underline hover:text-[var(--aas-accent)]"
+            >
+              {cat.label[lang]}
+              <span class="text-[var(--aas-muted)]"> &nearr;</span>
+            </a>
+          </h2>
+          <p class="mt-1 text-sm text-[var(--aas-muted)]">{cat.description[lang]}</p>
+          <div class="mt-4 grid gap-5 sm:grid-cols-2">
+            {items.map((c) => (
+              <ConceptCard {...card(c)} />
+            ))}
+          </div>
+        </section>
+      )
+    );
+  })
 }

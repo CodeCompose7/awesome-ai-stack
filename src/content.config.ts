@@ -110,6 +110,9 @@ const articles = defineCollection({
       updated: z.coerce.date().optional(), // last meaningful update (YYYY-MM-DD)
       image: image().optional(), // hero / card image (optimized; relative to the file)
       imageAlt: z.string().optional(),
+      // Leaf id from src/data/article-categories.ts (powers the breadcrumb +
+      // category browse pages + grouped index, like a stack's category).
+      category: z.string().optional(),
       tools: z.array(z.string()).default([]),
       // Optional runnable sample (samples/<folder>/) the article walks through.
       // Embed its viewer in the body with <SampleProject folder="…"/>; this
@@ -141,6 +144,9 @@ const concepts = defineCollection({
       description: z.string(),
       image: image().optional(), // hero / card image (optimized; relative to the file)
       imageAlt: z.string().optional(),
+      // Leaf id from src/data/concept-categories.ts (powers the breadcrumb +
+      // category browse pages + grouped index, like a stack's category).
+      category: z.string().optional(),
       // A concept is living documentation: bump `version` and `updated` on edits.
       version: z.string().optional(), // e.g. "1.0"
       updated: z.coerce.date().optional(), // last meaningful update (YYYY-MM-DD)

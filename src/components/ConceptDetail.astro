@@ -7,6 +7,8 @@ import { Image } from 'astro:assets';
 import { useTranslations, type Lang } from '../i18n/ui';
 import MermaidLoader from './MermaidLoader.astro';
 import TocRail from './TocRail.astro';
+import Breadcrumb from './Breadcrumb.astro';
+import { conceptTree } from '../data/concept-categories';
 import RelatedTools from './RelatedTools.astro';
 import RelatedConcepts from './RelatedConcepts.astro';
 import RelatedArticles from './RelatedArticles.astro';
@@ -44,12 +46,18 @@ const fmtDate = (d: Date) =>
     day: 'numeric',
     timeZone: 'UTC',
   }).format(d);
+
+// Breadcrumb: All concepts › category › subcategory… (each segment linked).
+const crumbs = [
+  { label: t('concept.backToConcepts'), href: getRelativeLocaleUrl(lang, 'concept/') },
+  ...(data.category ? conceptTree.pathOf(data.category) : []).map((c) => ({
+    label: c.label[lang],
+    href: getRelativeLocaleUrl(lang, `concept/category/${c.id}/`),
+  })),
+];
 ---
 
-<a
-  href={getRelativeLocaleUrl(lang, 'concept/')}
-  class="text-sm text-[var(--aas-accent)] no-underline">&larr; {t('concept.backToConcepts')}</a
->
+<Breadcrumb segments={crumbs} />
 
 <header class="mt-4 pb-6">
   <h1 class="text-3xl font-bold tracking-tight">{data.title}</h1>

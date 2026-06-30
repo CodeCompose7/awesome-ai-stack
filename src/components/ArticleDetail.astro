@@ -9,6 +9,8 @@ import { useTranslations, type Lang } from '../i18n/ui';
 import { formatDate } from '../lib/dates';
 import TocRail from './TocRail.astro';
 import MermaidLoader from './MermaidLoader.astro';
+import Breadcrumb from './Breadcrumb.astro';
+import { articleTree } from '../data/article-categories';
 import RelatedTools from './RelatedTools.astro';
 import RelatedConcepts from './RelatedConcepts.astro';
 import { renderProjects } from '../lib/project';
@@ -65,11 +67,18 @@ const railTools = projectSpec ? projectSpec.related.map(resolveTool) : [];
 const projectFiles = renderedProject
   ? { folder: renderedProject.folder, files: renderedProject.files }
   : undefined;
+
+// Breadcrumb: All writing › category › subcategory… (each segment linked).
+const crumbs = [
+  { label: t('article.backToBlog'), href: getRelativeLocaleUrl(lang, 'article/') },
+  ...(data.category ? articleTree.pathOf(data.category) : []).map((c) => ({
+    label: c.label[lang],
+    href: getRelativeLocaleUrl(lang, `article/category/${c.id}/`),
+  })),
+];
 ---
 
-<a href={getRelativeLocaleUrl(lang, 'article/')} class="text-sm text-[var(--aas-accent)] no-underline"
-  >&larr; {t('article.backToBlog')}</a
->
+<Breadcrumb segments={crumbs} />
 
 <header class="mt-4 pb-6">
   <p class="text-sm text-[var(--aas-muted)]">

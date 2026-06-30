@@ -1,7 +1,14 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import type { Lang } from '../i18n/ui';
+import { conceptTree } from '../data/concept-categories';
 
 export type ConceptEntry = CollectionEntry<'concepts'>;
+
+/** Concepts in a locale whose category is `catId` or a descendant of it. */
+export async function getConceptsByCategory(lang: Lang, catId: string): Promise<ConceptEntry[]> {
+  const ids = new Set(conceptTree.descendantIds(catId));
+  return (await getConcepts(lang)).filter((c) => c.data.category && ids.has(c.data.category));
+}
 
 /** The url slug of a concept, i.e. its id with the `<lang>/` prefix removed. */
 export function conceptSlugOf(entry: ConceptEntry): string {
