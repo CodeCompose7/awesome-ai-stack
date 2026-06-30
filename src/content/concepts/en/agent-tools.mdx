@@ -23,9 +23,12 @@ import ArticleLink from '../../../components/ArticleLink.astro';
 
 ## What it is \{#what-it-is}
 
-A tool is a function that connects a model to the outside world. On its own a model only generates text; searching, reading a page, or booking a slot all happen only through a tool.
+A tool is a function that connects a model to the outside world. 
+On its own a model only generates text; searching, reading a page, or booking a slot all happen only through a tool.
 
-The flow is simple. The model is handed a list of available tools and each one's input schema, picks a tool when it needs one and fills in the arguments, calls it, and feeds the result back into its reasoning to decide what's next. That "pick a tool and fill the arguments" is what's commonly called **function calling**.
+The flow is simple. 
+The model is handed a list of available tools and each one's input schema, picks a tool when it needs one and fills in the arguments, calls it, and feeds the result back into its reasoning to decide what's next. 
+That "pick a tool and fill the arguments" is what's commonly called **function calling**.
 
 ```mermaid
 flowchart LR
@@ -41,7 +44,8 @@ flowchart LR
 
 ## Why it matters \{#why-it-matters}
 
-A model's knowledge stops at its training cutoff, and a model can't *do* anything on its own. Tools bridge both gaps — pulling in current data and carrying out real actions.
+A model's knowledge stops at its training cutoff, and a model can't *do* anything on its own. 
+Tools bridge both gaps — pulling in current data and carrying out real actions.
 
 | Without tools | What a tool bridges |
 | --- | --- |
@@ -55,11 +59,13 @@ Each row is solved by a line *out* to the world, not by a smarter model — whic
 
 ## The kinds — and the tools that fill them \{#the-kinds-and-the-tools-that-fill-them}
 
-Tools divide by what they connect to. Below are the common kinds and the catalog tools that fill each spot.
+Tools divide by what they connect to. 
+Below are the common kinds and the catalog tools that fill each spot.
 
 ### Web search \{#web-search}
 
-Finds web results for a question and returns them as usable excerpts and citations, not just links. Current facts and prices the model doesn't know go straight into its reasoning.
+Finds web results for a question and returns them as usable excerpts and citations, not just links. 
+Current facts and prices the model doesn't know go straight into its reasoning.
 
 #### Example. Asking today's FX rate \{#example-asking-todays-fx-rate}
 
@@ -87,7 +93,8 @@ flowchart LR
 
 ### Scraping & crawling \{#scraping-crawling}
 
-Pulls a whole page or site and converts it into a format the model can read directly (Markdown and the like). If search finds *where* to look, scraping *reads that page in*.
+Pulls a whole page or site and converts it into a format the model can read directly (Markdown and the like). 
+If search finds *where* to look, scraping *reads that page in*.
 
 #### Example. A docs page as Markdown \{#example-a-docs-page-as-markdown}
 
@@ -113,7 +120,8 @@ flowchart LR
 
 ### Browser automation \{#browser-automation}
 
-Operates a screen with no API by clicking, typing, and navigating like a person. It handles work search and scraping can't reach — pages behind a login, form submissions.
+Operates a screen with no API by clicking, typing, and navigating like a person. 
+It handles work search and scraping can't reach — pages behind a login, form submissions.
 
 #### Example. Submitting a form behind a login \{#example-submitting-a-form-behind-a-login}
 
@@ -137,7 +145,8 @@ flowchart LR
 
 ### App & API integration \{#app-api-integration}
 
-Exposes external apps — mail, calendar, SaaS — as tools through a layer that handles auth and calls for you. Instead of wiring up OAuth and APIs for hundreds of apps by hand, an integration layer offers them as a standardized set of tools.
+Exposes external apps — mail, calendar, SaaS — as tools through a layer that handles auth and calls for you. 
+Instead of wiring up OAuth and APIs for hundreds of apps by hand, an integration layer offers them as a standardized set of tools.
 
 #### Example. Adding a calendar event \{#example-adding-a-calendar-event}
 
@@ -163,7 +172,8 @@ flowchart LR
 
 ### Code execution \{#code-execution}
 
-Runs model-written code in an isolated environment for exact computation, data processing, and verification. This isolated run is the same tool as the code sandbox role in *harness engineering* — it contains side effects while also confirming the code actually works.
+Runs model-written code in an isolated environment for exact computation, data processing, and verification. 
+This isolated run is the same tool as the code sandbox role in *harness engineering* — it contains side effects while also confirming the code actually works.
 
 #### Example. Computing with code \{#example-computing-with-code}
 

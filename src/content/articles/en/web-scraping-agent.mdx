@@ -19,15 +19,13 @@ tags: [tools, scraping, agent, tutorial]
 
 import SampleProject from '../../../components/SampleProject.astro';
 
-The [Tools](../../concept/agent-tools/) concept's *scraping & crawling* uses
-"a docs page to Markdown" as an example. If search finds *where* to look,
-scraping reads that whole page in. Here we turn that example into a working
-agent.
+The [Tools](../../concept/agent-tools/) concept's *scraping & crawling* uses "a docs page to Markdown" as an example. 
+If search finds *where* to look, scraping reads that whole page in. 
+Here we turn that example into a working agent.
 
 ## What we're building \{#what-were-building}
 
-An agent that, given a task with a URL, fetches the page as Markdown through
-Firecrawl, reads it, and answers or summarizes.
+An agent that, given a task with a URL, fetches the page as Markdown through Firecrawl, reads it, and answers or summarizes.
 
 ```mermaid
 flowchart LR
@@ -41,14 +39,11 @@ flowchart LR
   class md roleSource
 ```
 
-Where search only *points* at a source, scraping lays the page's actual body
-out in front of the model.
+Where search only *points* at a source, scraping lays the page's actual body out in front of the model.
 
 ## Reading the code \{#reading-the-code}
 
-The whole flow in `app.py` splits into three functions — `main()` wires the
-model and the agent, `scrape()` is the tool the model calls, and
-`message_text()` cleans up the final answer.
+The whole flow in `app.py` splits into three functions — `main()` wires the model and the agent, `scrape()` is the tool the model calls, and `message_text()` cleans up the final answer.
 
 ```mermaid
 flowchart TB
@@ -89,8 +84,8 @@ flowchart TB
 
 ## The implementation \{#the-implementation}
 
-A LangGraph ReAct loop with a single `scrape` tool. The model is routed through
-LiteLLM, so the same code runs on Claude, OpenAI, or Gemini.
+A LangGraph ReAct loop with a single `scrape` tool. 
+The model is routed through LiteLLM, so the same code runs on Claude, OpenAI, or Gemini.
 
 <SampleProject folder="firecrawl_1" />
 
@@ -101,7 +96,5 @@ LiteLLM, so the same code runs on Claude, OpenAI, or Gemini.
 - **The result becomes evidence** — Firecrawl's Markdown feeds back into reasoning, so the model answers from the page's real contents, not a guess.
 - **The provider is swappable** — change `MODEL` in `.env` to run the same code on a different model.
 
-Swap the tool for search (Tavily) in the same loop and you get [asking today's FX
-rate](../web-search-fx-agent/); swap it for browser automation and you pull in a
-different kind of "now" data. The full set of tool kinds is in the
-[Tools](../../concept/agent-tools/) concept.
+Swap the tool for search (Tavily) in the same loop and you get [asking today's FX rate](../web-search-fx-agent/); swap it for browser automation and you pull in a different kind of "now" data. 
+The full set of tool kinds is in the [Tools](../../concept/agent-tools/) concept.

@@ -19,17 +19,12 @@ tags: [sandbox, docker, agent, tutorial]
 
 import SampleProject from '../../../components/SampleProject.astro';
 
-The [Sandboxing](../../concept/sandboxing/) concept makes the case that
-model-written code is *outside* the trust boundary and belongs in a throwaway,
-isolated environment. Here we turn that *code execution* role into a working
-agent — the tool never `exec`s the code, it pipes it into a fresh Docker
-container every time.
+The [Sandboxing](../../concept/sandboxing/) concept makes the case that model-written code is *outside* the trust boundary and belongs in a throwaway, isolated environment. 
+Here we turn that *code execution* role into a working agent — the tool never `exec`s the code, it pipes it into a fresh Docker container every time.
 
 ## What we're building \{#what-were-building}
 
-Given a task that needs computation, the model writes Python, the `run_python`
-tool runs it in an isolated Docker container and hands back the output, and the
-model reads that and answers.
+Given a task that needs computation, the model writes Python, the `run_python` tool runs it in an isolated Docker container and hands back the output, and the model reads that and answers.
 
 ```mermaid
 flowchart LR
@@ -44,14 +39,11 @@ flowchart LR
   class out roleSource
 ```
 
-The code never runs on the host. `--network none` cuts the network, caps bound
-memory/CPU/process count, and `--rm` throws the container away when it exits.
+The code never runs on the host. `--network none` cuts the network, caps bound memory/CPU/process count, and `--rm` throws the container away when it exits.
 
 ## Reading the code \{#reading-the-code}
 
-`app.py` splits into three functions — `main()` wires up the model and agent,
-`run_python()` is the tool the model calls, and `message_text()` cleans up the
-final answer.
+`app.py` splits into three functions — `main()` wires up the model and agent, `run_python()` is the tool the model calls, and `message_text()` cleans up the final answer.
 
 ```mermaid
 flowchart TB
@@ -89,8 +81,8 @@ flowchart TB
 
 ## The implementation \{#the-implementation}
 
-One `run_python` tool on a LangGraph ReAct loop. The tool's body is essentially a
-single `docker run`, and the safety comes from the flags hung off it.
+One `run_python` tool on a LangGraph ReAct loop. 
+The tool's body is essentially a single `docker run`, and the safety comes from the flags hung off it.
 
 <SampleProject folder="docker_1" />
 
@@ -101,6 +93,5 @@ single `docker run`, and the safety comes from the flags hung off it.
 - **Docker if you self-host, E2B / Modal if you don't** — the same role, run yourself (Docker) or delegated behind one API call.
 - **Swap the provider** — change `MODEL` in `.env` and the same code runs on a different model.
 
-Swap the tool for search and you get [asking today's FX rate](../web-search-fx-agent/);
-swap it for scraping and you get [a docs page to Markdown](../web-scraping-agent/).
+Swap the tool for search and you get [asking today's FX rate](../web-search-fx-agent/); swap it for scraping and you get [a docs page to Markdown](../web-scraping-agent/). 
 Why and how to isolate is laid out in the [Sandboxing](../../concept/sandboxing/) concept.

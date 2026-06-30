@@ -20,16 +20,13 @@ tags: [tools, web-search, agent, tutorial]
 
 import SampleProject from '../../../components/SampleProject.astro';
 
-The [Tools](../../concept/agent-tools/) concept uses "asking today's FX rate"
-as an example. A model's knowledge stops at its training cutoff, so a value
-that changes daily — like an exchange rate — is out of reach; a *web-search
-tool* is what bridges that gap. Here we turn that example into a working agent.
+The [Tools](../../concept/agent-tools/) concept uses "asking today's FX rate" as an example. 
+A model's knowledge stops at its training cutoff, so a value that changes daily — like an exchange rate — is out of reach; a *web-search tool* is what bridges that gap. 
+Here we turn that example into a working agent.
 
 ## What we're building \{#what-were-building}
 
-An agent that, given a question, decides on its own "I should search for this,"
-queries the web through Tavily, reads the fresh results, and answers with the
-rate and its sources.
+An agent that, given a question, decides on its own "I should search for this," queries the web through Tavily, reads the fresh results, and answers with the rate and its sources.
 
 ```mermaid
 flowchart LR
@@ -43,14 +40,11 @@ flowchart LR
   class data roleSource
 ```
 
-Without the tool the model can only guess at a stale value; with one tool, the
-answer is grounded in today's web.
+Without the tool the model can only guess at a stale value; with one tool, the answer is grounded in today's web.
 
 ## Reading the code \{#reading-the-code}
 
-The whole flow in `app.py` splits into three functions — `main()` wires the
-model and the agent, `web_search()` is the tool the model calls, and
-`message_text()` cleans up the final answer.
+The whole flow in `app.py` splits into three functions — `main()` wires the model and the agent, `web_search()` is the tool the model calls, and `message_text()` cleans up the final answer.
 
 ```mermaid
 flowchart TB
@@ -92,8 +86,8 @@ flowchart TB
 
 ## The implementation \{#the-implementation}
 
-A LangGraph ReAct loop with a single `web_search` tool. The model is routed
-through LiteLLM, so the same code runs on Claude, OpenAI, or Gemini.
+A LangGraph ReAct loop with a single `web_search` tool. 
+The model is routed through LiteLLM, so the same code runs on Claude, OpenAI, or Gemini.
 
 <SampleProject folder="tavily_1" />
 
@@ -110,7 +104,5 @@ through LiteLLM, so the same code runs on Claude, OpenAI, or Gemini.
 - **The provider is swappable** — change `MODEL` in `.env` to run the same code
   on a different model.
 
-Swap the tool for [scraping (Firecrawl)](../web-scraping-agent/) in the same
-loop and it reads a page in as Markdown; swap it for browser automation and it
-pulls in a different kind of "now" data. The full set of tool kinds is laid out
-in the [Tools](../../concept/agent-tools/) concept.
+Swap the tool for [scraping (Firecrawl)](../web-scraping-agent/) in the same loop and it reads a page in as Markdown; swap it for browser automation and it pulls in a different kind of "now" data. 
+The full set of tool kinds is laid out in the [Tools](../../concept/agent-tools/) concept.
