@@ -10,9 +10,13 @@ interface Props {
   projects: RenderedProject[];
   // Related tools per example folder; rendered inline below 2xl (in the rail at 2xl+).
   related: Map<string, RelatedTool[]>;
+  // Embedded in an article body, where the page's TOC rail (≥1200px) already
+  // surfaces the files + related tools. Drop the inline sidebar at ≥1200px so it
+  // isn't shown twice; below that (no rail) the inline sidebar stays.
+  embedded?: boolean;
 }
 
-const { lang, projects, related } = Astro.props;
+const { lang, projects, related, embedded = false } = Astro.props;
 const t = useTranslations(lang);
 
 // Split the rendered README into its leading <h1> inner content (used as a
@@ -131,11 +135,16 @@ function formatDate(iso: string): string {
         )}
 
         {p.files.length > 0 && (
-          <div class="mt-6 lg:grid lg:grid-cols-[13rem_minmax(0,1fr)] lg:items-start lg:gap-4 2xl:block">
+          <div
+            class:list={[
+              'mt-6 lg:grid lg:grid-cols-[13rem_minmax(0,1fr)] lg:items-start lg:gap-4',
+              embedded ? 'aas-embed-proj' : '2xl:block',
+            ]}
+          >
             {/* Sidebar — related tools + file tree, inline below 2xl; on 2xl+
                 both move to the right rail (rendered in StackDetail) since this
                 inline column is hidden here. */}
-            <div class="space-y-5 2xl:hidden">
+            <div class:list={['space-y-5', embedded ? 'aas-embed-sidebar' : '2xl:hidden']}>
               <ProjectRelatedTools lang={lang} tools={related.get(p.folder) ?? []} />
               <ProjectFileList lang={lang} folder={p.folder} files={p.files} />
             </div>

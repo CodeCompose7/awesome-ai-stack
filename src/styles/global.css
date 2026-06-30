@@ -265,6 +265,15 @@ html {
     width: 13rem;
     max-height: calc(100vh - 9rem);
   }
+  /* Embedded article sample: at the TOC-rail breakpoint the rail already lists
+     the files + related tools, so drop the in-body sidebar and let the code pane
+     span full width. Below 1200px (no rail) the inline sidebar stays. */
+  .aas-embed-proj {
+    display: block;
+  }
+  .aas-embed-sidebar {
+    display: none;
+  }
 }
 .aas-toc-scroll {
   min-height: 0; /* allow this flex child to shrink so it can scroll */

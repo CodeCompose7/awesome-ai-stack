@@ -15,6 +15,7 @@ import { articleTree, articleCatOf } from '../data/article-categories';
 import RelatedTools from './RelatedTools.astro';
 import RelatedConcepts from './RelatedConcepts.astro';
 import RelatedArticles from './RelatedArticles.astro';
+import { renderProjects } from '../lib/project';
 import type { RelatedTool } from './ProjectRelatedTools.astro';
 
 interface Props {
@@ -57,6 +58,7 @@ const projectSpec = data.project
     ? { folder: data.project, related: [] as string[] }
     : { folder: data.project.folder, related: data.project.related }
   : null;
+const renderedProject = projectSpec ? (await renderProjects([projectSpec.folder], lang))[0] : undefined;
 function resolveTool(slug: string): RelatedTool {
   const e = bySlug.get(slug);
   if (!e) return { slug, name: slug, registered: false };
@@ -71,6 +73,9 @@ function resolveTool(slug: string): RelatedTool {
   };
 }
 const railTools = projectSpec ? projectSpec.related.map(resolveTool) : [];
+const projectFiles = renderedProject
+  ? { folder: renderedProject.folder, files: renderedProject.files }
+  : undefined;
 
 // Breadcrumb: All writing › category › subcategory… (each segment linked).
 const crumbs = [
@@ -114,7 +119,7 @@ const crumbs = [
   <article class="prose max-w-none aas-reading min-w-0 flex-1">
     <Content />
   </article>
-  <TocRail lang={lang} items={tocItems} relatedTools={railTools} />
+  <TocRail lang={lang} items={tocItems} relatedTools={railTools} projectFiles={projectFiles} />
 </div>
 
 <RelatedTools lang={lang} slugs={data.tools} />
