@@ -69,33 +69,42 @@ fragments drop it. So a Korean item and its English counterpart may differ:
 `- **루프 + 모델**로 시작` (fragment, no period) vs `- Start with the **loop +
 model**.` (imperative sentence, period). That asymmetry is expected.
 
-## Line breaks inside a paragraph: two trailing spaces
+## Line breaks inside a paragraph: one space soft, two spaces hard
 
-To make sentences render on their **own lines without the vertical gap of a new
-paragraph**, end each line — except the last — with **two trailing spaces**.
-That is Markdown's hard line break and renders as `<br>`:
+Inside a single paragraph (no blank line between the lines), the number of
+**trailing spaces** on a line decides what the break does on the page. Applies to
+Korean and English prose alike:
+
+- **Two trailing spaces** → a Markdown hard break (`<br>`). The next line renders
+  on its **own line**, with no paragraph gap. Use it to deliberately stack
+  sentences.
+- **One trailing space** → a soft wrap. The source breaks for readability — e.g.
+  one sentence per line, which keeps diffs clean — but the lines **collapse into
+  one rendered line**. The break you see in the file is invisible on the page.
+- A **blank line** → a new paragraph, which adds vertical spacing.
 
 ```markdown
-LangGraph는 에이전트를 **노드들의 그래프**로 모델링하고 엣지로 연결합니다.␣␣
-각 노드는 하나의 단계(모델 호출, 도구 실행, 메모리 갱신)이고, …␣␣
-상태가 명시적이기 때문에 평범한 while 루프로는 표현하기 어려운 …
+샌드박스는 신뢰할 수 없는 코드를 일회용 환경에서 실행합니다.␣            ← 1 space: 소스만 줄바꿈, 뷰는 한 줄로 이어짐
+에이전트는 모델이 짠 코드처럼 무엇을 할지 모를 것을 돌립니다.
+
+검색은 *어디를* 볼지 찾습니다.␣␣                                       ← 2 spaces: 뷰에서도 줄이 바뀜
+스크래핑은 *그 페이지를* 읽어 옵니다.
 ```
 
-(`␣␣` marks the two trailing spaces; they are literal spaces in the file, not a
-symbol.)
+(`␣` marks one trailing space and `␣␣` two; they are literal spaces in the file,
+not symbols.)
 
-Contrast the alternatives:
-
-- A **blank line** instead starts a new paragraph, which adds vertical spacing —
-  use that when you want the sentences visually separated, not tightly stacked.
-- With **neither**, soft-wrapped source lines collapse into a single rendered
-  line, so the break you see in the source disappears on the page.
+So when you want a paragraph to keep flowing but still wrap the source one
+sentence per line, end each line with **one** trailing space. When you want the
+sentences to actually render stacked, use **two**.
 
 Caveats:
 
-- The two spaces are **invisible**, and many editors/formatters strip trailing
-  whitespace on save. If a break vanishes on the rendered page, check the two
-  spaces survived — `cat -A` shows each line ending in two spaces then `$`.
+- The trailing spaces are **invisible**, and many editors/formatters strip
+  trailing whitespace on save (which silently turns a one-space soft wrap into a
+  plain newline — same render — and a two-space hard break into a collapsed line).
+  This is why [`.prettierignore`](../.prettierignore) keeps Markdown out of
+  Prettier. `cat -A` shows each line ending in its spaces then `$`.
 - This is the one case where the ~90-column wrap rule below does **not** apply: a
   line laid out for a deliberate break stays on its own line even if it runs long.
 
