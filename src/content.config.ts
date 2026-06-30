@@ -114,6 +114,7 @@ const articles = defineCollection({
       // category browse pages + grouped index, like a stack's category).
       category: z.string().optional(),
       tools: z.array(z.string()).default([]),
+      related: z.array(z.string()).default([]), // related article slugs (mutual cross-links)
       // Optional runnable sample (samples/<folder>/) the article walks through.
       // Embed its viewer in the body with <SampleProject folder="…"/>; this
       // field powers the right-rail file list + related tools (like a stack's

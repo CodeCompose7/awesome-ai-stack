@@ -2,7 +2,7 @@
 import { render } from 'astro:content';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { getStacks, slugOf } from '../lib/stacks';
-import { articleSlugOf, type ArticleEntry } from '../lib/articles';
+import { getArticles, articleSlugOf, type ArticleEntry } from '../lib/articles';
 import { getConcepts, type ConceptEntry } from '../lib/concepts';
 import { Image } from 'astro:assets';
 import { useTranslations, type Lang } from '../i18n/ui';
@@ -13,6 +13,7 @@ import Breadcrumb from './Breadcrumb.astro';
 import { articleTree, articleCatOf } from '../data/article-categories';
 import RelatedTools from './RelatedTools.astro';
 import RelatedConcepts from './RelatedConcepts.astro';
+import RelatedArticles from './RelatedArticles.astro';
 import { renderProjects } from '../lib/project';
 import type { RelatedTool } from './ProjectRelatedTools.astro';
 
@@ -37,6 +38,13 @@ const articleSlug = articleSlugOf(entry);
 const relatedConcepts = (await getConcepts(lang)).filter((c) =>
   c.data.articles.includes(articleSlug),
 ) as ConceptEntry[];
+
+// Related writing: articles this one explicitly cross-links (frontmatter
+// `related`), kept in the authored order.
+const articlesBySlug = new Map((await getArticles(lang)).map((a) => [articleSlugOf(a), a]));
+const relatedArticles = data.related
+  .map((s) => articlesBySlug.get(s))
+  .filter((a): a is ArticleEntry => Boolean(a) && articleSlugOf(a!) !== articleSlug);
 
 // Optional embedded sample (samples/<folder>/): its file list + related tools
 // go in the right rail, mirroring a stack's implementation tab. The body still
@@ -114,5 +122,7 @@ const crumbs = [
 </div>
 
 <RelatedTools lang={lang} slugs={data.tools} />
+
+<RelatedArticles lang={lang} articles={relatedArticles} />
 
 {bodyHasMermaid && <MermaidLoader />}
