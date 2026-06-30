@@ -89,7 +89,11 @@ def main() -> None:
     agent = create_agent(model, tools=[run_python])
 
     result = agent.invoke({"messages": [{"role": "user", "content": question}]})
-    print(message_text(result["messages"][-1].content))
+    final = result["messages"][-1]
+    answer = (message_text(final.content) or "").strip()
+    # Never exit silently: if the final message had no text, show the raw message
+    # so a misrouted model or a swallowed tool error is visible.
+    print(answer or f"[no text in the final message] {final!r}")
 
 
 if __name__ == "__main__":
