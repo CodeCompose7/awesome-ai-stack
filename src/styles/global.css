@@ -544,6 +544,16 @@ summary {
   padding: 0.1rem 0.35rem;
   font-size: 0.85em;
 }
+/* Tiny inline Markdown (`code`/bold/italic) rendered into description fields
+   shown outside .prose — detail headers, cards, and related-item links. */
+.aas-md code {
+  font-family: var(--aas-mono, ui-monospace, monospace);
+  background: var(--aas-panel);
+  border: 1px solid var(--aas-border);
+  border-radius: 0.3rem;
+  padding: 0.05rem 0.3rem;
+  font-size: 0.85em;
+}
 /* Code blocks — but not Mermaid diagrams, which carry their own background. */
 .prose :where(pre:not(.mermaid)) {
   background: #0e1117 !important;

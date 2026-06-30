@@ -8,6 +8,7 @@
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { getConcepts, conceptSlugOf, type ConceptEntry } from '../lib/concepts';
 import { useTranslations, type Lang } from '../i18n/ui';
+import { inlineMd } from '../lib/inline-md';
 
 interface Props {
   slug: string;
@@ -34,7 +35,7 @@ const target = concepts.find((c) => conceptSlugOf(c) === slug) as ConceptEntry |
           {t('concept.learnMore')}
         </span>
         <span class="mt-0.5 block font-semibold text-[var(--aas-text)]">{target.data.title}</span>
-        <span class="mt-1 block text-sm text-[var(--aas-muted)]">{target.data.description}</span>
+        <span class="aas-md mt-1 block text-sm text-[var(--aas-muted)]" set:html={inlineMd(target.data.description)} />
       </div>
       <span aria-hidden="true" class="shrink-0 text-xl text-[var(--aas-accent)]">
         &rarr;

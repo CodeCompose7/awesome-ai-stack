@@ -3,6 +3,7 @@ import { render } from 'astro:content';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { getArticles, articleSlugOf, type ArticleEntry } from '../lib/articles';
 import { getConcepts, conceptSlugOf, conceptToolSlugs, type ConceptEntry } from '../lib/concepts';
+import { inlineMd } from '../lib/inline-md';
 import { Image } from 'astro:assets';
 import { useTranslations, type Lang } from '../i18n/ui';
 import MermaidLoader from './MermaidLoader.astro';
@@ -74,7 +75,7 @@ const crumbs = [
       </p>
     )
   }
-  <p class="mt-2 text-lg whitespace-pre-line text-[var(--aas-muted)]">{data.description}</p>
+  <p class="mt-2 aas-md text-lg whitespace-pre-line text-[var(--aas-muted)]" set:html={inlineMd(data.description)} />
   {
     data.image && (
       <Image

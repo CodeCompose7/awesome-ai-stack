@@ -3,6 +3,7 @@ import { getRelativeLocaleUrl } from 'astro:i18n';
 import { pricingLabels, useTranslations, type Lang } from '../i18n/ui';
 import { getRepoStats, formatStars, stalenessOf } from '../lib/github';
 import { pricingTags, COMPLETELY_FREE } from '../lib/pricing';
+import { inlineMd } from '../lib/inline-md';
 import ToolAvatar from './ToolAvatar.astro';
 import ToolMeta from './ToolMeta.astro';
 import StarIcon from './StarIcon.astro';
@@ -101,7 +102,11 @@ const searchText = `${name} ${description} ${tags.join(' ')}`.toLowerCase();
       </div>
     </div>
 
-    <p class="mt-2 text-sm leading-relaxed text-[var(--aas-muted)]" data-card-desc>{description}</p>
+    <p
+      class="aas-md mt-2 text-sm leading-relaxed text-[var(--aas-muted)]"
+      data-card-desc
+      set:html={inlineMd(description)}
+    />
 
     {/* Secondary facts: version · release date · language · license.
         Hidden in the compact gallery view (see [data-view=gallery] in CSS). */}

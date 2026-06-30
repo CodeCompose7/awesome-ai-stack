@@ -3,6 +3,7 @@ import { Image } from 'astro:assets';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { useTranslations, type Lang } from '../i18n/ui';
 import { formatDate } from '../lib/dates';
+import { inlineMd } from '../lib/inline-md';
 import type { ImageMetadata } from 'astro';
 
 interface Props {
@@ -39,7 +40,10 @@ const t = useTranslations(lang);
       )
     }
     <h3 class="mt-1 text-lg font-semibold text-[var(--aas-text)]">{title}</h3>
-    <p class="mt-2 text-sm leading-relaxed text-[var(--aas-muted)]">{description}</p>
+    <p
+      class="aas-md mt-2 text-sm leading-relaxed text-[var(--aas-muted)]"
+      set:html={inlineMd(description)}
+    />
     {
       tags.length > 0 && (
         <div class="mt-3 flex flex-wrap gap-1.5">

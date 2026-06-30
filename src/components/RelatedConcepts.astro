@@ -7,6 +7,7 @@ import { Image } from 'astro:assets';
 import { conceptSlugOf, type ConceptEntry } from '../lib/concepts';
 import { useTranslations, type Lang } from '../i18n/ui';
 import { formatDate } from '../lib/dates';
+import { inlineMd } from '../lib/inline-md';
 import CollapsibleGrid from './CollapsibleGrid.astro';
 
 interface Props {
@@ -48,9 +49,10 @@ const t = useTranslations(lang);
                   )}
                 </span>
               )}
-              <span class="mt-1.5 line-clamp-2 text-xs leading-relaxed text-[var(--aas-muted)] opacity-75">
-                {c.data.description}
-              </span>
+              <span
+                class="aas-md mt-1.5 line-clamp-2 text-xs leading-relaxed text-[var(--aas-muted)] opacity-75"
+                set:html={inlineMd(c.data.description)}
+              />
             </div>
           </a>
         ))}

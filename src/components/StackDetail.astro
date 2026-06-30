@@ -7,6 +7,7 @@ import { pricingLabels, useTranslations, type Lang } from '../i18n/ui';
 import { pricingTags, COMPLETELY_FREE } from '../lib/pricing';
 import StarIcon from './StarIcon.astro';
 import { getStacks, slugOf, slugifyName, type StackEntry } from '../lib/stacks';
+import { inlineMd } from '../lib/inline-md';
 import { getArticlesForTool, articleSlugOf } from '../lib/articles';
 import { getConceptsForTool, conceptSlugOf } from '../lib/concepts';
 import ToolAvatar from './ToolAvatar.astro';
@@ -156,7 +157,7 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
           </div>
         </div>
 
-        <p class="mt-3 max-w-2xl text-lg text-[var(--aas-muted)]">{data.description}</p>
+        <p class="mt-3 aas-md max-w-2xl text-lg text-[var(--aas-muted)]" set:html={inlineMd(data.description)} />
 
         <div class="mt-4 flex flex-wrap gap-2 text-sm">
           {
@@ -291,9 +292,10 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
                   )}
                 </span>
               )}
-              <span class="mt-1.5 line-clamp-2 text-xs leading-relaxed text-[var(--aas-muted)] opacity-75">
-                {c.data.description}
-              </span>
+              <span
+                class="aas-md mt-1.5 line-clamp-2 text-xs leading-relaxed text-[var(--aas-muted)] opacity-75"
+                set:html={inlineMd(c.data.description)}
+              />
             </div>
           </a>
         ))}

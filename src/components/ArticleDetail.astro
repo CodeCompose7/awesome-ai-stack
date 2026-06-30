@@ -7,6 +7,7 @@ import { getConcepts, type ConceptEntry } from '../lib/concepts';
 import { Image } from 'astro:assets';
 import { useTranslations, type Lang } from '../i18n/ui';
 import { formatDate } from '../lib/dates';
+import { inlineMd } from '../lib/inline-md';
 import TocRail from './TocRail.astro';
 import MermaidLoader from './MermaidLoader.astro';
 import Breadcrumb from './Breadcrumb.astro';
@@ -100,7 +101,7 @@ const crumbs = [
     )}
   </p>
   <h1 class="mt-1 text-3xl font-bold tracking-tight">{data.title}</h1>
-  <p class="mt-2 text-lg whitespace-pre-line text-[var(--aas-muted)]">{data.description}</p>
+  <p class="mt-2 aas-md text-lg whitespace-pre-line text-[var(--aas-muted)]" set:html={inlineMd(data.description)} />
   {
     data.image && (
       <Image
