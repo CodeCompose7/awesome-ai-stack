@@ -5,7 +5,7 @@ import Breadcrumb from './Breadcrumb.astro';
 import ListControls from './ListControls.astro';
 
 const PAGE = 12;
-import { articleTree } from '../data/article-categories';
+import { articleTree, articleCatOf } from '../data/article-categories';
 import { getArticles, articleSlugOf, type ArticleEntry } from '../lib/articles';
 import { useTranslations, type Lang } from '../i18n/ui';
 
@@ -24,12 +24,12 @@ const catUrl = (cid: string) => getRelativeLocaleUrl(lang, `article/category/${c
 
 const itemsIn = (cid: string): ArticleEntry[] => {
   const ids = new Set(articleTree.descendantIds(cid));
-  return all.filter((a) => a.data.category && ids.has(a.data.category));
+  return all.filter((a) => ids.has(articleCatOf(a.data.category)));
 };
 
 const node = categoryId ? articleTree.map.get(categoryId) : undefined;
 const sections = node ? articleTree.childrenOf(node.id) : articleTree.roots;
-const direct = node ? all.filter((a) => a.data.category === node.id) : [];
+const direct = node ? all.filter((a) => articleCatOf(a.data.category) === node.id) : [];
 
 // A leaf category page shows one flat list — that grid gets ?page= pagination.
 // Index and parent-category pages stay grouped overviews: each section is

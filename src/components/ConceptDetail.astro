@@ -8,7 +8,7 @@ import { useTranslations, type Lang } from '../i18n/ui';
 import MermaidLoader from './MermaidLoader.astro';
 import TocRail from './TocRail.astro';
 import Breadcrumb from './Breadcrumb.astro';
-import { conceptTree } from '../data/concept-categories';
+import { conceptTree, conceptCatOf } from '../data/concept-categories';
 import RelatedTools from './RelatedTools.astro';
 import RelatedConcepts from './RelatedConcepts.astro';
 import RelatedArticles from './RelatedArticles.astro';
@@ -50,7 +50,7 @@ const fmtDate = (d: Date) =>
 // Breadcrumb: All concepts › category › subcategory… (each segment linked).
 const crumbs = [
   { label: t('concept.backToConcepts'), href: getRelativeLocaleUrl(lang, 'concept/') },
-  ...(data.category ? conceptTree.pathOf(data.category) : []).map((c) => ({
+  ...conceptTree.pathOf(conceptCatOf(data.category)).map((c) => ({
     label: c.label[lang],
     href: getRelativeLocaleUrl(lang, `concept/category/${c.id}/`),
   })),

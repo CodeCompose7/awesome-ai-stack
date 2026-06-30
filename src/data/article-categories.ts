@@ -32,6 +32,28 @@ export const articleCategories: Category[] = [
       ko: '비슷한 도구를 견주고 무엇을 고를지 정리',
     },
   },
+  // Fallback bucket for articles with no (or an unknown) `category`. Kept last
+  // so it renders after the curated categories. See `articleCatOf`.
+  {
+    id: 'article-uncategorized',
+    label: { en: 'Uncategorized', ko: '미분류' },
+    description: {
+      en: 'Writing not yet sorted into a category',
+      ko: '아직 분류에 들어가지 않은 글',
+    },
+  },
 ];
 
 export const articleTree = buildTree(articleCategories);
+
+/** Id of the fallback category that holds articles without a real category. */
+export const UNCATEGORIZED_ARTICLE = 'article-uncategorized';
+
+/**
+ * Resolve an article's frontmatter `category` to a real tree id, mapping a
+ * missing or unknown value to the uncategorized bucket. Use this everywhere an
+ * article is placed into the taxonomy (index sections, category pages,
+ * breadcrumbs) so nothing silently disappears.
+ */
+export const articleCatOf = (category?: string | null): string =>
+  category && articleTree.map.has(category) ? category : UNCATEGORIZED_ARTICLE;

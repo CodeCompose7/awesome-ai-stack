@@ -10,7 +10,7 @@ import { formatDate } from '../lib/dates';
 import TocRail from './TocRail.astro';
 import MermaidLoader from './MermaidLoader.astro';
 import Breadcrumb from './Breadcrumb.astro';
-import { articleTree } from '../data/article-categories';
+import { articleTree, articleCatOf } from '../data/article-categories';
 import RelatedTools from './RelatedTools.astro';
 import RelatedConcepts from './RelatedConcepts.astro';
 import { renderProjects } from '../lib/project';
@@ -71,7 +71,7 @@ const projectFiles = renderedProject
 // Breadcrumb: All writing › category › subcategory… (each segment linked).
 const crumbs = [
   { label: t('article.backToBlog'), href: getRelativeLocaleUrl(lang, 'article/') },
-  ...(data.category ? articleTree.pathOf(data.category) : []).map((c) => ({
+  ...articleTree.pathOf(articleCatOf(data.category)).map((c) => ({
     label: c.label[lang],
     href: getRelativeLocaleUrl(lang, `article/category/${c.id}/`),
   })),

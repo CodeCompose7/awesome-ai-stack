@@ -32,6 +32,28 @@ export const conceptCategories: Category[] = [
       },
     ],
   },
+  // Fallback bucket for concepts with no (or an unknown) `category`. Kept last
+  // so it renders after the curated categories. See `conceptCatOf`.
+  {
+    id: 'concept-uncategorized',
+    label: { en: 'Uncategorized', ko: '미분류' },
+    description: {
+      en: 'Concepts not yet sorted into a category',
+      ko: '아직 분류에 들어가지 않은 개념',
+    },
+  },
 ];
 
 export const conceptTree = buildTree(conceptCategories);
+
+/** Id of the fallback category that holds concepts without a real category. */
+export const UNCATEGORIZED_CONCEPT = 'concept-uncategorized';
+
+/**
+ * Resolve a concept's frontmatter `category` to a real tree id, mapping a
+ * missing or unknown value to the uncategorized bucket. Use this everywhere a
+ * concept is placed into the taxonomy (index sections, category pages,
+ * breadcrumbs) so nothing silently disappears.
+ */
+export const conceptCatOf = (category?: string | null): string =>
+  category && conceptTree.map.has(category) ? category : UNCATEGORIZED_CONCEPT;
