@@ -993,3 +993,10 @@ summary {
 [data-projects] {
   font-family: var(--aas-sans);
 }
+/* …but the README *body* inside the viewer is running prose, not chrome, so in a
+   reading column give it the same serif as the article body. Its headings and
+   code keep the .aas-reading sans/mono rules — only the inherited gothic from
+   [data-projects] is undone for this text. */
+.aas-reading [data-readme-body] {
+  font-family: 'MaruBuri', ui-serif, Georgia, serif;
+}
