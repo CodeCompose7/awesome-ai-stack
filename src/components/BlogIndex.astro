@@ -2,7 +2,9 @@
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import ArticleCard from './ArticleCard.astro';
 import Breadcrumb from './Breadcrumb.astro';
-import SortToggle from './SortToggle.astro';
+import ListControls from './ListControls.astro';
+
+const PAGE = 12;
 import { articleTree } from '../data/article-categories';
 import { getArticles, articleSlugOf, type ArticleEntry } from '../lib/articles';
 import { useTranslations, type Lang } from '../i18n/ui';
@@ -28,6 +30,11 @@ const itemsIn = (cid: string): ArticleEntry[] => {
 const node = categoryId ? articleTree.map.get(categoryId) : undefined;
 const sections = node ? articleTree.childrenOf(node.id) : articleTree.roots;
 const direct = node ? all.filter((a) => a.data.category === node.id) : [];
+
+// A leaf category page shows one flat list — that grid gets ?page= pagination.
+// Index and parent-category pages stay grouped overviews: each section is
+// capped to PAGE cards with a "see all" link to the fuller list.
+const isLeaf = !!node && sections.length === 0;
 
 const path = node ? articleTree.pathOf(node.id) : [];
 const crumbs = node
@@ -74,11 +81,16 @@ const card = (a: ArticleEntry) => ({
 
 {all.length === 0 && <p class="mt-8 text-[var(--aas-muted)]">{t('blog.empty')}</p>}
 
-{all.length > 0 && <div class="mt-6"><SortToggle lang={lang} /></div>}
+{all.length > 0 && <div class="mt-6"><ListControls lang={lang} /></div>}
 
 {
   direct.length > 0 && (
-    <div class="mt-4 grid gap-5 sm:grid-cols-2" data-sortgrid>
+    <div
+      class="mt-4 grid gap-5 sm:grid-cols-2"
+      data-sortgrid
+      data-paginate={isLeaf ? true : undefined}
+      data-page-size={isLeaf ? PAGE : undefined}
+    >
       {direct.map((a) => (
         <ArticleCard {...card(a)} />
       ))}
@@ -103,12 +115,22 @@ const card = (a: ArticleEntry) => ({
           </h2>
           <p class="mt-1 text-sm text-[var(--aas-muted)]">{cat.description[lang]}</p>
           <div class="mt-4 grid gap-5 sm:grid-cols-2" data-sortgrid>
-            {items.map((a) => (
+            {items.slice(0, PAGE).map((a) => (
               <ArticleCard {...card(a)} />
             ))}
           </div>
+          {items.length > PAGE && (
+            <a
+              href={catUrl(cat.id)}
+              class="mt-3 inline-block text-sm font-medium text-[var(--aas-accent)] no-underline"
+            >
+              {t('list.seeAll').replace('{n}', String(items.length))} &rarr;
+            </a>
+          )}
         </section>
       )
     );
   })
 }
+
+{isLeaf && <nav data-pager aria-label="Pagination" class="mt-8 flex flex-wrap items-center justify-center gap-1.5" />}
