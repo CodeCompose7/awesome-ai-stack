@@ -261,10 +261,12 @@ const isDefaultHome = path === '' && lang === 'en';
             .forEach((d) => isDropdown(d) && (d.open = false));
       });
 
-      // On a narrow (mobile) viewport, open new-tab links in the *same* window
-      // instead — a stack of background tabs is awkward on a phone and back-nav
-      // is more natural. Desktop keeps target="_blank". This is progressive: the
-      // HTML ships _blank (the desktop default), and we only strip it on mobile,
+      // On a narrow (mobile) viewport, open *internal* new-tab links in the same
+      // window instead — a stack of background tabs is awkward on a phone and
+      // back-nav is more natural. Links to *other* sites keep target="_blank"
+      // everywhere (opening an external site in the current tab is jarring).
+      // Desktop keeps _blank for all. Progressive: the HTML ships _blank (the
+      // desktop default) and we only strip it for same-origin links on mobile,
       // so it degrades safely with JS off. Reacts to resize/orientation too.
       const blankMq = window.matchMedia('(max-width: 640px)');
       const applyBlankPolicy = () => {
@@ -273,7 +275,7 @@ const isDefaultHome = path === '' && lang === 'en';
           .querySelectorAll<HTMLAnchorElement>('a[target="_blank"], a[data-blank]')
           .forEach((a) => {
             if (mobile) {
-              if (a.getAttribute('target') === '_blank') {
+              if (a.getAttribute('target') === '_blank' && a.origin === location.origin) {
                 a.dataset.blank = '1';
                 const rel = a.getAttribute('rel');
                 if (rel) a.dataset.blankRel = rel;
