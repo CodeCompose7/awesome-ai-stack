@@ -98,3 +98,14 @@ container via `docker run`, with the isolation flags doing the real work:
 
 This is the *code execution* role from the **Sandboxing** concept made concrete:
 the model proposes, the sandbox disposes.
+
+---
+
+## Example run
+
+> The model writes the code and phrases the answer itself, so the wording can vary
+> slightly run to run. One run with `gemini/gemini-2.5-flash`:
+
+```text
+The 30th Fibonacci number is 832040.
+```
