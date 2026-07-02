@@ -25,7 +25,7 @@ import SampleProject from '../../../components/SampleProject.astro';
 
 ## 무엇을 만드나 \{#what-were-building}
 
-URL이 담긴 작업을 받으면 모델이 [Firecrawl](../../stack/firecrawl/)로 그 페이지를 마크다운으로 가져오고, 내용을 읽어 요약·답변하는 에이전트입니다.
+URL이 담긴 작업을 받으면 모델이 [[Firecrawl]]로 그 페이지를 마크다운으로 가져오고, 내용을 읽어 요약·답변하는 에이전트입니다.
 
 ```mermaid
 flowchart LR
@@ -84,8 +84,8 @@ flowchart TB
 
 ## 구현 \{#the-implementation}
 
-[LangGraph](../../stack/langgraph/)의 ReAct 루프에 `scrape` 도구 하나만 붙였습니다. 
-모델은 LiteLLM을 통해 라우팅되므로 같은 코드가 Claude·OpenAI·Gemini에서 모두 동작합니다.
+[[LangGraph]]의 ReAct 루프에 `scrape` 도구 하나만 붙였습니다. 
+모델은 [[LiteLLM]]을 통해 라우팅되므로 같은 코드가 Claude·OpenAI·Gemini에서 모두 동작합니다.
 
 <SampleProject folder="firecrawl_1" />
 

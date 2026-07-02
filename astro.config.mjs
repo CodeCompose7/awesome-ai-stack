@@ -6,6 +6,7 @@ import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import rehypeExternalLinks from 'rehype-external-links';
 import rehypeSlug from 'rehype-slug';
+import { glossary } from './src/data/glossary.mjs';
 
 // Prepend a "#" copy-link anchor to h2/h3/h4 headings (a global click handler
 // in BaseLayout copies the section URL). The "#" count per level is drawn via
@@ -93,6 +94,58 @@ function remarkMermaid() {
   return (/** @type {any} */ tree) => walk(tree);
 }
 
+// Turn `[[Term]]` (and `[[Term|display text]]`) wikilinks into links, resolving
+// each against the central glossary (src/data/glossary.mjs). Internal targets
+// emit the `../../stack|concept/<slug>/` relative form (locale- and base-agnostic
+// on the depth-3 detail routes); external `href` entries pass through and get
+// target="_blank" from rehype-external-links downstream. An unknown term throws,
+// failing the build so a typo can't silently degrade to plain text. Code spans
+// and fenced blocks are untouched (mdast `inlineCode`/`code` carry no children).
+function remarkGlossary() {
+  const RE = /\[\[\s*([^\]|]+?)\s*(?:\|\s*([^\]]+?)\s*)?\]\]/g;
+  /** @param {any} tree @param {any} file */
+  return (tree, file) => {
+    const path = (file && (file.path || (file.history && file.history[0]))) || '';
+    const lang = /[/\\]ko[/\\]/.test(path) ? 'ko' : 'en';
+    /** @param {any} l */
+    const labelOf = (l) => (typeof l === 'string' ? l : l[lang]);
+    /** @param {any} node */
+    const walk = (node) => {
+      if (!node.children) return;
+      /** @type {any[]} */
+      const out = [];
+      for (const child of node.children) {
+        if (child.type === 'text' && child.value.includes('[[')) {
+          let last = 0;
+          let m;
+          RE.lastIndex = 0;
+          while ((m = RE.exec(child.value))) {
+            if (m.index > last) out.push({ type: 'text', value: child.value.slice(last, m.index) });
+            const key = m[1].trim().toLowerCase().replace(/\s+/g, '-');
+            const entry = glossary[key];
+            if (!entry) throw new Error(`[glossary] unknown term "[[${m[1]}]]" in ${path}`);
+            const url = entry.stack
+              ? `../../stack/${entry.stack}/`
+              : entry.concept
+                ? `../../concept/${entry.concept}/`
+                : entry.href;
+            if (!url) throw new Error(`[glossary] term "${key}" needs one of stack/concept/href`);
+            const text = m[2] ? m[2].trim() : labelOf(entry.label);
+            out.push({ type: 'link', url, children: [{ type: 'text', value: text }] });
+            last = m.index + m[0].length;
+          }
+          if (last < child.value.length) out.push({ type: 'text', value: child.value.slice(last) });
+        } else {
+          walk(child);
+          out.push(child);
+        }
+      }
+      node.children = out;
+    };
+    walk(tree);
+  };
+}
+
 // https://astro.build/config
 export default defineConfig({
   // GitHub Pages project page. If you later attach a custom domain:
@@ -113,7 +166,7 @@ export default defineConfig({
   // Open external links in Markdown/MDX bodies in a new tab. Internal links
   // (no protocol) are left alone, so in-site navigation stays in the same tab.
   markdown: {
-    remarkPlugins: [remarkHeadingIds, remarkMermaid],
+    remarkPlugins: [remarkHeadingIds, remarkMermaid, remarkGlossary],
     rehypePlugins: [
       rehypeSlug,
       rehypeHeadingAnchors,
