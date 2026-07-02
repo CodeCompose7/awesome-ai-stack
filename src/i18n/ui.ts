@@ -16,10 +16,6 @@ export type Lang = keyof typeof languages;
 
 export const defaultLang: Lang = 'en';
 
-export function isLang(value: string): value is Lang {
-  return value in languages;
-}
-
 /** UI chrome strings, keyed by a dotted id. */
 export const ui = {
   en: {

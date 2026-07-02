@@ -13,52 +13,52 @@ const tabClass =
 
 <div data-tabs>
   <div role="tablist" class="inline-flex gap-1 rounded-xl bg-[var(--aas-tint)] p-1">
-    <button type="button" data-tab="overview" class={tabClass} aria-selected="true">
+    <button type="button" role="tab" id="tab-overview" aria-controls="panel-overview" data-tab="overview" class={tabClass} aria-selected="true">
       {overviewLabel}
     </button>
     {
       pricingLabel && (
-        <button type="button" data-tab="pricing" class={tabClass} aria-selected="false">
+        <button type="button" role="tab" id="tab-pricing" aria-controls="panel-pricing" data-tab="pricing" class={tabClass} aria-selected="false">
           {pricingLabel}
         </button>
       )
     }
     {
       codeLabel && (
-        <button type="button" data-tab="code" class={tabClass} aria-selected="false">
+        <button type="button" role="tab" id="tab-code" aria-controls="panel-code" data-tab="code" class={tabClass} aria-selected="false">
           {codeLabel}
         </button>
       )
     }
     {
       implLabel && (
-        <button type="button" data-tab="impl" class={tabClass} aria-selected="false">
+        <button type="button" role="tab" id="tab-impl" aria-controls="panel-impl" data-tab="impl" class={tabClass} aria-selected="false">
           {implLabel}
         </button>
       )
     }
   </div>
 
-  <div data-panel="overview" class="mt-6">
+  <div role="tabpanel" id="panel-overview" aria-labelledby="tab-overview" data-panel="overview" class="mt-6">
     <slot name="overview" />
   </div>
   {
     pricingLabel && (
-      <div data-panel="pricing" class="mt-6 hidden">
+      <div role="tabpanel" id="panel-pricing" aria-labelledby="tab-pricing" data-panel="pricing" class="mt-6 hidden">
         <slot name="pricing" />
       </div>
     )
   }
   {
     codeLabel && (
-      <div data-panel="code" class="mt-6 hidden">
+      <div role="tabpanel" id="panel-code" aria-labelledby="tab-code" data-panel="code" class="mt-6 hidden">
         <slot name="code" />
       </div>
     )
   }
   {
     implLabel && (
-      <div data-panel="impl" class="mt-6 hidden">
+      <div role="tabpanel" id="panel-impl" aria-labelledby="tab-impl" data-panel="impl" class="mt-6 hidden">
         <slot name="impl" />
       </div>
     )

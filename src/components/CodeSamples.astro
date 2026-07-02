@@ -96,12 +96,14 @@ const t = useTranslations(lang);
     const options = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-sample-option]'));
     const panels = Array.from(root.querySelectorAll<HTMLElement>('[data-sample-panel]'));
 
-    // The selected example lives in ?v=, always reflected (even index 0) so it
-    // matches how the impl tab always carries its ?ex=.
+    // The selected example lives in ?v=. The default (index 0) drops the param
+    // so there's one canonical URL per view — mirroring how DetailTabs drops
+    // ?tab for the default Overview tab.
     const V_PARAM = 'v';
     function writeV(index: string) {
       const url = new URL(location.href);
-      url.searchParams.set(V_PARAM, index);
+      if (index === '0') url.searchParams.delete(V_PARAM);
+      else url.searchParams.set(V_PARAM, index);
       history.replaceState(null, '', url.pathname + url.search + url.hash);
     }
 

@@ -223,7 +223,10 @@ function formatDate(iso: string): string {
       fpanels.forEach(function (fp) {
         fp.style.display = fp.dataset.filePath === file ? 'block' : 'none';
       });
-      active.querySelectorAll('[data-file]').forEach(function (b) {
+      // Match every copy of this project's file buttons — the inline list AND
+      // the fixed right rail (≥2xl) — like the module script does, so the rail
+      // doesn't flash the default (first-file) highlight before it syncs.
+      document.querySelectorAll('[data-file][data-file-folder="' + active.dataset.projectFolder + '"]').forEach(function (b) {
         b.setAttribute('aria-current', String(b.dataset.filePath === file));
       });
     })();

@@ -1,2 +1,2 @@
-deepeval>=2.0
-python-dotenv>=1.2
+deepeval>=2.0,<3
+python-dotenv>=1.2,<2

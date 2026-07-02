@@ -9,18 +9,15 @@ import { useTranslations, type Lang } from '../i18n/ui';
 // [data-pager] element. Both pieces mirror their state into the URL the way the
 // stacks catalog does, and degrade to "show everything" without JS.
 //
-// `curatedLabel` (concepts, which carry an editorial `order`) adds a first
-// option that restores the server order and is the default; without it
-// (articles) the default is `recent`, which already matches the server render.
+// The default is `recent`, which matches the server render (both indexes
+// pre-sort by date, ConceptIndex.astro:25-29 included).
 interface Props {
   lang: Lang;
-  curatedLabel?: string;
 }
 
-const { lang, curatedLabel } = Astro.props;
+const { lang } = Astro.props;
 const t = useTranslations(lang);
 const options = [
-  ...(curatedLabel ? [{ key: 'default', label: curatedLabel }] : []),
   { key: 'recent', label: t('sort.recent') },
   { key: 'alpha', label: t('sort.alpha') },
 ];
@@ -66,7 +63,7 @@ const menuClass =
     const buttons = Array.from(bar.querySelectorAll<HTMLButtonElement>('[data-sort]'));
     const labelEl = bar.querySelector<HTMLElement>('[data-sort-label]');
     const sortGrids = Array.from(document.querySelectorAll<HTMLElement>('[data-sortgrid]'));
-    // Snapshot the server-rendered (curated) order so it can be restored.
+    // Stable snapshot of each grid's cards — the source list every sort starts from.
     const original = new Map(sortGrids.map((g) => [g, Array.from(g.children) as HTMLElement[]]));
 
     const pageGrid = document.querySelector<HTMLElement>('[data-paginate]');
@@ -88,7 +85,7 @@ const menuClass =
       curSort = sort;
       for (const grid of sortGrids) {
         const cards = original.get(grid) ?? [];
-        const ordered = sort === 'default' ? cards : [...cards].sort(comparator(sort));
+        const ordered = [...cards].sort(comparator(sort));
         ordered.forEach((c) => grid.appendChild(c));
       }
       for (const b of buttons) {

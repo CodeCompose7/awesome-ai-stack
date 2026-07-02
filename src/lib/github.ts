@@ -175,8 +175,11 @@ export function stalenessOf(date?: string): Staleness {
   return 'fresh';
 }
 
-/** Compact star count, one decimal in k: 1234 → "1.2k", 35456 → "35.5k". */
+/** Compact star count, one decimal: 1234 → "1.2k", 35456 → "35.5k",
+ *  1200000 → "1.2M". The k→M cutover sits where k would round to "1000.0k". */
 export function formatStars(n: number): string {
   if (n < 1000) return String(n);
-  return (n / 1000).toFixed(1) + 'k';
+  const k = n / 1000;
+  if (k < 999.95) return k.toFixed(1) + 'k';
+  return (n / 1_000_000).toFixed(1) + 'M';
 }

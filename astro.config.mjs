@@ -193,7 +193,17 @@ export default defineConfig({
     },
   },
 
-  integrations: [mdx(), sitemap()],
+  integrations: [
+    mdx(),
+    // i18n option emits hreflang alternates so search engines associate each
+    // page with its twin in the other locale (/stack/x/ ↔ /ko/stack/x/).
+    sitemap({
+      i18n: {
+        defaultLocale: 'en',
+        locales: { en: 'en', ko: 'ko' },
+      },
+    }),
+  ],
 
   // Open external links in Markdown/MDX bodies in a new tab. Internal links
   // (no protocol) are left alone, so in-site navigation stays in the same tab.
