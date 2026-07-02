@@ -1,5 +1,6 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
+import { categoryMap } from './data/categories';
 
 /**
  * The `stacks` collection holds one entry per tool/service used to build
@@ -23,7 +24,12 @@ const stacks = defineCollection({
     // The organization / company / person that makes and maintains the tool
     // (e.g. "Microsoft"). Powers the per-vendor browse pages at /vendors/<slug>.
     vendor: z.string().optional(),
-    category: z.string(),
+    // Must be a node id from the tree in src/data/categories.ts. Validated here
+    // because an unknown id would not error anywhere downstream — the entry
+    // would just silently drop out of the homepage and every category page.
+    category: z.string().refine((id) => categoryMap.has(id), {
+      message: 'unknown category id — must match a node in src/data/categories.ts',
+    }),
     description: z.string(),
     logo: z.string().optional(), // optional image URL/path; otherwise a monogram is shown
     logoDark: z.string().optional(), // optional dark-theme variant of `logo`

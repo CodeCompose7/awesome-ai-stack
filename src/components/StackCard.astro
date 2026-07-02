@@ -3,6 +3,7 @@ import { getRelativeLocaleUrl } from 'astro:i18n';
 import { pricingLabels, useTranslations, type Lang } from '../i18n/ui';
 import { getRepoStats, formatStars, stalenessOf } from '../lib/github';
 import { pricingTags, COMPLETELY_FREE } from '../lib/pricing';
+import { isImageRef, resolveImageUrl } from '../lib/assets';
 import { inlineMd } from '../lib/inline-md';
 import ToolAvatar from './ToolAvatar.astro';
 import ToolMeta from './ToolMeta.astro';
@@ -34,13 +35,7 @@ const href = getRelativeLocaleUrl(lang, `stack/${slug}/`);
 
 // Resolved logo URL (for the blurred backdrop in the gallery view). Only image
 // logos qualify; monograms/emoji have nothing to blur.
-const base = import.meta.env.BASE_URL;
-const isImageLogo = !!logo && (/^https?:\/\//.test(logo) || logo.startsWith('/'));
-const logoUrl = !isImageLogo
-  ? undefined
-  : /^https?:\/\//.test(logo!)
-    ? logo!
-    : base.replace(/\/$/, '') + '/' + logo!.replace(/^\//, '');
+const logoUrl = isImageRef(logo) ? resolveImageUrl(logo) : undefined;
 
 // Live stats from GitHub (build-time), with the manual `version` as fallback.
 const stats = await getRepoStats(repo);

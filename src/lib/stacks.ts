@@ -64,7 +64,12 @@ export async function getStacksByTag(lang: Lang, tag: string): Promise<StackEntr
 export async function getAllVendors(lang: Lang): Promise<string[]> {
   const stacks = await getStacks(lang);
   const set = new Set<string>();
-  for (const s of stacks) if (s.data.vendor) set.add(slugifyName(s.data.vendor));
+  for (const s of stacks) {
+    // A vendor with no Latin/digit characters (e.g. a Korean-only name)
+    // slugifies to '' — skip it rather than emit a broken /vendors/ route.
+    const slug = s.data.vendor ? slugifyName(s.data.vendor) : '';
+    if (slug) set.add(slug);
+  }
   return [...set].sort();
 }
 
@@ -74,6 +79,41 @@ export async function getStacksByVendor(lang: Lang, slug: string): Promise<Stack
   return stacks
     .filter((s) => s.data.vendor && slugifyName(s.data.vendor) === slug)
     .sort((a, b) => a.data.name.localeCompare(b.data.name));
+}
+
+/**
+ * A tool referenced by slug, resolved for display (avatar + link + flags).
+ * Unknown slugs — no matching mdx — carry `registered: false` and only a
+ * display name, so the UI can render them as "not in our catalog".
+ */
+export interface ToolRef {
+  slug: string;
+  name: string;
+  registered: boolean;
+  logo?: string;
+  logoDark?: string;
+  category?: string;
+  deprecated?: boolean;
+}
+
+/** Build a slug → ToolRef resolver over a locale's stacks (one lookup map,
+ *  reused across many slugs — e.g. a project's related-tools lists). */
+export async function toolResolver(lang: Lang): Promise<(slug: string) => ToolRef> {
+  const stacks = await getStacks(lang);
+  const bySlug = new Map(stacks.map((s) => [slugOf(s), s]));
+  return (slug) => {
+    const e = bySlug.get(slug);
+    if (!e) return { slug, name: slug, registered: false };
+    return {
+      slug,
+      name: e.data.name,
+      registered: true,
+      logo: e.data.logo,
+      logoDark: e.data.logoDark,
+      category: e.data.category,
+      deprecated: e.data.deprecated,
+    };
+  };
 }
 
 /**

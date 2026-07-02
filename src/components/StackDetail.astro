@@ -6,7 +6,8 @@ import { pathOf } from '../data/categories';
 import { pricingLabels, useTranslations, type Lang } from '../i18n/ui';
 import { pricingTags, COMPLETELY_FREE } from '../lib/pricing';
 import StarIcon from './StarIcon.astro';
-import { getStacks, slugOf, slugifyName, type StackEntry } from '../lib/stacks';
+import { slugOf, slugifyName, toolResolver, type StackEntry } from '../lib/stacks';
+import { isImageRef, resolveImageUrl } from '../lib/assets';
 import { inlineMd } from '../lib/inline-md';
 import { getArticlesForTool, articleSlugOf } from '../lib/articles';
 import { getConceptsForTool, conceptSlugOf } from '../lib/concepts';
@@ -20,7 +21,7 @@ import MermaidLoader from './MermaidLoader.astro';
 import RelatedTools from './RelatedTools.astro';
 import CollapsibleGrid from './CollapsibleGrid.astro';
 import ProjectViewer from './ProjectViewer.astro';
-import ProjectRelatedTools, { type RelatedTool } from './ProjectRelatedTools.astro';
+import ProjectRelatedTools from './ProjectRelatedTools.astro';
 import ProjectFileList from './ProjectFileList.astro';
 import Toc from './Toc.astro';
 import { getRepoStats, stalenessOf, formatStars } from '../lib/github';
@@ -62,13 +63,9 @@ const displayVersion = stats?.version ?? data.version;
 
 // Resolved logo URL for the hero card's blurred ambient backdrop (image logos
 // only; monograms/emoji have nothing to blur).
-const base = import.meta.env.BASE_URL;
-const isImageLogo = !!data.logo && (/^https?:\/\//.test(data.logo) || data.logo.startsWith('/'));
-const logoUrl = !isImageLogo
-  ? undefined
-  : /^https?:\/\//.test(data.logo!)
-    ? data.logo!
-    : base.replace(/\/$/, '') + '/' + data.logo!.replace(/^\//, '');
+const logoUrl = isImageRef(data.logo) ? resolveImageUrl(data.logo) : undefined;
+// Vendor link slug; empty (e.g. a non-Latin vendor name) → plain text, no link.
+const vendorSlug = data.vendor ? slugifyName(data.vendor) : '';
 // Warn when an open-source project's latest release is getting old (6m / 1y).
 const staleness = data.pricing.includes('open-source') ? stalenessOf(stats?.releasedAt) : 'fresh';
 
@@ -96,21 +93,7 @@ const hasTabs = hasSamples || hasProject || hasPricing;
 // Resolve each project's related tool slugs against the stacks collection. A
 // known slug links to its page; an unknown one shows as "not in our catalog".
 const relatedByFolder = new Map(projectSpecs.map((p) => [p.folder, p.related]));
-const allStacks = hasProject ? await getStacks(lang) : [];
-const stackBySlug = new Map(allStacks.map((s) => [slugOf(s), s]));
-function resolveTool(slug: string): RelatedTool {
-  const e = stackBySlug.get(slug);
-  if (!e) return { slug, name: slug, registered: false };
-  return {
-    slug,
-    name: e.data.name,
-    registered: true,
-    logo: e.data.logo,
-    logoDark: e.data.logoDark,
-    category: e.data.category,
-    deprecated: e.data.deprecated,
-  };
-}
+const resolveTool = await toolResolver(lang);
 // The right rail's impl block carries, per example: its related tools plus its
 // file list (the file list lives here on ≥2xl screens, inline otherwise).
 const projectRail = projects.map((p) => ({
@@ -141,12 +124,16 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
             {data.vendor && (
               <p class="mt-0.5 text-sm text-[var(--aas-muted)]">
                 {t('vendor.heading')}{' '}
-                <a
-                  href={getRelativeLocaleUrl(lang, `vendors/${slugifyName(data.vendor)}/`)}
-                  class="text-[var(--aas-accent)] no-underline hover:underline"
-                >
-                  {data.vendor}
-                </a>
+                {vendorSlug ? (
+                  <a
+                    href={getRelativeLocaleUrl(lang, `vendors/${vendorSlug}/`)}
+                    class="text-[var(--aas-accent)] no-underline hover:underline"
+                  >
+                    {data.vendor}
+                  </a>
+                ) : (
+                  <span>{data.vendor}</span>
+                )}
               </p>
             )}
             {data.formerNames.length > 0 && (
@@ -382,7 +369,19 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
       )
     }
   </div>
-  <button type="button" class="aas-toc-top" data-back-to-top>↑ {t('top.label')}</button>
+  <div class="aas-toc-foot">
+    <button type="button" class="aas-toc-top" data-back-to-top>↑ {t('top.label')}</button>
+    <button
+      type="button"
+      class="aas-toc-allbtn"
+      data-toggle-all
+      data-collapse={t('toc.collapseAll')}
+      data-expand={t('toc.expandAll')}
+      hidden
+    >
+      {t('toc.collapseAll')}
+    </button>
+  </div>
 </aside>
 </div>
 
@@ -404,28 +403,23 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
 )}
 
 <script>
+  import { startScrollSpy, initBackToTop, initReveals } from '../lib/toc-rail-client';
+
   const rail = document.querySelector<HTMLElement>('[data-toc-rail]');
+  // Scroll-spy + back-to-top + prose-<details> persistence, shared with
+  // TocRail.astro. The tab/version/example handlers below re-run the spy after
+  // changing which headings are visible.
+  const spy = rail ? startScrollSpy(rail) : () => {};
+  if (rail) {
+    initBackToTop(rail);
+    initReveals(rail);
+  }
 
   // Swap the rail's TOC with the active tab.
   const syncToc = (id: string) =>
     rail
       ?.querySelectorAll<HTMLElement>('[data-toc]')
       .forEach((el) => el.classList.toggle('hidden', el.dataset.toc !== id));
-
-  // Scroll-spy: highlight the section nearest the top of the viewport.
-  function spy() {
-    if (!rail) return;
-    const links = Array.from(rail.querySelectorAll<HTMLAnchorElement>('a[href^="#"]'));
-    let activeId: string | null = null;
-    for (const a of links) {
-      const id = a.getAttribute('href')!.slice(1);
-      const h = document.getElementById(id);
-      if (h && h.offsetParent !== null && h.getBoundingClientRect().top <= 140) activeId = id;
-    }
-    links.forEach((a) =>
-      a.setAttribute('aria-current', String(a.getAttribute('href')!.slice(1) === activeId)),
-    );
-  }
 
   document.addEventListener('aas:tabchange', (e) => {
     syncToc((e as CustomEvent<{ id: string }>).detail.id);
@@ -459,13 +453,8 @@ const relatedToolsByFolder = new Map(projectRail.map((p) => [p.folder, p.tools])
     spy();
   });
 
-  window.addEventListener('scroll', spy, { passive: true });
+  // Re-run once after the initial tab/example sync above settled visibility.
   spy();
-
-  // Back-to-top, pinned at the bottom of the rail.
-  rail
-    ?.querySelector('[data-back-to-top]')
-    ?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
   // Persist file-tree folder collapse to localStorage. The same folder shows
   // twice (inline list + rail), so toggling one mirrors the other. The initial

@@ -2,19 +2,12 @@
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { categoryMap } from '../data/categories';
 import { useTranslations, type Lang } from '../i18n/ui';
+import type { ToolRef } from '../lib/stacks';
 import ToolAvatar from './ToolAvatar.astro';
 
-/** A related tool resolved against the stacks collection. Unregistered tools
- *  (no matching mdx) carry `registered: false` and only have a display name. */
-export interface RelatedTool {
-  slug: string;
-  name: string;
-  registered: boolean;
-  logo?: string;
-  logoDark?: string;
-  category?: string;
-  deprecated?: boolean;
-}
+/** A related tool resolved against the stacks collection — an alias of ToolRef
+ *  (produced by `toolResolver` in src/lib/stacks.ts). */
+export type RelatedTool = ToolRef;
 
 interface Props {
   lang: Lang;

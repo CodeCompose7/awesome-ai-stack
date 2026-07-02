@@ -1,7 +1,7 @@
 ---
 import { render } from 'astro:content';
 import { getRelativeLocaleUrl } from 'astro:i18n';
-import { getStacks, slugOf } from '../lib/stacks';
+import { toolResolver } from '../lib/stacks';
 import { getArticles, articleSlugOf, type ArticleEntry } from '../lib/articles';
 import { getConcepts, type ConceptEntry } from '../lib/concepts';
 import { Image } from 'astro:assets';
@@ -51,28 +51,14 @@ const relatedArticles = (data.related ?? [])
 // go in the right rail, mirroring a stack's implementation tab. The body still
 // renders the viewer via <SampleProject folder="…"/>; both share the folder, so
 // the rail's file buttons wire to the body viewer (matched document-wide).
-const stacks = await getStacks(lang);
-const bySlug = new Map(stacks.map((s) => [slugOf(s), s]));
 const projectSpec = data.project
   ? typeof data.project === 'string'
     ? { folder: data.project, related: [] as string[] }
     : { folder: data.project.folder, related: data.project.related }
   : null;
 const renderedProject = projectSpec ? (await renderProjects([projectSpec.folder], lang))[0] : undefined;
-function resolveTool(slug: string): RelatedTool {
-  const e = bySlug.get(slug);
-  if (!e) return { slug, name: slug, registered: false };
-  return {
-    slug,
-    name: e.data.name,
-    registered: true,
-    logo: e.data.logo,
-    logoDark: e.data.logoDark,
-    category: e.data.category,
-    deprecated: e.data.deprecated,
-  };
-}
-const railTools = projectSpec ? projectSpec.related.map(resolveTool) : [];
+const resolveTool = await toolResolver(lang);
+const railTools: RelatedTool[] = projectSpec ? projectSpec.related.map(resolveTool) : [];
 const projectFiles = renderedProject
   ? { folder: renderedProject.folder, files: renderedProject.files }
   : undefined;

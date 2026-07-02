@@ -63,61 +63,12 @@ const hasContent = items.length > 0 || relatedTools.length > 0 || Boolean(projec
 }
 
 <script>
+  import { startScrollSpy, initBackToTop, initReveals } from '../lib/toc-rail-client';
+
   const rail = document.querySelector<HTMLElement>('[data-toc-rail]');
   if (rail) {
-    const links = Array.from(rail.querySelectorAll<HTMLAnchorElement>('a[href^="#"]'));
-
-    // Scroll-spy: highlight the heading nearest the top of the viewport.
-    function spy() {
-      let activeId: string | null = null;
-      for (const a of links) {
-        const id = a.getAttribute('href')!.slice(1);
-        const h = document.getElementById(id);
-        if (h && h.getBoundingClientRect().top <= 140) activeId = id;
-      }
-      links.forEach((a) =>
-        a.setAttribute('aria-current', String(a.getAttribute('href')!.slice(1) === activeId)),
-      );
-    }
-    window.addEventListener('scroll', spy, { passive: true });
-    spy();
-
-    rail
-      .querySelector('[data-back-to-top]')
-      ?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-
-    // Prose reveals (<details> like "구체적인 예시"): open by default, remembered
-    // per page in localStorage, with a "collapse / expand all" toggle here.
-    const reveals = Array.from(
-      document.querySelectorAll<HTMLDetailsElement>('.prose details:not(.aas-tree-dir)'),
-    );
-    const allBtn = rail.querySelector<HTMLButtonElement>('[data-toggle-all]');
-    if (reveals.length) {
-      const key = (i: number) => `aas:reveal:${location.pathname}:${i}`;
-      const syncAll = () => {
-        if (!allBtn) return;
-        const anyOpen = reveals.some((d) => d.open);
-        allBtn.textContent = anyOpen ? allBtn.dataset.collapse! : allBtn.dataset.expand!;
-      };
-      reveals.forEach((d, i) => {
-        const saved = localStorage.getItem(key(i));
-        if (saved === '0') d.open = false;
-        else if (saved === '1') d.open = true;
-        d.addEventListener('toggle', () => {
-          try {
-            localStorage.setItem(key(i), d.open ? '1' : '0');
-          } catch {}
-          syncAll();
-        });
-      });
-      if (allBtn) {
-        allBtn.hidden = false;
-        allBtn.addEventListener('click', () => {
-          const open = !reveals.some((d) => d.open);
-          reveals.forEach((d) => (d.open = open));
-        });
-        syncAll();
-      }
-    }
+    startScrollSpy(rail);
+    initBackToTop(rail);
+    initReveals(rail);
   }
 </script>

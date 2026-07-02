@@ -1,23 +1,16 @@
-import type { Lang } from '../i18n/ui';
+import { buildTree, type Category } from './category-tree';
 
 /**
- * Canonical category tree. A category may have `children` (subcategories),
- * nestable to any depth. A stack's `category` frontmatter field points to the
- * most specific node it belongs to — a top-level category, or any subcategory.
+ * Canonical category tree for the tool catalog. A category may have `children`
+ * (subcategories), nestable to any depth. A stack's `category` frontmatter
+ * field points to the most specific node it belongs to — a top-level category,
+ * or any subcategory.
  *
  * `id` must be globally unique across the whole tree (it keys the URL at
  * `/categories/<id>/` and the `category` field in `src/content/stacks`).
  * Top-level order here is the order sections render on the homepage.
  */
-export interface Category {
-  id: string;
-  label: Record<Lang, string>;
-  /** Short one-liner used on cards, homepage sections, and subcategory summaries. */
-  description: Record<Lang, string>;
-  /** Longer explanation shown on the category's own page (falls back to `description`). */
-  detail?: Record<Lang, string>;
-  children?: Category[];
-}
+export type { Category } from './category-tree';
 
 export const categories: Category[] = [
   {
@@ -361,49 +354,25 @@ export const categories: Category[] = [
 /** Top-level categories (homepage sections), in display order. */
 export const rootCategories = categories;
 
-/** Every node by id (top-level and nested), and each node's parent id. */
-export const categoryMap = new Map<string, Category>();
-const parentOf = new Map<string, string | null>();
-(function index(nodes: Category[], parent: string | null) {
-  for (const c of nodes) {
-    categoryMap.set(c.id, c);
-    parentOf.set(c.id, parent);
-    if (c.children) index(c.children, c.id);
-  }
-})(categories, null);
+const tree = buildTree(categories);
+
+/** Every node by id (top-level and nested). */
+export const categoryMap = tree.map;
 
 /** All category ids, for static path generation. */
-export const allCategoryIds = [...categoryMap.keys()];
+export const allCategoryIds = tree.allIds;
 
 /** Root → node chain for an id (its breadcrumb path). Empty if unknown. */
-export function pathOf(id: string): Category[] {
-  const out: Category[] = [];
-  let cur: string | null = id;
-  while (cur) {
-    const c = categoryMap.get(cur);
-    if (!c) break;
-    out.unshift(c);
-    cur = parentOf.get(cur) ?? null;
-  }
-  return out;
-}
+export const pathOf = tree.pathOf;
+
+/** Direct children of a node (empty for leaves). */
+export const childrenOf = tree.childrenOf;
+
+/** A node's id plus all of its descendants' ids (for subtree roll-up). */
+export const descendantIds = tree.descendantIds;
 
 /** The top-level ancestor id of a node (itself if already top-level). */
 export function rootIdOf(id: string): string {
   const path = pathOf(id);
   return path.length ? path[0].id : id;
-}
-
-/** A node's id plus all of its descendants' ids (for subtree roll-up). */
-export function descendantIds(id: string): string[] {
-  const node = categoryMap.get(id);
-  if (!node) return [id];
-  const out = [id];
-  for (const child of node.children ?? []) out.push(...descendantIds(child.id));
-  return out;
-}
-
-/** Direct children of a node (empty for leaves). */
-export function childrenOf(id: string): Category[] {
-  return categoryMap.get(id)?.children ?? [];
 }
