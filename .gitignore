@@ -35,6 +35,12 @@ pnpm-debug.log*
 .aas-cache/
 .eslintcache
 
+# python (sample virtualenvs + caches, e.g. samples/*/.venv)
+.venv/
+venv/
+__pycache__/
+*.pyc
+
 # os
 .DS_Store
 Thumbs.db
