@@ -260,6 +260,36 @@ const isDefaultHome = path === '' && lang === 'en';
             .querySelectorAll<HTMLDetailsElement>('details[open]')
             .forEach((d) => isDropdown(d) && (d.open = false));
       });
+
+      // On a narrow (mobile) viewport, open new-tab links in the *same* window
+      // instead — a stack of background tabs is awkward on a phone and back-nav
+      // is more natural. Desktop keeps target="_blank". This is progressive: the
+      // HTML ships _blank (the desktop default), and we only strip it on mobile,
+      // so it degrades safely with JS off. Reacts to resize/orientation too.
+      const blankMq = window.matchMedia('(max-width: 640px)');
+      const applyBlankPolicy = () => {
+        const mobile = blankMq.matches;
+        document
+          .querySelectorAll<HTMLAnchorElement>('a[target="_blank"], a[data-blank]')
+          .forEach((a) => {
+            if (mobile) {
+              if (a.getAttribute('target') === '_blank') {
+                a.dataset.blank = '1';
+                const rel = a.getAttribute('rel');
+                if (rel) a.dataset.blankRel = rel;
+                a.removeAttribute('target');
+                a.removeAttribute('rel');
+              }
+            } else if (a.dataset.blank) {
+              a.setAttribute('target', '_blank');
+              if (a.dataset.blankRel) a.setAttribute('rel', a.dataset.blankRel);
+              delete a.dataset.blank;
+              delete a.dataset.blankRel;
+            }
+          });
+      };
+      applyBlankPolicy();
+      blankMq.addEventListener('change', applyBlankPolicy);
     </script>
   </body>
 </html>
