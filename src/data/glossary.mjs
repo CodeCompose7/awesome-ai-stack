@@ -33,4 +33,7 @@ export const glossary = {
   litellm: { label: 'LiteLLM', stack: 'litellm' },
   tavily: { label: 'Tavily', stack: 'tavily' },
   docker: { label: 'Docker', stack: 'docker' },
+  // Concept terms whose wording differs by locale: write [[도구]] / [[Tools]] /
+  // [[agent-tools]] — all resolve here and render the label for the page's locale.
+  'agent-tools': { label: { ko: '도구', en: 'Tools' }, concept: 'agent-tools' },
 };

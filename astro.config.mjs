@@ -103,6 +103,28 @@ function remarkMermaid() {
 // and fenced blocks are untouched (mdast `inlineCode`/`code` carry no children).
 function remarkGlossary() {
   const RE = /\[\[\s*([^\]|]+?)\s*(?:\|\s*([^\]]+?)\s*)?\]\]/g;
+  /** @param {string} s */
+  const norm = (s) => s.trim().toLowerCase().replace(/\s+/g, '-');
+  // Reverse index: an entry's id and each of its labels (any locale) all resolve
+  // to that entry, so authors can write the natural word in either language —
+  // [[도구]] / [[Tools]] — or the id ([[agent-tools]]). Ambiguity fails the build.
+  /** @type {Record<string, string>} */
+  const lookup = {};
+  /** @param {string} name @param {string} id */
+  const register = (name, id) => {
+    const k = norm(name);
+    if (lookup[k] && lookup[k] !== id)
+      throw new Error(`[glossary] ambiguous term "${k}" maps to both "${lookup[k]}" and "${id}"`);
+    lookup[k] = id;
+  };
+  for (const [id, e] of Object.entries(glossary)) {
+    register(id, id);
+    if (typeof e.label === 'string') register(e.label, id);
+    else {
+      register(e.label.ko, id);
+      register(e.label.en, id);
+    }
+  }
   /** @param {any} tree @param {any} file */
   return (tree, file) => {
     const path = (file && (file.path || (file.history && file.history[0]))) || '';
@@ -121,15 +143,15 @@ function remarkGlossary() {
           RE.lastIndex = 0;
           while ((m = RE.exec(child.value))) {
             if (m.index > last) out.push({ type: 'text', value: child.value.slice(last, m.index) });
-            const key = m[1].trim().toLowerCase().replace(/\s+/g, '-');
-            const entry = glossary[key];
+            const entry = glossary[lookup[norm(m[1])]];
             if (!entry) throw new Error(`[glossary] unknown term "[[${m[1]}]]" in ${path}`);
             const url = entry.stack
               ? `../../stack/${entry.stack}/`
               : entry.concept
                 ? `../../concept/${entry.concept}/`
                 : entry.href;
-            if (!url) throw new Error(`[glossary] term "${key}" needs one of stack/concept/href`);
+            if (!url)
+              throw new Error(`[glossary] term "[[${m[1]}]]" needs one of stack/concept/href`);
             const text = m[2] ? m[2].trim() : labelOf(entry.label);
             out.push({ type: 'link', url, children: [{ type: 'text', value: text }] });
             last = m.index + m[0].length;
