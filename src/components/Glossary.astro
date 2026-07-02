@@ -24,7 +24,7 @@ type Term = {
   href: string;
   subtitle: string;
   external: boolean;
-  icon: { name: string; logo?: string; logoDark?: string; category?: string };
+  icon: { name: string; logo?: string; logoDark?: string; category?: string; fallback?: string };
   catId: string;
   catLabel: string;
   search: string;
@@ -75,7 +75,7 @@ for (const e of Object.values(map)) {
       href: getRelativeLocaleUrl(lang, `concept/${e.concept}/`),
       subtitle: leaf?.label[lang] ?? '',
       external: false,
-      icon: { name: label },
+      icon: { name: label, fallback: 'concept' },
       catId: top?.id ?? 'zzz',
       catLabel: top?.label[lang] ?? '',
       search: `${label} ${leaf?.label[lang] ?? ''} ${top?.label[lang] ?? ''}`.toLowerCase(),
@@ -86,7 +86,7 @@ for (const e of Object.values(map)) {
       href: e.href ?? '#',
       subtitle: t('glossary.external'),
       external: true,
-      icon: { name: label },
+      icon: { name: label, fallback: 'external' },
       catId: '',
       catLabel: '',
       search: label.toLowerCase(),
@@ -162,7 +162,7 @@ const kinds = [
                     rel={term.external ? 'noopener noreferrer' : undefined}
                     class="aas-lift flex items-center gap-3 rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-3 no-underline"
                   >
-                    <ToolAvatar name={term.icon.name} logo={term.icon.logo} logoDark={term.icon.logoDark} category={term.icon.category} size={36} />
+                    <ToolAvatar name={term.icon.name} logo={term.icon.logo} logoDark={term.icon.logoDark} category={term.icon.category} fallback={term.icon.fallback} size={36} />
                     <span class="min-w-0">
                       <span class="block truncate font-semibold text-[var(--aas-text)]">{term.label}</span>
                       {term.subtitle && (
