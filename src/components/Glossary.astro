@@ -1,0 +1,59 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { glossary } from '../data/glossary.mjs';
+import { useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+type Entry = {
+  label: string | { ko: string; en: string };
+  stack?: string;
+  concept?: string;
+  href?: string;
+};
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const map = glossary as Record<string, Entry>;
+const labelOf = (l: Entry['label']) => (typeof l === 'string' ? l : l[lang]);
+
+// Resolve each glossary entry to its label, URL, and kind, then sort by label.
+const terms = Object.values(map)
+  .map((e) => {
+    const external = !!e.href;
+    const href = e.stack
+      ? getRelativeLocaleUrl(lang, `stack/${e.stack}/`)
+      : e.concept
+        ? getRelativeLocaleUrl(lang, `concept/${e.concept}/`)
+        : (e.href as string);
+    const kind = e.stack ? t('glossary.tool') : e.concept ? t('glossary.concept') : t('glossary.external');
+    return { label: labelOf(e.label), href, kind, external };
+  })
+  .sort((a, b) => a.label.localeCompare(b.label, lang));
+---
+
+<section class="py-6">
+  <h1 class="text-4xl font-bold tracking-tight">{t('glossary.title')}</h1>
+  <p class="mt-3 max-w-2xl text-lg text-[var(--aas-muted)]">{t('glossary.tagline')}</p>
+</section>
+
+<ul class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+  {
+    terms.map((term) => (
+      <li>
+        <a
+          href={term.href}
+          target={term.external ? '_blank' : undefined}
+          rel={term.external ? 'noopener noreferrer' : undefined}
+          class="aas-lift flex items-center justify-between gap-3 rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-3 no-underline"
+        >
+          <span class="min-w-0 truncate font-semibold text-[var(--aas-text)]">{term.label}</span>
+          <span class="shrink-0 text-xs text-[var(--aas-muted)]">{term.kind}</span>
+        </a>
+      </li>
+    ))
+  }
+</ul>
