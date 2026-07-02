@@ -143,17 +143,27 @@ function remarkGlossary() {
           RE.lastIndex = 0;
           while ((m = RE.exec(child.value))) {
             if (m.index > last) out.push({ type: 'text', value: child.value.slice(last, m.index) });
-            const entry = glossary[lookup[norm(m[1])]];
+            const id = lookup[norm(m[1])];
+            const entry = glossary[id];
             if (!entry) throw new Error(`[glossary] unknown term "[[${m[1]}]]" in ${path}`);
+            const def = entry.def ? labelOf(entry.def) : undefined;
+            // A def-only term (no page) links to its entry on the glossary page.
             const url = entry.stack
               ? `../../stack/${entry.stack}/`
               : entry.concept
                 ? `../../concept/${entry.concept}/`
-                : entry.href;
+                : entry.href
+                  ? entry.href
+                  : def
+                    ? `../../glossary/#${id}`
+                    : null;
             if (!url)
-              throw new Error(`[glossary] term "[[${m[1]}]]" needs one of stack/concept/href`);
+              throw new Error(`[glossary] term "[[${m[1]}]]" needs one of stack/concept/href/def`);
             const text = m[2] ? m[2].trim() : labelOf(entry.label);
-            out.push({ type: 'link', url, children: [{ type: 'text', value: text }] });
+            /** @type {any} */
+            const link = { type: 'link', url, children: [{ type: 'text', value: text }] };
+            if (def) link.data = { hProperties: { title: def } };
+            out.push(link);
             last = m.index + m[0].length;
           }
           if (last < child.value.length) out.push({ type: 'text', value: child.value.slice(last) });

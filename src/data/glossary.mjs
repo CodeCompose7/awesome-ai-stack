@@ -17,6 +17,11 @@
  *   [[langgraph]]              → same (lookup is case-insensitive)
  *   [[langgraph|그 프레임워크]] → custom link text, same target
  *
+ * A term needs exactly one link target — `stack`, `concept`, or `href` — OR none,
+ * in which case it's a definition-only term (`def` required): its `[[Term]]` links
+ * to its entry on the glossary page. `def` is an optional short definition shown on
+ * the glossary card and as a hover tooltip on the `[[Term]]` link (any kind may set it).
+ *
  * @typedef {string | { ko: string; en: string }} Label
  * @typedef {Object} GlossaryEntry
  * @property {Label} label      Display text. Brand names are one string; terms
@@ -24,6 +29,7 @@
  * @property {string} [stack]   Catalog stack slug  → `../../stack/<slug>/`.
  * @property {string} [concept] Concept slug        → `../../concept/<slug>/`.
  * @property {string} [href]    External absolute URL (a term without a page yet).
+ * @property {Label}  [def]     Short definition (def-only terms need it; optional else).
  */
 
 /** @type {Record<string, GlossaryEntry>} */
@@ -36,4 +42,21 @@ export const glossary = {
   // Concept terms whose wording differs by locale: write [[도구]] / [[Tools]] /
   // [[agent-tools]] — all resolve here and render the label for the page's locale.
   'agent-tools': { label: { ko: '도구', en: 'Tools' }, concept: 'agent-tools' },
+  // External term (links out, keeps a definition for the tooltip/card):
+  react: {
+    label: 'ReAct',
+    href: 'https://arxiv.org/abs/2210.03629',
+    def: {
+      ko: '추론(Reason)과 행동(Act)을 번갈아 수행하는 에이전트 루프.',
+      en: 'An agent loop that interleaves reasoning and acting (Reason + Act).',
+    },
+  },
+  // Definition-only term (no page — [[DooD]] links to its glossary entry):
+  dood: {
+    label: 'DooD',
+    def: {
+      ko: 'Docker-out-of-Docker — 컨테이너가 호스트의 Docker 소켓을 마운트해 형제 컨테이너를 띄우는 패턴.',
+      en: 'Docker-out-of-Docker — a container mounts the host Docker socket to spawn sibling containers.',
+    },
+  },
 };

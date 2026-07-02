@@ -17,13 +17,15 @@ type Entry = {
   stack?: string;
   concept?: string;
   href?: string;
+  def?: string | { ko: string; en: string };
 };
 
 type Term = {
+  id: string;
   label: string;
-  href: string;
-  subtitle: string;
+  href?: string;
   external: boolean;
+  subtitle: string;
   icon: { name: string; logo?: string; logoDark?: string; category?: string; fallback?: string };
   catId: string;
   catLabel: string;
@@ -37,6 +39,7 @@ const t = useTranslations(lang);
 
 const map = glossary as Record<string, Entry>;
 const labelOf = (l: Entry['label']) => (typeof l === 'string' ? l : l[lang]);
+const defOf = (d: Entry['def']) => (!d ? '' : typeof d === 'string' ? d : d[lang]);
 
 const stacks = await getStacks(lang);
 const stackBySlug = new Map(stacks.map((s) => [slugOf(s), s]));
@@ -45,16 +48,19 @@ const conceptBySlug = new Map(concepts.map((c) => [conceptSlugOf(c), c]));
 
 const tools: Term[] = [];
 const conceptTerms: Term[] = [];
+const defTerms: Term[] = [];
 const external: Term[] = [];
 
-for (const e of Object.values(map)) {
+for (const [id, e] of Object.entries(map)) {
   const label = labelOf(e.label);
+  const def = defOf(e.def);
   if (e.stack) {
     const s = stackBySlug.get(e.stack);
     const path = stackPath(s?.data.category ?? '');
     const leaf = path[path.length - 1];
     const top = path[0];
     tools.push({
+      id,
       label,
       href: getRelativeLocaleUrl(lang, `stack/${e.stack}/`),
       subtitle: leaf?.label[lang] ?? '',
@@ -71,6 +77,7 @@ for (const e of Object.values(map)) {
     const leaf = path[path.length - 1];
     const top = path[0];
     conceptTerms.push({
+      id,
       label,
       href: getRelativeLocaleUrl(lang, `concept/${e.concept}/`),
       subtitle: leaf?.label[lang] ?? '',
@@ -80,16 +87,29 @@ for (const e of Object.values(map)) {
       catLabel: top?.label[lang] ?? '',
       search: `${label} ${leaf?.label[lang] ?? ''} ${top?.label[lang] ?? ''}`.toLowerCase(),
     });
-  } else {
+  } else if (e.href) {
     external.push({
+      id,
       label,
-      href: e.href ?? '#',
-      subtitle: t('glossary.external'),
+      href: e.href,
+      subtitle: def,
       external: true,
       icon: { name: label, fallback: 'external' },
       catId: '',
       catLabel: '',
-      search: label.toLowerCase(),
+      search: `${label} ${def}`.toLowerCase(),
+    });
+  } else {
+    // Definition-only term: no link, its `[[Term]]` points here.
+    defTerms.push({
+      id,
+      label,
+      subtitle: def,
+      external: false,
+      icon: { name: label, fallback: 'term' },
+      catId: '',
+      catLabel: '',
+      search: `${label} ${def}`.toLowerCase(),
     });
   }
 }
@@ -112,10 +132,14 @@ const groupBy = (terms: Term[], order: string[]): Group[] => {
   return groups;
 };
 
+const flat = (terms: Term[]): Group[] =>
+  terms.length ? [{ id: '', label: '', terms: terms.sort((a, b) => a.label.localeCompare(b.label, lang)) }] : [];
+
 const kinds = [
   { key: 'tool', title: t('glossary.tool'), groups: groupBy(tools, rootCategories.map((c) => c.id)) },
   { key: 'concept', title: t('glossary.concept'), groups: groupBy(conceptTerms, conceptTree.roots.map((c) => c.id)) },
-  { key: 'external', title: t('glossary.external'), groups: external.length ? [{ id: '', label: '', terms: external.sort((a, b) => a.label.localeCompare(b.label, lang)) }] : [] },
+  { key: 'term', title: t('glossary.term'), groups: flat(defTerms) },
+  { key: 'external', title: t('glossary.external'), groups: flat(external) },
 ].filter((k) => k.groups.length > 0);
 ---
 
@@ -154,24 +178,32 @@ const kinds = [
               <h3 class="mb-2 text-sm font-medium text-[var(--aas-text)]">{group.label}</h3>
             )}
             <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {group.terms.map((term) => (
-                <li data-term data-search={term.search}>
-                  <a
-                    href={term.href}
-                    target={term.external ? '_blank' : undefined}
-                    rel={term.external ? 'noopener noreferrer' : undefined}
-                    class="aas-lift flex items-center gap-3 rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-3 no-underline"
-                  >
-                    <ToolAvatar name={term.icon.name} logo={term.icon.logo} logoDark={term.icon.logoDark} category={term.icon.category} fallback={term.icon.fallback} size={36} />
-                    <span class="min-w-0">
-                      <span class="block truncate font-semibold text-[var(--aas-text)]">{term.label}</span>
-                      {term.subtitle && (
-                        <span class="block truncate text-xs text-[var(--aas-muted)]">{term.subtitle}</span>
-                      )}
-                    </span>
-                  </a>
-                </li>
-              ))}
+              {group.terms.map((term) => {
+                // A term with a target is a link; a definition-only term is a
+                // plain card that its `[[Term]]` anchors to (via the id).
+                const Wrapper = term.href ? 'a' : 'div';
+                return (
+                  <li data-term data-search={term.search} id={term.id} class="scroll-mt-24">
+                    <Wrapper
+                      href={term.href}
+                      target={term.external ? '_blank' : undefined}
+                      rel={term.external ? 'noopener noreferrer' : undefined}
+                      class:list={[
+                        'flex items-center gap-3 rounded-xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-3 no-underline',
+                        term.href && 'aas-lift',
+                      ]}
+                    >
+                      <ToolAvatar name={term.icon.name} logo={term.icon.logo} logoDark={term.icon.logoDark} category={term.icon.category} fallback={term.icon.fallback} size={36} />
+                      <span class="min-w-0">
+                        <span class="block truncate font-semibold text-[var(--aas-text)]">{term.label}</span>
+                        {term.subtitle && (
+                          <span class="block line-clamp-2 text-xs text-[var(--aas-muted)]">{term.subtitle}</span>
+                        )}
+                      </span>
+                    </Wrapper>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         ))}
