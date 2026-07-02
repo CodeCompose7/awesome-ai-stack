@@ -25,7 +25,7 @@ Here we turn that example into a working agent.
 
 ## What we're building \{#what-were-building}
 
-An agent that, given a task with a URL, fetches the page as Markdown through Firecrawl, reads it, and answers or summarizes.
+An agent that, given a task with a URL, fetches the page as Markdown through [Firecrawl](../../stack/firecrawl/), reads it, and answers or summarizes.
 
 ```mermaid
 flowchart LR
@@ -84,7 +84,7 @@ flowchart TB
 
 ## The implementation \{#the-implementation}
 
-A LangGraph ReAct loop with a single `scrape` tool. 
+A [LangGraph](../../stack/langgraph/) ReAct loop with a single `scrape` tool. 
 The model is routed through LiteLLM, so the same code runs on Claude, OpenAI, or Gemini.
 
 <SampleProject folder="firecrawl_1" />
