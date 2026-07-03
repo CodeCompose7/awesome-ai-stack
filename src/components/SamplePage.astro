@@ -1,0 +1,90 @@
+---
+// A sample's own page at sample/<folder>/ — the same viewer the stack impl tab
+// and article embeds use (locale-aware README, file tree, highlighted files),
+// plus "used by" backlinks to every stack and article that ships this folder.
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import Breadcrumb from './Breadcrumb.astro';
+import MermaidLoader from './MermaidLoader.astro';
+import ProjectViewer from './ProjectViewer.astro';
+import { renderProjects } from '../lib/project';
+import { getStacks, slugOf, toolResolver, type ToolRef } from '../lib/stacks';
+import { getArticles, articleSlugOf } from '../lib/articles';
+import { useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  folder: string;
+}
+
+const { lang, folder } = Astro.props;
+const t = useTranslations(lang);
+
+const projects = await renderProjects([folder], lang);
+
+// Backlinks + related tools, both derived from frontmatter that references
+// this folder: a stack's `projects` list or an article's `project` field.
+const stacks = await getStacks(lang);
+const articles = await getArticles(lang);
+const relatedSlugs = new Set<string>();
+
+const usedByStacks = stacks.filter((s) =>
+  s.data.projects.some((p) => {
+    const f = typeof p === 'string' ? p : p.folder;
+    if (f !== folder) return false;
+    if (typeof p !== 'string') p.related.forEach((r) => relatedSlugs.add(r));
+    return true;
+  }),
+);
+const usedByArticles = articles.filter((a) => {
+  const p = a.data.project;
+  const f = p ? (typeof p === 'string' ? p : p.folder) : undefined;
+  if (f !== folder) return false;
+  if (p && typeof p !== 'string') p.related.forEach((r) => relatedSlugs.add(r));
+  return true;
+});
+
+const resolveTool = await toolResolver(lang);
+const related = new Map<string, ToolRef[]>([[folder, [...relatedSlugs].map(resolveTool)]]);
+
+const crumbs = [
+  { label: t('sample.title'), href: getRelativeLocaleUrl(lang, 'sample/') },
+  { label: `samples/${folder}` },
+];
+const usedBy = [
+  ...usedByStacks.map((s) => ({
+    label: s.data.name,
+    href: getRelativeLocaleUrl(lang, `stack/${slugOf(s)}/`),
+  })),
+  ...usedByArticles.map((a) => ({
+    label: a.data.title,
+    href: getRelativeLocaleUrl(lang, `article/${articleSlugOf(a)}/`),
+  })),
+];
+---
+
+<Breadcrumb segments={crumbs} />
+
+<div class="mt-6">
+  <ProjectViewer lang={lang} projects={projects} related={related} />
+</div>
+
+{
+  usedBy.length > 0 && (
+    <aside class="mt-10 border-t border-[var(--aas-border)] pt-6">
+      <h2 class="text-sm font-semibold tracking-wide text-[var(--aas-muted)] uppercase">
+        {t('sample.usedBy')}
+      </h2>
+      <ul class="mt-3 space-y-2">
+        {usedBy.map((u) => (
+          <li>
+            <a href={u.href} class="text-[var(--aas-accent)] no-underline hover:underline">
+              {u.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </aside>
+  )
+}
+
+<MermaidLoader />
