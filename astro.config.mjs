@@ -13,7 +13,8 @@ import { glossary } from './src/data/glossary.mjs';
 // Dev-only: serve the raw samples/<folder>/ files at /local-samples/… so the
 // project viewer can offer a "view locally" link next to the GitHub one — the
 // GitHub link only works once the branch is pushed. Directories render as a
-// plain listing, files as text. Never active in `astro build` output.
+// styled listing, files as Shiki-highlighted pages (?raw for plain text).
+// Never active in `astro build` output.
 function localSamples() {
   const root = resolve('samples');
   // Keep local-only noise (and real secrets — .env!) out of the listing and
@@ -21,12 +22,33 @@ function localSamples() {
   /** @param {string} name */
   const hidden = (name) =>
     name === '.env' || name === '__pycache__' || name === '.venv' || name.endsWith('.pyc');
+  // Same highlighter setup as src/lib/project.ts (the site's project viewer),
+  // so a local file page looks like the built one. Loaded lazily, once.
+  /** @type {Promise<import('shiki').Highlighter> | null} */
+  let hlPromise = null;
+  const getHighlighter = async () => {
+    const { createHighlighter } = await import('shiki');
+    if (!hlPromise)
+      hlPromise = createHighlighter({
+        themes: ['github-dark'],
+        langs: ['python', 'typescript', 'javascript', 'bash', 'docker', 'markdown', 'json', 'yaml', 'toml'],
+      });
+    return hlPromise;
+  };
+  /** @param {string} name */
+  const langFor = (name) => {
+    if (name === 'Dockerfile' || name.endsWith('.dockerfile')) return 'docker';
+    const ext = name.split('.').pop()?.toLowerCase() ?? '';
+    return (
+      { py: 'python', ts: 'typescript', js: 'javascript', md: 'markdown', yml: 'yaml', yaml: 'yaml', json: 'json', toml: 'toml', sh: 'bash', bash: 'bash', env: 'bash', sample: 'bash', gitignore: 'bash', txt: 'text' }[ext] ?? 'text'
+    );
+  };
   return {
     name: 'aas-local-samples',
     apply: /** @type {const} */ ('serve'),
     /** @param {any} server */
     configureServer(server) {
-      server.middlewares.use((/** @type {any} */ req, /** @type {any} */ res, /** @type {any} */ next) => {
+      server.middlewares.use(async (/** @type {any} */ req, /** @type {any} */ res, /** @type {any} */ next) => {
         const m = (req.url || '').match(/\/local-samples\/(.*)$/);
         if (!m) return next();
         const rel = decodeURIComponent(m[1].split('?')[0]);
@@ -111,8 +133,60 @@ function localSamples() {
 <ul>${rows}</ul>
 </main></body></html>`);
         }
-        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-        return res.end(readFileSync(target));
+        // File view. ?raw serves the bytes; otherwise render a page shaped like
+        // the site's project viewer: filename header strip + dark Shiki panel.
+        if ((req.url || '').includes('?raw')) {
+          res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+          return res.end(readFileSync(target));
+        }
+        const code = readFileSync(target, 'utf8');
+        const name = rel.split('/').filter(Boolean).pop() ?? rel;
+        const hl = await getHighlighter();
+        const lang = langFor(name);
+        const safeLang = hl.getLoadedLanguages().includes(lang) ? lang : 'text';
+        const codeHtml = hl.codeToHtml(code, { lang: safeLang, theme: 'github-dark' });
+        const parts = rel.split('/').filter(Boolean);
+        // Relative hrefs resolve against the file's PARENT dir (the URL has no
+        // trailing slash), so each hop is one '../' fewer than in the listing.
+        const up = (/** @type {number} */ n) => (n <= 0 ? './' : '../'.repeat(n));
+        const crumbs = [
+          `<a href="${up(parts.length - 1)}">samples</a>`,
+          ...parts.map((p, i) =>
+            i === parts.length - 1 ? `<b>${p}</b>` : `<a href="${up(parts.length - 2 - i)}">${p}</a>`,
+          ),
+        ].join('<span class="sep">/</span>');
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        return res.end(`<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>samples/${rel}</title>
+<style>
+  :root { --bg:#f8f8f7; --panel:#fff; --border:#e4e4e2; --text:#1c1c1a; --muted:#78786f; --tint:#f0f0ee; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#121212; --panel:#1c1c1c; --border:#2e2e2e; --text:#edede8; --muted:#9a9a90; --tint:#242424; }
+  }
+  * { box-sizing: border-box; margin: 0 }
+  body { background: var(--bg); color: var(--text); min-height: 100vh; padding: 3rem 1.25rem;
+         font-family: ui-sans-serif, system-ui, sans-serif; }
+  main { max-width: 56rem; margin: 0 auto }
+  .crumbs { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .95rem;
+            color: var(--muted); display: flex; flex-wrap: wrap; gap: .4rem; align-items: baseline }
+  .crumbs a { color: var(--muted); text-decoration: none }
+  .crumbs a:hover { color: var(--text); text-decoration: underline }
+  .crumbs b { color: var(--text) }
+  .badge { margin-left: auto; font-size: .7rem; letter-spacing: .05em; text-transform: uppercase;
+           color: var(--muted); border: 1px dashed var(--border); border-radius: .4rem; padding: .15rem .5rem }
+  .panel { margin-top: 1rem; border: 1px solid var(--border); border-radius: .75rem;
+           background: var(--panel); overflow: hidden }
+  .head { display: flex; align-items: center; gap: .75rem; padding: .6rem .9rem;
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .8rem; color: var(--muted) }
+  .head a { margin-left: auto; color: var(--muted); text-decoration: none;
+            border: 1px solid var(--border); border-radius: .4rem; padding: .1rem .5rem }
+  .head a:hover { color: var(--text) }
+  pre.shiki { margin: 0; padding: 1rem 1.1rem; overflow-x: auto; font-size: .875rem; line-height: 1.6 }
+</style></head><body><main>
+<div class="crumbs">${crumbs}<span class="badge">dev only</span></div>
+<div class="panel"><div class="head">${name}<a href="?raw">raw</a></div>${codeHtml}</div>
+</main></body></html>`);
       });
     },
   };
