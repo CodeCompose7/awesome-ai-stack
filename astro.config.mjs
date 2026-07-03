@@ -1,4 +1,6 @@
 // @ts-check
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
@@ -7,6 +9,67 @@ import tailwindcss from '@tailwindcss/vite';
 import rehypeExternalLinks from 'rehype-external-links';
 import rehypeSlug from 'rehype-slug';
 import { glossary } from './src/data/glossary.mjs';
+
+// Dev-only: serve the raw samples/<folder>/ files at /local-samples/… so the
+// project viewer can offer a "view locally" link next to the GitHub one — the
+// GitHub link only works once the branch is pushed. Directories render as a
+// plain listing, files as text. Never active in `astro build` output.
+function localSamples() {
+  const root = resolve('samples');
+  // Keep local-only noise (and real secrets — .env!) out of the listing and
+  // unreachable, mirroring how the project viewer hides gitignored files.
+  /** @param {string} name */
+  const hidden = (name) =>
+    name === '.env' || name === '__pycache__' || name === '.venv' || name.endsWith('.pyc');
+  return {
+    name: 'aas-local-samples',
+    apply: /** @type {const} */ ('serve'),
+    /** @param {any} server */
+    configureServer(server) {
+      server.middlewares.use((/** @type {any} */ req, /** @type {any} */ res, /** @type {any} */ next) => {
+        const m = (req.url || '').match(/\/local-samples\/(.*)$/);
+        if (!m) return next();
+        const rel = decodeURIComponent(m[1].split('?')[0]);
+        const target = resolve(root, rel);
+        // Stay inside samples/ — reject traversal and hidden entries.
+        if (target !== root && !target.startsWith(root + sep)) {
+          res.statusCode = 403;
+          return res.end('forbidden');
+        }
+        if (rel.split('/').some((part) => part && hidden(part))) {
+          res.statusCode = 404;
+          return res.end('not found');
+        }
+        if (!existsSync(target)) {
+          res.statusCode = 404;
+          return res.end('not found');
+        }
+        if (statSync(target).isDirectory()) {
+          // Relative links in the listing need the trailing slash.
+          if (!req.url?.split('?')[0].endsWith('/')) {
+            res.statusCode = 301;
+            res.setHeader('Location', req.url?.split('?')[0] + '/');
+            return res.end();
+          }
+          const items = readdirSync(target, { withFileTypes: true })
+            .filter((e) => !hidden(e.name))
+            .map((e) => e.name + (e.isDirectory() ? '/' : ''))
+            .sort()
+            .map((name) => `<li><a href="${encodeURIComponent(name).replace(/%2F/g, '/')}">${name}</a></li>`)
+            .join('');
+          res.setHeader('Content-Type', 'text/html; charset=utf-8');
+          return res.end(
+            `<!doctype html><meta charset="utf-8"><title>samples/${rel}</title>` +
+              `<body style="font-family:ui-monospace,monospace;padding:2rem">` +
+              `<h1 style="font-size:1.1rem">samples/${rel}</h1><ul>${items}</ul></body>`,
+          );
+        }
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        return res.end(readFileSync(target));
+      });
+    },
+  };
+}
 
 // Prepend a "#" copy-link anchor to h2/h3/h4 headings (a global click handler
 // in BaseLayout copies the section URL). The "#" count per level is drawn via
@@ -244,7 +307,7 @@ export default defineConfig({
   },
 
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [tailwindcss(), localSamples()],
 
     // `@assets/...` is shorthand for `src/assets/...`, so in-body images can be
     // referenced without long `../../../assets/...` relative paths.

@@ -95,6 +95,9 @@ export const ui = {
     // Rendered around the folder path: "View samples/<folder> on GitHub".
     'project.viewOnGitHubPre': 'View',
     'project.viewOnGitHubPost': 'on GitHub',
+    // Dev-only twin: "View samples/<folder> locally".
+    'project.viewLocallyPre': 'View',
+    'project.viewLocallyPost': 'locally',
     'project.example': 'Example',
     'project.files': 'Files',
     'project.relatedTools': 'Related tools',
@@ -203,6 +206,9 @@ export const ui = {
     // 폴더 경로를 감싸 렌더됨: "GitHub에서 samples/<folder> 보기".
     'project.viewOnGitHubPre': 'GitHub에서',
     'project.viewOnGitHubPost': '보기',
+    // dev 전용 쌍둥이: "로컬에서 samples/<folder> 보기".
+    'project.viewLocallyPre': '로컬에서',
+    'project.viewLocallyPost': '보기',
     'project.example': '예제',
     'project.files': '파일',
     'project.relatedTools': '관련 도구',
