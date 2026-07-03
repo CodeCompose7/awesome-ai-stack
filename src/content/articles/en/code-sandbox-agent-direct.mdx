@@ -81,7 +81,8 @@ flowchart TB
 #### `RUN_PYTHON` — the hand-written tool schema \{#tool-schema}
 
 With LangChain, `@tool` derived the schema from the function signature and docstring.  
-Here the schema is your code — the `description` inherits the docstring's job: it's what the model reads to decide *when* to reach for code.
+Here the schema is your code.  
+The `description` inherits the docstring's job: it's what the model reads to decide *when* to reach for code.
 
 ```python
 RUN_PYTHON = {
@@ -223,7 +224,9 @@ def build_graph():
     return graph.compile()
 ```
 
-`main()` is five or six lines that feed the graph a question and print the last message — and the `agent.invoke({"messages": […]})` call looks exactly like the original's. Same LangGraph runtime, after all.
+`main()` is five or six lines that feed the graph a question and print the last message.  
+The `agent.invoke({"messages": […]})` call looks exactly like the original's. 
+Same LangGraph runtime, after all.
 
 ## The implementation \{#the-implementation}
 
@@ -235,7 +238,8 @@ The sandbox isolation flags, the Dockerfile, and how to run it are identical to 
 ## The key parts \{#the-key-parts}
 
 - **The schema is the docs**
-  - The `description` field does what `@tool`'s docstring did — you now write the manual the model reads, yourself.
+  - The `description` field does what `@tool`'s docstring did.
+  - You now write the manual the model reads, yourself.
 - **The dispatch is your code**
   - Name branching, argument parsing, and `tool_call_id` matching all sit in plain sight — easy to slot in logging or custom policy.
 - **The state is just a list**
@@ -243,4 +247,5 @@ The sandbox isolation flags, the Dockerfile, and how to run it are identical to 
 - **The sandbox is framework-agnostic**
   - `run_python` and its isolation flags are unchanged — the isolation comes from the [Sandboxing](../../concept/sandboxing/) design, not from the wiring.
 
-To weigh the two versions side by side, see [[litellm-langgraph-vs-langchain|Dropping LangChain]]; for the two-line `create_agent` build, see [[code-sandbox-agent|the original tutorial]].
+To weigh the two versions side by side,  
+see [[litellm-langgraph-vs-langchain|Dropping LangChain]]; for the two-line `create_agent` build, see [[code-sandbox-agent|the original tutorial]].
