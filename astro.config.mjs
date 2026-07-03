@@ -143,12 +143,18 @@ function remarkGlossary() {
           RE.lastIndex = 0;
           while ((m = RE.exec(child.value))) {
             if (m.index > last) out.push({ type: 'text', value: child.value.slice(last, m.index) });
-            const id = lookup[norm(m[1])];
+            // Obsidian-style section link: [[term#anchor|text]] targets a
+            // heading id on the term's page (anchors are the stable \{#id}s,
+            // shared across locales).
+            const hashAt = m[1].indexOf('#');
+            const name = hashAt === -1 ? m[1] : m[1].slice(0, hashAt);
+            const anchor = hashAt === -1 ? '' : m[1].slice(hashAt + 1).trim();
+            const id = lookup[norm(name)];
             const entry = glossary[id];
             if (!entry) throw new Error(`[glossary] unknown term "[[${m[1]}]]" in ${path}`);
             const def = entry.def ? labelOf(entry.def) : undefined;
             // A def-only term (no page) links to its entry on the glossary page.
-            const url = entry.stack
+            let url = entry.stack
               ? `../../stack/${entry.stack}/`
               : entry.concept
                 ? `../../concept/${entry.concept}/`
@@ -163,6 +169,15 @@ function remarkGlossary() {
               throw new Error(
                 `[glossary] term "[[${m[1]}]]" needs one of stack/concept/article/href/def`,
               );
+            if (anchor) {
+              // A def-only target already carries its own hash — an extra
+              // anchor is a mistake, so fail the build like an unknown term.
+              if (!entry.stack && !entry.concept && !entry.article && !entry.href)
+                throw new Error(
+                  `[glossary] "[[${m[1]}]]" — a definition-only term can't take a #anchor`,
+                );
+              url += `#${anchor}`;
+            }
             const text = m[2] ? m[2].trim() : labelOf(entry.label);
             /** @type {any} */
             const link = { type: 'link', url, children: [{ type: 'text', value: text }] };

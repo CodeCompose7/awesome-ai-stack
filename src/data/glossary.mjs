@@ -16,6 +16,10 @@
  *   [[LangGraph]]              → LangGraph, linked (canonical label + casing)
  *   [[langgraph]]              → same (lookup is case-insensitive)
  *   [[langgraph|그 프레임워크]] → custom link text, same target
+ *   [[code-sandbox-agent#run-python|원본의 도구]]
+ *                              → deep link to a section: #anchor is appended to
+ *                                the target URL (use the stable \{#id} anchors,
+ *                                which are shared across locales)
  *
  * A term needs exactly one link target — `stack`, `concept`, `article`, or `href` —
  * OR none, in which case it's a definition-only term (`def` required): its `[[Term]]`

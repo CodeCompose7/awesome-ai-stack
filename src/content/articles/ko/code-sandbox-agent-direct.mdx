@@ -81,7 +81,8 @@ flowchart TB
 #### `RUN_PYTHON` — 손으로 쓴 도구 스키마 \{#tool-schema}
 
 LangChain에서는 `@tool`이 함수 시그니처와 docstring에서 스키마를 만들어 줬습니다.  
-여기서는 스키마가 곧 내 코드입니다 — `description`이 docstring의 역할을 그대로 이어받아, 모델이 *언제* 코드로 풀지 판단하는 근거가 됩니다.
+여기서는 스키마가 곧 내 코드입니다.  
+`description`이 docstring의 역할을 그대로 이어받아, 모델이 *언제* 코드로 풀지 판단하는 근거가 됩니다.
 
 ```python
 RUN_PYTHON = {
@@ -105,7 +106,8 @@ RUN_PYTHON = {
 }
 ```
 
-`run_python()` 함수 자체는 [원본 글의 그것](../../article/code-sandbox-agent/#run-python)과 동일합니다 — 격리 플래그를 단 `docker run`에 코드를 흘려보낼 뿐, 샌드박스는 어느 프레임워크가 불렀는지 신경 쓰지 않습니다.
+`run_python()` 함수 자체는 [[code-sandbox-agent#run-python|원본 글의 그것]]과 동일합니다.  
+격리 플래그를 단 `docker run`에 코드를 흘려보낼 뿐, 샌드박스는 어느 프레임워크가 불렀는지 신경 쓰지 않습니다.
 
 #### `call_model` — 모델 노드 \{#call-model}
 
