@@ -7,7 +7,7 @@ date: 2026-07-03
 version: '1.0'
 updated: 2026-07-03
 tools: [langgraph, litellm, langchain]
-related: [code-sandbox-agent, web-scraping-agent, web-search-fx-agent]
+related: [code-sandbox-agent, web-scraping-agent, web-search-fx-agent, code-sandbox-agent-direct]
 category: article-comparisons
 tags: [langchain, litellm, langgraph, architecture, comparison]
 ---
@@ -145,7 +145,8 @@ result = agent.invoke({"messages": [{"role": "user", "content": question}]})
 - **상태도 날것으로** — LangChain 메시지 타입과 `add_messages` 리듀서 대신, dict 리스트를 노드가 직접 이어 붙임
 - 대신 **모든 단계가 투명** — 루프에 마법이 없어서, 어디서 무엇이 오가는지 코드에 다 보임
 
-라우팅은 여전히 [[LiteLLM]] 몫이라 `MODEL` 환경변수 하나로 공급자를 바꾸는 것은 그대로고, 그래프·체크포인트·스트리밍 같은 런타임 기능도 [[LangGraph]] 것이라 그대로입니다.
+라우팅은 여전히 [[LiteLLM]] 몫이라 `MODEL` 환경변수 하나로 공급자를 바꾸는 것은 그대로고, 그래프·체크포인트·스트리밍 같은 런타임 기능도 [[LangGraph]] 것이라 그대로입니다.  
+이 방식을 실제로 돌아가는 에이전트로 완성한 튜토리얼이 [[code-sandbox-agent-direct|코드 샌드박스 에이전트 — 직접 배선]]입니다.
 
 ## 무엇을 얻고 잃나 \{#tradeoffs}
 

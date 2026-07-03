@@ -9,7 +9,7 @@ updated: 2026-06-30
 image: '@assets/articles/code-sandbox-agent/main-image.jpeg'
 imageAlt: A code-sandbox agent — running model code in Docker.
 tools: [docker, langgraph]
-related: [web-search-fx-agent, web-scraping-agent, litellm-langgraph-vs-langchain]
+related: [web-search-fx-agent, web-scraping-agent, litellm-langgraph-vs-langchain, code-sandbox-agent-direct]
 project:
   folder: docker_1
   related: [docker, langgraph, litellm]
@@ -223,4 +223,5 @@ The tool's body is essentially a single `docker run`, and the safety comes from 
   - change `MODEL` in `.env` and the same code runs on a different model.
 
 Swap the tool for search and you get [asking today's FX rate](../web-search-fx-agent/); swap it for scraping and you get [a docs page to Markdown](../web-scraping-agent/).  
+The same agent wired without LangChain — just LiteLLM + LangGraph — is in [[code-sandbox-agent-direct|the hand-wired edition]].  
 Why and how to isolate is laid out in the [Sandboxing](../../concept/sandboxing/) concept.

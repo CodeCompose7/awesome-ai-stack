@@ -73,6 +73,10 @@ export const glossary = {
     label: { ko: 'LangChain 없이 만들면', en: 'Dropping LangChain' },
     article: 'litellm-langgraph-vs-langchain',
   },
+  'code-sandbox-agent-direct': {
+    label: { ko: '코드 샌드박스 에이전트 — 직접 배선', en: 'Code-sandbox agent, hand-wired' },
+    article: 'code-sandbox-agent-direct',
+  },
   // Definition-only term (no page — [[DooD]] links to its glossary entry):
   dood: {
     label: 'DooD',
