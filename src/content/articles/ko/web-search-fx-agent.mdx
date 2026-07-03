@@ -75,7 +75,7 @@ flowchart TB
 - 문자열이면 그대로 둠
 - 그래서 어느 제공자든 깔끔한 한 줄로 출력
 
-**`main()` — 배선**
+**`main()` — 조립**
 
 - `MODEL`로 `ChatLiteLLM`을 만들고 `create_agent(model, tools=[web_search])`로 ReAct 루프 구성
 - `ChatLiteLLM`은 *LiteLLM*을 LangChain 모델로 감싼 어댑터 — 라우팅(어느 API를 부를지)은 LiteLLM, `create_agent`용 인터페이스 연결은 `ChatLiteLLM`
@@ -84,7 +84,7 @@ flowchart TB
 - 도구를 부를지·한 번 더 부를지는 전부 루프가 결정
 
 임포트는 `langchain`이지만 `create_agent`가 돌려주는 것은 LangGraph 그래프입니다.  
-이 접착 계층 없이 LiteLLM + LangGraph만으로 직접 배선하면 어떻게 되는지는 [[litellm-langgraph-vs-langchain|별도 비교 글]]에서 다룹니다.
+이 접착 계층 없이 LiteLLM + LangGraph만으로 직접 구성하면 어떻게 되는지는 [[litellm-langgraph-vs-langchain|별도 비교 글]]에서 다룹니다.
 
 ## 구현 \{#the-implementation}
 

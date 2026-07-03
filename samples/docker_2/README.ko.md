@@ -1,4 +1,4 @@
-# 코드 샌드박스 에이전트, LangChain 없이 — LiteLLM + LangGraph 직접 배선
+# 코드 샌드박스 에이전트, LangChain 없이 — LiteLLM + LangGraph 직접 구성
 
 `docker_1`과 같은 에이전트 — `run_python` 도구 하나를 단 ReAct 루프로, 모델이
 짠 코드를 **일회용 Docker 컨테이너 안에서** 실행합니다 — 인데, 에이전트
@@ -68,7 +68,7 @@ flowchart LR
   box -. 차단 .- host[호스트 · 네트워크]
 ```
 
-그래프는 `StateGraph`로 명시적으로 배선합니다. `model` 노드가 손으로 쓴
+그래프는 `StateGraph`로 명시적으로 구성합니다. `model` 노드가 손으로 쓴
 `RUN_PYTHON` JSON 스키마와 함께 `litellm.completion`을 한 번 호출하고,
 `tools` 노드가 `tool_calls`를 파싱해 디스패치하며, 조건부 엣지가 모델이 도구
 요청 없이 답할 때까지 루프를 돕니다.

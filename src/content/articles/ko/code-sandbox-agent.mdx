@@ -163,7 +163,7 @@ def message_text(content) -> str:
     return content
 ```
 
-### `main()` — 배선 \{#main}
+### `main()` — 조립 \{#main}
 
 ```mermaid
 flowchart TB
@@ -201,7 +201,7 @@ def main() -> None:
 ```
 
 임포트는 `langchain`이지만 `create_agent`가 돌려주는 것은 LangGraph 그래프입니다.  
-이 접착 계층이 왜 있는지, LangChain 없이 LiteLLM + LangGraph만으로 같은 루프를 직접 배선하면 어떻게 되는지는 [[litellm-langgraph-vs-langchain|별도 비교 글]]에서 다룹니다.
+이 접착 계층이 왜 있는지, LangChain 없이 LiteLLM + LangGraph만으로 같은 루프를 직접 구성하면 어떻게 되는지는 [[litellm-langgraph-vs-langchain|별도 비교 글]]에서 다룹니다.
 
 ## 구현 \{#the-implementation}
 
@@ -223,5 +223,5 @@ LangGraph의 ReAct 루프에 `run_python` 도구 하나만 붙였습니다.
   - `.env`의 `MODEL`만 바꾸면 같은 코드로 다른 모델을 씁니다.
 
 도구만 검색으로 바꾸면 [오늘의 환율 묻기](../web-search-fx-agent/), 스크래핑으로 바꾸면 [문서를 마크다운으로](../web-scraping-agent/)가 됩니다.  
-같은 에이전트를 LangChain 없이 LiteLLM + LangGraph만으로 배선한 버전은 [[code-sandbox-agent-direct|직접 배선 편]]에 있습니다.  
+같은 에이전트를 LangChain 없이 LiteLLM + LangGraph만으로 구성한 버전은 [[code-sandbox-agent-direct|직접 구성 편]]에 있습니다.  
 격리를 왜·어떻게 하는지는 [샌드박싱](../../concept/sandboxing/) 개념에 정리해 두었습니다.

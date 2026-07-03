@@ -74,7 +74,7 @@ export const glossary = {
     article: 'litellm-langgraph-vs-langchain',
   },
   'code-sandbox-agent-direct': {
-    label: { ko: '코드 샌드박스 에이전트 — 직접 배선', en: 'Code-sandbox agent, hand-wired' },
+    label: { ko: '코드 샌드박스 에이전트 — 직접 구성', en: 'Code-sandbox agent, hand-wired' },
     article: 'code-sandbox-agent-direct',
   },
   // Definition-only term (no page — [[DooD]] links to its glossary entry):
