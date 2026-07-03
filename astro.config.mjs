@@ -51,18 +51,65 @@ function localSamples() {
             res.setHeader('Location', req.url?.split('?')[0] + '/');
             return res.end();
           }
-          const items = readdirSync(target, { withFileTypes: true })
+          const entries = readdirSync(target, { withFileTypes: true })
             .filter((e) => !hidden(e.name))
-            .map((e) => e.name + (e.isDirectory() ? '/' : ''))
-            .sort()
-            .map((name) => `<li><a href="${encodeURIComponent(name).replace(/%2F/g, '/')}">${name}</a></li>`)
+            .sort((a, b) => Number(b.isDirectory()) - Number(a.isDirectory()) || a.name.localeCompare(b.name));
+          const fmtSize = (/** @type {number} */ n) =>
+            n < 1024 ? `${n} B` : n < 1024 * 1024 ? `${(n / 1024).toFixed(1)} KB` : `${(n / 1024 / 1024).toFixed(1)} MB`;
+          const rows = entries
+            .map((e) => {
+              const dir = e.isDirectory();
+              const href = encodeURIComponent(e.name) + (dir ? '/' : '');
+              const size = dir ? '' : fmtSize(statSync(resolve(target, e.name)).size);
+              const icon = dir
+                ? '<svg viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>'
+                : '<svg viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>';
+              return `<li><a href="${href}">${icon}<span class="name">${e.name}${dir ? '/' : ''}</span><span class="size">${size}</span></a></li>`;
+            })
             .join('');
+          // Breadcrumb: samples / <part> / <part> — each ancestor is a link.
+          const parts = rel.split('/').filter(Boolean);
+          const crumbs = [
+            `<a href="${'../'.repeat(parts.length)}">samples</a>`,
+            ...parts.map((p, i) =>
+              i === parts.length - 1 ? `<b>${p}</b>` : `<a href="${'../'.repeat(parts.length - 1 - i)}">${p}</a>`,
+            ),
+          ].join('<span class="sep">/</span>');
           res.setHeader('Content-Type', 'text/html; charset=utf-8');
-          return res.end(
-            `<!doctype html><meta charset="utf-8"><title>samples/${rel}</title>` +
-              `<body style="font-family:ui-monospace,monospace;padding:2rem">` +
-              `<h1 style="font-size:1.1rem">samples/${rel}</h1><ul>${items}</ul></body>`,
-          );
+          return res.end(`<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>samples/${rel}</title>
+<style>
+  :root { --bg:#f8f8f7; --panel:#fff; --border:#e4e4e2; --text:#1c1c1a; --muted:#78786f; --tint:#f0f0ee; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#121212; --panel:#1c1c1c; --border:#2e2e2e; --text:#edede8; --muted:#9a9a90; --tint:#242424; }
+  }
+  * { box-sizing: border-box; margin: 0 }
+  body { background: var(--bg); color: var(--text); min-height: 100vh; padding: 3rem 1.25rem;
+         font-family: ui-sans-serif, system-ui, sans-serif; }
+  main { max-width: 40rem; margin: 0 auto }
+  .crumbs { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .95rem;
+            color: var(--muted); display: flex; flex-wrap: wrap; gap: .4rem; align-items: baseline }
+  .crumbs a { color: var(--muted); text-decoration: none }
+  .crumbs a:hover { color: var(--text); text-decoration: underline }
+  .crumbs b { color: var(--text) }
+  .badge { margin-left: auto; font-size: .7rem; letter-spacing: .05em; text-transform: uppercase;
+           color: var(--muted); border: 1px dashed var(--border); border-radius: .4rem; padding: .15rem .5rem }
+  ul { list-style: none; margin-top: 1rem; border: 1px solid var(--border); border-radius: .75rem;
+       background: var(--panel); overflow: hidden; padding: .3rem }
+  li + li { margin-top: 2px }
+  li a { display: flex; align-items: center; gap: .65rem; padding: .55rem .75rem; border-radius: .5rem;
+         color: var(--text); text-decoration: none; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+         font-size: .9rem }
+  li a:hover { background: var(--tint) }
+  li svg { width: 15px; height: 15px; flex: none; fill: none; stroke: var(--muted);
+           stroke-width: 2; stroke-linecap: round; stroke-linejoin: round }
+  .name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+  .size { margin-left: auto; flex: none; font-size: .75rem; color: var(--muted) }
+</style></head><body><main>
+<div class="crumbs">${crumbs}<span class="badge">dev only</span></div>
+<ul>${rows}</ul>
+</main></body></html>`);
         }
         res.setHeader('Content-Type', 'text/plain; charset=utf-8');
         return res.end(readFileSync(target));
