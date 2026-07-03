@@ -6,7 +6,7 @@ description: |-
 date: 2026-07-03
 version: '1.0'
 updated: 2026-07-03
-tools: [langgraph, litellm]
+tools: [langgraph, litellm, langchain]
 related: [code-sandbox-agent, web-scraping-agent, web-search-fx-agent]
 category: article-comparisons
 tags: [langchain, litellm, langgraph, architecture, comparison]
@@ -20,7 +20,7 @@ agent = create_agent(model, tools=[run_python])
 ```
 
 그런데 임포트를 보면 `create_agent`는 `langchain.agents`에서, `ChatLiteLLM`은 `langchain_litellm`에서 옵니다.  
-글에서는 [[LangGraph]] 에이전트라고 해 놓고 코드는 LangChain 아닌가? — 맞는 의문이고, 답은 "계층이 다르다"입니다.  
+글에서는 [[LangGraph]] 에이전트라고 해 놓고 코드는 [[LangChain]] 아닌가? — 맞는 의문이고, 답은 "계층이 다르다"입니다.  
 이 글에서는 그 계층을 벗겨 보고, LangChain 없이 같은 루프를 직접 배선하면 무엇이 달라지는지 비교합니다.
 
 ## 세 계층 \{#three-layers}

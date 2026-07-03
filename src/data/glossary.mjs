@@ -36,6 +36,8 @@
 /** @type {Record<string, GlossaryEntry>} */
 export const glossary = {
   langgraph: { label: 'LangGraph', stack: 'langgraph' },
+  langchain: { label: 'LangChain', stack: 'langchain' },
+  langsmith: { label: 'LangSmith', stack: 'langsmith' },
   firecrawl: { label: 'Firecrawl', stack: 'firecrawl' },
   litellm: { label: 'LiteLLM', stack: 'litellm' },
   tavily: { label: 'Tavily', stack: 'tavily' },

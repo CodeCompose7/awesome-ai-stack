@@ -6,7 +6,7 @@ description: |-
 date: 2026-07-03
 version: '1.0'
 updated: 2026-07-03
-tools: [langgraph, litellm]
+tools: [langgraph, litellm, langchain]
 related: [code-sandbox-agent, web-scraping-agent, web-search-fx-agent]
 category: article-comparisons
 tags: [langchain, litellm, langgraph, architecture, comparison]
@@ -20,7 +20,7 @@ agent = create_agent(model, tools=[run_python])
 ```
 
 But look at the imports: `create_agent` comes from `langchain.agents`, and `ChatLiteLLM` from `langchain_litellm`. 
-The articles keep calling these [[LangGraph]] agents — so why is the code all LangChain? 
+The articles keep calling these [[LangGraph]] agents — so why is the code all [[LangChain]]? 
 Fair question, and the answer is "different layers". This article peels them apart, then compares what changes when you wire the same loop without LangChain.
 
 ## The three layers \{#three-layers}
