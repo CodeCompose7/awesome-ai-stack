@@ -48,6 +48,18 @@ docker run --rm --env-file .env \
   aas-code-sandbox-direct "What is the 30th Fibonacci number? Use code."
 ```
 
+## Docker로 실행 (DooD를 쓰는 devcontainer에서)
+
+중첩 Docker-outside-of-Docker에서는 포그라운드 `docker run`이 (초반 이후) 아무것도
+출력하지 않을 수 있습니다 — detached로 실행하고 로그를 따라가세요. 데몬 로그엔 출력이
+전부 남아 있습니다:
+
+```bash
+docker logs -f "$(docker run -d --env-file .env \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  aas-code-sandbox-direct "30번째 피보나치 수는? 코드로 계산해줘")"
+```
+
 ## 로컬에서 실행
 
 에이전트가 호스트의 Docker를 직접 호출합니다:

@@ -47,6 +47,18 @@ docker run --rm --env-file .env \
   aas-code-sandbox-direct "What is the 30th Fibonacci number? Use code."
 ```
 
+## Run with Docker (in a devcontainer with DooD)
+
+Under nested Docker-outside-of-Docker the foreground `docker run` may print nothing
+after the first moment — run detached and follow the logs; the daemon captures all
+of it:
+
+```bash
+docker logs -f "$(docker run -d --env-file .env \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  aas-code-sandbox-direct "What is the 30th Fibonacci number? Use code.")"
+```
+
 ## Run locally
 
 The agent shells out to your host's Docker directly:
@@ -74,12 +86,12 @@ loops until the model answers without requesting a tool.
 
 Everything the LangChain version hides is on the surface here:
 
-| In `docker_1` (LangChain)             | Here                                          |
-| ------------------------------------- | --------------------------------------------- |
-| `@tool` + docstring → schema           | `RUN_PYTHON` JSON schema, written by hand      |
-| prebuilt loop parses/dispatches calls  | `call_tools` parses and dispatches by hand     |
-| LangChain message types + reducer      | plain OpenAI-format dicts, appended manually   |
-| `create_agent(model, tools=[…])`       | `StateGraph` nodes + conditional edge          |
+| In `docker_1` (LangChain)             | Here                                         |
+| ------------------------------------- | -------------------------------------------- |
+| `@tool` + docstring → schema          | `RUN_PYTHON` JSON schema, written by hand    |
+| prebuilt loop parses/dispatches calls | `call_tools` parses and dispatches by hand   |
+| LangChain message types + reducer     | plain OpenAI-format dicts, appended manually |
+| `create_agent(model, tools=[…])`      | `StateGraph` nodes + conditional edge        |
 
 The sandbox itself is identical — `run_python` pipes the code to `docker run`
 with the same isolation flags (`--network none`, memory/CPU/pids caps,
