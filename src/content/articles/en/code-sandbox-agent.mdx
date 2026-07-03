@@ -9,7 +9,7 @@ updated: 2026-06-30
 image: '@assets/articles/code-sandbox-agent/main-image.jpeg'
 imageAlt: A code-sandbox agent — running model code in Docker.
 tools: [docker, langgraph]
-related: [web-search-fx-agent, web-scraping-agent, litellm-langgraph-vs-langchain]
+related: [web-search-fx-agent, web-scraping-agent, litellm-langgraph-vs-langchain, code-sandbox-agent-direct]
 project:
   folder: docker_1
   related: [docker, langgraph, litellm]
@@ -73,7 +73,9 @@ flowchart TB
   class dock roleSource
 ```
 
-### `run_python(code)` — the tool \{#run-python}
+### The detailed structure \{#detailed-structure}
+
+#### `run_python(code)` — the tool \{#run-python}
 
 ```mermaid
 flowchart TB
@@ -128,7 +130,7 @@ def run_python(code: str) -> str:
 
 *Excerpt — error handling omitted; the full code is in the [Implementation](#the-implementation) section.*
 
-### `message_text(content)` — tidying output \{#message-text}
+#### `message_text(content)` — tidying output \{#message-text}
 
 ```mermaid
 flowchart TB
@@ -163,7 +165,7 @@ def message_text(content) -> str:
     return content
 ```
 
-### `main()` — wiring \{#main}
+#### `main()` — wiring \{#main}
 
 ```mermaid
 flowchart TB
@@ -223,4 +225,5 @@ The tool's body is essentially a single `docker run`, and the safety comes from 
   - change `MODEL` in `.env` and the same code runs on a different model.
 
 Swap the tool for search and you get [asking today's FX rate](../web-search-fx-agent/); swap it for scraping and you get [a docs page to Markdown](../web-scraping-agent/).  
+The same agent wired without LangChain — just LiteLLM + LangGraph — is in [[code-sandbox-agent-direct|the hand-wired edition]].  
 Why and how to isolate is laid out in the [Sandboxing](../../concept/sandboxing/) concept.

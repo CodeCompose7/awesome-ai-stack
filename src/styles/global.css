@@ -560,7 +560,10 @@ summary {
 .prose :where(a):hover {
   text-decoration: underline;
 }
-.prose :where(code):not(pre code) {
+/* Inline code chips in running prose. Chips inside card-style UI links
+   (a.aas-lift — e.g. the project viewer's GitHub button) style themselves
+   with utilities and must not pick this up. */
+.prose :where(code):not(pre code, .aas-lift code) {
   background: var(--aas-panel);
   border: 1px solid var(--aas-border);
   border-radius: 0.3rem;
@@ -939,28 +942,32 @@ summary {
 }
 
 /* Collapsible <details> used in prose (e.g. "구체적인 예시" reveals). A soft
-   panel with a clickable summary; the disclosure marker stays. */
-.prose :where(details) {
+   panel with a clickable summary; the disclosure marker stays. UI dropdowns
+   (.aas-vdd) and the file tree (.aas-tree-dir) — e.g. an article-embedded
+   project viewer — carry their own chrome and must not pick this up. */
+.prose :where(details):not(:where(.aas-vdd, .aas-tree-dir)) {
   margin: 0.9rem 0;
   border: 1px solid var(--aas-border);
   border-radius: 0.6rem;
   background: var(--aas-panel);
   padding: 0.1rem 0.95rem;
 }
-.prose :where(summary) {
+.prose :where(summary):not(:where(.aas-vdd, .aas-tree-dir) summary) {
   cursor: pointer;
   padding: 0.55rem 0;
   font-weight: 600;
   color: var(--aas-muted);
 }
-.prose :where(details[open]) {
+.prose :where(details[open]):not(:where(.aas-vdd, .aas-tree-dir)) {
   padding-bottom: 0.55rem;
 }
 
 /* Card-style links rendered inside prose (e.g. a concept's inline <Tools/>
-   cards) must not pick up the prose link underline on hover. */
+   cards, the project viewer's GitHub button) must not pick up the prose link
+   accent color or the underline on hover. */
 .prose a.aas-lift,
 .prose a.aas-lift:hover {
+  color: var(--aas-text);
   text-decoration: none;
 }
 

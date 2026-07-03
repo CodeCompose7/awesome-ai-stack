@@ -1,0 +1,8 @@
+# Local secrets — never commit the real .env
+.env
+# ...but keep the committed template (root .gitignore's `.env.*` would hide it).
+!.env.sample
+
+# Python caches
+__pycache__/
+*.pyc

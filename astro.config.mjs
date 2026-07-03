@@ -1,4 +1,6 @@
 // @ts-check
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
@@ -7,6 +9,188 @@ import tailwindcss from '@tailwindcss/vite';
 import rehypeExternalLinks from 'rehype-external-links';
 import rehypeSlug from 'rehype-slug';
 import { glossary } from './src/data/glossary.mjs';
+
+// Dev-only: serve the raw samples/<folder>/ files at /local-samples/… so the
+// project viewer can offer a "view locally" link next to the GitHub one — the
+// GitHub link only works once the branch is pushed. Directories render as a
+// styled listing, files as Shiki-highlighted pages (?raw for plain text).
+// Never active in `astro build` output.
+function localSamples() {
+  const root = resolve('samples');
+  // Keep local-only noise (and real secrets — .env!) out of the listing and
+  // unreachable, mirroring how the project viewer hides gitignored files.
+  /** @param {string} name */
+  const hidden = (name) =>
+    name === '.env' || name === '__pycache__' || name === '.venv' || name.endsWith('.pyc');
+  // Same highlighter setup as src/lib/project.ts (the site's project viewer),
+  // so a local file page looks like the built one. Loaded lazily, once.
+  /** @type {Promise<import('shiki').Highlighter> | null} */
+  let hlPromise = null;
+  const getHighlighter = async () => {
+    const { createHighlighter } = await import('shiki');
+    if (!hlPromise)
+      hlPromise = createHighlighter({
+        themes: ['github-dark'],
+        langs: ['python', 'typescript', 'javascript', 'bash', 'docker', 'markdown', 'json', 'yaml', 'toml'],
+      });
+    return hlPromise;
+  };
+  /** @param {string} name */
+  const langFor = (name) => {
+    if (name === 'Dockerfile' || name.endsWith('.dockerfile')) return 'docker';
+    const ext = name.split('.').pop()?.toLowerCase() ?? '';
+    return (
+      { py: 'python', ts: 'typescript', js: 'javascript', md: 'markdown', yml: 'yaml', yaml: 'yaml', json: 'json', toml: 'toml', sh: 'bash', bash: 'bash', env: 'bash', sample: 'bash', gitignore: 'bash', txt: 'text' }[ext] ?? 'text'
+    );
+  };
+  return {
+    name: 'aas-local-samples',
+    apply: /** @type {const} */ ('serve'),
+    /** @param {any} server */
+    configureServer(server) {
+      server.middlewares.use(async (/** @type {any} */ req, /** @type {any} */ res, /** @type {any} */ next) => {
+        const m = (req.url || '').match(/\/local-samples\/(.*)$/);
+        if (!m) return next();
+        const rel = decodeURIComponent(m[1].split('?')[0]);
+        const target = resolve(root, rel);
+        // Stay inside samples/ — reject traversal and hidden entries.
+        if (target !== root && !target.startsWith(root + sep)) {
+          res.statusCode = 403;
+          return res.end('forbidden');
+        }
+        if (rel.split('/').some((part) => part && hidden(part))) {
+          res.statusCode = 404;
+          return res.end('not found');
+        }
+        if (!existsSync(target)) {
+          res.statusCode = 404;
+          return res.end('not found');
+        }
+        if (statSync(target).isDirectory()) {
+          // Relative links in the listing need the trailing slash.
+          if (!req.url?.split('?')[0].endsWith('/')) {
+            res.statusCode = 301;
+            res.setHeader('Location', req.url?.split('?')[0] + '/');
+            return res.end();
+          }
+          const entries = readdirSync(target, { withFileTypes: true })
+            .filter((e) => !hidden(e.name))
+            .sort((a, b) => Number(b.isDirectory()) - Number(a.isDirectory()) || a.name.localeCompare(b.name));
+          const fmtSize = (/** @type {number} */ n) =>
+            n < 1024 ? `${n} B` : n < 1024 * 1024 ? `${(n / 1024).toFixed(1)} KB` : `${(n / 1024 / 1024).toFixed(1)} MB`;
+          const rows = entries
+            .map((e) => {
+              const dir = e.isDirectory();
+              const href = encodeURIComponent(e.name) + (dir ? '/' : '');
+              const size = dir ? '' : fmtSize(statSync(resolve(target, e.name)).size);
+              const icon = dir
+                ? '<svg viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>'
+                : '<svg viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>';
+              return `<li><a href="${href}">${icon}<span class="name">${e.name}${dir ? '/' : ''}</span><span class="size">${size}</span></a></li>`;
+            })
+            .join('');
+          // Breadcrumb: samples / <part> / <part> — each ancestor is a link.
+          const parts = rel.split('/').filter(Boolean);
+          const crumbs = [
+            `<a href="${'../'.repeat(parts.length)}">samples</a>`,
+            ...parts.map((p, i) =>
+              i === parts.length - 1 ? `<b>${p}</b>` : `<a href="${'../'.repeat(parts.length - 1 - i)}">${p}</a>`,
+            ),
+          ].join('<span class="sep">/</span>');
+          res.setHeader('Content-Type', 'text/html; charset=utf-8');
+          return res.end(`<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>samples/${rel}</title>
+<style>
+  :root { --bg:#f8f8f7; --panel:#fff; --border:#e4e4e2; --text:#1c1c1a; --muted:#78786f; --tint:#f0f0ee; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#121212; --panel:#1c1c1c; --border:#2e2e2e; --text:#edede8; --muted:#9a9a90; --tint:#242424; }
+  }
+  * { box-sizing: border-box; margin: 0 }
+  body { background: var(--bg); color: var(--text); min-height: 100vh; padding: 3rem 1.25rem;
+         font-family: ui-sans-serif, system-ui, sans-serif; }
+  main { max-width: 40rem; margin: 0 auto }
+  .crumbs { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .95rem;
+            color: var(--muted); display: flex; flex-wrap: wrap; gap: .4rem; align-items: baseline }
+  .crumbs a { color: var(--muted); text-decoration: none }
+  .crumbs a:hover { color: var(--text); text-decoration: underline }
+  .crumbs b { color: var(--text) }
+  .badge { margin-left: auto; font-size: .7rem; letter-spacing: .05em; text-transform: uppercase;
+           color: var(--muted); border: 1px dashed var(--border); border-radius: .4rem; padding: .15rem .5rem }
+  ul { list-style: none; margin-top: 1rem; border: 1px solid var(--border); border-radius: .75rem;
+       background: var(--panel); overflow: hidden; padding: .3rem }
+  li + li { margin-top: 2px }
+  li a { display: flex; align-items: center; gap: .65rem; padding: .55rem .75rem; border-radius: .5rem;
+         color: var(--text); text-decoration: none; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+         font-size: .9rem }
+  li a:hover { background: var(--tint) }
+  li svg { width: 15px; height: 15px; flex: none; fill: none; stroke: var(--muted);
+           stroke-width: 2; stroke-linecap: round; stroke-linejoin: round }
+  .name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+  .size { margin-left: auto; flex: none; font-size: .75rem; color: var(--muted) }
+</style></head><body><main>
+<div class="crumbs">${crumbs}<span class="badge">dev only</span></div>
+<ul>${rows}</ul>
+</main></body></html>`);
+        }
+        // File view. ?raw serves the bytes; otherwise render a page shaped like
+        // the site's project viewer: filename header strip + dark Shiki panel.
+        if ((req.url || '').includes('?raw')) {
+          res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+          return res.end(readFileSync(target));
+        }
+        const code = readFileSync(target, 'utf8');
+        const name = rel.split('/').filter(Boolean).pop() ?? rel;
+        const hl = await getHighlighter();
+        const lang = langFor(name);
+        const safeLang = hl.getLoadedLanguages().includes(lang) ? lang : 'text';
+        const codeHtml = hl.codeToHtml(code, { lang: safeLang, theme: 'github-dark' });
+        const parts = rel.split('/').filter(Boolean);
+        // Relative hrefs resolve against the file's PARENT dir (the URL has no
+        // trailing slash), so each hop is one '../' fewer than in the listing.
+        const up = (/** @type {number} */ n) => (n <= 0 ? './' : '../'.repeat(n));
+        const crumbs = [
+          `<a href="${up(parts.length - 1)}">samples</a>`,
+          ...parts.map((p, i) =>
+            i === parts.length - 1 ? `<b>${p}</b>` : `<a href="${up(parts.length - 2 - i)}">${p}</a>`,
+          ),
+        ].join('<span class="sep">/</span>');
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        return res.end(`<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>samples/${rel}</title>
+<style>
+  :root { --bg:#f8f8f7; --panel:#fff; --border:#e4e4e2; --text:#1c1c1a; --muted:#78786f; --tint:#f0f0ee; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#121212; --panel:#1c1c1c; --border:#2e2e2e; --text:#edede8; --muted:#9a9a90; --tint:#242424; }
+  }
+  * { box-sizing: border-box; margin: 0 }
+  body { background: var(--bg); color: var(--text); min-height: 100vh; padding: 3rem 1.25rem;
+         font-family: ui-sans-serif, system-ui, sans-serif; }
+  main { max-width: 56rem; margin: 0 auto }
+  .crumbs { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .95rem;
+            color: var(--muted); display: flex; flex-wrap: wrap; gap: .4rem; align-items: baseline }
+  .crumbs a { color: var(--muted); text-decoration: none }
+  .crumbs a:hover { color: var(--text); text-decoration: underline }
+  .crumbs b { color: var(--text) }
+  .badge { margin-left: auto; font-size: .7rem; letter-spacing: .05em; text-transform: uppercase;
+           color: var(--muted); border: 1px dashed var(--border); border-radius: .4rem; padding: .15rem .5rem }
+  .panel { margin-top: 1rem; border: 1px solid var(--border); border-radius: .75rem;
+           background: var(--panel); overflow: hidden }
+  .head { display: flex; align-items: center; gap: .75rem; padding: .6rem .9rem;
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .8rem; color: var(--muted) }
+  .head a { margin-left: auto; color: var(--muted); text-decoration: none;
+            border: 1px solid var(--border); border-radius: .4rem; padding: .1rem .5rem }
+  .head a:hover { color: var(--text) }
+  pre.shiki { margin: 0; padding: 1rem 1.1rem; overflow-x: auto; font-size: .875rem; line-height: 1.6 }
+</style></head><body><main>
+<div class="crumbs">${crumbs}<span class="badge">dev only</span></div>
+<div class="panel"><div class="head">${name}<a href="?raw">raw</a></div>${codeHtml}</div>
+</main></body></html>`);
+      });
+    },
+  };
+}
 
 // Prepend a "#" copy-link anchor to h2/h3/h4 headings (a global click handler
 // in BaseLayout copies the section URL). The "#" count per level is drawn via
@@ -143,12 +327,18 @@ function remarkGlossary() {
           RE.lastIndex = 0;
           while ((m = RE.exec(child.value))) {
             if (m.index > last) out.push({ type: 'text', value: child.value.slice(last, m.index) });
-            const id = lookup[norm(m[1])];
+            // Obsidian-style section link: [[term#anchor|text]] targets a
+            // heading id on the term's page (anchors are the stable \{#id}s,
+            // shared across locales).
+            const hashAt = m[1].indexOf('#');
+            const name = hashAt === -1 ? m[1] : m[1].slice(0, hashAt);
+            const anchor = hashAt === -1 ? '' : m[1].slice(hashAt + 1).trim();
+            const id = lookup[norm(name)];
             const entry = glossary[id];
             if (!entry) throw new Error(`[glossary] unknown term "[[${m[1]}]]" in ${path}`);
             const def = entry.def ? labelOf(entry.def) : undefined;
             // A def-only term (no page) links to its entry on the glossary page.
-            const url = entry.stack
+            let url = entry.stack
               ? `../../stack/${entry.stack}/`
               : entry.concept
                 ? `../../concept/${entry.concept}/`
@@ -163,6 +353,15 @@ function remarkGlossary() {
               throw new Error(
                 `[glossary] term "[[${m[1]}]]" needs one of stack/concept/article/href/def`,
               );
+            if (anchor) {
+              // A def-only target already carries its own hash — an extra
+              // anchor is a mistake, so fail the build like an unknown term.
+              if (!entry.stack && !entry.concept && !entry.article && !entry.href)
+                throw new Error(
+                  `[glossary] "[[${m[1]}]]" — a definition-only term can't take a #anchor`,
+                );
+              url += `#${anchor}`;
+            }
             const text = m[2] ? m[2].trim() : labelOf(entry.label);
             /** @type {any} */
             const link = { type: 'link', url, children: [{ type: 'text', value: text }] };
@@ -229,7 +428,7 @@ export default defineConfig({
   },
 
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [tailwindcss(), localSamples()],
 
     // `@assets/...` is shorthand for `src/assets/...`, so in-body images can be
     // referenced without long `../../../assets/...` relative paths.

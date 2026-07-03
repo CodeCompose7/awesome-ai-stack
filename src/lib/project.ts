@@ -182,6 +182,54 @@ function gitIgnored(paths: string[]): Set<string> {
  *  README.md (default) or README.<lang>.md (e.g. README.ko.md). */
 const README_RE = /^readme(?:\.([a-z]{2}))?\.md$/i;
 
+/** All sample folders under samples/, sorted by name. */
+export function listSampleFolders(): string[] {
+  return readdirSync(SAMPLES_DIR, { withFileTypes: true })
+    .filter((e) => e.isDirectory())
+    .map((e) => e.name)
+    .sort();
+}
+
+export interface ProjectSummary {
+  folder: string;
+  name: string; // README h1 in the requested locale (folder as fallback)
+  excerpt: string; // first README paragraph, plain text
+  date: string; // when the sample was authored (YYYY-MM-DD)
+}
+
+/**
+ * Light per-folder metadata for the samples index: the locale-appropriate
+ * README's title and first paragraph — parsed, not rendered, and nothing is
+ * highlighted, so listing every sample stays cheap.
+ */
+export function listProjects(lang: string): ProjectSummary[] {
+  const md = new MarkdownIt();
+  // Markdown inline syntax the excerpt should not carry into a card.
+  const plain = (s: string) =>
+    s.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/[*_`]/g, '');
+  return listSampleFolders().map((folder) => {
+    const dir = join(SAMPLES_DIR, folder);
+    const readmes = readdirSync(dir).filter((n) => README_RE.test(n));
+    const pick =
+      readmes.find((n) => n.toLowerCase() === `readme.${lang}.md`) ??
+      readmes.find((n) => n.toLowerCase() === 'readme.md') ??
+      readmes[0];
+    let name = folder;
+    let excerpt = '';
+    if (pick) {
+      const tokens = md.parse(readFileSync(join(dir, pick), 'utf8'), {});
+      for (let i = 0; i < tokens.length; i++) {
+        if (tokens[i].type === 'heading_open' && tokens[i].tag === 'h1' && name === folder)
+          name = tokens[i + 1]?.content ?? folder;
+        else if (tokens[i].type === 'paragraph_open' && !excerpt)
+          excerpt = plain(tokens[i + 1]?.content ?? '').replace(/\s+/g, ' ');
+        if (name !== folder && excerpt) break;
+      }
+    }
+    return { folder, name, excerpt, date: SAMPLE_DATES[folder] ?? DEFAULT_SAMPLE_DATE };
+  });
+}
+
 /**
  * Read + render the sample projects in the given `samples/<folder>/` list.
  * For each project the README is localized: `README.<lang>.md` is used when it

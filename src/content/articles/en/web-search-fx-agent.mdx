@@ -44,6 +44,8 @@ Without the tool the model can only guess at a stale value; with one tool, the a
 
 ## Reading the code \{#reading-the-code}
 
+### The overall structure \{#overall-structure}
+
 The whole flow in `app.py` splits into three functions — `main()` wires the model and the agent, `web_search()` is the tool the model calls, and `message_text()` cleans up the final answer.
 
 ```mermaid
@@ -62,21 +64,23 @@ flowchart TB
   class tavily roleSource
 ```
 
-**`web_search(query)` — the tool**
+### The detailed structure \{#detailed-structure}
+
+#### `web_search(query)` — the tool \{#web-search}
 
 - A single `@tool` decorator turns a plain Python function into a tool the model can call
 - Its docstring is the model's manual — the model reads it to decide *when* to call
 - Inside, `_tavily.search(query, include_answer=True, max_results=5)` hits Tavily
 - The returned `answer` and `results` are folded into one block of text — the next reasoning step's input
 
-**`message_text(content)` — cleaning the output**
+#### `message_text(content)` — cleaning the output \{#message-text}
 
 - A reply's `content` isn't uniformly shaped — cloud models return a string, some local models a list of blocks like `[{type: "text", …}, …]`
 - For a list, it keeps only the text of `type == "text"` blocks
 - For a string, it passes straight through
 - So any provider prints as one clean line
 
-**`main()` — the wiring**
+#### `main()` — the wiring \{#main}
 
 - Builds `ChatLiteLLM` from `MODEL` and assembles the ReAct loop with `create_agent(model, tools=[web_search])`
 - `ChatLiteLLM` wraps *LiteLLM* as a LangChain model — LiteLLM does provider routing (which API), `ChatLiteLLM` is the interface `create_agent` expects

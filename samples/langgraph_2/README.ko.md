@@ -2,7 +2,7 @@
 
 [langgraph_1](../langgraph_1)이 미리 만들어진 `create_agent`를 쓰는 것과 달리, 이
 예제는 [LangGraph](https://www.langchain.com/langgraph) `StateGraph` API로 ReAct
-루프를 **직접** 배선합니다 — `agent` 노드, `tools` 노드, 그리고 모델이 도구 요청을
+루프를 **직접** 구성합니다 — `agent` 노드, `tools` 노드, 그리고 모델이 도구 요청을
 멈출 때까지 반복하는 조건부 엣지로 구성하고, 각 단계를 **스트리밍**해서 추론 과정을
 지켜볼 수 있습니다.
 

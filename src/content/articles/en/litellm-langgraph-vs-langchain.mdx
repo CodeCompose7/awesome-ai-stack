@@ -7,7 +7,7 @@ date: 2026-07-03
 version: '1.0'
 updated: 2026-07-03
 tools: [langgraph, litellm, langchain]
-related: [code-sandbox-agent, web-scraping-agent, web-search-fx-agent]
+related: [code-sandbox-agent, web-scraping-agent, web-search-fx-agent, code-sandbox-agent-direct]
 category: article-comparisons
 tags: [langchain, litellm, langgraph, architecture, comparison]
 ---
@@ -145,7 +145,8 @@ Everything option A hid is now on the surface:
 - **Raw state** — plain dict lists that nodes append to, instead of LangChain message types and the `add_messages` reducer
 - In exchange, **every step is transparent** — there's no magic left in the loop; everything that moves is your code
 
-Routing is still [[LiteLLM]]'s job, so switching providers via the `MODEL` env var works unchanged — and the graph, checkpoints, and streaming are [[LangGraph]]'s, so those work unchanged too.
+Routing is still [[LiteLLM]]'s job, so switching providers via the `MODEL` env var works unchanged — and the graph, checkpoints, and streaming are [[LangGraph]]'s, so those work unchanged too.  
+For this approach completed as a working agent, see [[code-sandbox-agent-direct|Code-sandbox agent, hand-wired]].
 
 ## What you gain and lose \{#tradeoffs}
 

@@ -1,7 +1,6 @@
 ---
 import { render } from 'astro:content';
 import { getRelativeLocaleUrl } from 'astro:i18n';
-import { toolResolver } from '../lib/stacks';
 import { getArticles, articleSlugOf, type ArticleEntry } from '../lib/articles';
 import { getConcepts, type ConceptEntry } from '../lib/concepts';
 import { Image } from 'astro:assets';
@@ -15,8 +14,6 @@ import { articleTree, articleCatOf } from '../data/article-categories';
 import RelatedTools from './RelatedTools.astro';
 import RelatedConcepts from './RelatedConcepts.astro';
 import RelatedArticles from './RelatedArticles.astro';
-import { renderProjects } from '../lib/project';
-import type { RelatedTool } from './ProjectRelatedTools.astro';
 
 interface Props {
   entry: ArticleEntry;
@@ -47,21 +44,9 @@ const relatedArticles = (data.related ?? [])
   .map((s) => articlesBySlug.get(s))
   .filter((a): a is ArticleEntry => Boolean(a) && articleSlugOf(a!) !== articleSlug);
 
-// Optional embedded sample (samples/<folder>/): its file list + related tools
-// go in the right rail, mirroring a stack's implementation tab. The body still
-// renders the viewer via <SampleProject folder="…"/>; both share the folder, so
-// the rail's file buttons wire to the body viewer (matched document-wide).
-const projectSpec = data.project
-  ? typeof data.project === 'string'
-    ? { folder: data.project, related: [] as string[] }
-    : { folder: data.project.folder, related: data.project.related }
-  : null;
-const renderedProject = projectSpec ? (await renderProjects([projectSpec.folder], lang))[0] : undefined;
-const resolveTool = await toolResolver(lang);
-const railTools: RelatedTool[] = projectSpec ? projectSpec.related.map(resolveTool) : [];
-const projectFiles = renderedProject
-  ? { folder: renderedProject.folder, files: renderedProject.files }
-  : undefined;
+// A referenced sample (frontmatter `project`) is no longer embedded here — the
+// body's <SampleProject/> renders a callout card to its sample/<folder>/ page,
+// which carries the viewer, the file rail, and the related tools itself.
 
 // Breadcrumb: All writing › category › subcategory… (each segment linked).
 const crumbs = [
@@ -105,7 +90,7 @@ const crumbs = [
   <article class="prose max-w-none aas-reading min-w-0 flex-1">
     <Content />
   </article>
-  <TocRail lang={lang} items={tocItems} relatedTools={railTools} projectFiles={projectFiles} />
+  <TocRail lang={lang} items={tocItems} />
 </div>
 
 <RelatedTools lang={lang} slugs={data.tools} />

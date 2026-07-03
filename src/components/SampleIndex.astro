@@ -1,0 +1,58 @@
+---
+// The samples hub: one card per samples/<folder>/ mini-project, titled and
+// excerpted from the locale-appropriate README (README.<lang>.md, falling back
+// to README.md). Cards link to the per-sample page at sample/<folder>/.
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { listProjects } from '../lib/project';
+import { useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+// Newest first, then by name, so fresh samples surface at the top.
+const projects = listProjects(lang).sort(
+  (a, b) => b.date.localeCompare(a.date) || a.name.localeCompare(b.name, lang),
+);
+
+function formatDate(iso: string): string {
+  const [y, m, d] = iso.split('-').map(Number);
+  if (!y || !m || !d) return iso;
+  return new Intl.DateTimeFormat(lang === 'ko' ? 'ko-KR' : 'en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(Date.UTC(y, m - 1, d)));
+}
+---
+
+<section class="py-6">
+  <h1 class="text-4xl font-bold tracking-tight">{t('sample.title')}</h1>
+  <p class="mt-3 max-w-2xl text-lg text-[var(--aas-muted)]">{t('sample.tagline')}</p>
+</section>
+
+<ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+  {
+    projects.map((p) => (
+      <li>
+        <a
+          href={getRelativeLocaleUrl(lang, `sample/${p.folder}/`)}
+          class="aas-lift flex h-full flex-col gap-2 rounded-2xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-4 no-underline"
+        >
+          <span class="font-semibold text-[var(--aas-text)]">{p.name}</span>
+          <span class="flex flex-wrap items-center gap-2 text-xs text-[var(--aas-muted)]">
+            <code class="rounded bg-[var(--aas-tint)] px-1.5 py-0.5">samples/{p.folder}</code>
+            <span>{formatDate(p.date)}</span>
+          </span>
+          {p.excerpt && (
+            <span class="line-clamp-2 text-sm leading-relaxed text-[var(--aas-muted)]">{p.excerpt}</span>
+          )}
+        </a>
+      </li>
+    ))
+  }
+</ul>
