@@ -42,9 +42,10 @@ function formatDate(iso: string): string {
 ---
 
 <div data-projects>
-  {/* Example selector (only when there are multiple) */}
+  {/* Example selector — shown even for a single project, so its name and date
+      are always visible at the top of the tab. */}
   {
-    projects.length > 1 && (
+    projects.length > 0 && (
       <div class="flex items-center gap-2 text-sm text-[var(--aas-muted)]">
         {t('project.example')}
         <details class="aas-vdd" data-project-dd>
@@ -83,16 +84,19 @@ function formatDate(iso: string): string {
     projects.map((p, pi) => {
       const readme = splitReadme(p.readmeHtml);
       return (
-      <div data-project-panel={pi} data-project-folder={p.folder} class:list={[pi === 0 ? '' : 'hidden', projects.length > 1 ? 'mt-4' : '']}>
+      <div data-project-panel={pi} data-project-folder={p.folder} class:list={[pi === 0 ? '' : 'hidden', 'mt-4']}>
         <div class="flex flex-wrap items-center justify-between gap-3">
           <p class="text-sm text-[var(--aas-muted)]">{t('project.intro')}</p>
           <a
             href={p.folderUrl}
             target="_blank"
             rel="noopener noreferrer"
-            class="aas-lift rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] px-3 py-1.5 text-sm text-[var(--aas-text)] no-underline"
+            class="aas-lift inline-flex items-center gap-1.5 rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] px-3 py-1.5 text-sm text-[var(--aas-text)] no-underline"
           >
-            {t('project.viewOnGitHub')} <span class="text-[var(--aas-muted)]">&nearr;</span>
+            {t('project.viewOnGitHubPre')}
+            <code class="rounded bg-[var(--aas-tint)] px-1.5 py-0.5 text-xs">samples/{p.folder}</code>
+            {t('project.viewOnGitHubPost')}
+            <span class="text-[var(--aas-muted)]">&nearr;</span>
           </a>
         </div>
 

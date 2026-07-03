@@ -92,7 +92,9 @@ export const ui = {
     'tab.code': 'Code samples',
     'tab.impl': 'Implementation',
     'project.intro': 'A real, runnable mini-project. Download it and run with Docker.',
-    'project.viewOnGitHub': 'View folder on GitHub',
+    // Rendered around the folder path: "View samples/<folder> on GitHub".
+    'project.viewOnGitHubPre': 'View',
+    'project.viewOnGitHubPost': 'on GitHub',
     'project.example': 'Example',
     'project.files': 'Files',
     'project.relatedTools': 'Related tools',
@@ -198,7 +200,9 @@ export const ui = {
     'tab.code': '코드 샘플',
     'tab.impl': '구현 샘플',
     'project.intro': '실제로 실행 가능한 미니 프로젝트입니다. 받아서 Docker로 실행해 보세요.',
-    'project.viewOnGitHub': 'GitHub에서 폴더 보기',
+    // 폴더 경로를 감싸 렌더됨: "GitHub에서 samples/<folder> 보기".
+    'project.viewOnGitHubPre': 'GitHub에서',
+    'project.viewOnGitHubPost': '보기',
     'project.example': '예제',
     'project.files': '파일',
     'project.relatedTools': '관련 도구',
