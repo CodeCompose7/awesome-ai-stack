@@ -8,7 +8,7 @@ import MermaidLoader from './MermaidLoader.astro';
 import ProjectViewer from './ProjectViewer.astro';
 import TocRail from './TocRail.astro';
 import { renderProjects } from '../lib/project';
-import { getStacks, slugOf, toolResolver, type ToolRef } from '../lib/stacks';
+import { getStacks, slugOf, type ToolRef } from '../lib/stacks';
 import { getArticles, articleSlugOf } from '../lib/articles';
 import { useTranslations, type Lang } from '../i18n/ui';
 
@@ -22,34 +22,24 @@ const t = useTranslations(lang);
 
 const projects = await renderProjects([folder], lang);
 
-// Backlinks + related tools, both derived from frontmatter that references
-// this folder: a stack's `projects` list or an article's `project` field.
+// "Used by" backlinks, derived from frontmatter that references this folder:
+// a stack's `projects` list or an article's `project` field. Related-tool
+// cards are NOT shown here — that association lives in the referencing page's
+// frontmatter, not in the sample itself, so it belongs on those pages.
 const stacks = await getStacks(lang);
 const articles = await getArticles(lang);
-const relatedSlugs = new Set<string>();
 
 const usedByStacks = stacks.filter((s) =>
-  s.data.projects.some((p) => {
-    const f = typeof p === 'string' ? p : p.folder;
-    if (f !== folder) return false;
-    if (typeof p !== 'string') p.related.forEach((r) => relatedSlugs.add(r));
-    return true;
-  }),
+  s.data.projects.some((p) => (typeof p === 'string' ? p : p.folder) === folder),
 );
 const usedByArticles = articles.filter((a) => {
   const p = a.data.project;
-  const f = p ? (typeof p === 'string' ? p : p.folder) : undefined;
-  if (f !== folder) return false;
-  if (p && typeof p !== 'string') p.related.forEach((r) => relatedSlugs.add(r));
-  return true;
+  return p !== undefined && (typeof p === 'string' ? p : p.folder) === folder;
 });
 
-const resolveTool = await toolResolver(lang);
-const railTools = [...relatedSlugs].map(resolveTool);
-const related = new Map<string, ToolRef[]>([[folder, railTools]]);
+const related = new Map<string, ToolRef[]>();
 
-// The fixed right rail, wired like an article that embeds this sample: the
-// README's h2/h3 as the TOC, the related tools, and the clickable file list.
+// The fixed right rail: the README's h2/h3 as the TOC + the clickable file list.
 const project = projects[0];
 const tocItems = project?.headings ?? [];
 const projectFiles = project ? { folder: project.folder, files: project.files } : undefined;
@@ -80,7 +70,7 @@ const usedBy = [
   <div class="aas-reading min-w-0 flex-1">
     <ProjectViewer lang={lang} projects={projects} related={related} embedded />
   </div>
-  <TocRail lang={lang} items={tocItems} relatedTools={railTools} projectFiles={projectFiles} />
+  <TocRail lang={lang} items={tocItems} projectFiles={projectFiles} />
 </div>
 
 {
