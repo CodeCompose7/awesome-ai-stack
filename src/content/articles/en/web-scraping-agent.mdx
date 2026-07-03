@@ -9,7 +9,7 @@ updated: 2026-06-29
 image: '@assets/articles/web-scraping-agent/main-image.jpeg'
 imageAlt: A web-scraping agent — a docs page to Markdown.
 tools: [firecrawl, langgraph]
-related: [web-search-fx-agent, code-sandbox-agent]
+related: [web-search-fx-agent, code-sandbox-agent, litellm-langgraph-vs-langchain]
 project:
   folder: firecrawl_1
   related: [langgraph, litellm]
@@ -81,6 +81,9 @@ flowchart TB
 - `ChatLiteLLM` wraps *LiteLLM* as a LangChain model — LiteLLM does provider routing, `ChatLiteLLM` is the interface `create_agent` expects
 - `agent.invoke({"messages": […]})` runs reason→call-tool→observe
 - When it finishes, the last message's `content` is cleaned by `message_text()` and printed
+
+The import says `langchain`, but what `create_agent` returns is a LangGraph graph.  
+What the same loop looks like wired with just LiteLLM + LangGraph — no glue layer — is covered in [[litellm-langgraph-vs-langchain|a separate comparison]].
 
 ## The implementation \{#the-implementation}
 

@@ -1,0 +1,91 @@
+---
+name: LangChain
+vendor: "LangChain"
+logo: /logos/langchain.svg
+category: framework-orchestration
+docVersion: "1.0"
+updated: 2026-07-03
+description: The original LLM-app framework — standard model/tool interfaces, hundreds of integrations, and the create_agent prebuilt that compiles to a LangGraph agent
+website: https://www.langchain.com
+repo: https://github.com/langchain-ai/langchain
+docs: https://docs.langchain.com
+tags: [framework, agents, integrations, python]
+language: Python / JS
+license: MIT
+pricing: [open-source]
+related: [langgraph, langsmith, litellm]
+projects:
+  - folder: langgraph_1
+    related: [langgraph, litellm]
+samples:
+  - version: "1.x · create_agent"
+    lang: python
+    diagram: |
+      flowchart LR
+        q([invoke]) --> model[model]
+        model -->|tool call| tools[tools]
+        tools --> model
+        model -->|done| out([answer])
+        class model roleModel
+        class tools roleTool
+    code: |
+      from langchain.agents import create_agent
+      from langchain_core.tools import tool
+
+      @tool
+      def multiply(a: int, b: int) -> int:
+          """Multiply two integers."""
+          return a * b
+
+      agent = create_agent("anthropic:claude-opus-4-8", tools=[multiply])
+      result = agent.invoke(
+          {"messages": [{"role": "user", "content": "What is 6 x 7?"}]}
+      )
+      print(result["messages"][-1].content)
+    description: |
+      ### When to use
+      `create_agent` is the standard way to get a tool-calling **ReAct agent**
+      in one line. The `@tool` docstring becomes the tool's schema, and the
+      returned agent is a compiled **LangGraph** graph.
+
+      ### How it flows
+      The loop calls the model, runs any requested tools, feeds results back,
+      and stops when the model answers without a tool call.
+    note: The Implementation tab has a runnable build of this pattern (langgraph_1).
+  - version: "1.x · init_chat_model"
+    lang: python
+    code: |
+      from langchain.chat_models import init_chat_model
+
+      model = init_chat_model("anthropic:claude-opus-4-8", temperature=0)
+      reply = model.invoke("In one sentence: what is an agent?")
+      print(reply.content)
+    description: |
+      ### When to use
+      `init_chat_model` gives you a **provider-agnostic chat model** from one
+      `"provider:model"` string — swap Claude for GPT or Gemini without
+      changing the calling code.
+    note: For routing across many providers with one API key style, see LiteLLM.
+---
+
+## Overview
+
+LangChain is the framework the rest of the family plugs into: **standard interfaces** for chat models, messages, and tools, plus a large catalog of provider and vector-store integrations.  
+Since 1.0 the package is deliberately slim — the agent runtime lives in [[LangGraph]], observability in [[LangSmith]], and LangChain supplies the glue: `create_agent` builds a production-ready ReAct agent and returns it as a compiled LangGraph graph.
+
+```mermaid
+flowchart TB
+  code["your agent code"] --> lc["LangChain — interfaces + create_agent"]
+  lc --> lg["LangGraph — loop runtime"]
+  lc --> prov[("model / tool integrations")]
+  class lc roleFocus
+  class lg roleTool
+  class prov roleModel
+```
+
+The tutorials in this catalog use exactly that pair — `ChatLiteLLM` for provider routing and `create_agent` for the loop.  
+Whether you even need the glue layer is a fair question: [[litellm-langgraph-vs-langchain|Dropping LangChain]] wires the same loop with just LiteLLM + LangGraph and compares the tradeoffs.
+
+## When to use it
+
+Reach for LangChain when you want a working tool-calling agent in minutes, model-vendor portability through one interface, and the integration catalog — and drop to LangGraph's graph API when the loop itself needs custom shape.

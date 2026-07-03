@@ -9,7 +9,7 @@ updated: 2026-06-30
 image: '@assets/articles/code-sandbox-agent/main-image.jpeg'
 imageAlt: A code-sandbox agent — running model code in Docker.
 tools: [docker, langgraph]
-related: [web-search-fx-agent, web-scraping-agent]
+related: [web-search-fx-agent, web-scraping-agent, litellm-langgraph-vs-langchain]
 project:
   folder: docker_1
   related: [docker, langgraph, litellm]
@@ -20,12 +20,15 @@ tags: [sandbox, docker, agent, tutorial]
 import SampleProject from '../../../components/SampleProject.astro';
 
 The [Sandboxing](../../concept/sandboxing/) concept makes the case that model-written code is *outside* the trust boundary and belongs in a throwaway, isolated environment.  
-Here we turn that *code execution* role into a working agent. 
+Here we turn that *code execution* role into a working agent.  
+
 The tool never `exec`s the code — it pipes it into a fresh Docker container every time.
 
 ## What we're building \{#what-were-building}
 
-Given a task that needs computation, the model writes Python, the `run_python` tool runs it in an isolated Docker container and hands back the output, and the model reads that and answers.
+1. Given a task that needs computation, the model writes Python, 
+2. the `run_python` tool runs it in an isolated Docker container and hands back the output, 
+3. and the model reads that and answers.
 
 ```mermaid
 flowchart LR
@@ -41,10 +44,13 @@ flowchart LR
 ```
 
 The code never runs on the host.
-- `--network none` cuts the network and caps memory/CPU/process count,
+- `--network none` cuts the network, 
+- `--memory` / `--cpus` / `--pids-limit` cap memory/CPU/process count, 
 - `--rm` throws the container away when it exits.
 
 ## Reading the code \{#reading-the-code}
+
+### The overall structure \{#overall-structure}
 
 `app.py` splits into three functions.
 - `main()` wires up the model and agent,
@@ -67,27 +73,135 @@ flowchart TB
   class dock roleSource
 ```
 
-- **`run_python(code)` — the tool**
-  - A single `@tool`-wrapped function
-    - its docstring tells the model *when* to reach for code
-  - Doesn't run the code in-process; pipes it to `docker run` via `subprocess`
-    - `python -` reads the program from stdin
-  - The isolation is in the flags
-    - `--network none` (no network),
-    - `--memory` / `--cpus` / `--pids-limit` (resource caps),
-    - `--user 65534` (non-root),
-    - `--rm` (throwaway)
-  - `timeout=30` kills runaway code; output is truncated to the first 4,000 chars
+### `run_python(code)` — the tool \{#run-python}
 
-- **`message_text(content)` — tidying output**
-  - A model's `content` varies
-    - a string from cloud models, a list of blocks from some local ones
-  - Join the `type == "text"` blocks if it's a list; leave a string as-is
+```mermaid
+flowchart TB
+  q["task (sys.argv)"] --> build["main() — build model + agent"]
+  build --> react{"ReAct loop"}
+  react -- reason --> model["Model (ChatLiteLLM)"]
+  model -- tool call --> tool["run_python(code)"]
+  tool --> dock[("docker run · python:3.12-slim")]
+  dock -- stdout/stderr --> tool
+  tool -- observe --> react
+  react -- finish --> msg["message_text(content)"]
+  msg --> out["print → stdout"]
+  class model roleModel
+  class tool roleFocus
+  class dock roleSource
+```
 
-- **`main()` — wiring**
-  - Build `ChatLiteLLM` from `MODEL` and a ReAct loop with `create_agent(model, tools=[run_python])`
-  - `agent.invoke({"messages": […]})` runs reason → tool call → observe
-  - When it finishes, clean the last message with `message_text()` and print it
+- A single `@tool`-wrapped function
+  - its docstring tells the model *when* to reach for code
+- Doesn't run the code in-process; pipes it to `docker run` via `subprocess`
+  - `python -` reads the program from stdin
+- The isolation is in the flags
+  - `--network none` (no network),
+  - `--memory` / `--cpus` / `--pids-limit` (resource caps),
+  - `--user 65534` (non-root),
+  - `--rm` (throwaway)
+- `timeout=30` kills runaway code; output is truncated to the first 4,000 chars
+
+```python
+@tool
+def run_python(code: str) -> str:
+    """Run a snippet of Python and return its stdout/stderr. …"""
+    proc = subprocess.run(
+        [
+            "docker", "run", "--rm", "-i",
+            "--network", "none",      # no network: nothing leaves the box
+            "--memory", "256m",       # memory cap
+            "--cpus", "1",            # cpu cap
+            "--pids-limit", "128",    # process cap (fork-bomb guard)
+            "--user", "65534:65534",  # run as nobody, not root
+            SANDBOX_IMAGE,
+            "python", "-",            # read the program from stdin
+        ],
+        input=code,
+        capture_output=True,
+        text=True,
+        timeout=30,                   # wall-clock guard
+    )
+    out = (proc.stdout or "") + (proc.stderr or "")
+    return out.strip()[:4000] or "(no output)"
+```
+
+*Excerpt — error handling omitted; the full code is in the [Implementation](#the-implementation) section.*
+
+### `message_text(content)` — tidying output \{#message-text}
+
+```mermaid
+flowchart TB
+  q["task (sys.argv)"] --> build["main() — build model + agent"]
+  build --> react{"ReAct loop"}
+  react -- reason --> model["Model (ChatLiteLLM)"]
+  model -- tool call --> tool["run_python(code)"]
+  tool --> dock[("docker run · python:3.12-slim")]
+  dock -- stdout/stderr --> tool
+  tool -- observe --> react
+  react -- finish --> msg["message_text(content)"]
+  msg --> out["print → stdout"]
+  class model roleModel
+  class tool roleTool
+  class dock roleSource
+  class msg roleFocus
+```
+
+- A model's `content` varies
+  - a string from cloud models, a list of blocks from some local ones
+- Join the `type == "text"` blocks if it's a list; leave a string as-is
+
+```python
+def message_text(content) -> str:
+    """Flatten an assistant message's content to plain text."""
+    if isinstance(content, list):
+        return "".join(
+            part.get("text", "")
+            for part in content
+            if isinstance(part, dict) and part.get("type") == "text"
+        )
+    return content
+```
+
+### `main()` — wiring \{#main}
+
+```mermaid
+flowchart TB
+  q["task (sys.argv)"] --> build["main() — build model + agent"]
+  build --> react{"ReAct loop"}
+  react -- reason --> model["Model (ChatLiteLLM)"]
+  model -- tool call --> tool["run_python(code)"]
+  tool --> dock[("docker run · python:3.12-slim")]
+  dock -- stdout/stderr --> tool
+  tool -- observe --> react
+  react -- finish --> msg["message_text(content)"]
+  msg --> out["print → stdout"]
+  class model roleModel
+  class tool roleTool
+  class dock roleSource
+  class build roleFocus
+```
+
+- Build `ChatLiteLLM` from `MODEL` and a ReAct loop with `create_agent(model, tools=[run_python])`
+- `agent.invoke({"messages": […]})` runs reason → tool call → observe
+- When it finishes, clean the last message with `message_text()` and print it
+
+```python
+def main() -> None:
+    question = " ".join(sys.argv[1:]) or "What is the 30th Fibonacci number? Use code."
+
+    # MODEL chooses the provider (claude-opus-4-8 / gpt-4o / gemini/gemini-2.5-flash).
+    model = ChatLiteLLM(model=os.environ.get("MODEL", "claude-opus-4-8"), temperature=0)
+    agent = create_agent(model, tools=[run_python])
+
+    result = agent.invoke({"messages": [{"role": "user", "content": question}]})
+    final = result["messages"][-1]
+    answer = (message_text(final.content) or "").strip()
+    print(answer or f"[no text in the final message] {final!r}")
+```
+
+The import says `langchain`, but what `create_agent` returns is a LangGraph graph.  
+Why that glue layer exists — and what the same loop looks like wired with just LiteLLM + LangGraph — is covered in [[litellm-langgraph-vs-langchain|a separate comparison]].
 
 ## The implementation \{#the-implementation}
 

@@ -1,0 +1,91 @@
+---
+name: LangChain
+vendor: "LangChain"
+logo: /logos/langchain.svg
+category: framework-orchestration
+docVersion: "1.0"
+updated: 2026-07-03
+description: LLM 앱 프레임워크의 원조 — 표준 모델·도구 인터페이스와 수백 개의 통합, 그리고 LangGraph 에이전트를 컴파일해 주는 create_agent 프리빌트
+website: https://www.langchain.com
+repo: https://github.com/langchain-ai/langchain
+docs: https://docs.langchain.com
+tags: [framework, agents, integrations, python]
+language: Python / JS
+license: MIT
+pricing: [open-source]
+related: [langgraph, langsmith, litellm]
+projects:
+  - folder: langgraph_1
+    related: [langgraph, litellm]
+samples:
+  - version: "1.x · create_agent"
+    lang: python
+    diagram: |
+      flowchart LR
+        q([invoke]) --> model[모델]
+        model -->|도구 호출| tools[도구]
+        tools --> model
+        model -->|완료| out([답변])
+        class model roleModel
+        class tools roleTool
+    code: |
+      from langchain.agents import create_agent
+      from langchain_core.tools import tool
+
+      @tool
+      def multiply(a: int, b: int) -> int:
+          """Multiply two integers."""
+          return a * b
+
+      agent = create_agent("anthropic:claude-opus-4-8", tools=[multiply])
+      result = agent.invoke(
+          {"messages": [{"role": "user", "content": "What is 6 x 7?"}]}
+      )
+      print(result["messages"][-1].content)
+    description: |
+      ### 언제 쓰나
+      `create_agent`는 도구를 부르는 **ReAct 에이전트**를 한 줄로 얻는 표준
+      방법입니다. `@tool`의 docstring이 곧 도구 스키마가 되고, 반환되는
+      에이전트는 컴파일된 **LangGraph** 그래프입니다.
+
+      ### 어떻게 도나
+      루프가 모델을 부르고, 요청된 도구를 실행해 결과를 되먹이고, 모델이
+      도구 없이 답하면 멈춥니다.
+    note: 이 패턴의 실행 가능한 빌드는 구현 탭의 langgraph_1에 있습니다.
+  - version: "1.x · init_chat_model"
+    lang: python
+    code: |
+      from langchain.chat_models import init_chat_model
+
+      model = init_chat_model("anthropic:claude-opus-4-8", temperature=0)
+      reply = model.invoke("한 문장으로: 에이전트란?")
+      print(reply.content)
+    description: |
+      ### 언제 쓰나
+      `init_chat_model`은 `"공급자:모델"` 문자열 하나로 **공급자 불문 챗
+      모델**을 만듭니다 — 호출 코드를 바꾸지 않고 Claude를 GPT나 Gemini로
+      갈아끼울 수 있습니다.
+    note: 여러 공급자를 하나의 API 키 방식으로 라우팅하려면 LiteLLM을 보세요.
+---
+
+## 개요
+
+LangChain은 패밀리의 나머지가 꽂히는 프레임워크입니다. 챗 모델·메시지·도구의 **표준 인터페이스**와 방대한 공급자·벡터 스토어 통합 카탈로그를 제공합니다.  
+1.0부터는 패키지가 의도적으로 얇아졌습니다 — 에이전트 런타임은 [[LangGraph]], 관측은 [[LangSmith]]가 맡고, LangChain은 접착을 담당합니다. `create_agent`가 실전형 ReAct 에이전트를 만들어 컴파일된 LangGraph 그래프로 돌려줍니다.
+
+```mermaid
+flowchart TB
+  code["에이전트 코드"] --> lc["LangChain — 인터페이스 + create_agent"]
+  lc --> lg["LangGraph — 루프 런타임"]
+  lc --> prov[("모델 · 도구 통합")]
+  class lc roleFocus
+  class lg roleTool
+  class prov roleModel
+```
+
+이 카탈로그의 튜토리얼들이 정확히 그 조합을 씁니다 — 공급자 라우팅은 `ChatLiteLLM`, 루프는 `create_agent`.  
+접착 계층이 정말 필요한지는 따져볼 만한 질문인데, [[litellm-langgraph-vs-langchain|LangChain 없이 만들면]]에서 같은 루프를 LiteLLM + LangGraph만으로 배선해 트레이드오프를 비교합니다.
+
+## 언제 쓰나
+
+몇 분 안에 도구 호출 에이전트를 띄우고 싶을 때, 하나의 인터페이스로 모델 공급자 이식성을 얻고 싶을 때, 통합 카탈로그가 필요할 때 LangChain을 집으세요. 루프 자체를 원하는 모양으로 빚어야 하면 LangGraph의 그래프 API로 내려가면 됩니다.

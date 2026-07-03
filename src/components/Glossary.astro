@@ -3,8 +3,10 @@ import { getRelativeLocaleUrl } from 'astro:i18n';
 import { glossary } from '../data/glossary.mjs';
 import { getStacks, slugOf } from '../lib/stacks';
 import { getConcepts, conceptSlugOf } from '../lib/concepts';
+import { getArticles, articleSlugOf } from '../lib/articles';
 import { pathOf as stackPath, rootCategories } from '../data/categories';
 import { conceptTree, conceptCatOf } from '../data/concept-categories';
+import { articleTree, articleCatOf } from '../data/article-categories';
 import ToolAvatar from './ToolAvatar.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
 
@@ -16,6 +18,7 @@ type Entry = {
   label: string | { ko: string; en: string };
   stack?: string;
   concept?: string;
+  article?: string;
   href?: string;
   def?: string | { ko: string; en: string };
 };
@@ -45,9 +48,12 @@ const stacks = await getStacks(lang);
 const stackBySlug = new Map(stacks.map((s) => [slugOf(s), s]));
 const concepts = await getConcepts(lang);
 const conceptBySlug = new Map(concepts.map((c) => [conceptSlugOf(c), c]));
+const articles = await getArticles(lang);
+const articleBySlug = new Map(articles.map((a) => [articleSlugOf(a), a]));
 
 const tools: Term[] = [];
 const conceptTerms: Term[] = [];
+const articleTerms: Term[] = [];
 const defTerms: Term[] = [];
 const external: Term[] = [];
 
@@ -83,6 +89,23 @@ for (const [id, e] of Object.entries(map)) {
       subtitle: leaf?.label[lang] ?? '',
       external: false,
       icon: { name: label, fallback: 'concept' },
+      catId: top?.id ?? 'zzz',
+      catLabel: top?.label[lang] ?? '',
+      search: `${label} ${leaf?.label[lang] ?? ''} ${top?.label[lang] ?? ''}`.toLowerCase(),
+    });
+  } else if (e.article) {
+    const a = articleBySlug.get(e.article);
+    const catId = articleCatOf(a?.data.category);
+    const path = articleTree.pathOf(catId);
+    const leaf = path[path.length - 1];
+    const top = path[0];
+    articleTerms.push({
+      id,
+      label,
+      href: getRelativeLocaleUrl(lang, `article/${e.article}/`),
+      subtitle: leaf?.label[lang] ?? '',
+      external: false,
+      icon: { name: label, fallback: 'article' },
       catId: top?.id ?? 'zzz',
       catLabel: top?.label[lang] ?? '',
       search: `${label} ${leaf?.label[lang] ?? ''} ${top?.label[lang] ?? ''}`.toLowerCase(),
@@ -138,6 +161,7 @@ const flat = (terms: Term[]): Group[] =>
 const kinds = [
   { key: 'tool', title: t('glossary.tool'), groups: groupBy(tools, rootCategories.map((c) => c.id)) },
   { key: 'concept', title: t('glossary.concept'), groups: groupBy(conceptTerms, conceptTree.roots.map((c) => c.id)) },
+  { key: 'article', title: t('glossary.article'), groups: groupBy(articleTerms, articleTree.roots.map((c) => c.id)) },
   { key: 'term', title: t('glossary.term'), groups: flat(defTerms) },
   { key: 'external', title: t('glossary.external'), groups: flat(external) },
 ].filter((k) => k.groups.length > 0);

@@ -152,13 +152,17 @@ function remarkGlossary() {
               ? `../../stack/${entry.stack}/`
               : entry.concept
                 ? `../../concept/${entry.concept}/`
-                : entry.href
-                  ? entry.href
-                  : def
-                    ? `../../glossary/#${id}`
-                    : null;
+                : entry.article
+                  ? `../../article/${entry.article}/`
+                  : entry.href
+                    ? entry.href
+                    : def
+                      ? `../../glossary/#${id}`
+                      : null;
             if (!url)
-              throw new Error(`[glossary] term "[[${m[1]}]]" needs one of stack/concept/href/def`);
+              throw new Error(
+                `[glossary] term "[[${m[1]}]]" needs one of stack/concept/article/href/def`,
+              );
             const text = m[2] ? m[2].trim() : labelOf(entry.label);
             /** @type {any} */
             const link = { type: 'link', url, children: [{ type: 'text', value: text }] };

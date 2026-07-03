@@ -9,7 +9,7 @@ updated: 2026-06-29
 image: '@assets/articles/web-scraping-agent/main-image.jpeg'
 imageAlt: 웹 스크래핑 에이전트 — 문서를 마크다운으로.
 tools: [firecrawl, langgraph]
-related: [web-search-fx-agent, code-sandbox-agent]
+related: [web-search-fx-agent, code-sandbox-agent, litellm-langgraph-vs-langchain]
 project:
   folder: firecrawl_1
   related: [langgraph, litellm]
@@ -81,6 +81,9 @@ flowchart TB
 - `ChatLiteLLM`은 *LiteLLM*을 LangChain 모델로 감싼 어댑터 — 라우팅(어느 API를 부를지)은 LiteLLM, 인터페이스 연결은 `ChatLiteLLM`
 - `agent.invoke({"messages": […]})`가 추론→도구 호출→관찰을 돌림
 - 끝나면 마지막 메시지의 `content`를 `message_text()`로 다듬어 출력
+
+임포트는 `langchain`이지만 `create_agent`가 돌려주는 것은 LangGraph 그래프입니다.  
+이 접착 계층 없이 LiteLLM + LangGraph만으로 직접 배선하면 어떻게 되는지는 [[litellm-langgraph-vs-langchain|별도 비교 글]]에서 다룹니다.
 
 ## 구현 \{#the-implementation}
 

@@ -123,6 +123,9 @@
   --aas-role-source: #14b8a6;
   --aas-role-tool: #8b5cf6;
   --aas-role-guard: #f43f5e;
+  /* "You are here" highlight — orange, used to spotlight one node when a
+     section walks through a single piece of a larger diagram. */
+  --aas-role-focus: #f97316;
 }
 
 :root[data-theme="dark"] {
@@ -546,6 +549,10 @@ summary {
   list-style: disc;
   padding-left: 1.25rem;
 }
+.prose :where(ol) {
+  list-style: decimal;
+  padding-left: 1.25rem;
+}
 .prose :where(a) {
   color: var(--aas-accent);
   text-decoration: none;
@@ -711,6 +718,14 @@ summary {
 .mermaid g.node.roleGuard :is(rect, polygon, path) {
   fill: color-mix(in srgb, var(--aas-role-guard) 14%, var(--aas-panel)) !important;
   stroke: color-mix(in srgb, var(--aas-role-guard) 55%, transparent) !important;
+}
+/* Spotlight (orange) — stronger fill/stroke than the role tints so the node the
+   surrounding prose is explaining pops out. Declared last so it wins over a
+   node's ordinary role class. */
+.mermaid g.node.roleFocus :is(rect, polygon, path) {
+  fill: color-mix(in srgb, var(--aas-role-focus) 22%, var(--aas-panel)) !important;
+  stroke: color-mix(in srgb, var(--aas-role-focus) 75%, transparent) !important;
+  stroke-width: 1.5px !important;
 }
 .mermaid g.cluster rect {
   rx: 18px;
