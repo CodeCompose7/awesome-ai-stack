@@ -9,7 +9,7 @@ updated: 2026-06-29
 image: '@assets/articles/web-search-fx-agent/main-image.jpeg'
 imageAlt: 웹 검색 에이전트 — 오늘의 환율 묻기.
 tools: [tavily, langgraph]
-related: [web-scraping-agent, code-sandbox-agent]
+related: [web-scraping-agent, code-sandbox-agent, litellm-langgraph-vs-langchain]
 project:
   folder: tavily_1
   related: [langgraph, litellm]
@@ -82,6 +82,9 @@ flowchart TB
 - `agent.invoke({"messages": […]})`가 추론→도구 호출→관찰을 돌림
 - 끝나면 마지막 메시지의 `content`를 `message_text()`로 다듬어 출력
 - 도구를 부를지·한 번 더 부를지는 전부 루프가 결정
+
+임포트는 `langchain`이지만 `create_agent`가 돌려주는 것은 LangGraph 그래프입니다.  
+이 접착 계층 없이 LiteLLM + LangGraph만으로 직접 배선하면 어떻게 되는지는 [[litellm-langgraph-vs-langchain|별도 비교 글]]에서 다룹니다.
 
 ## 구현 \{#the-implementation}
 

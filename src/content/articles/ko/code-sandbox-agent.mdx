@@ -9,7 +9,7 @@ updated: 2026-06-30
 image: '@assets/articles/code-sandbox-agent/main-image.jpeg'
 imageAlt: 코드 샌드박스 에이전트 — Docker에서 모델 코드를 실행.
 tools: [docker, langgraph]
-related: [web-search-fx-agent, web-scraping-agent]
+related: [web-search-fx-agent, web-scraping-agent, litellm-langgraph-vs-langchain]
 project:
   folder: docker_1
   related: [docker, langgraph, litellm]
@@ -199,6 +199,9 @@ def main() -> None:
     answer = (message_text(final.content) or "").strip()
     print(answer or f"[no text in the final message] {final!r}")
 ```
+
+임포트는 `langchain`이지만 `create_agent`가 돌려주는 것은 LangGraph 그래프입니다.  
+이 접착 계층이 왜 있는지, LangChain 없이 LiteLLM + LangGraph만으로 같은 루프를 직접 배선하면 어떻게 되는지는 [[litellm-langgraph-vs-langchain|별도 비교 글]]에서 다룹니다.
 
 ## 구현 \{#the-implementation}
 

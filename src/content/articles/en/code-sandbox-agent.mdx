@@ -9,7 +9,7 @@ updated: 2026-06-30
 image: '@assets/articles/code-sandbox-agent/main-image.jpeg'
 imageAlt: A code-sandbox agent — running model code in Docker.
 tools: [docker, langgraph]
-related: [web-search-fx-agent, web-scraping-agent]
+related: [web-search-fx-agent, web-scraping-agent, litellm-langgraph-vs-langchain]
 project:
   folder: docker_1
   related: [docker, langgraph, litellm]
@@ -199,6 +199,9 @@ def main() -> None:
     answer = (message_text(final.content) or "").strip()
     print(answer or f"[no text in the final message] {final!r}")
 ```
+
+The import says `langchain`, but what `create_agent` returns is a LangGraph graph.  
+Why that glue layer exists — and what the same loop looks like wired with just LiteLLM + LangGraph — is covered in [[litellm-langgraph-vs-langchain|a separate comparison]].
 
 ## The implementation \{#the-implementation}
 

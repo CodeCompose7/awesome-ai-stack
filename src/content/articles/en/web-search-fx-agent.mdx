@@ -10,7 +10,7 @@ updated: 2026-06-29
 image: '@assets/articles/web-search-fx-agent/main-image.jpeg'
 imageAlt: A web-search agent — asking today's FX rate.
 tools: [tavily, langgraph]
-related: [web-scraping-agent, code-sandbox-agent]
+related: [web-scraping-agent, code-sandbox-agent, litellm-langgraph-vs-langchain]
 project:
   folder: tavily_1
   related: [langgraph, litellm]
@@ -83,6 +83,9 @@ flowchart TB
 - `agent.invoke({"messages": […]})` runs reason→call-tool→observe
 - When it finishes, the last message's `content` is cleaned by `message_text()` and printed
 - Whether to call the tool — and whether to call again — is entirely the loop's decision
+
+The import says `langchain`, but what `create_agent` returns is a LangGraph graph.  
+What the same loop looks like wired with just LiteLLM + LangGraph — no glue layer — is covered in [[litellm-langgraph-vs-langchain|a separate comparison]].
 
 ## The implementation \{#the-implementation}
 
