@@ -1,5 +1,7 @@
 # ⚡ awesome-agent-stack
 
+> **🌐 Languages:** English · [한국어](docs/readme/README.ko.md)
+
 A curated stack of the tools and services you actually use to build **AI agents** —
 frameworks, LLM providers, vector stores, observability, and more.
 
@@ -28,7 +30,20 @@ Live site: <https://codecompose7.github.io/awesome-agent-stack>
 
 ## Getting started
 
-Requires **Node ≥ 20** (the devcontainer uses Node 24) and **pnpm**.
+**Quickest — clone and run, nothing to install but Docker:**
+
+```bash
+docker compose up      # builds the image, installs deps, runs `pnpm dev`
+```
+
+Then open <http://localhost:4321/awesome-agent-stack/>. The source is bind-mounted,
+so edits on your machine hot-reload in the container. This runs the **dev server**
+([`Dockerfile.dev`](Dockerfile.dev) + [`docker-compose.yml`](docker-compose.yml)) —
+the production site is the static build from the deploy workflow, not this image.
+The compose file also mounts the Docker socket so the dev-only sample **run**
+wizard works; drop that line if you don't use it or aren't on Linux/macOS.
+
+**Or with Node locally** (Node ≥ 20; the devcontainer uses Node 24) and **pnpm**:
 
 ```bash
 pnpm install      # install dependencies
@@ -41,21 +56,6 @@ pnpm check        # type-check Astro + content collections
 > **Using VS Code / Dev Containers?** Open the folder and "Reopen in Container".
 > The devcontainer (`.devcontainer/`) provisions Node 24, enables pnpm via Corepack,
 > runs `pnpm install`, and forwards the Astro port (4321).
-
-### No local Node? Use Docker Compose
-
-To run the dev server without installing Node or pnpm — just Docker:
-
-```bash
-docker compose up      # builds the image, installs deps, runs `pnpm dev`
-```
-
-Then open <http://localhost:4321/awesome-agent-stack/>. The source is bind-mounted,
-so edits on your machine hot-reload in the container. This runs the **dev server**
-([`Dockerfile.dev`](Dockerfile.dev) + [`docker-compose.yml`](docker-compose.yml)) —
-the production site is the static build from the deploy workflow, not this image.
-The compose file also mounts the Docker socket so the dev-only sample **run**
-wizard works; drop that line if you don't use it or aren't on Linux/macOS.
 
 ### A note on pnpm build scripts
 
