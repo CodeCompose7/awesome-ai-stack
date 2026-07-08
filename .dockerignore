@@ -1,0 +1,14 @@
+# Keep the build context small (Dockerfile.dev only needs the manifests; the
+# source arrives via the compose bind mount).
+node_modules
+dist
+.astro
+.git
+.aas-cache
+.pnpm-store
+.pnpm
+**/__pycache__
+**/*.pyc
+# Local secrets in sample folders — never send to the build context.
+**/.env
+.DS_Store

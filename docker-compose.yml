@@ -1,0 +1,25 @@
+# Local development without installing Node/pnpm:
+#
+#   docker compose up
+#
+# then open http://localhost:4321/awesome-agent-stack/ . The source is bind-
+# mounted, so edits on the host hot-reload in the container. This runs the Astro
+# dev server only — the production site is the static build from
+# .github/workflows/deploy.yml.
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - '4321:4321'
+    volumes:
+      # Live source: edit on the host, the dev server reloads (Vite polls for
+      # changes — set in astro.config.mjs — which is needed over a bind mount).
+      - .:/app
+      # Keep the image's installed node_modules; don't let the host mount
+      # overlay it (the host may have none, or a different platform's binaries).
+      - /app/node_modules
+      # The dev-only sample "run" wizard shells out to Docker (Docker-out-of-
+      # Docker). Remove this line if you don't use it or aren't on Linux/macOS.
+      - /var/run/docker.sock:/var/run/docker.sock

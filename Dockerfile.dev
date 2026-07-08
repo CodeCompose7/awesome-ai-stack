@@ -1,0 +1,33 @@
+# syntax=docker/dockerfile:1
+# Local-dev image: runs the Astro dev server (`pnpm dev`) so anyone can clone the
+# repo and `docker compose up` without installing Node or pnpm. This is NOT the
+# production build — the site ships as a static build via
+# .github/workflows/deploy.yml (GitHub Pages). See docker-compose.yml.
+FROM node:24-slim
+
+# The docker CLI (client only), copied from the official image. It lets the
+# dev-only sample "run" wizard drive the *host* Docker daemon through the socket
+# that docker-compose.yml mounts — the same Docker-out-of-Docker setup the dev
+# container uses. Harmless if you never use the run wizard.
+COPY --from=docker:27-cli /usr/local/bin/docker /usr/local/bin/docker
+
+# git + certs for tooling; pnpm via Corepack, pinned to package.json's
+# packageManager so the image matches the dev container and CI.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && corepack enable \
+    && corepack prepare pnpm@11.7.0 --activate
+
+WORKDIR /app
+
+# Install dependencies as their own layer (cached until the manifests change).
+# The full source is bind-mounted at run time by compose; node_modules is kept
+# out of that mount by an anonymous volume, so these installed deps are used.
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN pnpm install --frozen-lockfile
+
+EXPOSE 4321
+
+# astro.config.mjs sets server.host = true, so this listens on 0.0.0.0:4321.
+CMD ["pnpm", "dev"]
