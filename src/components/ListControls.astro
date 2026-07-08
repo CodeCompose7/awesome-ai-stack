@@ -112,8 +112,14 @@ const menuClass =
       if (!pager) return;
       pager.replaceChildren();
       if (pages <= 1) return;
+      // Show at most WINDOW page numbers, a window centered on the current page
+      // that shifts as you move past its edge (rather than listing every page).
+      const WINDOW = 5;
+      let start = Math.max(1, curPage - Math.floor(WINDOW / 2));
+      const end = Math.min(pages, start + WINDOW - 1);
+      start = Math.max(1, end - WINDOW + 1);
       pager.appendChild(pageButton('‹', curPage - 1, { disabled: curPage === 1 }));
-      for (let i = 1; i <= pages; i++) pager.appendChild(pageButton(String(i), i, { current: i === curPage }));
+      for (let i = start; i <= end; i++) pager.appendChild(pageButton(String(i), i, { current: i === curPage }));
       pager.appendChild(pageButton('›', curPage + 1, { disabled: curPage === pages }));
     }
 
