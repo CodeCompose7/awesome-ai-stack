@@ -197,10 +197,15 @@ export function localSamples() {
     });
 
   // Stream one child process's command line + output to the response.
+  // The task/args are passed to spawn as an argv array (no shell), so the
+  // command line we echo is display-only. Quote args with spaces so the echoed
+  // line matches the preview and is copy-paste-safe into a shell.
+  /** @param {string} a */
+  const shellish = (a) => (a === '' || /[\s"]/.test(a) ? '"' + a.replace(/"/g, '\\"') + '"' : a);
   /** @param {any} res @param {string} cmd @param {string[]} args */
   const runStep = (res, cmd, args) =>
     new Promise((resolve) => {
-      res.write('$ ' + cmd + ' ' + args.join(' ') + '\n');
+      res.write('$ ' + cmd + ' ' + args.map(shellish).join(' ') + '\n');
       let child;
       try {
         child = spawn(cmd, args);
