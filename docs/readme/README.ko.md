@@ -1,6 +1,6 @@
 # ⚡ awesome-agent-stack
 
-> **🌐 언어:** [English](../../README.md) · 한국어
+[English](../../README.md) | **한국어**
 
 **AI 에이전트**를 만들 때 실제로 쓰는 도구와 서비스를 모은 큐레이션 스택 —
 프레임워크, LLM 제공자, 벡터 스토어, 관측(observability) 등.

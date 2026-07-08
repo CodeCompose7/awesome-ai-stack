@@ -1,6 +1,6 @@
 # ⚡ awesome-agent-stack
 
-> **🌐 Languages:** English · [한국어](docs/readme/README.ko.md)
+**English** | [한국어](docs/readme/README.ko.md)
 
 A curated stack of the tools and services you actually use to build **AI agents** —
 frameworks, LLM providers, vector stores, observability, and more.
