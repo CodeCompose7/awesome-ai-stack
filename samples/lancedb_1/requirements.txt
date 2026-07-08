@@ -1,1 +1,1 @@
-lancedb>=0.18
+lancedb>=0.18,<1

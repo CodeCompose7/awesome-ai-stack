@@ -79,11 +79,18 @@ function renderReadme(
   md: MarkdownIt,
   content: string,
   folder: string,
-): { html: string; headings: ProjectHeading[] } {
+): { html: string; headings: ProjectHeading[]; title?: string } {
   const tokens = md.parse(content, {});
   const headings: ProjectHeading[] = [];
+  // The first real h1 is the project's display name. Taken from the parsed
+  // tokens (not a regex over the source) so a `# comment` line inside a fenced
+  // shell block can't be mistaken for it.
+  let title: string | undefined;
   for (let i = 0; i < tokens.length; i++) {
     const tk = tokens[i];
+    if (tk.type === 'heading_open' && tk.tag === 'h1' && title === undefined) {
+      title = tokens[i + 1]?.content ?? '';
+    }
     if (tk.type === 'heading_open' && (tk.tag === 'h2' || tk.tag === 'h3' || tk.tag === 'h4')) {
       const text = tokens[i + 1]?.content ?? '';
       const slug = `${folder}-${slugify(text)}`;
@@ -98,7 +105,7 @@ function renderReadme(
       `<${tag} id="${id}">` +
       `<a class="aas-anchor" href="#${id}" aria-label="Copy link to section"></a>${inner}</${tag}>`,
   );
-  return { html, headings };
+  return { html, headings, title };
 }
 
 function langFor(name: string): string {
@@ -133,11 +140,21 @@ function priority(path: string): number {
   return 0;
 }
 
+// The viewer renders text only — skip images/archives/etc. by extension, and
+// anything else that carries NUL bytes (binary content decoded as UTF-8 would
+// render as mojibake in the file tree).
+const BINARY_RE =
+  /\.(png|jpe?g|gif|webp|avif|ico|pdf|zip|gz|tgz|tar|db|sqlite3?|woff2?|ttf|eot|otf|mp[34]|wav|bin|exe|so|dylib|pyc|wasm)$/i;
+
 function walk(dir: string, base: string, out: { path: string; name: string; content: string }[]): void {
   for (const name of readdirSync(dir)) {
     const full = join(dir, name);
     if (statSync(full).isDirectory()) walk(full, base, out);
-    else out.push({ path: relative(base, full), name, content: readFileSync(full, 'utf8') });
+    else if (!BINARY_RE.test(name)) {
+      const buf = readFileSync(full);
+      if (buf.subarray(0, 8192).includes(0)) continue;
+      out.push({ path: relative(base, full), name, content: buf.toString('utf8') });
+    }
   }
 }
 
@@ -164,6 +181,54 @@ function gitIgnored(paths: string[]): Set<string> {
 /** A README file in the project, with an optional locale suffix:
  *  README.md (default) or README.<lang>.md (e.g. README.ko.md). */
 const README_RE = /^readme(?:\.([a-z]{2}))?\.md$/i;
+
+/** All sample folders under samples/, sorted by name. */
+export function listSampleFolders(): string[] {
+  return readdirSync(SAMPLES_DIR, { withFileTypes: true })
+    .filter((e) => e.isDirectory())
+    .map((e) => e.name)
+    .sort();
+}
+
+export interface ProjectSummary {
+  folder: string;
+  name: string; // README h1 in the requested locale (folder as fallback)
+  excerpt: string; // first README paragraph, plain text
+  date: string; // when the sample was authored (YYYY-MM-DD)
+}
+
+/**
+ * Light per-folder metadata for the samples index: the locale-appropriate
+ * README's title and first paragraph — parsed, not rendered, and nothing is
+ * highlighted, so listing every sample stays cheap.
+ */
+export function listProjects(lang: string): ProjectSummary[] {
+  const md = new MarkdownIt();
+  // Markdown inline syntax the excerpt should not carry into a card.
+  const plain = (s: string) =>
+    s.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/[*_`]/g, '');
+  return listSampleFolders().map((folder) => {
+    const dir = join(SAMPLES_DIR, folder);
+    const readmes = readdirSync(dir).filter((n) => README_RE.test(n));
+    const pick =
+      readmes.find((n) => n.toLowerCase() === `readme.${lang}.md`) ??
+      readmes.find((n) => n.toLowerCase() === 'readme.md') ??
+      readmes[0];
+    let name = folder;
+    let excerpt = '';
+    if (pick) {
+      const tokens = md.parse(readFileSync(join(dir, pick), 'utf8'), {});
+      for (let i = 0; i < tokens.length; i++) {
+        if (tokens[i].type === 'heading_open' && tokens[i].tag === 'h1' && name === folder)
+          name = tokens[i + 1]?.content ?? folder;
+        else if (tokens[i].type === 'paragraph_open' && !excerpt)
+          excerpt = plain(tokens[i + 1]?.content ?? '').replace(/\s+/g, ' ');
+        if (name !== folder && excerpt) break;
+      }
+    }
+    return { folder, name, excerpt, date: SAMPLE_DATES[folder] ?? DEFAULT_SAMPLE_DATE };
+  });
+}
 
 /**
  * Read + render the sample projects in the given `samples/<folder>/` list.
@@ -218,8 +283,9 @@ export async function renderProjects(folders: string[], lang: string): Promise<R
     let headings: ProjectHeading[] = [];
     let name = folder;
     if (readme) {
-      ({ html: readmeHtml, headings } = renderReadme(md, readme.content, folder));
-      name = readme.content.match(/^#\s+(.+?)\s*$/m)?.[1] ?? folder;
+      let title: string | undefined;
+      ({ html: readmeHtml, headings, title } = renderReadme(md, readme.content, folder));
+      name = title || folder;
     }
 
     const files: ProjectFile[] = [];

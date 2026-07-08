@@ -131,6 +131,20 @@ const isDefaultHome = path === '' && lang === 'en';
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
           </a>
           <a
+            href={getRelativeLocaleUrl(lang, 'sample/')}
+            class="flex items-center no-underline hover:text-[var(--aas-text)]"
+            aria-label={t('nav.samples')}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>
+          </a>
+          <a
+            href={getRelativeLocaleUrl(lang, 'glossary/')}
+            class="flex items-center no-underline hover:text-[var(--aas-text)]"
+            aria-label={t('nav.glossary')}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
+          </a>
+          <a
             href="https://github.com/codecompose7/awesome-agent-stack"
             target="_blank"
             rel="noopener noreferrer"
@@ -261,10 +275,12 @@ const isDefaultHome = path === '' && lang === 'en';
             .forEach((d) => isDropdown(d) && (d.open = false));
       });
 
-      // On a narrow (mobile) viewport, open new-tab links in the *same* window
-      // instead — a stack of background tabs is awkward on a phone and back-nav
-      // is more natural. Desktop keeps target="_blank". This is progressive: the
-      // HTML ships _blank (the desktop default), and we only strip it on mobile,
+      // On a narrow (mobile) viewport, open *internal* new-tab links in the same
+      // window instead — a stack of background tabs is awkward on a phone and
+      // back-nav is more natural. Links to *other* sites keep target="_blank"
+      // everywhere (opening an external site in the current tab is jarring).
+      // Desktop keeps _blank for all. Progressive: the HTML ships _blank (the
+      // desktop default) and we only strip it for same-origin links on mobile,
       // so it degrades safely with JS off. Reacts to resize/orientation too.
       const blankMq = window.matchMedia('(max-width: 640px)');
       const applyBlankPolicy = () => {
@@ -273,7 +289,7 @@ const isDefaultHome = path === '' && lang === 'en';
           .querySelectorAll<HTMLAnchorElement>('a[target="_blank"], a[data-blank]')
           .forEach((a) => {
             if (mobile) {
-              if (a.getAttribute('target') === '_blank') {
+              if (a.getAttribute('target') === '_blank' && a.origin === location.origin) {
                 a.dataset.blank = '1';
                 const rel = a.getAttribute('rel');
                 if (rel) a.dataset.blankRel = rel;

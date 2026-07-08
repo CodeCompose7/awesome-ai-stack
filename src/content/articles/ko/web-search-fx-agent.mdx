@@ -9,7 +9,7 @@ updated: 2026-06-29
 image: '@assets/articles/web-search-fx-agent/main-image.jpeg'
 imageAlt: 웹 검색 에이전트 — 오늘의 환율 묻기.
 tools: [tavily, langgraph]
-related: [web-scraping-agent, code-sandbox-agent]
+related: [web-scraping-agent, code-sandbox-agent, litellm-langgraph-vs-langchain]
 project:
   folder: tavily_1
   related: [langgraph, litellm]
@@ -43,6 +43,8 @@ flowchart LR
 
 ## 코드 뜯어보기 \{#reading-the-code}
 
+### 전체 구조 \{#overall-structure}
+
 `app.py`의 전체 흐름은 함수 셋으로 나뉩니다 — `main()`이 모델과 에이전트를 짜고, 모델이 부르는 도구가 `web_search()`, 그리고 마지막 답을 다듬는 게 `message_text()`입니다.
 
 ```mermaid
@@ -61,27 +63,32 @@ flowchart TB
   class tavily roleSource
 ```
 
-**`web_search(query)` — 도구**
+### 세부 구조 \{#detailed-structure}
+
+#### `web_search(query)` — 도구 \{#web-search}
 
 - `@tool` 데코레이터 하나로 평범한 파이썬 함수가 모델이 부를 수 있는 도구가 됨
 - docstring이 그대로 모델용 설명서 — 모델은 이걸 보고 *언제* 부를지 판단
 - 내부에서 `_tavily.search(query, include_answer=True, max_results=5)`로 Tavily 호출
 - 돌려받은 `answer`와 `results`를 한 덩이의 텍스트로 합쳐 반환 — 다음 추론의 입력
 
-**`message_text(content)` — 출력 다듬기**
+#### `message_text(content)` — 출력 다듬기 \{#message-text}
 
 - 모델 응답의 `content`는 모양이 제각각 — 클라우드는 문자열, 일부 로컬 모델은 `[{type: "text", …}, …]` 블록 리스트
 - 리스트면 `type == "text"` 블록의 텍스트만 이어붙임
 - 문자열이면 그대로 둠
 - 그래서 어느 제공자든 깔끔한 한 줄로 출력
 
-**`main()` — 배선**
+#### `main()` — 조립 \{#main}
 
 - `MODEL`로 `ChatLiteLLM`을 만들고 `create_agent(model, tools=[web_search])`로 ReAct 루프 구성
 - `ChatLiteLLM`은 *LiteLLM*을 LangChain 모델로 감싼 어댑터 — 라우팅(어느 API를 부를지)은 LiteLLM, `create_agent`용 인터페이스 연결은 `ChatLiteLLM`
 - `agent.invoke({"messages": […]})`가 추론→도구 호출→관찰을 돌림
 - 끝나면 마지막 메시지의 `content`를 `message_text()`로 다듬어 출력
 - 도구를 부를지·한 번 더 부를지는 전부 루프가 결정
+
+임포트는 `langchain`이지만 `create_agent`가 돌려주는 것은 LangGraph 그래프입니다.  
+이 접착 계층 없이 LiteLLM + LangGraph만으로 직접 구성하면 어떻게 되는지는 [[litellm-langgraph-vs-langchain|별도 비교 글]]에서 다룹니다.
 
 ## 구현 \{#the-implementation}
 

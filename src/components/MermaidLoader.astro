@@ -53,7 +53,11 @@
     for (const n of nodes) {
       if (!n.dataset.src) n.dataset.src = (n.textContent ?? '').trim();
       n.removeAttribute('data-processed');
-      n.innerHTML = n.dataset.src ?? '';
+      // textContent, not innerHTML: dataset.src is entity-DECODED source, so
+      // injecting it as HTML would turn `<…>` in labels into live DOM (the
+      // server-side escaping exists precisely to prevent that). Mermaid reads
+      // the element's innerHTML and decodes entities itself.
+      n.textContent = n.dataset.src ?? '';
     }
     init();
     try {

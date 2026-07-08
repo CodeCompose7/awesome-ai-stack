@@ -5,8 +5,8 @@ import FilterControls from './FilterControls.astro';
 import ArrowUpRight from './ArrowUpRight.astro';
 import { rootCategories, descendantIds } from '../data/categories';
 import { getStacks, slugOf } from '../lib/stacks';
-import { pricingTags } from '../lib/pricing';
-import { useTranslations, pricingLabels, licenseLabel, type Lang } from '../i18n/ui';
+import { deriveFacets } from '../lib/facets';
+import { useTranslations, type Lang } from '../i18n/ui';
 
 interface Props {
   lang: Lang;
@@ -25,39 +25,8 @@ const byCategory = (categoryId: string) => {
     .sort((a, b) => a.data.name.localeCompare(b.data.name));
 };
 
-// Filter facet options, derived from the data.
-const pricingOrder = ['completely-free', 'open-source', 'free-tier', 'paid', 'free'];
-const usedPricing = new Set<string>(entries.flatMap((e) => pricingTags(e.data.pricing)));
-
-const langSet = new Set(
-  entries.flatMap((e) =>
-    (e.data.language ?? '')
-      .split('/')
-      .map((s) => s.trim())
-      .filter(Boolean),
-  ),
-);
-const facets = [
-  {
-    key: 'pricing',
-    label: t('detail.pricing'),
-    options: pricingOrder
-      .filter((p) => usedPricing.has(p))
-      .map((p) => ({ value: p, label: pricingLabels[lang][p] ?? p })),
-  },
-  {
-    key: 'license',
-    label: t('detail.license'),
-    options: [...new Set(entries.map((e) => e.data.license).filter(Boolean))]
-      .sort()
-      .map((l) => ({ value: l as string, label: licenseLabel(lang, l as string) })),
-  },
-  {
-    key: 'language',
-    label: t('detail.language'),
-    options: [...langSet].sort().map((l) => ({ value: l, label: l })),
-  },
-];
+// Filter facet options, derived from the data (shared with the category pages).
+const facets = deriveFacets(entries, lang);
 
 ---
 

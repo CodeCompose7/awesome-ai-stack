@@ -1,2 +1,2 @@
-llama-index>=0.12
-python-dotenv>=1.2
+llama-index>=0.12,<1
+python-dotenv>=1.2,<2

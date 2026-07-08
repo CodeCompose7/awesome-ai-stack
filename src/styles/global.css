@@ -123,6 +123,9 @@
   --aas-role-source: #14b8a6;
   --aas-role-tool: #8b5cf6;
   --aas-role-guard: #f43f5e;
+  /* "You are here" highlight — orange, used to spotlight one node when a
+     section walks through a single piece of a larger diagram. */
+  --aas-role-focus: #f97316;
 }
 
 :root[data-theme="dark"] {
@@ -346,7 +349,8 @@ html {
 }
 .aas-reading.aas-reading :where(h1, h2, h3, h4, h5, h6),
 .aas-reading.aas-reading :where(table),
-.aas-reading.aas-reading a.aas-lift {
+.aas-reading.aas-reading a.aas-lift,
+.aas-reading.aas-reading .aas-sample-picker {
   font-family: var(--aas-sans);
 }
 .aas-reading.aas-reading :where(code, pre, kbd, samp) {
@@ -545,6 +549,10 @@ summary {
   list-style: disc;
   padding-left: 1.25rem;
 }
+.prose :where(ol) {
+  list-style: decimal;
+  padding-left: 1.25rem;
+}
 .prose :where(a) {
   color: var(--aas-accent);
   text-decoration: none;
@@ -552,7 +560,10 @@ summary {
 .prose :where(a):hover {
   text-decoration: underline;
 }
-.prose :where(code):not(pre code) {
+/* Inline code chips in running prose. Chips inside card-style UI links
+   (a.aas-lift — e.g. the project viewer's GitHub button) style themselves
+   with utilities and must not pick this up. */
+.prose :where(code):not(pre code, .aas-lift code) {
   background: var(--aas-panel);
   border: 1px solid var(--aas-border);
   border-radius: 0.3rem;
@@ -710,6 +721,14 @@ summary {
 .mermaid g.node.roleGuard :is(rect, polygon, path) {
   fill: color-mix(in srgb, var(--aas-role-guard) 14%, var(--aas-panel)) !important;
   stroke: color-mix(in srgb, var(--aas-role-guard) 55%, transparent) !important;
+}
+/* Spotlight (orange) — stronger fill/stroke than the role tints so the node the
+   surrounding prose is explaining pops out. Declared last so it wins over a
+   node's ordinary role class. */
+.mermaid g.node.roleFocus :is(rect, polygon, path) {
+  fill: color-mix(in srgb, var(--aas-role-focus) 22%, var(--aas-panel)) !important;
+  stroke: color-mix(in srgb, var(--aas-role-focus) 75%, transparent) !important;
+  stroke-width: 1.5px !important;
 }
 .mermaid g.cluster rect {
   rx: 18px;
@@ -923,28 +942,32 @@ summary {
 }
 
 /* Collapsible <details> used in prose (e.g. "구체적인 예시" reveals). A soft
-   panel with a clickable summary; the disclosure marker stays. */
-.prose :where(details) {
+   panel with a clickable summary; the disclosure marker stays. UI dropdowns
+   (.aas-vdd) and the file tree (.aas-tree-dir) — e.g. an article-embedded
+   project viewer — carry their own chrome and must not pick this up. */
+.prose :where(details):not(:where(.aas-vdd, .aas-tree-dir)) {
   margin: 0.9rem 0;
   border: 1px solid var(--aas-border);
   border-radius: 0.6rem;
   background: var(--aas-panel);
   padding: 0.1rem 0.95rem;
 }
-.prose :where(summary) {
+.prose :where(summary):not(:where(.aas-vdd, .aas-tree-dir) summary) {
   cursor: pointer;
   padding: 0.55rem 0;
   font-weight: 600;
   color: var(--aas-muted);
 }
-.prose :where(details[open]) {
+.prose :where(details[open]):not(:where(.aas-vdd, .aas-tree-dir)) {
   padding-bottom: 0.55rem;
 }
 
 /* Card-style links rendered inside prose (e.g. a concept's inline <Tools/>
-   cards) must not pick up the prose link underline on hover. */
+   cards, the project viewer's GitHub button) must not pick up the prose link
+   accent color or the underline on hover. */
 .prose a.aas-lift,
 .prose a.aas-lift:hover {
+  color: var(--aas-text);
   text-decoration: none;
 }
 

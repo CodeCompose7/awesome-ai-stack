@@ -9,7 +9,7 @@ updated: 2026-06-30
 image: '@assets/articles/code-sandbox-agent/main-image.jpeg'
 imageAlt: 코드 샌드박스 에이전트 — Docker에서 모델 코드를 실행.
 tools: [docker, langgraph]
-related: [web-search-fx-agent, web-scraping-agent]
+related: [web-search-fx-agent, web-scraping-agent, litellm-langgraph-vs-langchain, code-sandbox-agent-direct]
 project:
   folder: docker_1
   related: [docker, langgraph, litellm]
@@ -20,12 +20,15 @@ tags: [sandbox, docker, agent, tutorial]
 import SampleProject from '../../../components/SampleProject.astro';
 
 [샌드박싱](../../concept/sandboxing/) 개념에서, 모델이 짠 코드는 신뢰 경계 *바깥*이라 일회용·격리 환경에서 돌려야 한다고 했습니다.  
-이 글에서는 그 *코드 실행* 역할을 실제로 돌아가는 에이전트로 만들어 봅니다. 
+이 글에서는 그 *코드 실행* 역할을 실제로 돌아가는 에이전트로 만들어 봅니다.  
+
 도구가 코드를 `exec` 하지 않고, 매번 새 Docker 컨테이너에 흘려보냅니다.
 
 ## 무엇을 만드나 \{#what-were-building}
 
-계산이 필요한 작업을 받으면 모델이 파이썬을 짜고, `run_python` 도구가 그 코드를 격리된 Docker 컨테이너에서 돌려 결과를 돌려주면, 모델이 그걸 읽고 답하는 에이전트입니다.
+1. 계산이 필요한 작업을 받으면 모델이 파이썬을 짜고, 
+2. `run_python` 도구가 그 코드를 격리된 Docker 컨테이너에서 돌려 결과를 돌려주면, 
+3. 모델이 그걸 읽고 답하는 에이전트입니다.
 
 ```mermaid
 flowchart LR
@@ -41,10 +44,13 @@ flowchart LR
 ```
 
 코드는 호스트에서 절대 돌지 않습니다.
-- `--network none`으로 네트워크를 끊고, 메모리·CPU·프로세스 수에 상한을 두고,
+- `--network none`으로 네트워크를 끊고, 
+- `--memory`·`--cpus`·`--pids-limit`로 메모리·CPU·프로세스 수에 상한을 두고, 
 - `--rm`으로 끝나면 컨테이너를 버립니다.
 
 ## 코드 뜯어보기 \{#reading-the-code}
+
+### 전체 구조 \{#overall-structure}
 
 `app.py`의 흐름은 함수 셋으로 나뉩니다.
 - `main()`이 모델과 에이전트를 짜고, 
@@ -67,27 +73,137 @@ flowchart TB
   class dock roleSource
 ```
 
-- **`run_python(code)` — 도구**
-  - `@tool`로 감싼 함수 하나
-    - 모델은 docstring을 보고 *언제* 코드로 풀지 판단
-  - 코드를 프로세스 안에서 실행하지 않고, `subprocess`로 `docker run`에 흘려보냄
-    - `python -`로 표준입력의 프로그램을 받음
-  - 격리는 플래그가 함
-    - `--network none`(네트워크 차단), 
-    - `--memory`·`--cpus`·`--pids-limit`(자원 상한), 
-    - `--user 65534`(비-root), 
-    - `--rm`(일회용)
-  - `timeout=30`으로 폭주 코드를 끊고, 출력은 앞부분 4,000자로 자름
+### 세부 구조 \{#detailed-structure}
 
-- **`message_text(content)` — 출력 다듬기**
-  - 모델 응답의 `content`는 모양이 제각각
-    - 클라우드는 문자열, 일부 로컬 모델은 블록 리스트
-  - 리스트면 `type == "text"` 블록만 이어붙이고, 문자열이면 그대로 둠
+#### `run_python(code)` — 도구 \{#run-python}
 
-- **`main()` — 배선**
-  - `MODEL`로 `ChatLiteLLM`을 만들고 `create_agent(model, tools=[run_python])`로 ReAct 루프 구성
-  - `agent.invoke({"messages": […]})`가 추론→도구 호출→관찰을 돌림
-  - 끝나면 마지막 메시지를 `message_text()`로 다듬어 출력
+```mermaid
+flowchart TB
+  q["작업 (sys.argv)"] --> build["main() — 모델·에이전트 구성"]
+  build --> react{"ReAct 루프"}
+  react -- 추론 --> model["모델 (ChatLiteLLM)"]
+  model -- 도구 호출 --> tool["run_python(code)"]
+  tool --> dock[("docker run · python:3.12-slim")]
+  dock -- stdout/stderr --> tool
+  tool -- 관찰 --> react
+  react -- 종료 --> msg["message_text(content)"]
+  msg --> out["print → stdout"]
+  class model roleModel
+  class tool roleFocus
+  class dock roleSource
+```
+
+- `@tool`로 감싼 함수 하나
+  - 모델은 docstring을 보고 *언제* 코드로 풀지 판단
+- 코드를 프로세스 안에서 실행하지 않고, `subprocess`로 `docker run`에 흘려보냄
+  - `python -`로 표준입력의 프로그램을 받음
+- 격리는 플래그가 함
+  - `--network none`(네트워크 차단), 
+  - `--memory`·`--cpus`·`--pids-limit`(자원 상한), 
+  - `--user 65534`(비-root), 
+  - `--rm`(일회용)
+- `timeout=30`으로 폭주 코드를 끊고, 출력은 앞부분 4,000자로 자름
+
+```python
+@tool
+def run_python(code: str) -> str:
+    """Run a snippet of Python and return its stdout/stderr. …"""
+    proc = subprocess.run(
+        [
+            "docker", "run", "--rm", "-i",
+            "--network", "none",      # no network: nothing leaves the box
+            "--memory", "256m",       # memory cap
+            "--cpus", "1",            # cpu cap
+            "--pids-limit", "128",    # process cap (fork-bomb guard)
+            "--user", "65534:65534",  # run as nobody, not root
+            SANDBOX_IMAGE,
+            "python", "-",            # read the program from stdin
+        ],
+        input=code,
+        capture_output=True,
+        text=True,
+        timeout=30,                   # wall-clock guard
+    )
+    out = (proc.stdout or "") + (proc.stderr or "")
+    return out.strip()[:4000] or "(no output)"
+```
+
+*발췌 — 오류 처리는 생략했습니다. 전체 코드는 [구현](#the-implementation) 섹션에 있습니다.*
+
+#### `message_text(content)` — 출력 다듬기 \{#message-text}
+
+```mermaid
+flowchart TB
+  q["작업 (sys.argv)"] --> build["main() — 모델·에이전트 구성"]
+  build --> react{"ReAct 루프"}
+  react -- 추론 --> model["모델 (ChatLiteLLM)"]
+  model -- 도구 호출 --> tool["run_python(code)"]
+  tool --> dock[("docker run · python:3.12-slim")]
+  dock -- stdout/stderr --> tool
+  tool -- 관찰 --> react
+  react -- 종료 --> msg["message_text(content)"]
+  msg --> out["print → stdout"]
+  class model roleModel
+  class tool roleTool
+  class dock roleSource
+  class msg roleFocus
+```
+
+- 모델 응답의 `content`는 모양이 제각각
+  - 클라우드는 문자열, 일부 로컬 모델은 블록 리스트
+- 리스트면 `type == "text"` 블록만 이어붙이고, 문자열이면 그대로 둠
+
+```python
+def message_text(content) -> str:
+    """Flatten an assistant message's content to plain text."""
+    if isinstance(content, list):
+        return "".join(
+            part.get("text", "")
+            for part in content
+            if isinstance(part, dict) and part.get("type") == "text"
+        )
+    return content
+```
+
+#### `main()` — 조립 \{#main}
+
+```mermaid
+flowchart TB
+  q["작업 (sys.argv)"] --> build["main() — 모델·에이전트 구성"]
+  build --> react{"ReAct 루프"}
+  react -- 추론 --> model["모델 (ChatLiteLLM)"]
+  model -- 도구 호출 --> tool["run_python(code)"]
+  tool --> dock[("docker run · python:3.12-slim")]
+  dock -- stdout/stderr --> tool
+  tool -- 관찰 --> react
+  react -- 종료 --> msg["message_text(content)"]
+  msg --> out["print → stdout"]
+  class model roleModel
+  class tool roleTool
+  class dock roleSource
+  class build roleFocus
+```
+
+- `MODEL`로 `ChatLiteLLM`을 만들고 `create_agent(model, tools=[run_python])`로 ReAct 루프 구성
+- `agent.invoke({"messages": […]})`가 추론→도구 호출→관찰을 돌림
+- 끝나면 마지막 메시지를 `message_text()`로 다듬어 출력
+
+```python
+def main() -> None:
+    question = " ".join(sys.argv[1:]) or "What is the 30th Fibonacci number? Use code."
+
+    # MODEL chooses the provider (claude-opus-4-8 / gpt-4o / gemini/gemini-2.5-flash).
+    model = ChatLiteLLM(model=os.environ.get("MODEL", "claude-opus-4-8"), temperature=0)
+    agent = create_agent(model, tools=[run_python])
+
+    result = agent.invoke({"messages": [{"role": "user", "content": question}]})
+    final = result["messages"][-1]
+    answer = (message_text(final.content) or "").strip()
+    print(answer or f"[no text in the final message] {final!r}")
+```
+
+임포트는 `langchain`이지만 `create_agent`가 돌려주는 것은 LangGraph 그래프입니다.  
+이 접착 계층이 왜 있는지, LangChain 없이 LiteLLM + LangGraph만으로 같은 루프를 직접 구성하면 어떻게 되는지는 [[litellm-langgraph-vs-langchain|별도 비교 글]]에서 다룹니다.
 
 ## 구현 \{#the-implementation}
 
@@ -109,4 +225,5 @@ LangGraph의 ReAct 루프에 `run_python` 도구 하나만 붙였습니다.
   - `.env`의 `MODEL`만 바꾸면 같은 코드로 다른 모델을 씁니다.
 
 도구만 검색으로 바꾸면 [오늘의 환율 묻기](../web-search-fx-agent/), 스크래핑으로 바꾸면 [문서를 마크다운으로](../web-scraping-agent/)가 됩니다.  
+같은 에이전트를 LangChain 없이 LiteLLM + LangGraph만으로 구성한 버전은 [[code-sandbox-agent-direct|직접 구성 편]]에 있습니다.  
 격리를 왜·어떻게 하는지는 [샌드박싱](../../concept/sandboxing/) 개념에 정리해 두었습니다.

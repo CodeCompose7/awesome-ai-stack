@@ -6,8 +6,8 @@ import FilterControls from './FilterControls.astro';
 import ArrowUpRight from './ArrowUpRight.astro';
 import { categoryMap, childrenOf, pathOf } from '../data/categories';
 import { getStacks, getStacksByCategory, slugOf, type StackEntry } from '../lib/stacks';
-import { pricingTags } from '../lib/pricing';
-import { useTranslations, pricingLabels, licenseLabel, type Lang } from '../i18n/ui';
+import { deriveFacets } from '../lib/facets';
+import { useTranslations, type Lang } from '../i18n/ui';
 
 interface Props {
   lang: Lang;
@@ -40,38 +40,7 @@ const childGroups = await Promise.all(
 // Filter facets are built from the WHOLE catalog (not just this page's tools) so
 // they're identical on every page — a sort/filter carried in from elsewhere can
 // always be restored here, even if no tool in this category has that value.
-const facetEntries = await getStacks(lang);
-const pricingOrder = ['completely-free', 'open-source', 'free-tier', 'paid', 'free'];
-const usedPricing = new Set<string>(facetEntries.flatMap((e) => pricingTags(e.data.pricing)));
-const langSet = new Set(
-  facetEntries.flatMap((e) =>
-    (e.data.language ?? '')
-      .split('/')
-      .map((s) => s.trim())
-      .filter(Boolean),
-  ),
-);
-const facets = [
-  {
-    key: 'pricing',
-    label: t('detail.pricing'),
-    options: pricingOrder
-      .filter((p) => usedPricing.has(p))
-      .map((p) => ({ value: p, label: pricingLabels[lang][p] ?? p })),
-  },
-  {
-    key: 'license',
-    label: t('detail.license'),
-    options: [...new Set(facetEntries.map((e) => e.data.license).filter(Boolean))]
-      .sort()
-      .map((l) => ({ value: l as string, label: licenseLabel(lang, l as string) })),
-  },
-  {
-    key: 'language',
-    label: t('detail.language'),
-    options: [...langSet].sort().map((l) => ({ value: l, label: l })),
-  },
-];
+const facets = deriveFacets(await getStacks(lang), lang);
 
 const cardProps = (e: StackEntry) => ({
   slug: slugOf(e),

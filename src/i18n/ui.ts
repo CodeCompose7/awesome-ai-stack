@@ -16,10 +16,6 @@ export type Lang = keyof typeof languages;
 
 export const defaultLang: Lang = 'en';
 
-export function isLang(value: string): value is Lang {
-  return value in languages;
-}
-
 /** UI chrome strings, keyed by a dotted id. */
 export const ui = {
   en: {
@@ -28,7 +24,29 @@ export const ui = {
     'nav.browse': 'Browse',
     'nav.concepts': 'Concepts',
     'nav.blog': 'Writing',
+    'nav.samples': 'Samples',
     'nav.backToTop': 'Back to top',
+    'nav.glossary': 'Glossary',
+    'sample.title': 'Samples',
+    'sample.tagline':
+      'The runnable mini-projects behind the catalog — download a folder and run it with Docker.',
+    'sample.usedBy': 'Used by',
+    'sample.related': 'Related sample',
+    'sample.search': 'Search samples…',
+    'sample.searchAll': 'Title + body',
+    'sample.searchTitle': 'Title',
+    'sample.searchBody': 'Body',
+    'sample.tools': 'Source tools',
+    'sample.noResults': 'No matching samples.',
+    'glossary.title': 'Glossary',
+    'glossary.tagline': 'Terms used across the catalog and concepts, each linked to its page.',
+    'glossary.tool': 'Tools',
+    'glossary.concept': 'Concepts',
+    'glossary.article': 'Writing',
+    'glossary.term': 'Terms',
+    'glossary.external': 'External',
+    'glossary.search': 'Search terms…',
+    'glossary.noResults': 'No matching terms.',
     'search.placeholder': 'Search tools…',
     'concept.title': 'Concepts',
     'concept.tagline': 'Patterns that compose catalog tools into a working agent stack.',
@@ -86,7 +104,12 @@ export const ui = {
     'tab.code': 'Code samples',
     'tab.impl': 'Implementation',
     'project.intro': 'A real, runnable mini-project. Download it and run with Docker.',
-    'project.viewOnGitHub': 'View folder on GitHub',
+    // Rendered around the folder path: "View samples/<folder> on GitHub".
+    'project.viewOnGitHubPre': 'View',
+    'project.viewOnGitHubPost': 'on GitHub',
+    // Dev-only twin: "View samples/<folder> locally".
+    'project.viewLocallyPre': 'View',
+    'project.viewLocallyPost': 'locally',
     'project.example': 'Example',
     'project.files': 'Files',
     'project.relatedTools': 'Related tools',
@@ -124,7 +147,28 @@ export const ui = {
     'nav.browse': '둘러보기',
     'nav.concepts': '개념',
     'nav.blog': '글',
+    'nav.samples': '샘플',
     'nav.backToTop': '맨 위로',
+    'nav.glossary': '용어집',
+    'sample.title': '샘플',
+    'sample.tagline': '카탈로그 뒤의 실행 가능한 미니 프로젝트 — 폴더를 받아 Docker로 실행해 보세요.',
+    'sample.usedBy': '이 샘플을 쓰는 곳',
+    'sample.related': '관련 샘플',
+    'sample.search': '샘플 검색…',
+    'sample.searchAll': '제목+내용',
+    'sample.searchTitle': '제목',
+    'sample.searchBody': '내용',
+    'sample.tools': '사용 도구',
+    'sample.noResults': '일치하는 샘플이 없습니다.',
+    'glossary.title': '용어집',
+    'glossary.tagline': '카탈로그와 개념 전반에서 쓰는 용어, 그리고 각 용어가 가리키는 페이지.',
+    'glossary.tool': '도구',
+    'glossary.concept': '개념',
+    'glossary.article': '글',
+    'glossary.term': '용어',
+    'glossary.external': '외부',
+    'glossary.search': '용어 검색…',
+    'glossary.noResults': '일치하는 용어가 없습니다.',
     'search.placeholder': '도구 검색…',
     'concept.title': '개념',
     'concept.tagline': '카탈로그의 도구를 엮어 동작하는 에이전트 스택을 구성하는 패턴.',
@@ -182,7 +226,12 @@ export const ui = {
     'tab.code': '코드 샘플',
     'tab.impl': '구현 샘플',
     'project.intro': '실제로 실행 가능한 미니 프로젝트입니다. 받아서 Docker로 실행해 보세요.',
-    'project.viewOnGitHub': 'GitHub에서 폴더 보기',
+    // 폴더 경로를 감싸 렌더됨: "GitHub에서 samples/<folder> 보기".
+    'project.viewOnGitHubPre': 'GitHub에서',
+    'project.viewOnGitHubPost': '보기',
+    // dev 전용 쌍둥이: "로컬에서 samples/<folder> 보기".
+    'project.viewLocallyPre': '로컬에서',
+    'project.viewLocallyPost': '보기',
     'project.example': '예제',
     'project.files': '파일',
     'project.relatedTools': '관련 도구',

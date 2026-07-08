@@ -22,6 +22,9 @@ public/pagefind/
 .env
 .env.*
 !.env.example
+# sample projects ship a template env file — keep it tracked even in new
+# sample folders that don't carry their own .gitignore
+!.env.sample
 
 # logs
 *.log

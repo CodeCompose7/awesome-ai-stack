@@ -1,1 +1,1 @@
-qdrant-client[fastembed]>=1.18
+qdrant-client[fastembed]>=1.18,<2

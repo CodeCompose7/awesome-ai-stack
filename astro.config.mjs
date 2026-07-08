@@ -6,6 +6,8 @@ import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import rehypeExternalLinks from 'rehype-external-links';
 import rehypeSlug from 'rehype-slug';
+import { glossary } from './src/data/glossary.mjs';
+import { localSamples } from './dev/local-samples.mjs';
 
 // Prepend a "#" copy-link anchor to h2/h3/h4 headings (a global click handler
 // in BaseLayout copies the section URL). The "#" count per level is drawn via
@@ -93,6 +95,109 @@ function remarkMermaid() {
   return (/** @type {any} */ tree) => walk(tree);
 }
 
+// Turn `[[Term]]` (and `[[Term|display text]]`) wikilinks into links, resolving
+// each against the central glossary (src/data/glossary.mjs). Internal targets
+// emit the `../../stack|concept/<slug>/` relative form (locale- and base-agnostic
+// on the depth-3 detail routes); external `href` entries pass through and get
+// target="_blank" from rehype-external-links downstream. An unknown term throws,
+// failing the build so a typo can't silently degrade to plain text. Code spans
+// and fenced blocks are untouched (mdast `inlineCode`/`code` carry no children).
+function remarkGlossary() {
+  const RE = /\[\[\s*([^\]|]+?)\s*(?:\|\s*([^\]]+?)\s*)?\]\]/g;
+  /** @param {string} s */
+  const norm = (s) => s.trim().toLowerCase().replace(/\s+/g, '-');
+  // Reverse index: an entry's id and each of its labels (any locale) all resolve
+  // to that entry, so authors can write the natural word in either language —
+  // [[도구]] / [[Tools]] — or the id ([[agent-tools]]). Ambiguity fails the build.
+  /** @type {Record<string, string>} */
+  const lookup = {};
+  /** @param {string} name @param {string} id */
+  const register = (name, id) => {
+    const k = norm(name);
+    if (lookup[k] && lookup[k] !== id)
+      throw new Error(`[glossary] ambiguous term "${k}" maps to both "${lookup[k]}" and "${id}"`);
+    lookup[k] = id;
+  };
+  for (const [id, e] of Object.entries(glossary)) {
+    register(id, id);
+    if (typeof e.label === 'string') register(e.label, id);
+    else {
+      register(e.label.ko, id);
+      register(e.label.en, id);
+    }
+  }
+  /** @param {any} tree @param {any} file */
+  return (tree, file) => {
+    const path = (file && (file.path || (file.history && file.history[0]))) || '';
+    const lang = /[/\\]ko[/\\]/.test(path) ? 'ko' : 'en';
+    /** @param {any} l */
+    const labelOf = (l) => (typeof l === 'string' ? l : l[lang]);
+    /** @param {any} node */
+    const walk = (node) => {
+      if (!node.children) return;
+      /** @type {any[]} */
+      const out = [];
+      for (const child of node.children) {
+        if (child.type === 'text' && child.value.includes('[[')) {
+          let last = 0;
+          let m;
+          RE.lastIndex = 0;
+          while ((m = RE.exec(child.value))) {
+            if (m.index > last) out.push({ type: 'text', value: child.value.slice(last, m.index) });
+            // Obsidian-style section link: [[term#anchor|text]] targets a
+            // heading id on the term's page (anchors are the stable \{#id}s,
+            // shared across locales).
+            const hashAt = m[1].indexOf('#');
+            const name = hashAt === -1 ? m[1] : m[1].slice(0, hashAt);
+            const anchor = hashAt === -1 ? '' : m[1].slice(hashAt + 1).trim();
+            const id = lookup[norm(name)];
+            const entry = glossary[id];
+            if (!entry) throw new Error(`[glossary] unknown term "[[${m[1]}]]" in ${path}`);
+            const def = entry.def ? labelOf(entry.def) : undefined;
+            // A def-only term (no page) links to its entry on the glossary page.
+            let url = entry.stack
+              ? `../../stack/${entry.stack}/`
+              : entry.concept
+                ? `../../concept/${entry.concept}/`
+                : entry.article
+                  ? `../../article/${entry.article}/`
+                  : entry.href
+                    ? entry.href
+                    : def
+                      ? `../../glossary/#${id}`
+                      : null;
+            if (!url)
+              throw new Error(
+                `[glossary] term "[[${m[1]}]]" needs one of stack/concept/article/href/def`,
+              );
+            if (anchor) {
+              // A def-only target already carries its own hash — an extra
+              // anchor is a mistake, so fail the build like an unknown term.
+              if (!entry.stack && !entry.concept && !entry.article && !entry.href)
+                throw new Error(
+                  `[glossary] "[[${m[1]}]]" — a definition-only term can't take a #anchor`,
+                );
+              url += `#${anchor}`;
+            }
+            const text = m[2] ? m[2].trim() : labelOf(entry.label);
+            /** @type {any} */
+            const link = { type: 'link', url, children: [{ type: 'text', value: text }] };
+            if (def) link.data = { hProperties: { title: def } };
+            out.push(link);
+            last = m.index + m[0].length;
+          }
+          if (last < child.value.length) out.push({ type: 'text', value: child.value.slice(last) });
+        } else {
+          walk(child);
+          out.push(child);
+        }
+      }
+      node.children = out;
+    };
+    walk(tree);
+  };
+}
+
 // https://astro.build/config
 export default defineConfig({
   // GitHub Pages project page. If you later attach a custom domain:
@@ -108,12 +213,22 @@ export default defineConfig({
     },
   },
 
-  integrations: [mdx(), sitemap()],
+  integrations: [
+    mdx(),
+    // i18n option emits hreflang alternates so search engines associate each
+    // page with its twin in the other locale (/stack/x/ ↔ /ko/stack/x/).
+    sitemap({
+      i18n: {
+        defaultLocale: 'en',
+        locales: { en: 'en', ko: 'ko' },
+      },
+    }),
+  ],
 
   // Open external links in Markdown/MDX bodies in a new tab. Internal links
   // (no protocol) are left alone, so in-site navigation stays in the same tab.
   markdown: {
-    remarkPlugins: [remarkHeadingIds, remarkMermaid],
+    remarkPlugins: [remarkHeadingIds, remarkMermaid, remarkGlossary],
     rehypePlugins: [
       rehypeSlug,
       rehypeHeadingAnchors,
@@ -130,7 +245,7 @@ export default defineConfig({
   },
 
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [tailwindcss(), localSamples()],
 
     // `@assets/...` is shorthand for `src/assets/...`, so in-body images can be
     // referenced without long `../../../assets/...` relative paths.
