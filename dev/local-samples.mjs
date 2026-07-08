@@ -234,53 +234,26 @@ export function localSamples() {
   // line matches the preview and is copy-paste-safe into a shell.
   /** @param {string} a */
   const shellish = (a) => (a === '' || /[\s"]/.test(a) ? '"' + a.replace(/"/g, '\\"') + '"' : a);
-  // A run job: the process output goes to a buffer AND fans out to any attached
-  // response(s). This decouples the run from a single HTTP connection, so a page
-  // refresh can reconnect (__run-log) and resume the live stream — the child
-  // keeps running regardless of who's listening.
-  /** @type {Map<string, { id:string, buffer:string, done:boolean, subs:Set<any>, write:(d:any)=>void, finish:()=>void }>} */
+  // A run job: the process output accumulates in a buffer that outlives any
+  // single HTTP request. The client polls __run-log?job=<id>&from=<offset> for
+  // new output — the child keeps running regardless of who's polling, so a page
+  // refresh just resumes polling.
+  /** @type {Map<string, { id:string, buffer:string, done:boolean, write:(d:any)=>void, finish:()=>void }>} */
   const jobs = new Map();
   const createJob = () => {
     const id = randomUUID().slice(0, 12);
-    const subs = new Set();
-    // Keep-alive: during a long silent stretch (an LLM call producing no output)
-    // an idle proxy — e.g. the VS Code port forward the browser goes through —
-    // can drop the streaming connection. Nudge each subscriber with a zero-width
-    // space (invisible; the client strips it) so the connection stays warm. Not
-    // written to the buffer, so a reconnect's replay stays clean.
-    const hb = setInterval(() => {
-      for (const r of subs) {
-        try {
-          r.write('\u200b');
-        } catch (e) {}
-      }
-    }, 10000);
     const job = {
       id,
       buffer: '',
       done: false,
-      subs,
       /** @param {any} d */
       write(d) {
-        const s = typeof d === 'string' ? d : d.toString();
-        job.buffer += s;
-        for (const r of subs) {
-          try {
-            r.write(s);
-          } catch (e) {}
-        }
+        job.buffer += typeof d === 'string' ? d : d.toString();
       },
       finish() {
-        clearInterval(hb);
         job.done = true;
-        for (const r of subs) {
-          try {
-            r.end();
-          } catch (e) {}
-        }
-        subs.clear();
-        // Keep the completed job briefly so a refresh right at the end can still
-        // replay the full log, then evict.
+        // Keep the finished job around briefly so a client coming back can still
+        // fetch the full log, then evict.
         setTimeout(() => {
           if (jobs.get(id) === job) jobs.delete(id);
         }, 5 * 60 * 1000);
@@ -447,10 +420,10 @@ export function localSamples() {
               return res.end('{"ok":false}');
             }
           }
-          // __run: execute the chosen recipe into a job, streaming its output.
-          // The response subscribes to the job; the job (and its child process)
-          // outlive a client disconnect, so a refresh can reconnect via
-          // __run-log?job=<id> and resume the live stream.
+          // __run: start the chosen recipe as a background job and return its id.
+          // The client then POLLS __run-log for output. Polling (short requests)
+          // survives a flaky proxy / port forward far better than one long-open
+          // streaming response, and makes reconnect-after-refresh trivial.
           let task = '';
           let recipe = '__default';
           try {
@@ -460,69 +433,63 @@ export function localSamples() {
           } catch {}
 
           const job = createJob();
-          res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-          res.setHeader('Cache-Control', 'no-cache');
-          res.setHeader('X-Run-Job', job.id);
-          job.subs.add(res);
-          res.on('close', () => job.subs.delete(res));
-
-          // A custom recipe: run/<id>.sh, executed with the sample dir as cwd so
-          // relative paths (.env, compose.yml, …) resolve. The id is validated
-          // against a strict charset — no path traversal.
-          if (recipe !== '__default') {
-            if (!/^[a-z0-9_-]+$/i.test(recipe) || !existsSync(join(dir, 'run', recipe + '.sh'))) {
-              job.write('[error] 알 수 없는 레시피: ' + recipe + '\n');
-              job.finish();
-              return;
-            }
-            const args = ['run/' + recipe + '.sh'];
-            if (task) args.push(task);
-            await runStep(job, 'bash', args, { cwd: dir });
-            job.finish();
-            return;
-          }
-
-          // The built-in default: docker build, then docker run.
-          if (!existsSync(join(dir, '.env'))) {
-            job.write('[error] .env가 없습니다. 먼저 환경 변수를 저장하세요.\n');
-            job.finish();
-            return;
-          }
           const folder = action[1].split('/').pop() || action[1];
-          const image = imageName(folder);
-          const envPath = join(dir, '.env');
-          const buildCode = await runStep(job, 'docker', ['build', '-t', image, dir]);
-          if (buildCode === 0) {
-            if (isDooD(dir)) {
-              // Detached + logs so the agent's output isn't swallowed by nested DooD.
-              await runDooD(job, image, envPath, task);
-            } else {
-              const runArgs = ['run', '--rm', '--env-file', envPath, image];
-              if (task) runArgs.push(task);
-              await runStep(job, 'docker', runArgs);
+          // Run in the background; the handler returns immediately with the id.
+          (async () => {
+            try {
+              if (recipe !== '__default') {
+                // Custom recipe run/<id>.sh, cwd = sample dir so relative paths
+                // (.env, compose.yml, …) resolve. Id validated — no traversal.
+                if (!/^[a-z0-9_-]+$/i.test(recipe) || !existsSync(join(dir, 'run', recipe + '.sh'))) {
+                  job.write('[error] 알 수 없는 레시피: ' + recipe + '\n');
+                } else {
+                  const args = ['run/' + recipe + '.sh'];
+                  if (task) args.push(task);
+                  await runStep(job, 'bash', args, { cwd: dir });
+                }
+              } else if (!existsSync(join(dir, '.env'))) {
+                job.write('[error] .env가 없습니다. 먼저 환경 변수를 저장하세요.\n');
+              } else {
+                const image = imageName(folder);
+                const envPath = join(dir, '.env');
+                const buildCode = await runStep(job, 'docker', ['build', '-t', image, dir]);
+                if (buildCode === 0) {
+                  if (isDooD(dir)) await runDooD(job, image, envPath, task);
+                  else {
+                    const runArgs = ['run', '--rm', '--env-file', envPath, image];
+                    if (task) runArgs.push(task);
+                    await runStep(job, 'docker', runArgs);
+                  }
+                }
+              }
+            } catch (e) {
+              job.write('\n[error] ' + (/** @type {Error} */ (e)).message + '\n');
             }
-          }
-          job.finish();
-          return;
+            job.finish();
+          })();
+
+          res.setHeader('Content-Type', 'application/json; charset=utf-8');
+          res.setHeader('X-Run-Job', job.id);
+          return res.end(JSON.stringify({ job: job.id }));
         }
 
-        // Reconnect to a running (or just-finished) job: replay its buffer, then
-        // stream the live continuation. Lets a refreshed page resume its run.
+        // Poll a job's output: returns the buffer from ?from=<offset> plus the
+        // total length and done flag. Short requests → robust through a proxy.
         const logMatch = rel.match(/^(.+)\/__run-log$/);
         if (logMatch) {
-          const id = new URLSearchParams((req.url || '').split('?')[1] || '').get('job') || '';
+          const params = new URLSearchParams((req.url || '').split('?')[1] || '');
+          const id = params.get('job') || '';
+          const from = Number.parseInt(params.get('from') || '0', 10) || 0;
           const job = jobs.get(id);
-          res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+          res.setHeader('Content-Type', 'application/json; charset=utf-8');
           res.setHeader('Cache-Control', 'no-cache');
           if (!job) {
             res.statusCode = 404;
-            return res.end();
+            return res.end(JSON.stringify({ error: 'gone' }));
           }
-          res.write(job.buffer);
-          if (job.done) return res.end();
-          job.subs.add(res);
-          res.on('close', () => job.subs.delete(res));
-          return;
+          return res.end(
+            JSON.stringify({ text: job.buffer.slice(from), len: job.buffer.length, done: job.done }),
+          );
         }
 
         const target = resolve(root, rel);

@@ -152,29 +152,47 @@
   }
 
   var running = false;
-  // Pump a streaming text response into the terminal with the elapsed ticker,
-  // persisting as it goes. `append` keeps prior text (reconnect replays first).
-  async function pump(resp, append) {
+  var sleep = function (ms) {
+    return new Promise(function (r) {
+      setTimeout(r, ms);
+    });
+  };
+  // Poll a job's output with an offset until it's done. Short requests survive a
+  // flaky proxy / port forward far better than one long-open stream, and this is
+  // the same path for a fresh run and a reconnect after refresh.
+  async function poll(jobId) {
     var startedAt = Date.now();
+    logEl.textContent = '';
     statusEl.className = 'run-status busy';
     statusEl.textContent = '● 실행 중… 0s';
     var timer = setInterval(function () {
       statusEl.textContent = '● 실행 중… ' + Math.round((Date.now() - startedAt) / 1000) + 's';
     }, 1000);
-    if (!append) logEl.textContent = '';
+    var have = 0;
     try {
-      var reader = resp.body.getReader();
-      var dec = new TextDecoder();
       for (;;) {
-        var r = await reader.read();
-        if (r.done) break;
-        // Strip the server's zero-width keep-alive bytes.
-        var chunk = dec.decode(r.value, { stream: true }).replace(/\u200b/g, '');
-        if (!chunk) continue;
-        logEl.textContent += chunk;
-        logEl.scrollTop = logEl.scrollHeight;
-        state.log = logEl.textContent;
-        persist();
+        var resp = await fetch('__run-log?job=' + encodeURIComponent(jobId) + '&from=' + have);
+        if (resp.status === 404) {
+          clearInterval(timer);
+          logEl.textContent = state.log || '(실행 기록을 가져올 수 없습니다)';
+          statusEl.className = 'run-status';
+          statusEl.textContent = '만료됨 — [다시 실행]으로 재실행하세요';
+          state.status = 'done';
+          state.job = '';
+          persist(true);
+          running = false;
+          return;
+        }
+        var d = await resp.json();
+        if (d.text) {
+          logEl.textContent += d.text;
+          logEl.scrollTop = logEl.scrollHeight;
+          state.log = logEl.textContent;
+          persist();
+        }
+        have = d.len;
+        if (d.done) break;
+        await sleep(600);
       }
     } catch (e) {
       logEl.textContent += '\n[client error] ' + e.message;
@@ -185,6 +203,7 @@
     state.status = 'done';
     state.log = logEl.textContent;
     persist(true);
+    running = false;
   }
 
   async function run() {
@@ -201,39 +220,11 @@
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ task: taskEl.value.trim(), recipe: recipe }),
       });
-      var jobId = resp.headers.get('X-Run-Job');
-      if (jobId) {
-        state.job = jobId;
-        persist(true);
-      }
-      await pump(resp, false);
-    } catch (e) {
-      logEl.textContent += '\n[client error] ' + e.message;
-    }
-    running = false;
-  }
-
-  // Resume a job whose stream a refresh dropped: replay its buffer + continue
-  // live. Falls back to the saved partial log if the job is already gone.
-  async function reconnect(jobId) {
-    if (running) return;
-    running = true;
-    showStep(3);
-    logEl.textContent = state.log || '';
-    statusEl.className = 'run-status busy';
-    statusEl.textContent = '● 재접속 중…';
-    try {
-      var resp = await fetch('__run-log?job=' + encodeURIComponent(jobId));
-      if (!resp.ok) {
-        statusEl.className = 'run-status';
-        statusEl.textContent = '완료 (지난 실행 기록)';
-        state.status = 'done';
-        persist(true);
-        running = false;
-        return;
-      }
-      logEl.textContent = ''; // the buffer is replayed from the start
-      await pump(resp, true);
+      var d = await resp.json();
+      state.job = d.job;
+      persist(true);
+      await poll(d.job);
+      return;
     } catch (e) {
       logEl.textContent += '\n[client error] ' + e.message;
     }
@@ -241,11 +232,13 @@
   }
 
   // Render the current step from state (restores after a refresh). A run that
-  // was still going reconnects to its live job.
+  // was still going resumes by polling its job (replays from offset 0).
   function renderFromState() {
     if (state.step === 3) {
       if (state.status === 'running' && state.job) {
-        reconnect(state.job);
+        running = true;
+        showStep(3);
+        poll(state.job);
         return;
       }
       logEl.textContent = state.log || '';
