@@ -1,9 +1,12 @@
 ---
 // The samples hub: one card per samples/<folder>/ mini-project, titled and
 // excerpted from the locale-appropriate README (README.<lang>.md, falling back
-// to README.md). Cards link to the per-sample page at sample/<folder>/.
+// to README.md). A single-column list, sorted (default newest first) and
+// paginated 10 at a time by the shared ListControls. Cards link to the
+// per-sample page at sample/<folder>/.
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { listProjects } from '../lib/project';
+import ListControls from './ListControls.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
 
 interface Props {
@@ -12,8 +15,10 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = useTranslations(lang);
+const PAGE = 10;
 
-// Newest first, then by name, so fresh samples surface at the top.
+// Newest first, then by name — matches ListControls' default 'recent' sort, so
+// the server render and the client's initial sort agree (no reorder flash).
 const projects = listProjects(lang).sort(
   (a, b) => b.date.localeCompare(a.date) || a.name.localeCompare(b.name, lang),
 );
@@ -35,18 +40,22 @@ function formatDate(iso: string): string {
   <p class="mt-3 max-w-2xl text-lg text-[var(--aas-muted)]">{t('sample.tagline')}</p>
 </section>
 
-<ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+{projects.length > 0 && <div class="mt-2"><ListControls lang={lang} /></div>}
+
+<ul class="mt-4 grid gap-3" data-sortgrid data-paginate data-page-size={PAGE}>
   {
     projects.map((p) => (
-      <li>
+      <li data-name={p.name} data-date={p.date}>
         <a
           href={getRelativeLocaleUrl(lang, `sample/${p.folder}/`)}
-          class="aas-lift flex h-full flex-col gap-2 rounded-2xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-4 no-underline"
+          class="aas-lift flex flex-col gap-1.5 rounded-2xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-4 no-underline"
         >
-          <span class="font-semibold text-[var(--aas-text)]">{p.name}</span>
-          <span class="flex flex-wrap items-center gap-2 text-xs text-[var(--aas-muted)]">
-            <code class="rounded bg-[var(--aas-tint)] px-1.5 py-0.5">samples/{p.folder}</code>
-            <span>{formatDate(p.date)}</span>
+          <span class="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+            <span class="font-semibold text-[var(--aas-text)]">{p.name}</span>
+            <code class="rounded bg-[var(--aas-tint)] px-1.5 py-0.5 text-xs text-[var(--aas-muted)]">
+              samples/{p.folder}
+            </code>
+            <span class="text-xs text-[var(--aas-muted)]">{formatDate(p.date)}</span>
           </span>
           {p.excerpt && (
             <span class="line-clamp-2 text-sm leading-relaxed text-[var(--aas-muted)]">{p.excerpt}</span>
@@ -56,3 +65,5 @@ function formatDate(iso: string): string {
     ))
   }
 </ul>
+
+<nav data-pager aria-label="Pagination" class="mt-8 flex flex-wrap items-center justify-center gap-1.5"></nav>
