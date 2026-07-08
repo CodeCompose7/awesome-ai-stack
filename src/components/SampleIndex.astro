@@ -199,10 +199,11 @@ const optClass =
   )
 }
 
-<ul class="mt-4 grid gap-2.5" data-sample-grid>
+<ul class="mt-4 grid grid-cols-[minmax(0,1fr)] gap-2.5" data-sample-grid>
   {
     projects.map((p) => (
       <li
+        class="min-w-0"
         data-sample-card
         data-name={p.name}
         data-date={p.date}
