@@ -168,7 +168,10 @@
       for (;;) {
         var r = await reader.read();
         if (r.done) break;
-        logEl.textContent += dec.decode(r.value, { stream: true });
+        // Strip the server's zero-width keep-alive bytes.
+        var chunk = dec.decode(r.value, { stream: true }).replace(/\u200b/g, '');
+        if (!chunk) continue;
+        logEl.textContent += chunk;
         logEl.scrollTop = logEl.scrollHeight;
         state.log = logEl.textContent;
         persist();

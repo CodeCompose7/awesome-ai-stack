@@ -243,6 +243,18 @@ export function localSamples() {
   const createJob = () => {
     const id = randomUUID().slice(0, 12);
     const subs = new Set();
+    // Keep-alive: during a long silent stretch (an LLM call producing no output)
+    // an idle proxy — e.g. the VS Code port forward the browser goes through —
+    // can drop the streaming connection. Nudge each subscriber with a zero-width
+    // space (invisible; the client strips it) so the connection stays warm. Not
+    // written to the buffer, so a reconnect's replay stays clean.
+    const hb = setInterval(() => {
+      for (const r of subs) {
+        try {
+          r.write('\u200b');
+        } catch (e) {}
+      }
+    }, 10000);
     const job = {
       id,
       buffer: '',
@@ -259,6 +271,7 @@ export function localSamples() {
         }
       },
       finish() {
+        clearInterval(hb);
         job.done = true;
         for (const r of subs) {
           try {
