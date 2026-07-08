@@ -198,9 +198,11 @@
       logEl.textContent += '\n[client error] ' + e.message;
     }
     clearInterval(timer);
+    var secs = Math.round((Date.now() - startedAt) / 1000);
     statusEl.className = 'run-status';
-    statusEl.textContent = '완료 · ' + Math.round((Date.now() - startedAt) / 1000) + 's';
+    statusEl.textContent = '완료 · ' + secs + 's';
     state.status = 'done';
+    state.elapsed = secs;
     state.log = logEl.textContent;
     persist(true);
     running = false;
@@ -244,7 +246,10 @@
       }
       logEl.textContent = state.log || '';
       statusEl.className = 'run-status';
-      statusEl.textContent = state.status === 'done' ? '완료 (지난 실행 기록)' : '';
+      statusEl.textContent =
+        state.status === 'done'
+          ? '완료 (지난 실행 기록)' + (state.elapsed != null ? ' · ' + state.elapsed + 's' : '')
+          : '';
       showStep(3);
       logEl.scrollTop = logEl.scrollHeight;
     } else {
