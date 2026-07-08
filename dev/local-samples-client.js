@@ -161,7 +161,7 @@
   // flaky proxy / port forward far better than one long-open stream, and this is
   // the same path for a fresh run and a reconnect after refresh.
   async function poll(jobId) {
-    var startedAt = Date.now();
+    var startedAt = state.startedAt || Date.now();
     logEl.textContent = '';
     statusEl.className = 'run-status busy';
     statusEl.textContent = '● 실행 중… 0s';
@@ -211,6 +211,7 @@
     running = true;
     showStep(3);
     state.status = 'running';
+    state.startedAt = Date.now();
     state.log = '';
     state.job = '';
     persist(true);

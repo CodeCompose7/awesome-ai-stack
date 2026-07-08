@@ -528,9 +528,11 @@ export function localSamples() {
             ),
           ].join('<span>/</span>');
 
-          // A runnable sample folder gets a link to its dedicated run page.
+          // A runnable sample folder gets a link to its dedicated run page,
+          // opened in a new tab (rel=noopener → fresh sessionStorage, so each
+          // run starts clean and doesn't inherit a prior tab's finished state).
           const runLink = runnable(target)
-            ? `<div style="margin-top:1rem"><a class="runbtn" href="__run-ui">▶ 실행</a></div>`
+            ? `<div style="margin-top:1rem"><a class="runbtn" href="__run-ui" target="_blank" rel="noopener">▶ 실행 ↗</a></div>`
             : '';
 
           res.setHeader('Content-Type', 'text/html; charset=utf-8');
