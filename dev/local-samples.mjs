@@ -59,7 +59,11 @@ const MODAL_CSS = `
   .reveal { font: inherit; font-size: .72rem; cursor: pointer; color: var(--muted); background: var(--tint);
             border: 1px solid var(--border); border-radius: .45rem; padding: 0 .6rem }
   #task { width: 100%; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .85rem;
-          padding: .5rem .6rem; border: 1px solid var(--border); border-radius: .45rem; background: var(--panel); color: var(--text); resize: vertical }
+          line-height: 1.5; padding: .5rem .6rem; border: 1px solid var(--border); border-radius: .45rem;
+          background: var(--panel); color: var(--text); resize: none; overflow: hidden; min-height: 2.6rem }
+  .run-status { font-size: .8rem; margin-bottom: .5rem; min-height: 1.15em; color: var(--muted) }
+  .run-status.busy { color: var(--accent); animation: aas-pulse 1.1s ease-in-out infinite }
+  @keyframes aas-pulse { 0%, 100% { opacity: 1 } 50% { opacity: .4 } }
   .cmd { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .8rem; line-height: 1.5;
          background: var(--tint); border: 1px solid var(--border); border-radius: .5rem; padding: .7rem .8rem; overflow-x: auto; white-space: pre-wrap; word-break: break-all }
   .terminal { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .8rem; line-height: 1.5;
@@ -435,7 +439,7 @@ export function localSamples() {
               `<div class="stepper"><span data-step="1" class="active">1 · 환경 변수</span><span data-step="2">2 · 실행 인자</span><span data-step="3">3 · 실행 · 결과</span></div>` +
               `<section data-panel="1"><p class="desc">컨테이너에 넘길 <code>.env</code> 값입니다. 저장하면 <code>samples/${folder}/.env</code> 에 기록됩니다.</p><div id="env-fields"></div><div class="actions"><button data-close class="ghost">취소</button><button data-next class="primary">저장하고 다음</button></div></section>` +
               `<section data-panel="2" hidden><label class="lbl">실행 인자 (task)</label><textarea id="task" rows="2"></textarea><label class="lbl">실행될 명령</label><pre id="cmd-preview" class="cmd"></pre><div class="actions"><button data-back1 class="ghost">이전</button><button data-run class="primary">실행 ▶</button></div></section>` +
-              `<section data-panel="3" hidden><pre id="run-log" class="terminal"></pre><div class="actions"><button data-back2 class="ghost">이전</button><button data-run class="primary">다시 실행</button><button data-close class="ghost">닫기</button></div></section>` +
+              `<section data-panel="3" hidden><div id="run-status" class="run-status"></div><pre id="run-log" class="terminal"></pre><div class="actions"><button data-back2 class="ghost">이전</button><button data-run class="primary">다시 실행</button><button data-close class="ghost">닫기</button></div></section>` +
               `</div></div>` +
               `<script type="application/json" id="run-data">${dataJson}</script><script>${CLIENT_JS}</script>`;
           }

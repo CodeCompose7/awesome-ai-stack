@@ -10,6 +10,7 @@
   var taskEl = document.getElementById('task');
   var cmdEl = document.getElementById('cmd-preview');
   var logEl = document.getElementById('run-log');
+  var statusEl = document.getElementById('run-status');
   var recipeEl = document.getElementById('recipe');
   var recipeDescEl = document.getElementById('recipe-desc');
 
@@ -70,7 +71,8 @@
   // built-in default assembles the docker command (DooD shows the detached +
   // `docker logs -f` form, matching the README and what actually runs).
   function buildCmd(task) {
-    var q = task ? ' "' + task + '"' : '';
+    // Escape inner quotes so the preview matches what actually runs (shellish).
+    var q = task ? ' "' + task.replace(/"/g, '\\"') + '"' : '';
     if (recipe !== '__default') {
       return 'bash run/' + recipe + '.sh' + q;
     }
@@ -87,11 +89,20 @@
     }
     return build + '\ndocker run --rm --env-file .env ' + data.image + q;
   }
+  // Grow the task box to fit its content (it starts hidden, so also grow it
+  // when step 2 is shown — a hidden textarea has no measurable scrollHeight).
+  function autoGrow() {
+    taskEl.style.height = 'auto';
+    taskEl.style.height = taskEl.scrollHeight + 'px';
+  }
   taskEl.value = data.defaultTask || '';
   function refreshCmd() {
     cmdEl.textContent = buildCmd(taskEl.value.trim());
   }
-  taskEl.addEventListener('input', refreshCmd);
+  taskEl.addEventListener('input', function () {
+    autoGrow();
+    refreshCmd();
+  });
   refreshCmd();
 
   function showStep(n) {
@@ -103,6 +114,7 @@
     for (var j = 0; j < steps.length; j++) {
       steps[j].className = Number(steps[j].getAttribute('data-step')) <= n ? 'active' : '';
     }
+    if (n === 2) autoGrow(); // measurable only now that the panel is visible
   }
   function open() {
     recipe = recipeEl.value; // lock in the recipe chosen on the page
@@ -138,6 +150,14 @@
     running = true;
     showStep(3);
     logEl.textContent = '';
+    // A ticking "실행 중… Ns" so a long-silent step (build, an LLM call the
+    // container hasn't flushed yet) doesn't read as a hang.
+    var startedAt = Date.now();
+    statusEl.className = 'run-status busy';
+    statusEl.textContent = '● 실행 중… 0s';
+    var timer = setInterval(function () {
+      statusEl.textContent = '● 실행 중… ' + Math.round((Date.now() - startedAt) / 1000) + 's';
+    }, 1000);
     try {
       var resp = await fetch('__run', {
         method: 'POST',
@@ -155,6 +175,9 @@
     } catch (e) {
       logEl.textContent += '\n[client error] ' + e.message;
     }
+    clearInterval(timer);
+    statusEl.className = 'run-status';
+    statusEl.textContent = '완료 · ' + Math.round((Date.now() - startedAt) / 1000) + 's';
     running = false;
   }
 
