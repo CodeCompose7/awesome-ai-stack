@@ -51,13 +51,23 @@
     fields.appendChild(wrap);
   });
 
-  // Step 2 — the command preview updates live as the task is edited.
+  // Step 2 — the command preview updates live as the task is edited. DooD
+  // samples show the detached + `docker logs -f` form (matching the README and
+  // what actually runs): a foreground run is swallowed by nested Docker.
   function buildCmd(task) {
-    var run = 'docker run --rm --env-file .env';
-    if (data.dood) run += ' -v /var/run/docker.sock:/var/run/docker.sock';
-    run += ' ' + data.image;
-    if (task) run += ' "' + task + '"';
-    return 'docker build -t ' + data.image + ' .\n' + run;
+    var build = 'docker build -t ' + data.image + ' .';
+    var q = task ? ' "' + task + '"' : '';
+    if (data.dood) {
+      return (
+        build +
+        '\ndocker logs -f "$(docker run -d --env-file .env' +
+        ' -v /var/run/docker.sock:/var/run/docker.sock ' +
+        data.image +
+        q +
+        ')"'
+      );
+    }
+    return build + '\ndocker run --rm --env-file .env ' + data.image + q;
   }
   taskEl.value = data.defaultTask || '';
   function refreshCmd() {

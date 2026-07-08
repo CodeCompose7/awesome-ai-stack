@@ -225,6 +225,39 @@ export function localSamples() {
       });
     });
 
+  // DooD run: under nested Docker-outside-of-Docker a foreground `docker run`
+  // often prints nothing (the output only reaches the daemon log), so — as the
+  // sample READMEs prescribe — run detached, follow `docker logs -f`, then
+  // remove the container. `--rm` is dropped so the log survives to be read.
+  /** @param {any} res @param {string} image @param {string} envPath @param {string} task */
+  const runDooD = (res, image, envPath, task) =>
+    new Promise((resolve) => {
+      const args = ['run', '-d', '--env-file', envPath, '-v', '/var/run/docker.sock:/var/run/docker.sock', image];
+      if (task) args.push(task);
+      res.write('$ ' + ['docker', ...args].map(shellish).join(' ') + '\n');
+      let id = '';
+      const run = spawn('docker', args);
+      run.stdout.on('data', (d) => (id += d.toString()));
+      run.stderr.on('data', (d) => res.write(d));
+      run.on('error', (e) => {
+        res.write('\n[error] ' + e.message + '\n');
+        resolve(1);
+      });
+      run.on('close', (code) => {
+        id = id.trim();
+        if (code !== 0 || !id) {
+          res.write('\n[exit ' + code + ']\n\n');
+          return resolve(code || 1);
+        }
+        res.write('컨테이너 ' + id.slice(0, 12) + ' — 로그를 따라갑니다\n\n');
+        runStep(res, 'docker', ['logs', '-f', id]).then((lc) => {
+          const rm = spawn('docker', ['rm', '-f', id]);
+          rm.on('close', () => resolve(lc));
+          rm.on('error', () => resolve(lc));
+        });
+      });
+    });
+
   /** @param {number} n */
   const fmtSize = (n) =>
     n < 1024 ? n + ' B' : n < 1024 * 1024 ? (n / 1024).toFixed(1) + ' KB' : (n / 1024 / 1024).toFixed(1) + ' MB';
@@ -276,13 +309,17 @@ export function localSamples() {
           }
           const folder = action[1].split('/').pop() || action[1];
           const image = imageName(folder);
+          const envPath = join(dir, '.env');
           const buildCode = await runStep(res, 'docker', ['build', '-t', image, dir]);
           if (buildCode === 0) {
-            const runArgs = ['run', '--rm', '--env-file', join(dir, '.env')];
-            if (isDooD(dir)) runArgs.push('-v', '/var/run/docker.sock:/var/run/docker.sock');
-            runArgs.push(image);
-            if (task) runArgs.push(task);
-            await runStep(res, 'docker', runArgs);
+            if (isDooD(dir)) {
+              // Detached + logs so the agent's output isn't swallowed by nested DooD.
+              await runDooD(res, image, envPath, task);
+            } else {
+              const runArgs = ['run', '--rm', '--env-file', envPath, image];
+              if (task) runArgs.push(task);
+              await runStep(res, 'docker', runArgs);
+            }
           }
           return res.end();
         }
