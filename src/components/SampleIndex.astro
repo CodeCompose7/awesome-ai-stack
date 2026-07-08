@@ -65,6 +65,13 @@ const sortOptions = [
   { key: 'recent', label: t('sort.recent') },
   { key: 'alpha', label: t('sort.alpha') },
 ];
+// What the free-text search matches: the title (name + folder), the body
+// (excerpt), or both. `all` is the default.
+const scopeOptions = [
+  { key: 'all', label: t('sample.searchAll') },
+  { key: 'title', label: t('sample.searchTitle') },
+  { key: 'body', label: t('sample.searchBody') },
+];
 
 function formatDate(iso: string): string {
   const [y, m, d] = iso.split('-').map(Number);
@@ -100,6 +107,30 @@ const optClass =
         aria-label={t('sample.search')}
         class="min-w-[10rem] flex-1 rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] px-3 py-1.5 text-sm text-[var(--aas-text)] placeholder:text-[var(--aas-muted)]"
       />
+
+      <details class="aas-dd">
+        <summary class={summaryClass}>
+          <span data-scope-label>{scopeOptions[0].label}</span>
+          <ChevronDown class="text-[var(--aas-muted)]" />
+        </summary>
+        <ul class={`${menuClass} left-0`}>
+          {scopeOptions.map((o, i) => (
+            <li>
+              <button
+                type="button"
+                data-scope={o.key}
+                aria-current={i === 0 ? 'true' : 'false'}
+                class={optClass}
+              >
+                {o.label}
+                <span data-check aria-hidden="true" class="opacity-0">
+                  ✓
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </details>
 
       {toolFacet.length > 0 && (
         <details class="aas-dd">
@@ -171,7 +202,8 @@ const optClass =
         data-sample-card
         data-name={p.name}
         data-date={p.date}
-        data-search={`${p.name} ${p.folder} ${p.excerpt}`.toLowerCase()}
+        data-title={`${p.name} ${p.folder}`.toLowerCase()}
+        data-body={p.excerpt.toLowerCase()}
         data-tools={p.tools.join(' ')}
       >
         <a
@@ -179,14 +211,16 @@ const optClass =
           class="aas-lift flex h-20 flex-col justify-center gap-1 overflow-hidden rounded-2xl border border-[var(--aas-border)] bg-[var(--aas-panel)] px-4 no-underline"
         >
           <span class="flex items-center gap-2">
-            <span class="truncate font-semibold text-[var(--aas-text)]">{p.name}</span>
+            <span class="min-w-0 truncate font-semibold text-[var(--aas-text)]">{p.name}</span>
             <span class="ml-auto shrink-0 text-xs text-[var(--aas-muted)]">{formatDate(p.date)}</span>
           </span>
           <span class="flex items-center gap-2 text-xs">
             <code class="shrink-0 rounded bg-[var(--aas-tint)] px-1.5 py-0.5 text-[var(--aas-muted)]">
               samples/{p.folder}
             </code>
-            {p.excerpt && <span class="truncate text-[var(--aas-muted)] opacity-60">{p.excerpt}</span>}
+            {p.excerpt && (
+              <span class="min-w-0 truncate text-[var(--aas-muted)] opacity-60">{p.excerpt}</span>
+            )}
           </span>
         </a>
       </li>
@@ -206,6 +240,8 @@ const optClass =
     const DEFAULT_SORT = 'recent';
     const cards = Array.from(grid.querySelectorAll<HTMLElement>('[data-sample-card]'));
     const qInput = bar.querySelector<HTMLInputElement>('[data-sample-q]');
+    const scopeBtns = Array.from(bar.querySelectorAll<HTMLButtonElement>('[data-scope]'));
+    const scopeLabel = bar.querySelector<HTMLElement>('[data-scope-label]');
     const toolBtns = Array.from(bar.querySelectorAll<HTMLButtonElement>('[data-tool-opt]'));
     const toolsCount = bar.querySelector<HTMLElement>('[data-tools-count]');
     const clearBtn = bar.querySelector<HTMLButtonElement>('[data-sample-clear]');
@@ -215,6 +251,7 @@ const optClass =
     const emptyEl = document.querySelector<HTMLElement>('[data-sample-empty]');
 
     let q = '';
+    let scope = 'all';
     const tools = new Set<string>();
     let sort = DEFAULT_SORT;
     let page = 1;
@@ -228,11 +265,17 @@ const optClass =
             (b.dataset.date ?? '').localeCompare(a.dataset.date ?? '') || byName(a, b);
 
     function matches(card: HTMLElement) {
-      if (q && !(card.dataset.search ?? '').includes(q)) return false;
+      if (q) {
+        const title = card.dataset.title ?? '';
+        const body = card.dataset.body ?? '';
+        const hit =
+          scope === 'title' ? title.includes(q) : scope === 'body' ? body.includes(q) : title.includes(q) || body.includes(q);
+        if (!hit) return false;
+      }
       if (tools.size) {
         const ts = (card.dataset.tools ?? '').split(' ').filter(Boolean);
-        // A sample matches if it uses ANY of the selected tools.
-        if (![...tools].some((t) => ts.includes(t))) return false;
+        // A sample matches only if it uses ALL of the selected tools.
+        if (![...tools].every((t) => ts.includes(t))) return false;
       }
       return true;
     }
@@ -300,11 +343,21 @@ const optClass =
       }
     }
 
+    function updateScopeUI() {
+      for (const b of scopeBtns) {
+        const on = (b.dataset.scope ?? 'all') === scope;
+        b.setAttribute('aria-current', String(on));
+        b.querySelector<HTMLElement>('[data-check]')?.classList.toggle('opacity-0', !on);
+        if (on && scopeLabel) scopeLabel.textContent = b.textContent?.replace('✓', '').trim() ?? '';
+      }
+    }
+
     function syncUrl() {
       const url = new URL(location.href);
       const set = (k: string, v: string) =>
         v ? url.searchParams.set(k, v) : url.searchParams.delete(k);
       set('q', qInput?.value.trim() ?? '');
+      set('scope', scope === 'all' ? '' : scope);
       set('tools', [...tools].join(','));
       set('sort', sort === DEFAULT_SORT ? '' : sort);
       set('page', page === 1 ? '' : String(page));
@@ -327,6 +380,16 @@ const optClass =
         updateToolUI();
         render();
         syncUrl();
+      });
+    }
+    for (const b of scopeBtns) {
+      b.addEventListener('click', () => {
+        scope = b.dataset.scope ?? 'all';
+        page = 1;
+        updateScopeUI();
+        render();
+        syncUrl();
+        b.closest('details')?.removeAttribute('open');
       });
     }
     for (const b of sortBtns) {
@@ -362,6 +425,8 @@ const optClass =
     const rawQ = params.get('q') ?? '';
     if (qInput) qInput.value = rawQ;
     q = rawQ.trim().toLowerCase();
+    const wantScope = params.get('scope');
+    if (wantScope && scopeBtns.some((b) => b.dataset.scope === wantScope)) scope = wantScope;
     (params.get('tools') ?? '').split(',').filter(Boolean).forEach((slug) => tools.add(slug));
     const wantSort = params.get('sort');
     if (wantSort && sortBtns.some((b) => b.dataset.sort === wantSort)) sort = wantSort;
@@ -369,6 +434,7 @@ const optClass =
     if (Number.isFinite(wantPage) && wantPage > 0) page = wantPage;
     updateToolUI();
     updateSortUI();
+    updateScopeUI();
     render();
   }
 </script>
