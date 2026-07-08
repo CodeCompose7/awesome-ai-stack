@@ -97,17 +97,10 @@ const optClass =
   <p class="mt-3 max-w-2xl text-lg text-[var(--aas-muted)]">{t('sample.tagline')}</p>
 </section>
 
+<div class="max-w-2xl">
 {
   projects.length > 0 && (
     <div class="mt-2 flex flex-wrap items-center gap-2" data-sample-controls>
-      <input
-        type="search"
-        data-sample-q
-        placeholder={t('sample.search')}
-        aria-label={t('sample.search')}
-        class="min-w-[10rem] flex-1 rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] px-3 py-1.5 text-sm text-[var(--aas-text)] placeholder:text-[var(--aas-muted)]"
-      />
-
       <details class="aas-dd">
         <summary class={summaryClass}>
           <span data-scope-label>{scopeOptions[0].label}</span>
@@ -131,6 +124,14 @@ const optClass =
           ))}
         </ul>
       </details>
+
+      <input
+        type="search"
+        data-sample-q
+        placeholder={t('sample.search')}
+        aria-label={t('sample.search')}
+        class="min-w-[10rem] flex-1 rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] px-3 py-1.5 text-sm text-[var(--aas-text)] placeholder:text-[var(--aas-muted)]"
+      />
 
       {toolFacet.length > 0 && (
         <details class="aas-dd">
@@ -231,6 +232,7 @@ const optClass =
 <p data-sample-empty hidden class="mt-8 text-center text-sm text-[var(--aas-muted)]">{t('sample.noResults')}</p>
 
 <nav data-pager aria-label="Pagination" class="mt-8 flex flex-wrap items-center justify-center gap-1.5"></nav>
+</div>
 
 <script>
   const bar = document.querySelector<HTMLElement>('[data-sample-controls]');
@@ -300,9 +302,11 @@ const optClass =
       // (‹ → last page of the previous group, › → first of the next).
       const start = Math.floor((page - 1) / PAGE) * PAGE + 1;
       const end = Math.min(pages, start + PAGE - 1);
+      pager.appendChild(pageButton('«', 1, { disabled: page === 1 }));
       pager.appendChild(pageButton('‹', start - 1, { disabled: start === 1 }));
       for (let i = start; i <= end; i++) pager.appendChild(pageButton(String(i), i, { current: i === page }));
       pager.appendChild(pageButton('›', end + 1, { disabled: end >= pages }));
+      pager.appendChild(pageButton('»', pages, { disabled: page === pages }));
     }
 
     function render() {
