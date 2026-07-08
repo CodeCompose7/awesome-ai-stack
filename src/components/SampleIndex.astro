@@ -1,12 +1,15 @@
 ---
 // The samples hub: one card per samples/<folder>/ mini-project, titled and
-// excerpted from the locale-appropriate README (README.<lang>.md, falling back
-// to README.md). A single-column list, sorted (default newest first) and
-// paginated 10 at a time by the shared ListControls. Cards link to the
-// per-sample page at sample/<folder>/.
+// excerpted from the locale-appropriate README. A single-column list with a
+// client-side control bar — free-text search, a "source tools" multi-select,
+// and a sort toggle (default newest first) — paginated 5 at a time. All state
+// mirrors into the URL (?q, ?tools, ?sort, ?page) and it degrades to
+// "show everything" without JS. Cards link to the per-sample page.
 import { getRelativeLocaleUrl } from 'astro:i18n';
+import ChevronDown from './ChevronDown.astro';
 import { listProjects } from '../lib/project';
-import ListControls from './ListControls.astro';
+import { getStacks, slugOf } from '../lib/stacks';
+import { getArticles } from '../lib/articles';
 import { useTranslations, type Lang } from '../i18n/ui';
 
 interface Props {
@@ -15,13 +18,53 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = useTranslations(lang);
-const PAGE = 5;
 
-// Newest first, then by name — matches ListControls' default 'recent' sort, so
-// the server render and the client's initial sort agree (no reorder flash).
-const projects = listProjects(lang).sort(
-  (a, b) => b.date.localeCompare(a.date) || a.name.localeCompare(b.name, lang),
-);
+// Which catalog tools each sample is built with — the same frontmatter the
+// sample page derives its backlinks from, inverted folder → tools: the tool of
+// every stack that ships the folder (via `projects`), plus the `related` tools
+// declared on that stack's or an article's project entry.
+const stacks = await getStacks(lang);
+const articles = await getArticles(lang);
+const nameBySlug = new Map(stacks.map((s) => [slugOf(s), s.data.name]));
+
+const toolsByFolder = new Map<string, Set<string>>();
+const addTool = (folder: string, slug: string) => {
+  const set = toolsByFolder.get(folder) ?? new Set<string>();
+  set.add(slug);
+  toolsByFolder.set(folder, set);
+};
+for (const s of stacks) {
+  for (const p of s.data.projects) {
+    const folder = typeof p === 'string' ? p : p.folder;
+    addTool(folder, slugOf(s));
+    if (typeof p !== 'string') p.related.forEach((r) => addTool(folder, r));
+  }
+}
+for (const a of articles) {
+  const p = a.data.project;
+  if (!p || typeof p === 'string') continue;
+  p.related.forEach((r) => addTool(p.folder, r));
+}
+
+// Newest first, then by name — matches the client's default 'recent' sort, so
+// the server render and the initial client sort agree (no reorder flash). Only
+// tools that resolve to a real catalog entry are kept.
+const projects = listProjects(lang)
+  .map((p) => ({
+    ...p,
+    tools: [...(toolsByFolder.get(p.folder) ?? [])].filter((slug) => nameBySlug.has(slug)),
+  }))
+  .sort((a, b) => b.date.localeCompare(a.date) || a.name.localeCompare(b.name, lang));
+
+// The union of tools actually used across samples, as the filter's options.
+const toolFacet = [...new Set(projects.flatMap((p) => p.tools))]
+  .map((slug) => ({ slug, name: nameBySlug.get(slug) ?? slug }))
+  .sort((a, b) => a.name.localeCompare(b.name, lang));
+
+const sortOptions = [
+  { key: 'recent', label: t('sort.recent') },
+  { key: 'alpha', label: t('sort.alpha') },
+];
 
 function formatDate(iso: string): string {
   const [y, m, d] = iso.split('-').map(Number);
@@ -33,6 +76,13 @@ function formatDate(iso: string): string {
     timeZone: 'UTC',
   }).format(new Date(Date.UTC(y, m - 1, d)));
 }
+
+const summaryClass =
+  'flex cursor-pointer items-center gap-1.5 rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] px-3 py-1.5 text-sm text-[var(--aas-text)]';
+const menuClass =
+  'absolute z-10 mt-1 max-h-72 min-w-[12rem] overflow-y-auto rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] p-1 shadow-lg';
+const optClass =
+  'flex w-full items-center justify-between gap-2 rounded px-2 py-1.5 text-left text-sm hover:bg-[var(--aas-tint)] aria-[current=true]:font-semibold aria-[current=true]:text-[var(--aas-accent)] aria-[pressed=true]:font-semibold aria-[pressed=true]:text-[var(--aas-accent)]';
 ---
 
 <section class="py-6">
@@ -40,30 +90,285 @@ function formatDate(iso: string): string {
   <p class="mt-3 max-w-2xl text-lg text-[var(--aas-muted)]">{t('sample.tagline')}</p>
 </section>
 
-{projects.length > 0 && <div class="mt-2"><ListControls lang={lang} /></div>}
+{
+  projects.length > 0 && (
+    <div class="mt-2 flex flex-wrap items-center gap-2" data-sample-controls>
+      <input
+        type="search"
+        data-sample-q
+        placeholder={t('sample.search')}
+        aria-label={t('sample.search')}
+        class="min-w-[10rem] flex-1 rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] px-3 py-1.5 text-sm text-[var(--aas-text)] placeholder:text-[var(--aas-muted)]"
+      />
 
-<ul class="mt-4 grid gap-3" data-sortgrid data-paginate data-page-size={PAGE}>
+      {toolFacet.length > 0 && (
+        <details class="aas-dd">
+          <summary class={summaryClass}>
+            <span class="text-[var(--aas-muted)]">{t('sample.tools')}</span>
+            <span
+              data-tools-count
+              hidden
+              class="rounded bg-[var(--aas-accent)] px-1.5 text-xs font-semibold text-white"
+            />
+            <ChevronDown class="text-[var(--aas-muted)]" />
+          </summary>
+          <ul class={`${menuClass} left-0`}>
+            {toolFacet.map((tf) => (
+              <li>
+                <button type="button" data-tool-opt={tf.slug} aria-pressed="false" class={optClass}>
+                  {tf.name}
+                  <span data-check aria-hidden="true" class="opacity-0">
+                    ✓
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+
+      <button
+        type="button"
+        data-sample-clear
+        hidden
+        class="rounded-lg px-2 py-1.5 text-sm text-[var(--aas-muted)] hover:text-[var(--aas-text)]"
+      >
+        {t('filter.clear')}
+      </button>
+
+      <details class="aas-dd ml-auto">
+        <summary class={summaryClass}>
+          <span class="text-[var(--aas-muted)]">{t('sort.label')}:</span>
+          <span data-sort-label>{sortOptions[0].label}</span>
+          <ChevronDown class="text-[var(--aas-muted)]" />
+        </summary>
+        <ul class={`${menuClass} right-0`}>
+          {sortOptions.map((o, i) => (
+            <li>
+              <button
+                type="button"
+                data-sort={o.key}
+                aria-current={i === 0 ? 'true' : 'false'}
+                class={optClass}
+              >
+                {o.label}
+                <span data-check aria-hidden="true" class="opacity-0">
+                  ✓
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </details>
+    </div>
+  )
+}
+
+<ul class="mt-4 grid gap-2.5" data-sample-grid>
   {
     projects.map((p) => (
-      <li data-name={p.name} data-date={p.date}>
+      <li
+        data-sample-card
+        data-name={p.name}
+        data-date={p.date}
+        data-search={`${p.name} ${p.folder} ${p.excerpt}`.toLowerCase()}
+        data-tools={p.tools.join(' ')}
+      >
         <a
           href={getRelativeLocaleUrl(lang, `sample/${p.folder}/`)}
-          class="aas-lift flex flex-col gap-1.5 rounded-2xl border border-[var(--aas-border)] bg-[var(--aas-panel)] p-4 no-underline"
+          class="aas-lift flex h-20 flex-col justify-center gap-1 overflow-hidden rounded-2xl border border-[var(--aas-border)] bg-[var(--aas-panel)] px-4 no-underline"
         >
-          <span class="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-            <span class="font-semibold text-[var(--aas-text)]">{p.name}</span>
-            <code class="rounded bg-[var(--aas-tint)] px-1.5 py-0.5 text-xs text-[var(--aas-muted)]">
+          <span class="flex items-center gap-2">
+            <span class="truncate font-semibold text-[var(--aas-text)]">{p.name}</span>
+            <span class="ml-auto shrink-0 text-xs text-[var(--aas-muted)]">{formatDate(p.date)}</span>
+          </span>
+          <span class="flex items-center gap-2 text-xs">
+            <code class="shrink-0 rounded bg-[var(--aas-tint)] px-1.5 py-0.5 text-[var(--aas-muted)]">
               samples/{p.folder}
             </code>
-            <span class="text-xs text-[var(--aas-muted)]">{formatDate(p.date)}</span>
+            {p.excerpt && <span class="truncate text-[var(--aas-muted)] opacity-60">{p.excerpt}</span>}
           </span>
-          {p.excerpt && (
-            <span class="line-clamp-2 text-sm leading-relaxed text-[var(--aas-muted)]">{p.excerpt}</span>
-          )}
         </a>
       </li>
     ))
   }
 </ul>
 
+<p data-sample-empty hidden class="mt-8 text-center text-sm text-[var(--aas-muted)]">{t('sample.noResults')}</p>
+
 <nav data-pager aria-label="Pagination" class="mt-8 flex flex-wrap items-center justify-center gap-1.5"></nav>
+
+<script>
+  const bar = document.querySelector<HTMLElement>('[data-sample-controls]');
+  const grid = document.querySelector<HTMLElement>('[data-sample-grid]');
+  if (bar && grid) {
+    const PAGE = 5;
+    const DEFAULT_SORT = 'recent';
+    const cards = Array.from(grid.querySelectorAll<HTMLElement>('[data-sample-card]'));
+    const qInput = bar.querySelector<HTMLInputElement>('[data-sample-q]');
+    const toolBtns = Array.from(bar.querySelectorAll<HTMLButtonElement>('[data-tool-opt]'));
+    const toolsCount = bar.querySelector<HTMLElement>('[data-tools-count]');
+    const clearBtn = bar.querySelector<HTMLButtonElement>('[data-sample-clear]');
+    const sortBtns = Array.from(bar.querySelectorAll<HTMLButtonElement>('[data-sort]'));
+    const sortLabel = bar.querySelector<HTMLElement>('[data-sort-label]');
+    const pager = document.querySelector<HTMLElement>('[data-pager]');
+    const emptyEl = document.querySelector<HTMLElement>('[data-sample-empty]');
+
+    let q = '';
+    const tools = new Set<string>();
+    let sort = DEFAULT_SORT;
+    let page = 1;
+
+    const byName = (a: HTMLElement, b: HTMLElement) =>
+      (a.dataset.name ?? '').localeCompare(b.dataset.name ?? '');
+    const comparator = () =>
+      sort === 'alpha'
+        ? byName
+        : (a: HTMLElement, b: HTMLElement) =>
+            (b.dataset.date ?? '').localeCompare(a.dataset.date ?? '') || byName(a, b);
+
+    function matches(card: HTMLElement) {
+      if (q && !(card.dataset.search ?? '').includes(q)) return false;
+      if (tools.size) {
+        const ts = (card.dataset.tools ?? '').split(' ').filter(Boolean);
+        // A sample matches if it uses ANY of the selected tools.
+        if (![...tools].some((t) => ts.includes(t))) return false;
+      }
+      return true;
+    }
+
+    function pageButton(label: string, target: number, opts: { current?: boolean; disabled?: boolean } = {}) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = label;
+      b.dataset.page = String(target);
+      b.disabled = !!opts.disabled;
+      b.setAttribute('aria-current', opts.current ? 'page' : 'false');
+      b.className =
+        'min-w-9 rounded-lg border border-[var(--aas-border)] bg-[var(--aas-panel)] px-3 py-1.5 text-sm text-[var(--aas-text)] hover:bg-[var(--aas-tint)] disabled:pointer-events-none disabled:opacity-40 aria-[current=page]:border-[var(--aas-accent)] aria-[current=page]:font-semibold aria-[current=page]:text-[var(--aas-accent)]';
+      return b;
+    }
+
+    function renderPager(pages: number) {
+      if (!pager) return;
+      pager.replaceChildren();
+      if (pages <= 1) return;
+      // Page numbers in fixed groups of PAGE; the arrows jump a whole group
+      // (‹ → last page of the previous group, › → first of the next).
+      const start = Math.floor((page - 1) / PAGE) * PAGE + 1;
+      const end = Math.min(pages, start + PAGE - 1);
+      pager.appendChild(pageButton('‹', start - 1, { disabled: start === 1 }));
+      for (let i = start; i <= end; i++) pager.appendChild(pageButton(String(i), i, { current: i === page }));
+      pager.appendChild(pageButton('›', end + 1, { disabled: end >= pages }));
+    }
+
+    function render() {
+      const visible = cards.filter(matches).sort(comparator());
+      visible.forEach((c) => grid!.appendChild(c)); // reorder to sorted order
+      const pages = Math.max(1, Math.ceil(visible.length / PAGE));
+      if (page > pages) page = pages;
+      const start = (page - 1) * PAGE;
+      cards.forEach((c) => {
+        c.style.display = 'none';
+      });
+      visible.forEach((c, i) => {
+        c.style.display = i >= start && i < start + PAGE ? '' : 'none';
+      });
+      if (emptyEl) emptyEl.hidden = visible.length !== 0;
+      renderPager(pages);
+    }
+
+    function updateToolUI() {
+      for (const b of toolBtns) {
+        const on = tools.has(b.dataset.toolOpt ?? '');
+        b.setAttribute('aria-pressed', String(on));
+        b.querySelector<HTMLElement>('[data-check]')?.classList.toggle('opacity-0', !on);
+      }
+      if (toolsCount) {
+        toolsCount.textContent = String(tools.size);
+        toolsCount.hidden = tools.size === 0;
+      }
+      if (clearBtn) clearBtn.hidden = q.length === 0 && tools.size === 0;
+    }
+
+    function updateSortUI() {
+      for (const b of sortBtns) {
+        const on = (b.dataset.sort ?? DEFAULT_SORT) === sort;
+        b.setAttribute('aria-current', String(on));
+        b.querySelector<HTMLElement>('[data-check]')?.classList.toggle('opacity-0', !on);
+        if (on && sortLabel) sortLabel.textContent = b.textContent?.replace('✓', '').trim() ?? '';
+      }
+    }
+
+    function syncUrl() {
+      const url = new URL(location.href);
+      const set = (k: string, v: string) =>
+        v ? url.searchParams.set(k, v) : url.searchParams.delete(k);
+      set('q', qInput?.value.trim() ?? '');
+      set('tools', [...tools].join(','));
+      set('sort', sort === DEFAULT_SORT ? '' : sort);
+      set('page', page === 1 ? '' : String(page));
+      history.replaceState(null, '', url);
+    }
+
+    qInput?.addEventListener('input', () => {
+      q = qInput.value.trim().toLowerCase();
+      page = 1;
+      updateToolUI();
+      render();
+      syncUrl();
+    });
+    for (const b of toolBtns) {
+      b.addEventListener('click', () => {
+        const slug = b.dataset.toolOpt ?? '';
+        if (tools.has(slug)) tools.delete(slug);
+        else tools.add(slug);
+        page = 1;
+        updateToolUI();
+        render();
+        syncUrl();
+      });
+    }
+    for (const b of sortBtns) {
+      b.addEventListener('click', () => {
+        sort = b.dataset.sort ?? DEFAULT_SORT;
+        page = 1;
+        updateSortUI();
+        render();
+        syncUrl();
+        b.closest('details')?.removeAttribute('open');
+      });
+    }
+    clearBtn?.addEventListener('click', () => {
+      if (qInput) qInput.value = '';
+      q = '';
+      tools.clear();
+      page = 1;
+      updateToolUI();
+      render();
+      syncUrl();
+    });
+    pager?.addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-page]');
+      if (!b || b.disabled) return;
+      page = Number(b.dataset.page);
+      render();
+      syncUrl();
+      window.scrollTo({ top: 0 });
+    });
+
+    // Restore state from the URL.
+    const params = new URLSearchParams(location.search);
+    const rawQ = params.get('q') ?? '';
+    if (qInput) qInput.value = rawQ;
+    q = rawQ.trim().toLowerCase();
+    (params.get('tools') ?? '').split(',').filter(Boolean).forEach((slug) => tools.add(slug));
+    const wantSort = params.get('sort');
+    if (wantSort && sortBtns.some((b) => b.dataset.sort === wantSort)) sort = wantSort;
+    const wantPage = Number(params.get('page'));
+    if (Number.isFinite(wantPage) && wantPage > 0) page = wantPage;
+    updateToolUI();
+    updateSortUI();
+    render();
+  }
+</script>
