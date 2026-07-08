@@ -26,6 +26,26 @@
   recipeEl.addEventListener('change', syncRecipeDesc);
   syncRecipeDesc();
 
+  // Persist the wizard state per sample in sessionStorage so a page refresh
+  // doesn't lose the record: the modal reopens where it was, with the log. It
+  // can't resume a live stream (the refresh drops the HTTP connection) — an
+  // interrupted run shows its partial log with a note.
+  var KEY = 'aas-run:' + data.folder;
+  var state;
+  try {
+    state = JSON.parse(sessionStorage.getItem(KEY) || 'null');
+  } catch (e) {}
+  if (!state) state = { open: false, step: 1, task: '', recipe: recipe, log: '', status: '' };
+  var lastSave = 0;
+  function persist(force) {
+    var now = Date.now();
+    if (!force && now - lastSave < 400) return;
+    lastSave = now;
+    try {
+      sessionStorage.setItem(KEY, JSON.stringify(state));
+    } catch (e) {}
+  }
+
   // Step 1 — build the env form from the .env.sample schema, prefilled with the
   // current .env values. Secret fields render masked with a show/hide toggle.
   data.env.forEach(function (f) {
@@ -102,6 +122,8 @@
   taskEl.addEventListener('input', function () {
     autoGrow();
     refreshCmd();
+    state.task = taskEl.value;
+    persist();
   });
   refreshCmd();
 
@@ -115,15 +137,22 @@
       steps[j].className = Number(steps[j].getAttribute('data-step')) <= n ? 'active' : '';
     }
     if (n === 2) autoGrow(); // measurable only now that the panel is visible
+    state.step = n;
+    persist(true);
   }
   function open() {
     recipe = recipeEl.value; // lock in the recipe chosen on the page
     refreshCmd();
     modal.hidden = false;
+    state.open = true;
+    state.recipe = recipe;
+    persist(true);
     showStep(1);
   }
   function close() {
     modal.hidden = true;
+    state.open = false;
+    persist(true);
   }
 
   async function saveEnv(btn) {
@@ -155,6 +184,9 @@
     var startedAt = Date.now();
     statusEl.className = 'run-status busy';
     statusEl.textContent = '● 실행 중… 0s';
+    state.status = 'running';
+    state.log = '';
+    persist(true);
     var timer = setInterval(function () {
       statusEl.textContent = '● 실행 중… ' + Math.round((Date.now() - startedAt) / 1000) + 's';
     }, 1000);
@@ -171,6 +203,8 @@
         if (res.done) break;
         logEl.textContent += dec.decode(res.value, { stream: true });
         logEl.scrollTop = logEl.scrollHeight;
+        state.log = logEl.textContent;
+        persist(); // throttled
       }
     } catch (e) {
       logEl.textContent += '\n[client error] ' + e.message;
@@ -178,7 +212,36 @@
     clearInterval(timer);
     statusEl.className = 'run-status';
     statusEl.textContent = '완료 · ' + Math.round((Date.now() - startedAt) / 1000) + 's';
+    state.status = 'done';
+    state.log = logEl.textContent;
+    persist(true);
     running = false;
+  }
+
+  // Restore a prior session's wizard (survives a page refresh). A run that was
+  // still streaming can't reconnect — show its partial log with a note.
+  function restore() {
+    if (!state.open) return;
+    recipeEl.value = state.recipe;
+    recipe = state.recipe;
+    syncRecipeDesc();
+    if (state.task) taskEl.value = state.task;
+    refreshCmd();
+    modal.hidden = false;
+    if (state.step === 3) {
+      logEl.textContent = state.log || '';
+      statusEl.className = 'run-status';
+      statusEl.textContent =
+        state.status === 'running'
+          ? '⚠ 새로고침으로 스트림이 끊겼습니다 — 컨테이너는 계속 실행 중일 수 있습니다. [다시 실행]으로 재실행하세요.'
+          : state.status === 'done'
+            ? '완료 (지난 실행 기록)'
+            : '';
+      showStep(3);
+      logEl.scrollTop = logEl.scrollHeight;
+    } else {
+      showStep(state.step);
+    }
   }
 
   document.getElementById('run-open').onclick = open;
@@ -196,4 +259,6 @@
   var runs = modal.querySelectorAll('[data-run]');
   for (var r2 = 0; r2 < runs.length; r2++) runs[r2].onclick = run;
   modal.querySelector('.backdrop').onclick = close;
+
+  restore();
 })();
