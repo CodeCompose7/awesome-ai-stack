@@ -231,7 +231,11 @@ const optClass =
   }
 </ul>
 
-<p data-sample-empty hidden class="mt-8 text-center text-sm text-[var(--aas-muted)]">{t('sample.noResults')}</p>
+{/* Swapped in for the list when nothing matches — same five-row height, so
+    the pager and footer stay put. */}
+<p data-sample-empty hidden class="mt-4 flex min-h-[27.5rem] items-center justify-center text-sm text-[var(--aas-muted)]">
+  {t('sample.noResults')}
+</p>
 
 <nav data-pager aria-label="Pagination" class="mt-8 flex flex-wrap items-center justify-center gap-1.5"></nav>
 
@@ -298,21 +302,26 @@ const optClass =
     function renderPager(pages: number) {
       if (!pager) return;
       pager.replaceChildren();
-      if (pages <= 1) return;
       // Page numbers in fixed groups of PAGE; the arrows jump a whole group
-      // (‹ → last page of the previous group, › → first of the next).
+      // (‹ → last page of the previous group, › → first of the next). The
+      // pager renders even for a single page (just "1", arrows disabled) so
+      // the layout below the list never jumps. A short group is padded to
+      // five slots with invisible placeholders, split evenly so the numbers
+      // stay centered while the arrows keep their exact position.
       const start = Math.floor((page - 1) / PAGE) * PAGE + 1;
       const end = Math.min(pages, start + PAGE - 1);
+      const missing = PAGE - (end - start + 1);
+      const padLeft = Math.floor(missing / 2);
+      const ghost = () => {
+        const b = pageButton('0', 0, { disabled: true });
+        b.classList.add('invisible');
+        return b;
+      };
       pager.appendChild(pageButton('«', 1, { disabled: page === 1 }));
       pager.appendChild(pageButton('‹', start - 1, { disabled: start === 1 }));
+      for (let i = 0; i < padLeft; i++) pager.appendChild(ghost());
       for (let i = start; i <= end; i++) pager.appendChild(pageButton(String(i), i, { current: i === page }));
-      // Pad a short last group to five slots with invisible placeholders so
-      // the arrows sit in the same spot on every page.
-      for (let i = end + 1; i < start + PAGE; i++) {
-        const ghost = pageButton('0', 0, { disabled: true });
-        ghost.classList.add('invisible');
-        pager.appendChild(ghost);
-      }
+      for (let i = 0; i < missing - padLeft; i++) pager.appendChild(ghost());
       pager.appendChild(pageButton('›', end + 1, { disabled: end >= pages }));
       pager.appendChild(pageButton('»', pages, { disabled: page === pages }));
     }
@@ -329,10 +338,10 @@ const optClass =
       visible.forEach((c, i) => {
         c.style.display = i >= start && i < start + PAGE ? '' : 'none';
       });
+      // Zero matches: swap the (height-reserving) list for the equally tall
+      // empty-state message so nothing below moves.
+      grid!.style.display = visible.length === 0 ? 'none' : '';
       if (emptyEl) emptyEl.hidden = visible.length !== 0;
-      // Keep the five-row reservation while cards show; collapse it for the
-      // no-results message so it doesn't float above an empty void.
-      grid!.classList.toggle('min-h-[27.5rem]', visible.length > 0);
       renderPager(pages);
     }
 
