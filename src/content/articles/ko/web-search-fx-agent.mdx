@@ -1,8 +1,8 @@
 ---
 title: 웹 검색 에이전트 만들기 — 오늘의 환율 묻기
 description: |-
-  "오늘 환율?"은 모델 혼자서는 못 답합니다. Tavily 웹 검색 도구를 하나 붙인
-  LangGraph 에이전트로, 도구가 학습 컷오프 너머를 어떻게 메우는지 직접 만들어 봅니다.
+  "오늘 환율?"은 모델 혼자서는 답하지 못합니다.
+  Tavily 웹 검색 도구를 하나 붙인 LangGraph 에이전트로, 도구가 학습 컷오프 너머를 어떻게 메우는지 직접 만들어 봅니다.
 date: 2026-06-29
 version: '1.0'
 updated: 2026-06-29
@@ -19,7 +19,7 @@ tags: [tools, web-search, agent, tutorial]
 
 import SampleProject from '../../../components/SampleProject.astro';
 
-[도구](../../concept/agent-tools/) 개념에서 "오늘의 환율 묻기"를 예로 들었습니다. 
+[[agent-tools#example-asking-todays-fx-rate]] 개념에서 "오늘의 환율 묻기"를 예로 들었습니다.  
 모델의 지식은 학습 시점에 멈춰 있어 환율처럼 매일 바뀌는 값은 알 수 없고, 그 빈틈을 메우는 게 *웹 검색 도구*입니다. 
 이 글에서는 그 예시를 실제로 돌아가는 에이전트로 만들어 봅니다.
 
@@ -45,7 +45,11 @@ flowchart LR
 
 ### 전체 구조 \{#overall-structure}
 
-`app.py`의 전체 흐름은 함수 셋으로 나뉩니다 — `main()`이 모델과 에이전트를 짜고, 모델이 부르는 도구가 `web_search()`, 그리고 마지막 답을 다듬는 게 `message_text()`입니다.
+`app.py`의 전체 흐름은 함수 셋으로 나뉩니다.
+
+- `main()`이 모델과 에이전트를 짜고, 
+- 모델이 부르는 도구가 `web_search()`, 
+- 그리고 마지막 답을 다듬는 게 `message_text()`입니다.
 
 ```mermaid
 flowchart TB

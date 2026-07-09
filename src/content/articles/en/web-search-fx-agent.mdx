@@ -1,9 +1,8 @@
 ---
 title: 'Building a web-search agent: asking today''s FX rate'
-description: >-
-  "Today's FX rate?" is something a model can't answer alone. We build a
-  LangGraph agent with a single Tavily web-search tool to see how a tool bridges
-  past the training cutoff.
+description: |-
+  "Today's FX rate?" is something a model can't answer alone.
+  We build a LangGraph agent with a single Tavily web-search tool to see how a tool bridges past the training cutoff.
 date: 2026-06-29
 version: '1.0'
 updated: 2026-06-29
@@ -20,7 +19,7 @@ tags: [tools, web-search, agent, tutorial]
 
 import SampleProject from '../../../components/SampleProject.astro';
 
-The [Tools](../../concept/agent-tools/) concept uses "asking today's FX rate" as an example. 
+The [[agent-tools#example-asking-todays-fx-rate|Tools]] concept uses "asking today's FX rate" as an example.  
 A model's knowledge stops at its training cutoff, so a value that changes daily — like an exchange rate — is out of reach; a *web-search tool* is what bridges that gap. 
 Here we turn that example into a working agent.
 
@@ -46,7 +45,11 @@ Without the tool the model can only guess at a stale value; with one tool, the a
 
 ### The overall structure \{#overall-structure}
 
-The whole flow in `app.py` splits into three functions — `main()` wires the model and the agent, `web_search()` is the tool the model calls, and `message_text()` cleans up the final answer.
+The whole flow in `app.py` splits into three functions.
+
+- `main()` wires the model and the agent,
+- `web_search()` is the tool the model calls,
+- and `message_text()` cleans up the final answer.
 
 ```mermaid
 flowchart TB
