@@ -141,7 +141,9 @@ function remarkGlossary() {
     // the build, nudging authors to add an explicit \{#id}.
     /** @param {any} node @returns {string} */
     const headingText = (node) =>
-      (node.children || []).map((c) => (c.value != null ? c.value : headingText(c))).join('');
+      (node.children || [])
+        .map((/** @type {any} */ c) => (c.value != null ? c.value : headingText(c)))
+        .join('');
     /** @type {Record<string, string>} */
     const headingTitles = {};
     /** @param {any} node */
