@@ -19,7 +19,7 @@ tags: [sandbox, docker, agent, tutorial]
 
 import SampleProject from '../../../components/SampleProject.astro';
 
-The [Sandboxing](../../concept/sandboxing/) concept makes the case that model-written code is *outside* the trust boundary and belongs in a throwaway, isolated environment.  
+The [[Sandboxing]] concept makes the case that model-written code is *outside* the trust boundary and belongs in a throwaway, isolated environment.  
 Here we turn that *code execution* role into a working agent.  
 
 The tool never `exec`s the code — it pipes it into a fresh Docker container every time.
@@ -224,6 +224,6 @@ The tool's body is essentially a single `docker run`, and the safety comes from 
 - **Swap the provider**
   - change `MODEL` in `.env` and the same code runs on a different model.
 
-Swap the tool for search and you get [asking today's FX rate](../web-search-fx-agent/); swap it for scraping and you get [a docs page to Markdown](../web-scraping-agent/).  
+Swap the tool for search and you get [[web-search-fx-agent|asking today's FX rate]]; swap it for scraping and you get [[web-scraping-agent|a docs page to Markdown]].  
 The same agent wired without LangChain — just LiteLLM + LangGraph — is in [[code-sandbox-agent-direct|the hand-wired edition]].  
-Why and how to isolate is laid out in the [Sandboxing](../../concept/sandboxing/) concept.
+Why and how to isolate is laid out in the [[Sandboxing]] concept.

@@ -46,9 +46,17 @@ export const glossary = {
   litellm: { label: 'LiteLLM', stack: 'litellm' },
   tavily: { label: 'Tavily', stack: 'tavily' },
   docker: { label: 'Docker', stack: 'docker' },
+  langfuse: { label: 'Langfuse', stack: 'langfuse' },
+  'swe-agent': { label: 'SWE-agent', stack: 'swe-agent' },
+  'mini-swe-agent': { label: 'mini-SWE-agent', stack: 'mini-swe-agent' },
   // Concept terms whose wording differs by locale: write [[도구]] / [[Tools]] /
   // [[agent-tools]] — all resolve here and render the label for the page's locale.
   'agent-tools': { label: { ko: '도구', en: 'Tools' }, concept: 'agent-tools' },
+  sandboxing: { label: { ko: '샌드박싱', en: 'Sandboxing' }, concept: 'sandboxing' },
+  'harness-engineering': {
+    label: { ko: '하네스 엔지니어링', en: 'Harness Engineering' },
+    concept: 'harness-engineering',
+  },
   // External term (links out, keeps a definition for the tooltip/card):
   react: {
     label: 'ReAct',
@@ -72,6 +80,10 @@ export const glossary = {
   'web-search-fx-agent': {
     label: { ko: '웹 검색 환율 에이전트', en: 'Web-search FX agent' },
     article: 'web-search-fx-agent',
+  },
+  'langfuse-vs-langsmith': {
+    label: 'Langfuse vs LangSmith',
+    article: 'langfuse-vs-langsmith',
   },
   'litellm-langgraph-vs-langchain': {
     label: { ko: 'LangChain 없이 만들면', en: 'Dropping LangChain' },
