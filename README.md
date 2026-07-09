@@ -1,4 +1,4 @@
-# ⚡ awesome-agent-stack
+# ⚡ awesome-ai-stack
 
 **English** | [한국어](docs/readme/README.ko.md)
 
@@ -12,7 +12,7 @@ but it's **not just a flat list**:
 2. **A detail page per service** — overview, links, metadata (language, license, pricing), and when to use it.
 3. **Runnable sample code** on every page, so you can go from "what is this" to "show me" in one scroll.
 
-Live site: <https://codecompose7.github.io/awesome-agent-stack>
+Live site: <https://codecompose7.github.io/awesome-ai-stack>
 
 ---
 
@@ -36,7 +36,7 @@ Live site: <https://codecompose7.github.io/awesome-agent-stack>
 docker compose up      # builds the image, installs deps, runs `pnpm dev`
 ```
 
-Then open <http://localhost:4321/awesome-agent-stack/>. The source is bind-mounted,
+Then open <http://localhost:4321/awesome-ai-stack/>. The source is bind-mounted,
 so edits on your machine hot-reload in the container. This runs the **dev server**
 ([`Dockerfile.dev`](Dockerfile.dev) + [`docker-compose.yml`](docker-compose.yml)) —
 the production site is the static build from the deploy workflow, not this image.

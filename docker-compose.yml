@@ -2,7 +2,7 @@
 #
 #   docker compose up
 #
-# then open http://localhost:4321/awesome-agent-stack/ . The source is bind-
+# then open http://localhost:4321/awesome-ai-stack/ . The source is bind-
 # mounted, so edits on the host hot-reload in the container. This runs the Astro
 # dev server only — the production site is the static build from
 # .github/workflows/deploy.yml.

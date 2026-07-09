@@ -6,7 +6,7 @@
 이 프로젝트는 [Semantic Versioning](https://semver.org/lang/ko/)을 준수합니다.
 
 이 저장소는 AI 에이전트 도구·스택을 한눈에 비교하는 큐레이션 카탈로그 사이트
-(awesome-agent-stack)입니다. Astro로 만든 정적 사이트이며 도구 카탈로그, 블로그,
+(awesome-ai-stack)입니다. Astro로 만든 정적 사이트이며 도구 카탈로그, 블로그,
 실행 가능한 예제(`samples/`)를 한국어·영어로 제공하고 GitHub Pages로 배포됩니다.
 1.0.0은 카탈로그·상세 페이지·예제·다국어를 갖춘 첫 정식 릴리스를 뜻합니다.
 

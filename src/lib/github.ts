@@ -54,7 +54,7 @@ function parseRepo(url?: string): { owner: string; repo: string } | null {
 function headers(): Record<string, string> {
   const h: Record<string, string> = {
     Accept: 'application/vnd.github+json',
-    'User-Agent': 'awesome-agent-stack-build',
+    'User-Agent': 'awesome-ai-stack-build',
   };
   const token = process.env.GITHUB_TOKEN;
   if (token) h.Authorization = `Bearer ${token}`;

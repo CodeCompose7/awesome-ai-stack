@@ -1,4 +1,4 @@
-# ⚡ awesome-agent-stack
+# ⚡ awesome-ai-stack
 
 [English](../../README.md) | **한국어**
 
@@ -15,7 +15,7 @@
 3. **모든 페이지에 실행 가능한 샘플 코드** — "이게 뭐지"에서 "보여줘"로 한 번에
    내려갑니다.
 
-라이브 사이트: <https://codecompose7.github.io/awesome-agent-stack>
+라이브 사이트: <https://codecompose7.github.io/awesome-ai-stack>
 
 ---
 
@@ -39,7 +39,7 @@
 docker compose up      # 이미지 빌드, 의존성 설치, `pnpm dev` 실행
 ```
 
-그리고 <http://localhost:4321/awesome-agent-stack/>를 엽니다. 소스가
+그리고 <http://localhost:4321/awesome-ai-stack/>를 엽니다. 소스가
 바인드마운트되므로 내 컴퓨터에서 파일을 고치면 컨테이너에서 핫리로드됩니다. 이건
 **개발 서버**를 띄우는 것입니다.
 ([`Dockerfile.dev`](../../Dockerfile.dev) + [`docker-compose.yml`](../../docker-compose.yml).)

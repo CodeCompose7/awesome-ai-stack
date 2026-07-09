@@ -241,7 +241,7 @@ export default defineConfig({
   // GitHub Pages project page. If you later attach a custom domain:
   //   - set `site` to that domain, change `base` to '/', and add public/CNAME.
   site: 'https://codecompose7.github.io',
-  base: '/awesome-agent-stack',
+  base: '/awesome-ai-stack',
 
   i18n: {
     locales: ['en', 'ko'],

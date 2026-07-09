@@ -1,4 +1,4 @@
-# Development container for awesome-agent-stack
+# Development container for awesome-ai-stack
 # Based on Microsoft's devcontainer Node image (includes git, zsh, common tooling).
 FROM mcr.microsoft.com/devcontainers/javascript-node:24
 
