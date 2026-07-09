@@ -202,7 +202,7 @@ It doesn't take a claim at face value but picks the check that fits, and each st
 A factual claim is scored by **evaluation** against a **source** — the retrieved context or a reference. 
 In RAG, the very context the model retrieved is what it grades against. 
 A code claim like `pandas.read_yaml` is checked for real existence by a static check or by running it in the *code sandbox*. 
-How those scores are then thresholded to block or retry is covered under *orchestration* below.
+How those scores are then thresholded to block or retry is covered under [orchestration](#orchestration-the-spine-that-drives-the-cycle) below.
 
 - **Unsourced numbers** — asserting "this job used 20 GPUs" with no basis
 - **Subtly wrong facts** — "supported since Python 3.9" when it's really 3.11
@@ -224,7 +224,8 @@ flowchart LR
 ### Observability \{#observability}
 
 Trace every step, token, and cost in production to catch regressions early. 
-If you can't see what was called, where it slowed down, and where the cost went, you can't fix it — catching the **"worked yesterday"** regressions that quietly appear after a change, before your users do.
+If you can't see what was called, where it slowed down, and where the cost went, you can't fix it.
+It catches the **"worked yesterday"** regressions that quietly appear after a change, before your users do.
 
 #### Example. Catching regressions early \{#example-catching-regressions-early}
 
@@ -254,7 +255,8 @@ The model, tools, evaluation, and sandbox above fill each of its steps.
 ### Agent loop \{#agent-loop}
 
 Orchestrates the reason→act cycle, manages state, and decides when to call a tool versus stop. 
-The loop *is* your control flow: make step counts, retries, and branches explicit, and a wandering model stops at a set limit instead of spinning forever — the guard against a **runaway loop** that circles or retries without end.
+The loop *is* your control flow: make step counts, retries, and branches explicit, and a wandering model stops at a set limit instead of spinning forever.
+It guards against a **runaway loop** that circles or retries without end.
 
 #### Example 1. Stopping at a step cap \{#example-1-stopping-at-a-step-cap}
 
