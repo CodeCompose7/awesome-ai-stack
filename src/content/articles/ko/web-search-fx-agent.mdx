@@ -76,12 +76,42 @@ flowchart TB
 - 내부에서 `_tavily.search(query, include_answer=True, max_results=5)`로 Tavily 호출
 - 돌려받은 `answer`와 `results`를 한 덩이의 텍스트로 합쳐 반환 — 다음 추론의 입력
 
+```python
+@tool
+def web_search(query: str) -> str:
+    """Search the web for current information, returning a short answer with sources.
+
+    Use this for anything past the model's training cutoff — prices, exchange
+    rates, news, today's facts.
+    """
+    res = _tavily.search(query, search_depth="basic", include_answer=True, max_results=5)
+    lines = []
+    if res.get("answer"):
+        lines.append(res["answer"])
+    for r in res.get("results", []):
+        lines.append(f"- {r['title']} ({r['url']})")
+    return "\n".join(lines) or "No results."
+```
+
 #### `message_text(content)` — 출력 다듬기 \{#message-text}
 
 - 모델 응답의 `content`는 모양이 제각각 — 클라우드는 문자열, 일부 로컬 모델은 `[{type: "text", …}, …]` 블록 리스트
 - 리스트면 `type == "text"` 블록의 텍스트만 이어붙임
 - 문자열이면 그대로 둠
 - 그래서 어느 제공자든 깔끔한 한 줄로 출력
+
+```python
+def message_text(content) -> str:
+    """Flatten an assistant message's content to plain text (cloud models return a
+    string; some local models return a list of blocks)."""
+    if isinstance(content, list):
+        return "".join(
+            part.get("text", "")
+            for part in content
+            if isinstance(part, dict) and part.get("type") == "text"
+        )
+    return content
+```
 
 #### `main()` — 조립 \{#main}
 
@@ -90,6 +120,18 @@ flowchart TB
 - `agent.invoke({"messages": […]})`가 추론→도구 호출→관찰을 돌림
 - 끝나면 마지막 메시지의 `content`를 `message_text()`로 다듬어 출력
 - 도구를 부를지·한 번 더 부를지는 전부 루프가 결정
+
+```python
+def main() -> None:
+    question = " ".join(sys.argv[1:]) or "오늘 USD/KRW 환율은?"
+
+    # MODEL chooses the provider (claude-opus-4-8 / gpt-4o / gemini/gemini-2.5-flash).
+    model = ChatLiteLLM(model=os.environ.get("MODEL", "claude-opus-4-8"), temperature=0)
+    agent = create_agent(model, tools=[web_search])
+
+    result = agent.invoke({"messages": [{"role": "user", "content": question}]})
+    print(message_text(result["messages"][-1].content))
+```
 
 임포트는 `langchain`이지만 `create_agent`가 돌려주는 것은 LangGraph 그래프입니다.  
 이 접착 계층 없이 LiteLLM + LangGraph만으로 직접 구성하면 어떻게 되는지는 [[litellm-langgraph-vs-langchain|별도 비교 글]]에서 다룹니다.

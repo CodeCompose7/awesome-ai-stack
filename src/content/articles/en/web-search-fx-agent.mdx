@@ -76,12 +76,42 @@ flowchart TB
 - Inside, `_tavily.search(query, include_answer=True, max_results=5)` hits Tavily
 - The returned `answer` and `results` are folded into one block of text — the next reasoning step's input
 
+```python
+@tool
+def web_search(query: str) -> str:
+    """Search the web for current information, returning a short answer with sources.
+
+    Use this for anything past the model's training cutoff — prices, exchange
+    rates, news, today's facts.
+    """
+    res = _tavily.search(query, search_depth="basic", include_answer=True, max_results=5)
+    lines = []
+    if res.get("answer"):
+        lines.append(res["answer"])
+    for r in res.get("results", []):
+        lines.append(f"- {r['title']} ({r['url']})")
+    return "\n".join(lines) or "No results."
+```
+
 #### `message_text(content)` — cleaning the output \{#message-text}
 
 - A reply's `content` isn't uniformly shaped — cloud models return a string, some local models a list of blocks like `[{type: "text", …}, …]`
 - For a list, it keeps only the text of `type == "text"` blocks
 - For a string, it passes straight through
 - So any provider prints as one clean line
+
+```python
+def message_text(content) -> str:
+    """Flatten an assistant message's content to plain text (cloud models return a
+    string; some local models return a list of blocks)."""
+    if isinstance(content, list):
+        return "".join(
+            part.get("text", "")
+            for part in content
+            if isinstance(part, dict) and part.get("type") == "text"
+        )
+    return content
+```
 
 #### `main()` — the wiring \{#main}
 
@@ -90,6 +120,18 @@ flowchart TB
 - `agent.invoke({"messages": […]})` runs reason→call-tool→observe
 - When it finishes, the last message's `content` is cleaned by `message_text()` and printed
 - Whether to call the tool — and whether to call again — is entirely the loop's decision
+
+```python
+def main() -> None:
+    question = " ".join(sys.argv[1:]) or "오늘 USD/KRW 환율은?"
+
+    # MODEL chooses the provider (claude-opus-4-8 / gpt-4o / gemini/gemini-2.5-flash).
+    model = ChatLiteLLM(model=os.environ.get("MODEL", "claude-opus-4-8"), temperature=0)
+    agent = create_agent(model, tools=[web_search])
+
+    result = agent.invoke({"messages": [{"role": "user", "content": question}]})
+    print(message_text(result["messages"][-1].content))
+```
 
 The import says `langchain`, but what `create_agent` returns is a LangGraph graph.  
 What the same loop looks like wired with just LiteLLM + LangGraph — no glue layer — is covered in [[litellm-langgraph-vs-langchain|a separate comparison]].
