@@ -202,7 +202,7 @@ It doesn't take a claim at face value but picks the check that fits, and each st
 A factual claim is scored by **evaluation** against a **source** — the retrieved context or a reference. 
 In RAG, the very context the model retrieved is what it grades against. 
 A code claim like `pandas.read_yaml` is checked for real existence by a static check or by running it in the *code sandbox*. 
-How those scores are then thresholded to block or retry is covered under [orchestration](#orchestration-the-spine-that-drives-the-cycle) below.
+How those scores are then thresholded to block or retry is covered under [[#orchestration-the-spine-that-drives-the-cycle]] below.
 
 - **Unsourced numbers** — asserting "this job used 20 GPUs" with no basis
 - **Subtly wrong facts** — "supported since Python 3.9" when it's really 3.11
@@ -249,7 +249,8 @@ flowchart LR
 ## Orchestration — the spine that drives the cycle \{#orchestration-the-spine-that-drives-the-cycle}
 
 Now the pieces come together. 
-The loop calls reason→act→observe in turn — the spine — deciding at each gate whether to stop, retry, or pass, and logging every step to *observability* (tracing). 
+The loop calls reason→act→observe in turn — the spine — deciding at each gate whether to stop, retry, or pass, 
+and logging every step to *observability* (tracing). 
 The model, tools, evaluation, and sandbox above fill each of its steps.
 
 ### Agent loop \{#agent-loop}
