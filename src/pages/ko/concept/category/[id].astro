@@ -11,6 +11,6 @@ const { id } = Astro.props as { id: string };
 const node = conceptTree.map.get(id)!;
 ---
 
-<BaseLayout title={`${node.label.ko} — awesome-agent-stack`} lang="ko" path={`concept/category/${id}/`}>
+<BaseLayout title={`${node.label.ko} — awesome-ai-stack`} lang="ko" path={`concept/category/${id}/`}>
   <ConceptIndex lang="ko" categoryId={id} />
 </BaseLayout>

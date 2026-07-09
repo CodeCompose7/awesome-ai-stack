@@ -45,7 +45,7 @@ flowchart LR
 ## Why it matters \{#why-it-matters}
 
 A model's knowledge stops at its training cutoff, and a model can't *do* anything on its own. 
-Tools bridge both gaps — pulling in current data and carrying out real actions.
+Tools bridge both gaps. They pull in current data and carry out real actions.
 
 | Without tools | What a tool bridges |
 | --- | --- |
@@ -55,7 +55,8 @@ Tools bridge both gaps — pulling in current data and carrying out real actions
 | **Out-of-reach apps** — no access to mail, calendar, SaaS | [App & API integration](#app-api-integration) to delegate auth and calls |
 | **Unrunnable code** — no exact computation or verification | [Code execution](#code-execution) to run it in a sandbox |
 
-Each row is solved by a line *out* to the world, not by a smarter model — which tool fills each spot is covered below.
+Each row is solved by a line *out* to the world, not by a smarter model.
+Which tool fills each spot is covered below.
 
 ## The kinds — and the tools that fill them \{#the-kinds-and-the-tools-that-fill-them}
 
@@ -203,7 +204,8 @@ To call a tool reliably, the model has to be told *what* it can call and *in wha
 - **Filling arguments** — the model picks a tool and generates the input arguments as JSON; a malformed shape is caught by validation and retried.
 - **Using the result** — the call's result feeds back into reasoning to decide the next action — sometimes one call, sometimes several tools chained.
 
-Passing tool specs over a standard protocol is taking hold too — **MCP (Model Context Protocol)** is one example, standardizing how tools and data sources attach to a model.
+Passing tool specs over a standard protocol is taking hold too.
+**MCP (Model Context Protocol)** is one example, standardizing how tools and data sources attach to a model.
 
 ## Principles to keep in mind \{#principles-to-keep-in-mind}
 

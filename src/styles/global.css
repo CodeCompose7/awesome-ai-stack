@@ -356,6 +356,16 @@ html {
 .aas-reading.aas-reading :where(code, pre, kbd, samp) {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
+/* Korean line breaking: wrap at word (eojeol) boundaries — i.e. at spaces —
+   instead of between arbitrary characters, so a word like "처음부터" never
+   splits mid-word across two lines. `word-break` inherits, so setting it on the
+   reading column and the description covers all their descendants. Scoped to
+   Korean pages via <html lang="ko">; Latin scripts already wrap on spaces. */
+html[lang='ko'] .aas-reading,
+html[lang='ko'] .aas-md,
+html[lang='ko'] h1 {
+  word-break: keep-all;
+}
 /* Doc tables: a touch larger, centered (shrink-to-content), roomier cells, and
    a full-row hover highlight. `fit-content` + `margin-inline: auto` centers the
    table block while `max-width`/overflow (from the base .prose rule) keep it

@@ -5,7 +5,7 @@ import { createHighlighter, type Highlighter } from 'shiki';
 import MarkdownIt from 'markdown-it';
 
 const SAMPLES_DIR = 'samples';
-const REPO = 'https://github.com/codecompose7/awesome-agent-stack';
+const REPO = 'https://github.com/codecompose7/awesome-ai-stack';
 const THEME = 'github-dark';
 const LANGS = [
   'python',

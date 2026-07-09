@@ -20,7 +20,7 @@ export const defaultLang: Lang = 'en';
 export const ui = {
   en: {
     'site.tagline':
-      'A curated stack of the tools and services you actually use to build AI agents — each with a detail page and runnable sample code.',
+      'A curated stack of the tools and services you actually use to build AI systems — each with a detail page and runnable sample code.',
     'nav.browse': 'Browse',
     'nav.concepts': 'Concepts',
     'nav.blog': 'Writing',
@@ -49,7 +49,7 @@ export const ui = {
     'glossary.noResults': 'No matching terms.',
     'search.placeholder': 'Search tools…',
     'concept.title': 'Concepts',
-    'concept.tagline': 'Patterns that compose catalog tools into a working agent stack.',
+    'concept.tagline': 'Patterns that compose catalog tools into a working AI stack.',
     'concept.empty': 'No concepts yet.',
     'concept.usedTools': 'Tools it uses',
     'concept.relatedConcepts': 'Related concepts',
@@ -91,7 +91,7 @@ export const ui = {
     'detail.relatedWriting': 'Related writing',
     'detail.relatedTools': 'Related tools',
     'blog.title': 'Writing',
-    'blog.tagline': 'Notes and comparisons on building AI agents, linked to the tools they discuss.',
+    'blog.tagline': 'Notes and comparisons on building AI systems, linked to the tools they discuss.',
     'blog.empty': 'No posts yet.',
     'article.backToBlog': 'All writing',
     'article.referencedTools': 'Tools in this article',
@@ -143,7 +143,7 @@ export const ui = {
   },
   ko: {
     'site.tagline':
-      'AI 에이전트를 만들 때 실제로 쓰는 도구와 서비스를 모았습니다 — 각 항목마다 상세 페이지와 바로 실행 가능한 샘플 코드를 제공합니다.',
+      'AI 시스템을 만들 때 실제로 쓰는 도구와 서비스를 모았습니다 — 각 항목마다 상세 페이지와 바로 실행 가능한 샘플 코드를 제공합니다.',
     'nav.browse': '둘러보기',
     'nav.concepts': '개념',
     'nav.blog': '글',
@@ -171,7 +171,7 @@ export const ui = {
     'glossary.noResults': '일치하는 용어가 없습니다.',
     'search.placeholder': '도구 검색…',
     'concept.title': '개념',
-    'concept.tagline': '카탈로그의 도구를 엮어 동작하는 에이전트 스택을 구성하는 패턴.',
+    'concept.tagline': '카탈로그의 도구를 엮어 동작하는 AI 스택을 구성하는 패턴.',
     'concept.empty': '아직 개념이 없습니다.',
     'concept.usedTools': '쓰는 도구',
     'concept.relatedConcepts': '관련 개념',
@@ -213,7 +213,7 @@ export const ui = {
     'detail.relatedWriting': '관련 글',
     'detail.relatedTools': '관련 도구',
     'blog.title': '글',
-    'blog.tagline': 'AI 에이전트 구축에 관한 노트와 비교 — 다루는 도구로 바로 연결됩니다.',
+    'blog.tagline': 'AI 시스템 구축에 관한 노트와 비교 — 다루는 도구로 바로 연결됩니다.',
     'blog.empty': '아직 글이 없습니다.',
     'article.backToBlog': '전체 글',
     'article.referencedTools': '이 글에서 다루는 도구',

@@ -11,6 +11,6 @@ const { id } = Astro.props as { id: string };
 const node = articleTree.map.get(id)!;
 ---
 
-<BaseLayout title={`${node.label.ko} — awesome-agent-stack`} lang="ko" path={`article/category/${id}/`}>
+<BaseLayout title={`${node.label.ko} — awesome-ai-stack`} lang="ko" path={`article/category/${id}/`}>
   <BlogIndex lang="ko" categoryId={id} />
 </BaseLayout>

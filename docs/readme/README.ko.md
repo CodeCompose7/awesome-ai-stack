@@ -1,9 +1,9 @@
-# ⚡ awesome-agent-stack
+# ⚡ awesome-ai-stack
 
 [English](../../README.md) | **한국어**
 
-**AI 에이전트**를 만들 때 실제로 쓰는 도구와 서비스를 모은 큐레이션 스택 —
-프레임워크, LLM 제공자, 벡터 스토어, 관측(observability) 등.
+**AI 시스템**을 만들 때 실제로 쓰는 도구와 서비스를 모은 큐레이션 스택 —
+프레임워크, LLM 제공자, 벡터 스토어, 서빙, 관측(observability) 등.
 
 [kyrolabs/awesome-agents](https://github.com/kyrolabs/awesome-agents) 같은
 목록에서 영감을 받았지만, **단순한 평면 목록이 아닙니다**:
@@ -15,7 +15,7 @@
 3. **모든 페이지에 실행 가능한 샘플 코드** — "이게 뭐지"에서 "보여줘"로 한 번에
    내려갑니다.
 
-라이브 사이트: <https://codecompose7.github.io/awesome-agent-stack>
+라이브 사이트: <https://codecompose7.github.io/awesome-ai-stack>
 
 ---
 
@@ -39,7 +39,7 @@
 docker compose up      # 이미지 빌드, 의존성 설치, `pnpm dev` 실행
 ```
 
-그리고 <http://localhost:4321/awesome-agent-stack/>를 엽니다. 소스가
+그리고 <http://localhost:4321/awesome-ai-stack/>를 엽니다. 소스가
 바인드마운트되므로 내 컴퓨터에서 파일을 고치면 컨테이너에서 핫리로드됩니다. 이건
 **개발 서버**를 띄우는 것입니다.
 ([`Dockerfile.dev`](../../Dockerfile.dev) + [`docker-compose.yml`](../../docker-compose.yml).)

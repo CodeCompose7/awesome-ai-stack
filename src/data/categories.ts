@@ -129,12 +129,12 @@ export const categories: Category[] = [
     id: 'llm-providers',
     label: { en: 'LLM Providers & Gateways', ko: 'LLM 제공자 & 게이트웨이' },
     description: {
-      en: 'Foundation-model APIs — and the gateways that unify them — powering an agent’s reasoning',
-      ko: '에이전트의 추론을 담당하는 파운데이션 모델 API와 이를 하나로 묶는 게이트웨이',
+      en: 'Foundation-model APIs — and the gateways that unify them — powering an AI system’s reasoning',
+      ko: 'AI 시스템의 추론을 담당하는 파운데이션 모델 API와 이를 하나로 묶는 게이트웨이',
     },
     detail: {
-      en: "Where an agent's reasoning actually happens. This covers first-party model APIs, the gateways that put many models behind one interface, and local runtimes for open models — the layer you swap when cost, latency, or privacy needs change.",
-      ko: '에이전트의 추론이 실제로 일어나는 곳입니다. 1차 제공자 모델 API, 여러 모델을 하나의 인터페이스 뒤에 두는 게이트웨이, 오픈 모델을 위한 로컬 런타임을 포함합니다. 비용·지연·프라이버시 요구가 바뀔 때 교체하는 계층입니다.',
+      en: "Where an AI system's reasoning actually happens. This covers first-party model APIs, the gateways that put many models behind one interface, and local runtimes for open models — the layer you swap when cost, latency, or privacy needs change.",
+      ko: 'AI 시스템의 추론이 실제로 일어나는 곳입니다. 1차 제공자 모델 API, 여러 모델을 하나의 인터페이스 뒤에 두는 게이트웨이, 오픈 모델을 위한 로컬 런타임을 포함합니다. 비용·지연·프라이버시 요구가 바뀔 때 교체하는 계층입니다.',
     },
     children: [
       {
@@ -183,8 +183,8 @@ export const categories: Category[] = [
       ko: '장기 기억과 RAG를 위한 임베딩 저장·검색',
     },
     detail: {
-      en: 'How agents remember. From vector databases for similarity search to higher-level memory layers and the embedding models that feed them, this is the retrieval backbone behind RAG and long-term context.',
-      ko: '에이전트가 기억하는 방식입니다. 유사도 검색을 위한 벡터 데이터베이스부터 상위 수준의 메모리 계층, 그리고 이를 채우는 임베딩 모델까지 — RAG와 장기 컨텍스트를 뒷받침하는 검색 백본입니다.',
+      en: 'How AI systems remember. From vector databases for similarity search to higher-level memory layers and the embedding models that feed them, this is the retrieval backbone behind RAG and long-term context.',
+      ko: 'AI 시스템이 기억하는 방식입니다. 유사도 검색을 위한 벡터 데이터베이스부터 상위 수준의 메모리 계층, 그리고 이를 채우는 임베딩 모델까지 — RAG와 장기 컨텍스트를 뒷받침하는 검색 백본입니다.',
     },
     children: [
       {
@@ -229,12 +229,12 @@ export const categories: Category[] = [
     id: 'observability',
     label: { en: 'Observability & Eval', ko: '관측성 & 평가' },
     description: {
-      en: 'Tracing, evaluation, and monitoring for agent runs',
-      ko: '에이전트 실행에 대한 트레이싱·평가·모니터링',
+      en: 'Tracing, evaluation, and monitoring for AI system runs',
+      ko: 'AI 시스템 실행에 대한 트레이싱·평가·모니터링',
     },
     detail: {
-      en: 'Once an agent runs in production you need to see inside it. These tools trace each step, evaluate output quality, track cost and latency, and help you catch regressions before your users do.',
-      ko: '에이전트가 프로덕션에서 돌기 시작하면 내부를 들여다봐야 합니다. 각 단계를 트레이싱하고 출력 품질을 평가하며 비용과 지연을 추적해, 사용자보다 먼저 회귀를 잡아내도록 돕는 도구입니다.',
+      en: 'Once an AI system runs in production you need to see inside it. These tools trace each step, evaluate output quality, track cost and latency, and help you catch regressions before your users do.',
+      ko: 'AI 시스템이 프로덕션에서 돌기 시작하면 내부를 들여다봐야 합니다. 각 단계를 트레이싱하고 출력 품질을 평가하며 비용과 지연을 추적해, 사용자보다 먼저 회귀를 잡아내도록 돕는 도구입니다.',
     },
     children: [
       {
@@ -333,8 +333,8 @@ export const categories: Category[] = [
       ko: '런타임에 모델 입출력을 검증·제약·유도하는 도구',
     },
     detail: {
-      en: 'A safety layer around the model: enforce output schemas, block unsafe or off-topic content, and keep a conversation on the rails — checked as the agent runs, not after.',
-      ko: '모델을 감싸는 안전 계층입니다. 출력 스키마를 강제하고 안전하지 않거나 주제를 벗어난 내용을 막으며, 대화가 정해진 궤도를 벗어나지 않게 합니다 — 사후가 아니라 에이전트가 도는 동안 검사합니다.',
+      en: 'A safety layer around the model: enforce output schemas, block unsafe or off-topic content, and keep a conversation on the rails — checked as the model runs, not after.',
+      ko: '모델을 감싸는 안전 계층입니다. 출력 스키마를 강제하고 안전하지 않거나 주제를 벗어난 내용을 막으며, 대화가 정해진 궤도를 벗어나지 않게 합니다 — 사후가 아니라 모델이 도는 동안 검사합니다.',
     },
   },
   {
