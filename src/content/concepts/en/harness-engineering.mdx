@@ -96,7 +96,9 @@ Keep it swappable across cost, latency, and capability so you never hard-wire yo
 
 <Tools slugs={["anthropic-claude", "openai", "gemini"]} />
 
-**Gateway** — fallbacks and cost routing across providers. 
+**Gateway**
+
+Fallbacks and cost routing across providers. 
 When one model is down or slow, route to another, and keep every call behind one interface.
 
 <Tools slugs={["litellm", "openrouter"]} />
@@ -130,12 +132,13 @@ A model's knowledge stops at its training cutoff, so anything current and real h
 ## Safety layers — guarding against failure \{#safety-layers-guarding-against-failure}
 
 Capability alone doesn't make it reliable. 
-Each layer below guards against one of the failure modes in *Why it matters* above — you don't need them all up front, only where a risk shows.
+Each layer below guards against one of the failure modes in [[#why-it-matters]] above — you don't need them all up front, only where a risk shows.
 
 ### Code sandbox \{#code-sandbox}
 
 Runs model-written code in isolation, so a bad command can't touch your machine or your data. 
-Disposable runtimes spin up and tear down fast, which is what makes them the safety net behind a code-running agent — isolating **risky side effects** like deleted files or arbitrary network calls. 
+Disposable runtimes spin up and tear down fast, which is what makes them the safety net behind a code-running agent.
+It isolates **risky side effects** like deleted files or arbitrary network calls. 
 The same isolated runtime is also a verification tool: *evaluation* runs the model's code here to catch errors like a call to a nonexistent API.
 
 #### Example. Isolating side effects \{#example-isolating-side-effects}
@@ -190,7 +193,8 @@ flowchart LR
 ### Evaluation \{#evaluation}
 
 Score quality with metrics and test suites, so you know a change actually helped. 
-Run faithfulness, relevance, and correctness checks in CI instead of eyeballing, and the pipeline catches regressions before a person does — filtering out the **silent wrong answers** a model hands you with confidence. 
+Run faithfulness, relevance, and correctness checks in CI instead of eyeballing, and the pipeline catches regressions before a person does.
+It filters out the **silent wrong answers** a model hands you with confidence. 
 It doesn't take a claim at face value but picks the check that fits, and each step is logged to *observability* (tracing).
 
 #### Example. Scoring claims against a source \{#example-scoring-claims-against-a-source}
@@ -198,7 +202,7 @@ It doesn't take a claim at face value but picks the check that fits, and each st
 A factual claim is scored by **evaluation** against a **source** — the retrieved context or a reference. 
 In RAG, the very context the model retrieved is what it grades against. 
 A code claim like `pandas.read_yaml` is checked for real existence by a static check or by running it in the *code sandbox*. 
-How those scores are then thresholded to block or retry is covered under *orchestration* below.
+How those scores are then thresholded to block or retry is covered under [orchestration](#orchestration-the-spine-that-drives-the-cycle) below.
 
 - **Unsourced numbers** — asserting "this job used 20 GPUs" with no basis
 - **Subtly wrong facts** — "supported since Python 3.9" when it's really 3.11
@@ -220,7 +224,8 @@ flowchart LR
 ### Observability \{#observability}
 
 Trace every step, token, and cost in production to catch regressions early. 
-If you can't see what was called, where it slowed down, and where the cost went, you can't fix it — catching the **"worked yesterday"** regressions that quietly appear after a change, before your users do.
+If you can't see what was called, where it slowed down, and where the cost went, you can't fix it.
+It catches the **"worked yesterday"** regressions that quietly appear after a change, before your users do.
 
 #### Example. Catching regressions early \{#example-catching-regressions-early}
 
@@ -250,7 +255,8 @@ The model, tools, evaluation, and sandbox above fill each of its steps.
 ### Agent loop \{#agent-loop}
 
 Orchestrates the reason→act cycle, manages state, and decides when to call a tool versus stop. 
-The loop *is* your control flow: make step counts, retries, and branches explicit, and a wandering model stops at a set limit instead of spinning forever — the guard against a **runaway loop** that circles or retries without end.
+The loop *is* your control flow: make step counts, retries, and branches explicit, and a wandering model stops at a set limit instead of spinning forever.
+It guards against a **runaway loop** that circles or retries without end.
 
 #### Example 1. Stopping at a step cap \{#example-1-stopping-at-a-step-cap}
 

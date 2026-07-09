@@ -132,6 +132,29 @@ function remarkGlossary() {
     const lang = /[/\\]ko[/\\]/.test(path) ? 'ko' : 'en';
     /** @param {any} l */
     const labelOf = (l) => (typeof l === 'string' ? l : l[lang]);
+    // Same-document section links ([[#anchor]]) resolve their display text to
+    // the target heading's own title. Collect id -> title up front from this
+    // file's tree. remarkHeadingIds ran earlier, so explicit \{#id} headings
+    // already carry their id on data.hProperties and have the \{#id} stripped
+    // from the visible text. Auto-slugged headings (no explicit id) have no id
+    // at this stage and are intentionally not indexed — an unknown anchor fails
+    // the build, nudging authors to add an explicit \{#id}.
+    /** @param {any} node @returns {string} */
+    const headingText = (node) =>
+      (node.children || []).map((c) => (c.value != null ? c.value : headingText(c))).join('');
+    /** @type {Record<string, string>} */
+    const headingTitles = {};
+    /** @param {any} node */
+    const collectHeadings = (node) => {
+      if (!node.children) return;
+      for (const c of node.children) {
+        if (c.type === 'heading') {
+          const hid = c.data && c.data.hProperties && c.data.hProperties.id;
+          if (hid) headingTitles[hid] = headingText(c);
+        } else collectHeadings(c);
+      }
+    };
+    collectHeadings(tree);
     /** @param {any} node */
     const walk = (node) => {
       if (!node.children) return;
@@ -150,6 +173,21 @@ function remarkGlossary() {
             const hashAt = m[1].indexOf('#');
             const name = hashAt === -1 ? m[1] : m[1].slice(0, hashAt);
             const anchor = hashAt === -1 ? '' : m[1].slice(hashAt + 1).trim();
+            // Same-document section link: [[#anchor]] / [[#anchor|text]] points
+            // at a heading in THIS file (no glossary term before the #). The
+            // display text defaults to the heading's own title.
+            if (name === '') {
+              if (!anchor) throw new Error(`[glossary] empty wikilink "[[${m[1]}]]" in ${path}`);
+              const title = headingTitles[anchor];
+              if (!title)
+                throw new Error(
+                  `[glossary] "[[${m[1]}]]" — no heading with an explicit \{#${anchor}} in ${path}`,
+                );
+              const text = m[2] ? m[2].trim() : title;
+              out.push({ type: 'link', url: `#${anchor}`, children: [{ type: 'text', value: text }] });
+              last = m.index + m[0].length;
+              continue;
+            }
             const id = lookup[norm(name)];
             const entry = glossary[id];
             if (!entry) throw new Error(`[glossary] unknown term "[[${m[1]}]]" in ${path}`);
