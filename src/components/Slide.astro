@@ -1,0 +1,16 @@
+---
+// One slide in a deck. Authored in a deck's MDX as <Slide>…</Slide>; the deck
+// page (src/pages/slides/[deck].astro) lays these out as a horizontal
+// scroll-snap presentation. `class` adds modifiers, e.g. class="cover" for the
+// title slide or class="center" to vertically center short slides.
+interface Props {
+  class?: string;
+}
+const { class: cls } = Astro.props;
+---
+
+<section class:list={['aas-slide', cls]}>
+  <div class="aas-slide-inner">
+    <slot />
+  </div>
+</section>

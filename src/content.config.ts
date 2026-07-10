@@ -170,4 +170,25 @@ const concepts = defineCollection({
     }),
 });
 
-export const collections = { stacks, articles, concepts };
+/**
+ * The `slides` collection holds presentation decks — one MDX file per deck, with
+ * each slide wrapped in a <Slide> component (see src/components/Slide.astro). The
+ * deck renders as a fullscreen scroll-snap presentation at /slides/<name>/.
+ *
+ * Decks are self-contained and language-agnostic (flat, not locale-partitioned):
+ * a deck's prose carries its own language, and both locale indexes link to the
+ * same deck. Add per-locale folders later if decks need translating.
+ */
+const slides = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/slides' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    // Concept slug this deck summarizes (links back to /concept/<slug>/).
+    related: z.string().optional(),
+    order: z.number().optional(), // manual sort on the index (lower first)
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { stacks, articles, concepts, slides };

@@ -1039,3 +1039,267 @@ summary {
 .aas-reading [data-readme-body] {
   font-family: 'MaruBuri', ui-serif, Georgia, serif;
 }
+
+/* ==========================================================================
+   Slides / decks
+   Native presentation decks rendered at /slides/<name>/. A deck is a horizontal
+   scroll-snap track of full-viewport <section.aas-slide> panels (one per
+   <Slide> in the deck MDX). Content is plain MDX, so it reuses Shiki code
+   highlighting, the Mermaid loader, and the site's --aas-* theme (light/dark).
+   ========================================================================== */
+.aas-deck-body {
+  margin: 0;
+  overflow: hidden;
+  background: var(--aas-bg);
+  color: var(--aas-text);
+  font-family: var(--aas-sans);
+}
+
+.aas-deck {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none; /* the counter + progress bar are the position cue */
+}
+.aas-deck::-webkit-scrollbar {
+  display: none;
+}
+
+.aas-slide {
+  flex: 0 0 100%;
+  width: 100vw;
+  height: 100dvh;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(2rem, 6vh, 5rem) clamp(1.5rem, 7vw, 7rem);
+  overflow-y: auto; /* a slide taller than the viewport scrolls internally */
+}
+
+.aas-slide-inner {
+  width: 100%;
+  max-width: 62rem;
+  margin: auto;
+}
+
+/* Cover / closing slides: centered, roomier. Add class="cover" on the <Slide>. */
+.aas-slide.cover .aas-slide-inner,
+.aas-slide.center .aas-slide-inner {
+  text-align: center;
+}
+
+/* --- Slide typography (styles the plain MDX inside a slide) --------------- */
+/* The site adds a "#" copy-link anchor to headings; it's noise in a deck. */
+.aas-slide-inner .aas-anchor {
+  display: none;
+}
+.aas-slide-inner > :first-child {
+  margin-top: 0;
+}
+.aas-slide-inner > :last-child {
+  margin-bottom: 0;
+}
+.aas-slide-inner h1 {
+  font-size: clamp(2rem, 5.5vw, 3.75rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.6em;
+}
+.aas-slide-inner h2 {
+  font-size: clamp(1.5rem, 3.6vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  margin: 0 0 0.7em;
+  color: var(--aas-accent);
+}
+.aas-slide-inner h3 {
+  font-size: clamp(1.15rem, 2.2vw, 1.6rem);
+  font-weight: 700;
+  margin: 1.2em 0 0.4em;
+}
+.aas-slide-inner p,
+.aas-slide-inner li {
+  font-size: clamp(1rem, 1.7vw, 1.4rem);
+  line-height: 1.55;
+}
+.aas-slide-inner p {
+  margin: 0 0 0.7em;
+  color: var(--aas-text);
+}
+.aas-slide-inner strong {
+  font-weight: 700;
+}
+.aas-slide-inner em {
+  color: var(--aas-muted);
+  font-style: normal;
+}
+.aas-slide-inner ul,
+.aas-slide-inner ol {
+  margin: 0.4em 0 0.8em;
+  padding-left: 1.4em;
+}
+.aas-slide-inner li {
+  margin: 0.35em 0;
+}
+.aas-slide-inner li::marker {
+  color: var(--aas-accent);
+}
+.aas-slide-inner a {
+  color: var(--aas-accent);
+}
+.aas-slide-inner hr {
+  border: none;
+  border-top: 1px solid var(--aas-border);
+  margin: 1.2em 0;
+}
+/* Cover title: bigger, muted subtitle */
+.aas-slide.cover h1 {
+  font-size: clamp(2.5rem, 8vw, 5.5rem);
+}
+.aas-slide.cover p {
+  font-size: clamp(1.1rem, 2.4vw, 1.7rem);
+  color: var(--aas-muted);
+}
+
+/* Tables */
+.aas-slide-inner table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: clamp(0.9rem, 1.5vw, 1.25rem);
+  margin: 0.5em 0;
+}
+.aas-slide-inner th,
+.aas-slide-inner td {
+  text-align: left;
+  padding: 0.5em 0.9em;
+  border-bottom: 1px solid var(--aas-border);
+  vertical-align: top;
+}
+.aas-slide-inner th {
+  font-weight: 700;
+  color: var(--aas-muted);
+}
+
+/* Code (Shiki) + Mermaid inside slides */
+.aas-slide-inner pre {
+  border-radius: 0.9rem;
+  padding: 1.1em 1.3em;
+  overflow: auto;
+  font-size: clamp(0.8rem, 1.3vw, 1.05rem);
+  max-height: 62vh;
+}
+.aas-slide-inner :not(pre) > code {
+  font-size: 0.9em;
+  padding: 0.1em 0.35em;
+  border-radius: 0.35rem;
+  background: var(--aas-tint);
+}
+.aas-slide-inner pre.mermaid {
+  background: transparent;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+}
+.aas-slide-inner pre.mermaid svg {
+  max-height: 58vh;
+  height: auto;
+}
+
+/* Multi-column helper: <div class="cols"> in a slide splits into columns. */
+.aas-slide-inner .cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: clamp(1rem, 3vw, 2.5rem);
+  text-align: left;
+}
+
+/* --- Deck chrome (progress bar, back link, prev/next + counter) ---------- */
+.aas-deck-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--aas-border);
+  z-index: 10;
+}
+.aas-deck-progress-fill {
+  height: 100%;
+  width: 0;
+  background: var(--aas-accent);
+  transition: width 0.25s ease;
+}
+
+.aas-deck-back {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.75rem 0.4rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  color: var(--aas-muted);
+  background: color-mix(in srgb, var(--aas-panel) 85%, transparent);
+  border: 1px solid var(--aas-border);
+  text-decoration: none;
+  opacity: 0.5;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+.aas-deck-back:hover {
+  opacity: 1;
+  color: var(--aas-text);
+}
+
+.aas-deck-nav {
+  position: fixed;
+  bottom: 1.1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.4rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--aas-panel) 85%, transparent);
+  border: 1px solid var(--aas-border);
+  backdrop-filter: blur(6px);
+  box-shadow: var(--aas-shadow);
+}
+.aas-deck-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--aas-text);
+  cursor: pointer;
+}
+.aas-deck-btn:hover:not(:disabled) {
+  background: var(--aas-tint);
+}
+.aas-deck-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.aas-deck-count {
+  font-size: 0.85rem;
+  color: var(--aas-muted);
+  font-variant-numeric: tabular-nums;
+  min-width: 3.5ch;
+  text-align: center;
+}
