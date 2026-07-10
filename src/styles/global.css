@@ -1237,6 +1237,60 @@ summary {
   text-align: left;
 }
 
+/* --- Visual themes ------------------------------------------------------- */
+/* Picked per deck via `theme:` in frontmatter (adds .aas-theme-<name> to the
+   deck). They restyle slide typography only; light/dark still follows the site.
+   `default` is the base look above — the classes below are the alternatives. */
+
+/* simple — quiet and monochrome: headings in the text colour (no accent pop),
+   markers and table headers muted. Reads like clean notes. */
+.aas-theme-simple .aas-slide-inner h2 {
+  color: var(--aas-text);
+  font-weight: 600;
+}
+.aas-theme-simple .aas-slide-inner li::marker {
+  color: var(--aas-muted);
+}
+
+/* calm — serif headings, softened accent, roomier lines. A relaxed, editorial
+   feel. Uses the site's reading serif (MaruBuri) for headings. */
+.aas-theme-calm .aas-slide-inner h1,
+.aas-theme-calm .aas-slide-inner h2,
+.aas-theme-calm .aas-slide-inner h3 {
+  font-family: 'MaruBuri', ui-serif, Georgia, serif;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.aas-theme-calm .aas-slide-inner h2 {
+  color: color-mix(in srgb, var(--aas-accent) 55%, var(--aas-text));
+}
+.aas-theme-calm .aas-slide-inner p,
+.aas-theme-calm .aas-slide-inner li {
+  line-height: 1.75;
+}
+.aas-theme-calm .aas-slide-inner p {
+  margin-bottom: 0.9em;
+}
+
+/* bold — big, heavy, high-contrast headings; accent-coloured emphasis. */
+.aas-theme-bold .aas-slide-inner h1 {
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+.aas-theme-bold .aas-slide-inner h2 {
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  font-size: clamp(1.7rem, 4.2vw, 3rem);
+}
+.aas-theme-bold .aas-slide-inner strong {
+  color: var(--aas-accent);
+}
+.aas-theme-bold .aas-slide.cover h1 {
+  font-size: clamp(3rem, 9vw, 6.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
 /* --- Deck chrome (progress bar, back link, prev/next + counter) ---------- */
 .aas-deck-progress {
   position: fixed;
@@ -1302,6 +1356,13 @@ summary {
 .aas-deck-toc-btn[aria-expanded='true'] {
   opacity: 1;
   color: var(--aas-text);
+}
+/* When the TOC panel is open on a wide screen, give slide content room on the
+   right so it never runs under the panel (it's opened by default via toc_open). */
+@media (min-width: 60rem) {
+  .aas-deck-body:has([data-toc-panel]:not([hidden])) .aas-slide:not(.cover):not(.center) {
+    padding-right: 17rem;
+  }
 }
 .aas-deck-toc-panel {
   position: absolute;

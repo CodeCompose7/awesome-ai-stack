@@ -19,7 +19,7 @@ const { Content } = await render(entry);
 const hasMermaid = (entry.body ?? '').includes('```mermaid');
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const backHref = getRelativeLocaleUrl(lang, 'slides/');
-const deckTheme = entry.data.theme;
+const themeClass = `aas-theme-${entry.data.theme}`;
 ---
 
 <!doctype html>
@@ -30,20 +30,15 @@ const deckTheme = entry.data.theme;
     <title>{entry.data.title} — awesome-ai-stack</title>
     <meta name="description" content={entry.data.description} />
     <link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
-    {/* Set the theme before first paint. 'auto' follows the site preference
-        (same logic as BaseLayout); 'light'/'dark' pin the deck. */}
-    <script is:inline define:vars={{ deckTheme }}>
+    {/* Follow the site's light/dark preference before first paint (same logic as
+        BaseLayout). The deck's visual theme is a separate CSS class, below. */}
+    <script is:inline>
       (function () {
         try {
-          var dark;
-          if (deckTheme === 'dark') dark = true;
-          else if (deckTheme === 'light') dark = false;
-          else {
-            var pref = localStorage.getItem('theme') || 'system';
-            dark =
-              pref === 'dark' ||
-              (pref === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-          }
+          var pref = localStorage.getItem('theme') || 'system';
+          var dark =
+            pref === 'dark' ||
+            (pref === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
           document.documentElement.dataset.theme = dark ? 'dark' : 'light';
         } catch (e) {}
       })();
@@ -55,11 +50,12 @@ const deckTheme = entry.data.theme;
     {/* The slides: <Content/> renders the deck MDX, whose <Slide> blocks become
         .aas-slide sections laid out as a horizontal scroll-snap track. */}
     <main
-      class="aas-deck"
+      class:list={['aas-deck', themeClass]}
       data-deck
       data-transition={entry.data.transition}
       data-toc={String(entry.data.toc)}
       data-toc-level={String(entry.data.toc_level)}
+      data-toc-open={String(entry.data.toc_open)}
       aria-label={entry.data.title}
     >
       <Content />
@@ -179,6 +175,11 @@ const deckTheme = entry.data.theme;
           if (tocLinks.length) {
             tocPanel.appendChild(ul);
             tocRoot.hidden = false;
+            // Start expanded unless the deck opts out (data-toc-open="false").
+            if (deck.dataset.tocOpen !== 'false') {
+              tocPanel.hidden = false;
+              tocToggle.setAttribute('aria-expanded', 'true');
+            }
             tocToggle.addEventListener('click', (e) => {
               e.stopPropagation();
               const open = tocPanel.hidden;
