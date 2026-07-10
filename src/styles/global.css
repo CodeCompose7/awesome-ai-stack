@@ -1277,6 +1277,85 @@ summary {
   color: var(--aas-text);
 }
 
+/* Table of contents — a top-right toggle that opens a jump-list of headings. */
+.aas-deck-toc {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 11;
+}
+.aas-deck-toc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 999px;
+  color: var(--aas-muted);
+  background: color-mix(in srgb, var(--aas-panel) 85%, transparent);
+  border: 1px solid var(--aas-border);
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+.aas-deck-toc-btn:hover,
+.aas-deck-toc-btn[aria-expanded='true'] {
+  opacity: 1;
+  color: var(--aas-text);
+}
+.aas-deck-toc-panel {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  min-width: 15rem;
+  max-width: min(22rem, 80vw);
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 0.4rem;
+  border-radius: 0.9rem;
+  background: var(--aas-panel);
+  border: 1px solid var(--aas-border);
+  box-shadow: var(--aas-shadow);
+}
+.aas-deck-toc-panel ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.aas-deck-toc-panel li {
+  margin: 0;
+}
+.aas-deck-toc-panel button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  color: var(--aas-text);
+  font-size: 0.9rem;
+  line-height: 1.35;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+.aas-deck-toc-panel button:hover {
+  background: var(--aas-tint);
+}
+.aas-deck-toc-panel button.active {
+  color: var(--aas-accent);
+  font-weight: 600;
+  background: color-mix(in srgb, var(--aas-accent) 10%, transparent);
+}
+/* ### sub-entries (toc_level: 3) sit indented and a touch smaller. */
+.aas-deck-toc-panel .aas-toc-l3 button {
+  padding-left: 1.4rem;
+  font-size: 0.82rem;
+  color: var(--aas-muted);
+}
+.aas-deck-toc-panel .aas-toc-l3 button.active {
+  color: var(--aas-accent);
+}
+
 .aas-deck-nav {
   position: fixed;
   bottom: 1.1rem;

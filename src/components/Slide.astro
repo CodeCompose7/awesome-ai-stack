@@ -1,15 +1,21 @@
 ---
 // One slide in a deck. Authored in a deck's MDX as <Slide>…</Slide>; the deck
-// page (src/pages/slides/[deck].astro) lays these out as a horizontal
-// scroll-snap presentation. `class` adds modifiers, e.g. class="cover" for the
-// title slide or class="center" to vertically center short slides.
+// page (src/components/DeckView.astro) lays these out as a horizontal
+// scroll-snap presentation.
+//
+//   <Slide>             a normal slide (marked `default`; title pinned to top)
+//   <Slide class="cover">   title slide (centered, large)
+//   <Slide class="center">  short slide, vertically centered
+//   <Slide toc={false}>     keep this slide's headings out of the deck TOC
 interface Props {
   class?: string;
+  /** Include this slide's headings in the deck's table of contents. */
+  toc?: boolean;
 }
-const { class: cls } = Astro.props;
+const { class: cls = 'default', toc = true } = Astro.props;
 ---
 
-<section class:list={['aas-slide', cls]}>
+<section class:list={['aas-slide', cls]} data-no-toc={toc ? undefined : ''}>
   <div class="aas-slide-inner">
     <slot />
   </div>

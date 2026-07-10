@@ -190,6 +190,14 @@ const slides = defineCollection({
     // Slide-change animation: 'slide' animates the scroll between slides,
     // 'none' cuts instantly. (Reduced-motion users always get an instant cut.)
     transition: z.enum(['slide', 'none']).default('slide'),
+    // Color theme: 'auto' follows the site's light/dark preference; 'light' or
+    // 'dark' pins the deck to that scheme regardless.
+    theme: z.enum(['auto', 'light', 'dark']).default('auto'),
+    // In-deck table of contents (top-right). `toc` toggles it; `toc_level` is the
+    // deepest heading level it includes (2 = ## only, 3 = ## and ###). Exclude a
+    // whole slide from it with <Slide toc={false}>.
+    toc: z.boolean().default(true),
+    toc_level: z.number().int().min(2).max(3).default(2),
     draft: z.boolean().default(false),
   }),
 });
