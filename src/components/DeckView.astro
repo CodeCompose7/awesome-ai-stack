@@ -47,7 +47,7 @@ const backHref = getRelativeLocaleUrl(lang, 'slides/');
 
     {/* The slides: <Content/> renders the deck MDX, whose <Slide> blocks become
         .aas-slide sections laid out as a horizontal scroll-snap track. */}
-    <main class="aas-deck" data-deck aria-label={entry.data.title}>
+    <main class="aas-deck" data-deck data-transition={entry.data.transition} aria-label={entry.data.title}>
       <Content />
     </main>
 
@@ -71,6 +71,10 @@ const backHref = getRelativeLocaleUrl(lang, 'slides/');
     <script>
       const deck = document.querySelector<HTMLElement>('[data-deck]');
       if (deck) {
+        // Animate slide changes unless the deck opts out (data-transition="none")
+        // or the viewer prefers reduced motion.
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const animate = deck.dataset.transition !== 'none' && !reduceMotion;
         const slides = Array.from(deck.querySelectorAll<HTMLElement>('.aas-slide'));
         const total = slides.length;
         const elCur = document.querySelector<HTMLElement>('[data-current]');
@@ -92,7 +96,7 @@ const backHref = getRelativeLocaleUrl(lang, 'slides/');
         const go = (i: number, smooth = true) => {
           current = Math.max(0, Math.min(total - 1, i));
           slides[current]?.scrollIntoView({
-            behavior: smooth ? 'smooth' : 'auto',
+            behavior: smooth && animate ? 'smooth' : 'auto',
             inline: 'start',
             block: 'nearest',
           });

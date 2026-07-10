@@ -6,6 +6,7 @@ import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import rehypeExternalLinks from 'rehype-external-links';
 import rehypeSlug from 'rehype-slug';
+import remarkDirective from 'remark-directive';
 import { glossary } from './src/data/glossary.mjs';
 import { localSamples } from './dev/local-samples.mjs';
 
@@ -91,6 +92,46 @@ function remarkMermaid() {
         walk(child);
       }
     });
+  };
+  return (/** @type {any} */ tree) => walk(tree);
+}
+
+// Markdown-native slide columns. In a slide, wrap content in a `:::cols`
+// container directive (needs remarkDirective, which runs first) and separate the
+// columns with a `---` rule:
+//
+//   :::cols
+//   ### Left
+//   - a
+//   ---
+//   ### Right
+//   - b
+//   :::
+//
+// Renders as <div class="cols"> with one <div> per column (the .cols grid is
+// styled in global.css). Splitting on `---` (thematicBreak) keeps the source
+// pure Markdown — no raw <div> tags.
+function remarkSlideCols() {
+  /** @param {any} node */
+  const walk = (node) => {
+    if (!node.children) return;
+    for (const child of node.children) {
+      if (child.type === 'containerDirective' && child.name === 'cols') {
+        /** @type {any[][]} */
+        const groups = [[]];
+        for (const c of child.children) {
+          if (c.type === 'thematicBreak') groups.push([]);
+          else groups[groups.length - 1].push(c);
+        }
+        child.data = { hName: 'div', hProperties: { className: ['cols'] } };
+        child.children = groups.map((g) => ({
+          type: 'columnGroup',
+          data: { hName: 'div' },
+          children: g,
+        }));
+      }
+      walk(child);
+    }
   };
   return (/** @type {any} */ tree) => walk(tree);
 }
@@ -268,7 +309,7 @@ export default defineConfig({
   // Open external links in Markdown/MDX bodies in a new tab. Internal links
   // (no protocol) are left alone, so in-site navigation stays in the same tab.
   markdown: {
-    remarkPlugins: [remarkHeadingIds, remarkMermaid, remarkGlossary],
+    remarkPlugins: [remarkHeadingIds, remarkMermaid, remarkDirective, remarkSlideCols, remarkGlossary],
     rehypePlugins: [
       rehypeSlug,
       rehypeHeadingAnchors,

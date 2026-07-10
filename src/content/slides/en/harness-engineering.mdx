@@ -46,9 +46,7 @@ The model is **one part**; the harness is **everything else** that makes it trus
 
 ## From prompt to harness
 
-<div class="cols">
-<div>
-
+:::cols
 ### Prompt engineering
 Polishing the wording
 
@@ -56,8 +54,7 @@ clever prompt → LLM → output
 
 *chasing a smarter sentence*
 
-</div>
-<div>
+---
 
 ### Harness engineering
 Designing the surroundings
@@ -65,9 +62,7 @@ Designing the surroundings
 task → loop·tools·sandbox·guardrails·evals ↔ LLM → **reliable output**
 
 *designed on the premise the model can be wrong*
-
-</div>
-</div>
+:::
 
 </Slide>
 
@@ -91,9 +86,7 @@ The gap between demo and production is mostly the **harness, not the model**. Th
 
 ## Capabilities — model · tools
 
-<div class="cols">
-<div>
-
+:::cols
 ### Model — the reasoning engine
 Keep it **swappable** by cost/latency/quality
 
@@ -102,8 +95,7 @@ Keep it **swappable** by cost/latency/quality
 
 When one model dies or slows, fail over to another.
 
-</div>
-<div>
+---
 
 ### Tools · web access
 Define what the agent can *actually* do
@@ -112,9 +104,7 @@ Define what the agent can *actually* do
 - browser control
 
 Today's real data comes in **through tools**.
-
-</div>
-</div>
+:::
 
 </Slide>
 
@@ -122,9 +112,7 @@ Today's real data comes in **through tools**.
 
 ## Safety layers — guarding against failure
 
-<div class="cols">
-<div>
-
+:::cols
 ### 🧪 Code sandbox
 Runs model code in isolation — even `rm -rf ~` stays inside the sandbox
 
@@ -135,8 +123,7 @@ Validates input/output **at runtime** — blocks injection, masks PII
 
 *guardrails-ai · nemo-guardrails*
 
-</div>
-<div>
+---
 
 ### 📊 Evaluation
 Scores quality with metrics/tests — catches confident wrong answers against a source
@@ -147,9 +134,7 @@ Scores quality with metrics/tests — catches confident wrong answers against a 
 Traces every step·token·cost — catches regressions first
 
 *langfuse · langsmith · arize-phoenix*
-
-</div>
-</div>
+:::
 
 </Slide>
 

@@ -187,6 +187,9 @@ const slides = defineCollection({
     // Concept slug this deck summarizes (links back to /concept/<slug>/).
     related: z.string().optional(),
     order: z.number().optional(), // manual sort on the index (lower first)
+    // Slide-change animation: 'slide' animates the scroll between slides,
+    // 'none' cuts instantly. (Reduced-motion users always get an instant cut.)
+    transition: z.enum(['slide', 'none']).default('slide'),
     draft: z.boolean().default(false),
   }),
 });

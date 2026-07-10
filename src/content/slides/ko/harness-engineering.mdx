@@ -46,9 +46,7 @@ flowchart LR
 
 ## 프롬프트에서 하네스로
 
-<div class="cols">
-<div>
-
+:::cols
 ### 프롬프트 엔지니어링
 문장을 다듬기
 
@@ -56,8 +54,7 @@ flowchart LR
 
 *더 영리한 문장을 찾는 일*
 
-</div>
-<div>
+---
 
 ### 하네스 엔지니어링
 둘레를 설계하기
@@ -65,9 +62,7 @@ flowchart LR
 작업 → 루프·도구·샌드박스·가드레일·평가 ↔ LLM → **신뢰할 수 있는 출력**
 
 *모델이 틀릴 수 있다는 전제 위에서 설계*
-
-</div>
-</div>
+:::
 
 </Slide>
 
@@ -91,9 +86,7 @@ flowchart LR
 
 ## 능력 — 모델 · 도구
 
-<div class="cols">
-<div>
-
+:::cols
 ### 모델 — 추론 엔진
 비용·지연·성능 균형에 따라 **교체할 수 있게** 둔다
 
@@ -102,8 +95,7 @@ flowchart LR
 
 한 모델이 죽거나 느려질 때 다른 모델로 넘깁니다.
 
-</div>
-<div>
+---
 
 ### 도구·웹 접근
 에이전트가 *실제로* 할 수 있는 일을 정한다
@@ -112,9 +104,7 @@ flowchart LR
 - 브라우저 조작
 
 지금의 실제 데이터는 **도구를 통해** 들어옵니다.
-
-</div>
-</div>
+:::
 
 </Slide>
 
@@ -122,9 +112,7 @@ flowchart LR
 
 ## 안전장치 — 실패를 막는 층
 
-<div class="cols">
-<div>
-
+:::cols
 ### 🧪 코드 샌드박스
 모델이 짠 코드를 격리 실행 — `rm -rf ~`를 생성해도 샌드박스 안에서만
 
@@ -135,8 +123,7 @@ flowchart LR
 
 *guardrails-ai · nemo-guardrails*
 
-</div>
-<div>
+---
 
 ### 📊 평가
 지표·테스트로 품질 채점 — 조용한 오답을 근거와 대조
@@ -147,9 +134,7 @@ flowchart LR
 모든 단계·토큰·비용 트레이싱 — 회귀를 먼저 포착
 
 *langfuse · langsmith · arize-phoenix*
-
-</div>
-</div>
+:::
 
 </Slide>
 
