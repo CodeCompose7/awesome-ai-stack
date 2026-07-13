@@ -1053,6 +1053,17 @@ summary {
   background: var(--aas-bg);
   color: var(--aas-text);
   font-family: var(--aas-sans);
+  /* Content aspect ratio (width tracks ratio × height). Set via data-aspect. */
+  --aas-ratio: 1.7778; /* 16:9 */
+}
+.aas-deck-body[data-aspect='16:10'] {
+  --aas-ratio: 1.6;
+}
+.aas-deck-body[data-aspect='4:3'] {
+  --aas-ratio: 1.3333;
+}
+.aas-deck-body[data-aspect='fill'] {
+  --aas-ratio: 999;
 }
 
 .aas-deck {
@@ -1083,7 +1094,7 @@ summary {
      real slides). Cover / center slides opt back into vertical centering. */
   align-items: flex-start;
   justify-content: center;
-  padding: clamp(2.5rem, 8vh, 6rem) clamp(1.5rem, 7vw, 7rem);
+  padding: clamp(2.5rem, 8vh, 6rem) clamp(1.5rem, 4vw, 4rem);
   overflow-y: auto; /* a slide taller than the viewport scrolls internally */
 }
 .aas-slide.cover,
@@ -1093,8 +1104,13 @@ summary {
 
 .aas-slide-inner {
   width: 100%;
-  max-width: 62rem;
+  /* Content width tracks the deck's aspect ratio (× height): 16:9/16:10/4:3 give
+     a proportioned, wider column; 'fill' (--aas-ratio 999) uses the full width. */
+  max-width: min(96rem, calc((100dvh - 11vh) * var(--aas-ratio, 1.7778)));
   margin: 0 auto;
+  /* Wrap Korean/CJK at spaces (word boundaries), not mid-word. */
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 /* Cover / closing slides: centered, roomier. Add class="cover" on the <Slide>. */
@@ -1446,6 +1462,122 @@ summary {
 .aas-deck-back:hover {
   opacity: 1;
   color: var(--aas-text);
+}
+
+/* Actions menu (top-left, under the back link): a small ⋯ toggle + dropdown. */
+.aas-deck-menu {
+  position: fixed;
+  top: 3.5rem;
+  left: 1rem;
+  z-index: 11;
+}
+.aas-deck-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 999px;
+  color: var(--aas-muted);
+  background: color-mix(in srgb, var(--aas-panel) 85%, transparent);
+  border: 1px solid var(--aas-border);
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+.aas-deck-menu-btn:hover,
+.aas-deck-menu-btn[aria-expanded='true'] {
+  opacity: 1;
+  color: var(--aas-text);
+}
+.aas-deck-menu-panel {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 0;
+  min-width: 11rem;
+  padding: 0.4rem;
+  border-radius: 0.9rem;
+  background: var(--aas-panel);
+  border: 1px solid var(--aas-border);
+  box-shadow: var(--aas-shadow);
+}
+.aas-deck-menu-panel button {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  color: var(--aas-text);
+  font-size: 0.9rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+.aas-deck-menu-panel button:hover {
+  background: var(--aas-tint);
+}
+.aas-deck-menu-panel button svg {
+  color: var(--aas-muted);
+  flex: none;
+}
+
+/* Footer (bottom-left): presenter · date. */
+.aas-deck-footer {
+  position: fixed;
+  bottom: 1.1rem;
+  left: 1rem;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--aas-muted);
+  opacity: 0.7;
+}
+.aas-deck-footer-sep {
+  opacity: 0.5;
+}
+
+/* Print / PDF export (menu → Print/PDF, or the browser print dialog): lay each
+   slide on its own landscape page and hide the on-screen chrome. */
+@media print {
+  .aas-deck-body {
+    overflow: visible;
+    background: #fff;
+  }
+  .aas-deck-back,
+  .aas-deck-menu,
+  .aas-deck-toc,
+  .aas-deck-nav,
+  .aas-deck-progress,
+  .aas-deck-footer {
+    display: none !important;
+  }
+  .aas-deck {
+    position: static;
+    display: block;
+    overflow: visible;
+    height: auto;
+    scroll-snap-type: none;
+  }
+  .aas-slide {
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    scroll-snap-align: none;
+    break-after: page;
+    page-break-after: always;
+  }
+  .aas-slide:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+  @page {
+    size: landscape;
+    margin: 0;
+  }
 }
 
 /* Table of contents — a top-right toggle that opens a jump-list of headings. */

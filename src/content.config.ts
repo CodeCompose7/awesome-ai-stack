@@ -193,6 +193,13 @@ const slides = defineCollection({
     // Visual style theme (typography / accent / spacing). Light vs dark still
     // follows the site's color-scheme preference; this only picks the look.
     theme: z.enum(['default', 'simple', 'calm', 'bold']).default('default'),
+    // Content aspect ratio: the content area's width tracks this ratio × height,
+    // so 16:9/16:10/4:3 give a proportioned (wider) content column; 'fill' uses
+    // the full slide width.
+    aspect: z.enum(['16:9', '16:10', '4:3', 'fill']).default('16:9'),
+    // Optional footer (bottom-left): presenter name and a date/version string.
+    presenter: z.string().optional(),
+    date: z.string().optional(),
     // In-deck table of contents (top-right). `toc` toggles it; `toc_level` is the
     // deepest heading level it includes (2 = ## only … up to 4 = ## ### ####);
     // `toc_open` starts it expanded. Exclude a whole slide with <Slide toc={false}>.
