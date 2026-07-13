@@ -123,6 +123,12 @@ const themeClass = `aas-theme-${entry.data.theme}`;
           for (const l of tocLinks) l.el.classList.toggle('active', l.slide === current);
         };
 
+        // Slide-change animation length (ms). Native smooth scroll can't be timed
+        // and runs long; a short rAF tween feels snappier.
+        const DURATION = 240;
+        const easeOutCubic = (t: number) => 1 - (1 - t) ** 3;
+        let rafId: number | undefined;
+
         const go = (i: number, smooth = true) => {
           target = Math.max(0, Math.min(total - 1, i));
           current = target;
@@ -132,11 +138,33 @@ const themeClass = `aas-theme-${entry.data.theme}`;
           navTimer = setTimeout(() => {
             navLock = false;
           }, 1200);
-          slides[current]?.scrollIntoView({
-            behavior: smooth && animate ? 'smooth' : 'auto',
-            inline: 'start',
-            block: 'nearest',
-          });
+          const el = slides[current];
+          if (el) {
+            const x = el.offsetLeft;
+            if (rafId) cancelAnimationFrame(rafId);
+            if (smooth && animate && Math.abs(deck.scrollLeft - x) > 1) {
+              // Custom tween instead of scrollIntoView({behavior:'smooth'}): fixed
+              // short duration, and scroll-snap turned off while animating so it
+              // doesn't stutter against the motion. Ends exactly on the snap point.
+              const startX = deck.scrollLeft;
+              const dist = x - startX;
+              const t0 = performance.now();
+              deck.style.scrollSnapType = 'none';
+              const stepFrame = (now: number) => {
+                const t = Math.min(1, (now - t0) / DURATION);
+                deck.scrollLeft = startX + dist * easeOutCubic(t);
+                if (t < 1) {
+                  rafId = requestAnimationFrame(stepFrame);
+                } else {
+                  deck.style.scrollSnapType = '';
+                  rafId = undefined;
+                }
+              };
+              rafId = requestAnimationFrame(stepFrame);
+            } else {
+              deck.scrollLeft = x; // instant (transition:none / reduced motion / deep-link)
+            }
+          }
           history.replaceState(null, '', `#${current + 1}`);
           paint();
         };

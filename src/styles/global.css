@@ -1062,21 +1062,14 @@ summary {
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
+  /* Programmatic slide changes are tweened in JS (DeckView), which sets
+     scrollLeft directly; keep scroll-behavior auto so it isn't double-animated.
+     The `transition` / reduced-motion signals are honored there too. */
+  scroll-behavior: auto;
   scrollbar-width: none; /* the counter + progress bar are the position cue */
 }
 .aas-deck::-webkit-scrollbar {
   display: none;
-}
-/* Instant slide changes when the deck opts out or the viewer prefers reduced
-   motion (the JS nav honors the same signals for programmatic scrolls). */
-.aas-deck[data-transition='none'] {
-  scroll-behavior: auto;
-}
-@media (prefers-reduced-motion: reduce) {
-  .aas-deck {
-    scroll-behavior: auto;
-  }
 }
 
 .aas-slide {
