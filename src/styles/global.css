@@ -1225,7 +1225,13 @@ summary {
   justify-content: center;
 }
 .aas-slide-inner pre.mermaid svg {
-  max-height: 58vh;
+  /* Mermaid renders text at a fixed size; left at full slide width the diagram
+     sprawls and the labels read oversized. Cap the width (overriding Mermaid's
+     inline max-width) so it renders as a compact, centered graphic with smaller
+     relative text. */
+  max-width: min(100%, 46rem) !important;
+  max-height: 52vh;
+  width: auto !important;
   height: auto;
 }
 
@@ -1356,13 +1362,6 @@ summary {
 .aas-deck-toc-btn[aria-expanded='true'] {
   opacity: 1;
   color: var(--aas-text);
-}
-/* When the TOC panel is open on a wide screen, give slide content room on the
-   right so it never runs under the panel (it's opened by default via toc_open). */
-@media (min-width: 60rem) {
-  .aas-deck-body:has([data-toc-panel]:not([hidden])) .aas-slide:not(.cover):not(.center) {
-    padding-right: 17rem;
-  }
 }
 .aas-deck-toc-panel {
   position: absolute;

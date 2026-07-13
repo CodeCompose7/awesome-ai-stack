@@ -163,10 +163,9 @@ const themeClass = `aas-theme-${entry.data.theme}`;
               const a = document.createElement('button');
               a.type = 'button';
               a.textContent = (h.textContent || '').trim();
-              a.addEventListener('click', () => {
-                go(i);
-                closeToc();
-              });
+              // Jump to the slide but keep the panel open — it's a persistent
+              // agenda, not a menu that dismisses on use.
+              a.addEventListener('click', () => go(i));
               li.appendChild(a);
               ul.appendChild(li);
               tocLinks.push({ el: a, slide: i });
@@ -180,14 +179,10 @@ const themeClass = `aas-theme-${entry.data.theme}`;
               tocPanel.hidden = false;
               tocToggle.setAttribute('aria-expanded', 'true');
             }
-            tocToggle.addEventListener('click', (e) => {
-              e.stopPropagation();
+            tocToggle.addEventListener('click', () => {
               const open = tocPanel.hidden;
               tocPanel.hidden = !open;
               tocToggle.setAttribute('aria-expanded', String(open));
-            });
-            document.addEventListener('click', (e) => {
-              if (!tocRoot.contains(e.target as Node)) closeToc();
             });
           }
         }
