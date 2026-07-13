@@ -105,6 +105,13 @@ const themeClass = `aas-theme-${entry.data.theme}`;
         if (elTot) elTot.textContent = String(total);
 
         let current = 0;
+        // Programmatic navigation (buttons/keys/TOC) is the source of truth: while
+        // a smooth scroll is animating toward `target`, the IntersectionObserver
+        // must NOT rewrite `current` to slides it passes — otherwise fast presses
+        // compute the next step from an intermediate slide and jump backward.
+        let target = 0;
+        let navLock = false;
+        let navTimer: ReturnType<typeof setTimeout> | undefined;
         // Filled in by the TOC builder below; paint() highlights the active entry.
         const tocLinks: { el: HTMLElement; slide: number }[] = [];
 
@@ -117,7 +124,14 @@ const themeClass = `aas-theme-${entry.data.theme}`;
         };
 
         const go = (i: number, smooth = true) => {
-          current = Math.max(0, Math.min(total - 1, i));
+          target = Math.max(0, Math.min(total - 1, i));
+          current = target;
+          navLock = true;
+          clearTimeout(navTimer);
+          // Fallback: release the lock even if the observer never reports arrival.
+          navTimer = setTimeout(() => {
+            navLock = false;
+          }, 1200);
           slides[current]?.scrollIntoView({
             behavior: smooth && animate ? 'smooth' : 'auto',
             inline: 'start',
@@ -188,17 +202,20 @@ const themeClass = `aas-theme-${entry.data.theme}`;
         }
 
         // Keep `current` in sync when the user swipes/scrolls the track directly.
+        // During programmatic navigation (navLock), ignore the slides we scroll
+        // past and only clear the lock once the target slide has arrived.
         const io = new IntersectionObserver(
           (entries) => {
             for (const e of entries) {
-              if (e.isIntersecting) {
-                const idx = slides.indexOf(e.target as HTMLElement);
-                if (idx >= 0 && idx !== current) {
-                  current = idx;
-                  history.replaceState(null, '', `#${current + 1}`);
-                  paint();
-                }
-                ensureMermaid(slides.indexOf(e.target as HTMLElement));
+              if (!e.isIntersecting) continue;
+              const idx = slides.indexOf(e.target as HTMLElement);
+              ensureMermaid(idx);
+              if (navLock) {
+                if (idx === target) navLock = false;
+              } else if (idx >= 0 && idx !== current) {
+                current = idx;
+                history.replaceState(null, '', `#${current + 1}`);
+                paint();
               }
             }
           },
