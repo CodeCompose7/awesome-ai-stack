@@ -123,9 +123,9 @@ const themeClass = `aas-theme-${entry.data.theme}`;
           for (const l of tocLinks) l.el.classList.toggle('active', l.slide === current);
         };
 
-        // Slide-change animation length (ms). Native smooth scroll can't be timed
-        // and runs long; a short rAF tween feels snappier.
-        const DURATION = 240;
+        // Slide-change animation length (ms). Native smooth scroll can't be timed;
+        // this rAF tween runs for a fixed, tunable duration.
+        const DURATION = 450;
         const easeOutCubic = (t: number) => 1 - (1 - t) ** 3;
         let rafId: number | undefined;
 
