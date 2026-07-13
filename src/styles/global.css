@@ -1305,6 +1305,22 @@ summary {
   object-fit: cover;
   border-radius: 0.9rem;
 }
+/* Image vertical alignment within the split (default: centered by align-items).
+   Add `img-top` / `img-bottom` to the split for when the image is shorter than
+   the text column. */
+.aas-slide-inner .aas-split.img-top img {
+  align-self: start;
+}
+.aas-slide-inner .aas-split.img-bottom img {
+  align-self: end;
+}
+/* Fill mode: a tall image cropped to `cover`, filling the slide vertically.
+   Add `fill` to the split. */
+.aas-slide-inner .aas-split.fill img {
+  height: min(64vh, 42rem);
+  max-height: min(64vh, 42rem);
+  align-self: stretch;
+}
 .aas-slide-inner .aas-split > div > :first-child {
   margin-top: 0;
 }

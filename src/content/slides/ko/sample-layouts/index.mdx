@@ -90,6 +90,8 @@ import media from './course-bg-2.png'; // ② co-located (이 덱 전용)
 | 표지 | `class="cover"` | 큰 제목, 중앙 |
 | 배경 이미지 | `bg={img}` | 풀블리드 |
 | 컬럼 | `:::cols` | `---`로 구분 |
+| 이미지 분할 | `aas-split` | `r-30-70` 등 비율 |
+| 이미지 정렬/채움 | `img-top`·`fill` | 세로 위치·cover |
 | 부제 | `::sub[…]` | 제목 아래 작게 |
 | 목차 제외 | `toc={false}` | 제목 숨김 |
 
@@ -202,6 +204,47 @@ Mermaid 다이어그램은 테마(라이트/다크)에 맞춰 렌더됩니다.
 
 </div>
 <Image src={media} alt="AI 강의 배경" />
+</div>
+
+</Slide>
+
+<Slide>
+
+## 이미지 세로 정렬
+::sub[`img-top` · `img-bottom` — 이미지가 글보다 짧을 때 세로 위치]
+
+<div class="aas-split r-30-70 img-top">
+<Image src={media} alt="AI 강의 배경" />
+<div>
+
+`img-top`이면 이미지가 위에, `img-bottom`이면 아래에 붙습니다 (기본은 가운데).
+
+글이 길어 이미지보다 세로로 클 때, 이미지의 세로 위치를 정할 수 있습니다.
+
+- 첫 번째 요점
+- 두 번째 요점
+- 세 번째 요점
+- 네 번째 요점
+
+</div>
+</div>
+
+</Slide>
+
+<Slide>
+
+## 꽉 채우기 (cover)
+::sub[`fill` — 이미지를 세로로 크게, css `cover`로 크롭]
+
+<div class="aas-split fill">
+<Image src={media} alt="AI 강의 배경" />
+<div>
+
+`fill`을 더하면 이미지가 세로로 꽉 차고, 넘치는 부분은 잘립니다 (`object-fit: cover`).
+
+비율 모디파이어(`r-30-70` 등)와 함께 쓸 수 있습니다.
+
+</div>
 </div>
 
 </Slide>

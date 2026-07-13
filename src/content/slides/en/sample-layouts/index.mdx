@@ -91,6 +91,8 @@ Good for a short emphasis slide or a section divider.
 | cover | `class="cover"` | large centered title |
 | background image | `bg={img}` | full-bleed |
 | columns | `:::cols` | split with `---` |
+| image split | `aas-split` | ratios like `r-30-70` |
+| image align/fill | `img-top`·`fill` | vertical position · cover |
 | subtitle | `::sub[…]` | small, under the title |
 | TOC-excluded | `toc={false}` | heading hidden |
 
@@ -203,6 +205,47 @@ Just swap the order — text first, `<Image>` after, and the image is on the rig
 
 </div>
 <Image src={media} alt="AI course background" />
+</div>
+
+</Slide>
+
+<Slide>
+
+## Image vertical alignment
+::sub[`img-top` · `img-bottom` — where the image sits when it's shorter than the text]
+
+<div class="aas-split r-30-70 img-top">
+<Image src={media} alt="AI course background" />
+<div>
+
+`img-top` pins the image to the top, `img-bottom` to the bottom (centered by default).
+
+Useful when the text column is taller than the image.
+
+- first point
+- second point
+- third point
+- fourth point
+
+</div>
+</div>
+
+</Slide>
+
+<Slide>
+
+## Fill (cover)
+::sub[`fill` — a tall image cropped to css `cover`]
+
+<div class="aas-split fill">
+<Image src={media} alt="AI course background" />
+<div>
+
+Add `fill` and the image fills the slide vertically; the overflow is cropped (`object-fit: cover`).
+
+Works together with the ratio modifiers (`r-30-70`, etc.).
+
+</div>
 </div>
 
 </Slide>
