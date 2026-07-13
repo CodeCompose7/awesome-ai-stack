@@ -1,0 +1,221 @@
+---
+title: 레이아웃 샘플
+description: 표지·일반·중앙·컬럼·표·코드·다이어그램·이미지와 TOC 제외까지, 모든 슬라이드 요소를 한 덱에 모은 데모
+order: 99
+theme: default
+toc_level: 3
+# 이 덱은 레이아웃을 보여주는 게 목적이라 목차를 접은 채 시작합니다 (☰로 펼침).
+# 펼쳐 두면 우상단에 떠 있는 목차가 오른쪽 배치 이미지를 가립니다.
+toc_open: false
+---
+
+import { Image } from 'astro:assets';
+import Slide from '../../../../components/Slide.astro';
+
+{/*
+  이미지 넣는 두 방식:
+  1) assets 방식 — `@assets/...`(= src/assets). 여러 언어 덱이 같은 이미지를 쓸 때.
+  2) co-located 방식 — 이 mdx와 같은 폴더에 이미지를 두고 `./파일`로 import.
+     언어별로 다른 이미지를 쓸 때(이 폴더가 곧 이 덱·이 언어 전용)에 좋습니다.
+  그래서 이 덱은 index.mdx + 같은 폴더의 이미지 구조를 씁니다.
+*/}
+import coverBg from '@assets/slides/course-bg.png'; // ① assets (언어 공통)
+import media from './course-bg-2.png'; // ② co-located (이 덱 전용)
+
+<Slide class="cover" bg={coverBg}>
+
+# 레이아웃 샘플
+
+모든 슬라이드 레이아웃과 요소를 한 덱에
+
+*awesome-ai-stack · 데모*
+
+</Slide>
+
+<Slide>
+
+## 일반 레이아웃
+
+`<Slide>` — 클래스 없이 쓰면 제목이 **상단에 고정**되는 기본 슬라이드입니다.
+
+- 순서 없는 목록
+- 인라인: **굵게**, *기울임*, `코드`, [링크](https://example.com)
+
+1. 순서 있는 목록
+2. 두 번째 항목
+
+> 인용문은 이렇게 표시됩니다.
+
+</Slide>
+
+<Slide class="center">
+
+## 중앙 정렬 레이아웃
+
+`<Slide class="center">` — 내용이 세로·가로 중앙에 옵니다.
+
+짧은 강조 슬라이드나 섹션 구분에 좋습니다.
+
+</Slide>
+
+<Slide>
+
+## 컬럼 레이아웃
+
+`:::cols` … `---` … `:::` — 순수 마크다운으로 컬럼을 나눕니다.
+
+:::cols
+### 왼쪽 열
+- 항목 A
+- 항목 B
+
+*(`###` 하위 제목은 `toc_level: 3`이면 목차에 들어갑니다)*
+
+---
+
+### 오른쪽 열
+- 항목 C
+- 항목 D
+:::
+
+</Slide>
+
+<Slide>
+
+## 표
+
+| 레이아웃 | 문법 | 비고 |
+| --- | --- | --- |
+| 표지 | `class="cover"` | 큰 제목, 중앙 |
+| 배경 이미지 | `bg={img}` | 풀블리드 |
+| 컬럼 | `:::cols` | `---`로 구분 |
+| 목차 제외 | `toc={false}` | 제목 숨김 |
+
+표는 표준 마크다운 문법을 그대로 씁니다.
+
+</Slide>
+
+<Slide>
+
+## 코드
+
+코드 블록은 사이트와 동일한 Shiki 하이라이팅이 적용됩니다.
+
+```ts
+async function goToSlide(deck: HTMLElement, i: number) {
+  const target = deck.querySelectorAll('.aas-slide')[i];
+  deck.scrollLeft = target.offsetLeft; // 스냅 지점으로 이동
+  return i;
+}
+```
+
+</Slide>
+
+<Slide>
+
+## 다이어그램
+
+```mermaid
+flowchart LR
+  a[표지] --> b[레이아웃]
+  b --> c[이미지]
+  c --> d[코드]
+  d --> e[다이어그램]
+```
+
+Mermaid 다이어그램은 테마(라이트/다크)에 맞춰 렌더됩니다.
+
+</Slide>
+
+<Slide>
+
+## 이미지 위 · 설명 아래
+
+<Image src={media} alt="AI 강의 배경" class="aas-media-top" />
+
+이미지를 위에 크게 두고, 아래에 짧은 설명을 답니다.
+
+</Slide>
+
+<Slide>
+
+## 이미지 왼쪽 · 글 오른쪽 (50:50)
+
+<div class="aas-split">
+<Image src={media} alt="AI 강의 배경" />
+<div>
+
+`<div class="aas-split">` 안에 `<Image>`를 먼저, 글을 나중에 두면 이미지가 왼쪽입니다.
+
+- 이미지와 글이 반반
+- 요점 정리에 적합
+
+</div>
+</div>
+
+</Slide>
+
+<Slide>
+
+## 이미지 왼쪽 · 글 오른쪽 (30:70)
+
+<div class="aas-split r-30-70">
+<Image src={media} alt="AI 강의 배경" />
+<div>
+
+`r-30-70` 모디파이어로 이미지를 좁게(30%), 글을 넓게(70%) 둡니다.
+
+설명이 길거나 이미지는 참고용일 때 좋습니다.
+
+</div>
+</div>
+
+</Slide>
+
+<Slide>
+
+## 글 왼쪽 · 이미지 오른쪽 (50:50)
+
+<div class="aas-split">
+<div>
+
+순서만 바꾸면 됩니다 — 글을 먼저, `<Image>`를 나중에 두면 이미지가 오른쪽입니다.
+
+- 좌우 반반
+
+</div>
+<Image src={media} alt="AI 강의 배경" />
+</div>
+
+</Slide>
+
+<Slide>
+
+## 글 왼쪽 · 이미지 오른쪽 (70:30)
+
+<div class="aas-split r-70-30">
+<div>
+
+`r-70-30`으로 글을 넓게(70%), 이미지를 좁게(30%) 둡니다.
+
+</div>
+<Image src={media} alt="AI 강의 배경" />
+</div>
+
+</Slide>
+
+<Slide toc={false}>
+
+## 이 제목은 목차에 없습니다
+
+이 슬라이드는 `<Slide toc={false}>`로 감쌌습니다. 우측 목차(☰)를 열어 보면 이 제목은 **나타나지 않습니다** — 슬라이드 자체는 그대로 넘겨집니다.
+
+</Slide>
+
+<Slide class="center">
+
+## 끝
+
+문법이 궁금하면 `src/content/slides/ko/sample-layouts/index.mdx` 를 열어 보세요.
+
+</Slide>

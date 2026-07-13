@@ -1236,6 +1236,75 @@ summary {
   text-align: left;
 }
 
+/* --- Images in slides ---------------------------------------------------- */
+/* Full-bleed background (<Slide bg={img}>): cover-fit image + a dark scrim so
+   the centered text stays legible on any photo. */
+.aas-slide.has-bg {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+}
+.aas-slide.has-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+.aas-slide.has-bg .aas-slide-inner {
+  position: relative;
+  z-index: 1;
+}
+.aas-slide.has-bg .aas-slide-inner,
+.aas-slide.has-bg h1,
+.aas-slide.has-bg h2,
+.aas-slide.has-bg h3,
+.aas-slide.has-bg p {
+  color: #fff;
+}
+
+/* Image on top, text below. */
+.aas-slide-inner .aas-media-top {
+  display: block;
+  width: 100%;
+  max-height: 55vh;
+  object-fit: cover;
+  border-radius: 0.9rem;
+  margin: 0 0 1rem;
+}
+
+/* Image + text side by side. Order the <Image> and the text block as you want
+   them to appear; pick the split ratio with a modifier class. */
+.aas-slide-inner .aas-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* r-50-50 (default) */
+  gap: clamp(1rem, 3vw, 2.5rem);
+  align-items: center;
+  text-align: left;
+}
+.aas-slide-inner .aas-split.r-30-70 {
+  grid-template-columns: 3fr 7fr;
+}
+.aas-slide-inner .aas-split.r-70-30 {
+  grid-template-columns: 7fr 3fr;
+}
+.aas-slide-inner .aas-split img {
+  width: 100%;
+  max-height: 46vh;
+  object-fit: cover;
+  border-radius: 0.9rem;
+}
+.aas-slide-inner .aas-split > div > :first-child {
+  margin-top: 0;
+}
+/* Stack image + text on narrow screens. */
+@media (max-width: 48rem) {
+  .aas-slide-inner .aas-split,
+  .aas-slide-inner .aas-split.r-30-70,
+  .aas-slide-inner .aas-split.r-70-30 {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* --- Visual themes ------------------------------------------------------- */
 /* Picked per deck via `theme:` in frontmatter (adds .aas-theme-<name> to the
    deck). They restyle slide typography only; light/dark still follows the site.
