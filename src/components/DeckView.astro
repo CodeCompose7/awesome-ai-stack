@@ -226,19 +226,21 @@ const themeClass = `aas-theme-${entry.data.theme}`;
           const ul = document.createElement('ul');
           slides.forEach((slide, i) => {
             if (slide.hasAttribute('data-no-toc')) return;
-            slide.querySelectorAll<HTMLElement>(sel).forEach((h) => {
-              const li = document.createElement('li');
-              li.className = 'aas-toc-l' + h.tagName[1];
-              const a = document.createElement('button');
-              a.type = 'button';
-              a.textContent = (h.textContent || '').trim();
-              // Jump to the slide but keep the panel open — it's a persistent
-              // agenda, not a menu that dismisses on use.
-              a.addEventListener('click', () => go(i));
-              li.appendChild(a);
-              ul.appendChild(li);
-              tocLinks.push({ el: a, slide: i });
-            });
+            // Only the slide's leading heading (its title) goes in the TOC — not
+            // sub-headings within it, e.g. the column titles inside a :::cols slide.
+            const h = slide.querySelector<HTMLElement>(sel);
+            if (!h) return;
+            const li = document.createElement('li');
+            li.className = 'aas-toc-l' + h.tagName[1];
+            const a = document.createElement('button');
+            a.type = 'button';
+            a.textContent = (h.textContent || '').trim();
+            // Jump to the slide but keep the panel open — it's a persistent
+            // agenda, not a menu that dismisses on use.
+            a.addEventListener('click', () => go(i));
+            li.appendChild(a);
+            ul.appendChild(li);
+            tocLinks.push({ el: a, slide: i });
           });
           if (tocLinks.length) {
             tocPanel.appendChild(ul);
