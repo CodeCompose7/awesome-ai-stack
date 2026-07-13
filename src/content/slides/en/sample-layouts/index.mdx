@@ -1,0 +1,222 @@
+---
+title: Layout sample
+description: Every slide construct in one deck — cover, default, center, columns, table, code, diagram, images, and a TOC-excluded slide
+order: 99
+theme: default
+toc_level: 3
+# This deck is a layout showcase, so it starts with the TOC collapsed (open it
+# with ☰). Left open, the floating panel would cover the right-aligned images.
+toc_open: false
+---
+
+import { Image } from 'astro:assets';
+import Slide from '../../../../components/Slide.astro';
+
+{/*
+  Two ways to add images:
+  1) assets — `@assets/...` (= src/assets). Best when several language decks
+     share the same image (one copy).
+  2) co-located — put the image next to this mdx and import it with `./file`.
+     Best when each language uses a different image (this folder is this deck,
+     this language). So this deck is a folder: index.mdx + images beside it.
+*/}
+import coverBg from '@assets/slides/sample-layouts/course-bg.png'; // ① assets (shared across languages)
+import media from './course-bg-2.png'; // ② co-located (this deck only)
+
+<Slide class="cover" bg={coverBg}>
+
+# Layout sample
+
+Every slide layout and element in one deck
+
+*awesome-ai-stack · demo*
+
+</Slide>
+
+<Slide>
+
+## Default layout
+
+`<Slide>` — with no class, the title is **pinned to the top** (the default slide).
+
+- unordered list
+- inline: **bold**, *italic*, `code`, [link](https://example.com)
+
+1. ordered list
+2. second item
+
+> Blockquotes render like this.
+
+</Slide>
+
+<Slide class="center">
+
+## Center layout
+
+`<Slide class="center">` — content is centered vertically and horizontally.
+
+Good for a short emphasis slide or a section divider.
+
+</Slide>
+
+<Slide>
+
+## Column layout
+
+`:::cols` … `---` … `:::` — split into columns in pure Markdown.
+
+:::cols
+### Left column
+- item A
+- item B
+
+*(`###` sub-headings show up in the TOC when `toc_level: 3`)*
+
+---
+
+### Right column
+- item C
+- item D
+:::
+
+</Slide>
+
+<Slide>
+
+## Table
+
+| Layout | Syntax | Note |
+| --- | --- | --- |
+| cover | `class="cover"` | large centered title |
+| background image | `bg={img}` | full-bleed |
+| columns | `:::cols` | split with `---` |
+| TOC-excluded | `toc={false}` | heading hidden |
+
+Tables use standard Markdown syntax.
+
+</Slide>
+
+<Slide>
+
+## Code
+
+Code blocks get the same Shiki highlighting as the rest of the site.
+
+```ts
+async function goToSlide(deck: HTMLElement, i: number) {
+  const target = deck.querySelectorAll('.aas-slide')[i];
+  deck.scrollLeft = target.offsetLeft; // jump to the snap point
+  return i;
+}
+```
+
+</Slide>
+
+<Slide>
+
+## Diagram
+
+```mermaid
+flowchart LR
+  a[Cover] --> b[Layouts]
+  b --> c[Images]
+  c --> d[Code]
+  d --> e[Diagram]
+```
+
+Mermaid diagrams render in the current (light/dark) theme.
+
+</Slide>
+
+<Slide>
+
+## Image on top, text below
+
+<Image src={media} alt="AI course background" class="aas-media-top" />
+
+A large image on top with a short caption underneath.
+
+</Slide>
+
+<Slide>
+
+## Image left, text right (50:50)
+
+<div class="aas-split">
+<Image src={media} alt="AI course background" />
+<div>
+
+Put the `<Image>` first and the text after inside `<div class="aas-split">` to get the image on the left.
+
+- image and text split evenly
+- good for a quick point
+
+</div>
+</div>
+
+</Slide>
+
+<Slide>
+
+## Image left, text right (30:70)
+
+<div class="aas-split r-30-70">
+<Image src={media} alt="AI course background" />
+<div>
+
+The `r-30-70` modifier makes the image narrow (30%) and the text wide (70%).
+
+Good when the copy is long or the image is just supporting.
+
+</div>
+</div>
+
+</Slide>
+
+<Slide>
+
+## Text left, image right (50:50)
+
+<div class="aas-split">
+<div>
+
+Just swap the order — text first, `<Image>` after, and the image is on the right.
+
+- evenly split
+
+</div>
+<Image src={media} alt="AI course background" />
+</div>
+
+</Slide>
+
+<Slide>
+
+## Text left, image right (70:30)
+
+<div class="aas-split r-70-30">
+<div>
+
+`r-70-30` makes the text wide (70%) and the image narrow (30%).
+
+</div>
+<Image src={media} alt="AI course background" />
+</div>
+
+</Slide>
+
+<Slide toc={false}>
+
+## This heading is not in the TOC
+
+This slide is wrapped in `<Slide toc={false}>`. Open the TOC (☰) and this heading **won't be listed** — the slide itself still pages through normally.
+
+</Slide>
+
+<Slide class="center">
+
+## The end
+
+Open `src/content/slides/en/sample-layouts/index.mdx` to see the syntax.
+
+</Slide>
