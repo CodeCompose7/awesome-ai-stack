@@ -1588,6 +1588,11 @@ summary {
   overflow: auto;
   overscroll-behavior: contain;
   cursor: default;
+  /* Same text context as .aas-slide-inner, where Mermaid measured its labels.
+     Without keep-all, Korean labels re-wrap per syllable inside their measured
+     boxes and drift to the top-left of each node. */
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 /* Centres content that fits; grows with (and scrolls) content that doesn't. */
 .aas-zoom-fit {

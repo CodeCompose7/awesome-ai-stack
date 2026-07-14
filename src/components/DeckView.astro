@@ -455,6 +455,22 @@ const themeClass = `aas-theme-${entry.data.theme}`;
               // The pastel node styling is scoped to `.mermaid …`; tag the clone
               // so it keeps that look outside the slide.
               clone.classList.add('mermaid');
+              // Mermaid measured its labels with the slide's font (25px+ inside
+              // .aas-slide-inner); outside that context the labels drop to the
+              // 16px root size and drift to the top-left of their boxes. Copy the
+              // source label's computed font onto the clone so text lays out at
+              // the size the boxes were measured for.
+              // Query the <p> first: the .nodeLabel span around it inherits the
+              // svg's 16px, while the p is what the slide's font rule actually
+              // sizes (and what Mermaid measured against).
+              const srcLabel =
+                source.querySelector('.nodeLabel p') ||
+                source.querySelector('.nodeLabel, .edgeLabel, text');
+              if (srcLabel) {
+                const lcs = getComputedStyle(srcLabel);
+                clone.style.fontSize = lcs.fontSize;
+                clone.style.lineHeight = lcs.lineHeight;
+              }
               // Size for a readable enlargement: small diagrams scale up to fill
               // the stage; a diagram bigger than the stage is shown at its natural
               // size and the stage scrolls (pan a complex flowchart).
