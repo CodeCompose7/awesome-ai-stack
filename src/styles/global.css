@@ -1565,7 +1565,10 @@ summary {
   align-items: center;
   justify-content: center;
   padding: clamp(1.5rem, 5vh, 4rem);
-  background: rgba(0, 0, 0, 0.82);
+  /* Match the deck: light backdrop in light mode, dark in dark mode (a diagram's
+     pastel nodes read the same as they do on the slide). Near-opaque so the
+     slide behind doesn't bleed through. */
+  background: color-mix(in srgb, var(--aas-bg) 95%, transparent);
   opacity: 0;
   transition: opacity 0.2s ease;
   cursor: zoom-out;
@@ -1580,20 +1583,25 @@ summary {
    auto` centres it when it's smaller than the stage and lets the stage scroll
    when it's bigger — so a complex diagram can be panned. */
 .aas-zoom-stage {
-  display: flex;
   width: 92vw;
   height: 86vh;
   overflow: auto;
   overscroll-behavior: contain;
   cursor: default;
 }
+/* Centres content that fits; grows with (and scrolls) content that doesn't. */
+.aas-zoom-fit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100%;
+  min-height: 100%;
+}
 .aas-zoom-stage svg {
-  margin: auto;
   max-width: none !important;
   flex: none;
 }
 .aas-zoom-stage img {
-  margin: auto;
   max-width: 100%;
   max-height: 100%;
   width: auto;

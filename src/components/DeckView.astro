@@ -469,12 +469,20 @@ const themeClass = `aas-theme-${entry.data.theme}`;
               clone.style.maxWidth = 'none';
               clone.style.maxHeight = 'none';
             }
-            zoomStage.replaceChildren(clone);
-            zoomStage.scrollTop = 0;
-            zoomStage.scrollLeft = 0;
+            // A centering wrapper: it's at least the stage size (so a small
+            // diagram/image is centred both ways) and grows with the content (so
+            // a big diagram scrolls). Reliable, unlike flex `margin:auto`.
+            const fit = document.createElement('div');
+            fit.className = 'aas-zoom-fit';
+            fit.appendChild(clone);
+            zoomStage.replaceChildren(fit);
             zoom.hidden = false;
-            // next frame so the transition runs
-            requestAnimationFrame(() => zoom.classList.add('is-open'));
+            requestAnimationFrame(() => {
+              zoom.classList.add('is-open');
+              // Start centred horizontally, at the top vertically (read top-down).
+              zoomStage.scrollLeft = (zoomStage.scrollWidth - zoomStage.clientWidth) / 2;
+              zoomStage.scrollTop = 0;
+            });
             zoomOpen = true;
           };
           const closeZoom = () => {
