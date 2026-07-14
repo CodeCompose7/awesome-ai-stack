@@ -35,7 +35,7 @@ import media from './course-bg-2.png'; // ② co-located (이 덱 전용)
 
 </Slide>
 
-<Slide>
+<Slide source="출처: awesome-ai-stack 문서 · example.com/docs">
 
 ## 일반 레이아웃
 ::sub[제목 아래 작은 부제 — `::sub[텍스트]`로 답니다]
@@ -96,9 +96,10 @@ import media from './course-bg-2.png'; // ② co-located (이 덱 전용)
 | 미디어 분할 | `aas-split` | 이미지·코드·다이어그램 |
 | 세로 정렬/채움 | `img-top`·`fill` | 세로 위치·cover |
 | 부제 | `::sub[…]` | 제목 아래 작게 |
+| 출처 | `source="…"` | 우측 하단, 최대 2줄 |
 | 목차 제외 | `toc={false}` | 제목 숨김 |
 
-표는 표준 마크다운 문법을 그대로 씁니다.
+표는 표준 마크다운 문법을 그대로 씁니다. 다이어그램·이미지는 마우스를 올리면 **크게 보기** 버튼(우측 상단)이 나타납니다.
 
 </Slide>
 
@@ -197,13 +198,13 @@ deck.scrollLeft = slide.offsetLeft; // 스냅 지점으로 이동
 
 </Slide>
 
-<Slide>
+<Slide source="이미지: awesome-ai-stack 샘플 에셋">
 
 ### 이미지 위 · 설명 아래
 
 <Image src={media} alt="AI 강의 배경" class="aas-media-top" />
 
-이미지를 위에 크게 두고, 아래에 짧은 설명을 답니다.
+이미지를 위에 크게 두고, 아래에 짧은 설명을 답니다. 이미지에 마우스를 올리면 크게 보기 버튼이 나옵니다.
 
 </Slide>
 

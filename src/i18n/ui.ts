@@ -39,6 +39,8 @@ export const ui = {
     'slides.menu': 'Menu',
     'slides.print': 'Print / PDF',
     'slides.fullscreen': 'Fullscreen',
+    'slides.zoom': 'Enlarge',
+    'slides.close': 'Close',
     'sample.title': 'Samples',
     'sample.tagline':
       'The runnable mini-projects behind the catalog — download a folder and run it with Docker.',
@@ -174,6 +176,8 @@ export const ui = {
     'slides.menu': '메뉴',
     'slides.print': '인쇄 / PDF',
     'slides.fullscreen': '전체화면',
+    'slides.zoom': '크게 보기',
+    'slides.close': '닫기',
     'sample.title': '샘플',
     'sample.tagline': '카탈로그 뒤의 실행 가능한 미니 프로젝트 — 폴더를 받아 Docker로 실행해 보세요.',
     'sample.usedBy': '이 샘플을 쓰는 곳',

@@ -1084,6 +1084,7 @@ summary {
 }
 
 .aas-slide {
+  position: relative; /* anchor the bottom-right source line */
   flex: 0 0 100%;
   width: 100vw;
   height: 100dvh;
@@ -1268,6 +1269,24 @@ summary {
   border-radius: 0.35rem;
   background: var(--aas-tint);
 }
+/* Language badge on code blocks (Shiki sets data-language). The code box is
+   always dark, so a light, quiet label reads on any site theme. */
+.aas-slide-inner pre.astro-code {
+  position: relative;
+}
+.aas-slide-inner pre.astro-code[data-language]::before {
+  content: attr(data-language);
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0.3em 0.7em;
+  font-family: var(--aas-code-font, ui-monospace, monospace);
+  font-size: 0.72em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  pointer-events: none;
+}
 .aas-slide-inner pre.mermaid {
   background: transparent;
   padding: 0;
@@ -1375,14 +1394,15 @@ summary {
 }
 /* Media vertical alignment within the split (default: centered). Pair with
    `tall` (below) so top / center / bottom are measured against a full-height
-   slide, not just the text column. Works for images, diagrams, and code. */
-.aas-slide-inner .aas-split.img-top > :is(img, pre) {
+   slide, not just the text column. Works for images, diagrams, and code.
+   (Images get wrapped in .aas-zoomable-img at runtime, so target that too.) */
+.aas-slide-inner .aas-split.img-top > :is(img, .aas-zoomable-img, pre) {
   align-self: start;
 }
-.aas-slide-inner .aas-split.img-center > :is(img, pre) {
+.aas-slide-inner .aas-split.img-center > :is(img, .aas-zoomable-img, pre) {
   align-self: center;
 }
-.aas-slide-inner .aas-split.img-bottom > :is(img, pre) {
+.aas-slide-inner .aas-split.img-bottom > :is(img, .aas-zoomable-img, pre) {
   align-self: end;
 }
 /* Tall: the split fills the slide vertically, so image alignment is relative to
@@ -1392,10 +1412,14 @@ summary {
 }
 /* Fill mode: a tall image cropped to `cover`, filling the slide vertically.
    Add `fill` to the split. */
-.aas-slide-inner .aas-split.fill img {
+.aas-slide-inner .aas-split.fill > :is(img, .aas-zoomable-img) {
   height: min(64vh, 42rem);
   max-height: min(64vh, 42rem);
   align-self: stretch;
+}
+.aas-slide-inner .aas-split.fill .aas-zoomable-img img {
+  height: 100%;
+  max-height: none;
 }
 .aas-slide-inner .aas-split > div > :first-child {
   margin-top: 0;
@@ -1450,6 +1474,130 @@ summary {
 }
 /* 3b) Code stays pinned to the top of its filled box — that's the default block
        flow of a tall <pre>, so nothing extra is needed. */
+
+/* --- Per-slide source / citation (bottom-right, ≤2 lines) ---------------- */
+.aas-slide-source {
+  position: absolute;
+  right: clamp(1.5rem, 4vw, 4rem);
+  bottom: clamp(0.9rem, 3vh, 2rem);
+  max-width: min(46%, 30rem);
+  margin: 0;
+  text-align: right;
+  font-size: clamp(0.68rem, 0.95vw, 0.82rem);
+  line-height: 1.35;
+  color: var(--aas-muted);
+  opacity: 0.8;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  pointer-events: none;
+}
+.aas-slide.has-bg .aas-slide-source {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* --- Zoom / lightbox: enlarge a diagram or image ------------------------- */
+/* The media becomes clickable; a small button sits in its top-right corner. */
+.aas-slide-inner .aas-zoomable {
+  position: relative;
+  cursor: zoom-in;
+}
+.aas-slide-inner .aas-zoomable-img {
+  display: block;
+  min-width: 0;
+}
+.aas-zoom-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid var(--aas-border);
+  border-radius: 0.55rem;
+  background: color-mix(in srgb, var(--aas-panel) 82%, transparent);
+  color: var(--aas-text);
+  cursor: zoom-in;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.aas-zoomable:hover .aas-zoom-btn,
+.aas-zoom-btn:focus-visible {
+  opacity: 0.9;
+}
+.aas-zoom-btn:hover {
+  opacity: 1;
+}
+/* The zoom button is a UI affordance — never in print/PDF. */
+@media print {
+  .aas-zoom-btn {
+    display: none;
+  }
+}
+/* Overlay. A dark scrim (regardless of site theme) so the enlarged media pops. */
+.aas-zoom {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1.5rem, 5vh, 4rem);
+  background: rgba(0, 0, 0, 0.74);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  cursor: zoom-out;
+}
+.aas-zoom.is-open {
+  opacity: 1;
+}
+.aas-zoom[hidden] {
+  display: none;
+}
+/* A large stage; the svg fills it (preserveAspectRatio keeps the diagram
+   undistorted and as big as fits), so the diagram enlarges past its slide size.
+   `max-width: none` overrides Mermaid's inline natural-width cap. */
+.aas-zoom-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 92vw;
+  height: 86vh;
+}
+.aas-zoom-stage svg {
+  width: 100%;
+  height: 100%;
+  max-width: none !important;
+  max-height: none;
+}
+.aas-zoom-stage img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 0.6rem;
+}
+.aas-zoom-close {
+  position: fixed;
+  top: clamp(1rem, 3vh, 2rem);
+  right: clamp(1rem, 3vw, 2rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border: 1px solid var(--aas-border);
+  border-radius: 0.7rem;
+  background: var(--aas-panel);
+  color: var(--aas-text);
+  cursor: pointer;
+}
 
 /* Stack image + text on narrow screens (screen only — print keeps them side by
    side regardless of the page width). */

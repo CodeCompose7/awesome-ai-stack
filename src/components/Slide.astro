@@ -11,14 +11,17 @@ import type { ImageMetadata } from 'astro';
 //   <Slide toc={false}>     keep this slide's headings out of the deck TOC
 //   <Slide bg={img}>        full-bleed background image (import it first); a
 //                           scrim + light text keep the content legible
+//   <Slide source="…">      small citation in the bottom-right corner (≤2 lines)
 interface Props {
   class?: string;
   /** Include this slide's headings in the deck's table of contents. */
   toc?: boolean;
   /** Full-bleed background image (an imported ImageMetadata). */
   bg?: ImageMetadata;
+  /** A short source / citation, shown small in the slide's bottom-right corner. */
+  source?: string;
 }
-const { class: cls = 'default', toc = true, bg } = Astro.props;
+const { class: cls = 'default', toc = true, bg, source } = Astro.props;
 ---
 
 <section
@@ -29,4 +32,5 @@ const { class: cls = 'default', toc = true, bg } = Astro.props;
   <div class="aas-slide-inner">
     <slot />
   </div>
+  {source && <p class="aas-slide-source">{source}</p>}
 </section>
