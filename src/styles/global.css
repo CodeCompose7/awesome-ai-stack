@@ -1303,7 +1303,8 @@ summary {
   color: #fff;
 }
 
-/* Image on top, text below. */
+/* Media on top, text below. For an image, add class="aas-media-top"; a diagram
+   or code block just stacks above the text on its own (no class needed). */
 .aas-slide-inner .aas-media-top {
   display: block;
   width: 100%;
@@ -1313,8 +1314,9 @@ summary {
   margin: 0 0 1rem;
 }
 
-/* Image + text side by side. Order the <Image> and the text block as you want
-   them to appear; pick the split ratio with a modifier class. */
+/* Media + text side by side. The media child can be an image, a diagram
+   (`pre.mermaid`), or a code block (`pre`). Order the media and the text block
+   as you want them to appear; pick the split ratio with a modifier class. */
 .aas-slide-inner .aas-split {
   display: grid;
   grid-template-columns: 1fr 1fr; /* r-50-50 (default) */
@@ -1322,28 +1324,47 @@ summary {
   align-items: center;
   text-align: left;
 }
+/* Let code / diagrams shrink to their column instead of blowing the grid out
+   (a <pre> with long lines otherwise refuses to go below its content width). */
+.aas-slide-inner .aas-split > * {
+  min-width: 0;
+}
 .aas-slide-inner .aas-split.r-30-70 {
   grid-template-columns: 3fr 7fr;
 }
 .aas-slide-inner .aas-split.r-70-30 {
   grid-template-columns: 7fr 3fr;
 }
+/* Image media. */
 .aas-slide-inner .aas-split img {
   width: 100%;
   max-height: 46vh;
   object-fit: cover;
   border-radius: 0.9rem;
 }
-/* Image vertical alignment within the split (default: centered). Pair with
+/* Code / diagram media: drop the outer margin and cap the height so the column
+   stays inside the slide (code scrolls; the diagram scales down). */
+.aas-slide-inner .aas-split > pre {
+  width: 100%;
+  margin: 0;
+  max-height: 56vh;
+}
+.aas-slide-inner .aas-split > pre:not(.mermaid) {
+  font-size: clamp(0.72rem, 1.05vw, 0.95rem);
+}
+.aas-slide-inner .aas-split pre.mermaid svg {
+  max-height: 46vh;
+}
+/* Media vertical alignment within the split (default: centered). Pair with
    `tall` (below) so top / center / bottom are measured against a full-height
-   slide, not just the text column. */
-.aas-slide-inner .aas-split.img-top img {
+   slide, not just the text column. Works for images, diagrams, and code. */
+.aas-slide-inner .aas-split.img-top > :is(img, pre) {
   align-self: start;
 }
-.aas-slide-inner .aas-split.img-center img {
+.aas-slide-inner .aas-split.img-center > :is(img, pre) {
   align-self: center;
 }
-.aas-slide-inner .aas-split.img-bottom img {
+.aas-slide-inner .aas-split.img-bottom > :is(img, pre) {
   align-self: end;
 }
 /* Tall: the split fills the slide vertically, so image alignment is relative to

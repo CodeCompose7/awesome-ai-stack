@@ -274,9 +274,8 @@ const themeClass = `aas-theme-${entry.data.theme}`;
             menuRoot.classList.toggle('is-open', open);
             menuToggle.setAttribute('aria-expanded', String(open));
           });
-          document.addEventListener('click', (e) => {
-            if (!menuRoot.contains(e.target as Node)) closeMenu();
-          });
+          // The drawer stays open until the tab is toggled again — an outside
+          // click must not close it (same as the TOC panel).
           menuPanel.querySelector('[data-action="print"]')?.addEventListener('click', () => {
             closeMenu();
             window.print();

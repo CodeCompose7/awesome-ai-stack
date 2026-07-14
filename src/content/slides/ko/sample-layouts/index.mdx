@@ -1,6 +1,6 @@
 ---
 title: 레이아웃 샘플
-description: 표지·일반·중앙·컬럼·표·코드·다이어그램·이미지와 TOC 제외까지, 모든 슬라이드 요소를 한 덱에 모은 데모
+description: 표지·일반·중앙·컬럼·표·코드·이미지·다이어그램과 TOC 제외까지, 모든 슬라이드 요소를 한 덱에 모은 데모
 order: 99
 theme: default
 aspect: '16:9'          # '16:9'(기본) | '16:10' | '4:3' | 'fill'
@@ -93,8 +93,8 @@ import media from './course-bg-2.png'; // ② co-located (이 덱 전용)
 | 표지 | `class="cover"` | 큰 제목, 중앙 |
 | 배경 이미지 | `bg={img}` | 풀블리드 |
 | 컬럼 | `:::cols` | `---`로 구분 |
-| 이미지 분할 | `aas-split` | `r-30-70` 등 비율 |
-| 이미지 정렬/채움 | `img-top`·`fill` | 세로 위치·cover |
+| 미디어 분할 | `aas-split` | 이미지·코드·다이어그램 |
+| 세로 정렬/채움 | `img-top`·`fill` | 세로 위치·cover |
 | 부제 | `::sub[…]` | 제목 아래 작게 |
 | 목차 제외 | `toc={false}` | 제목 숨김 |
 
@@ -102,9 +102,17 @@ import media from './course-bg-2.png'; // ② co-located (이 덱 전용)
 
 </Slide>
 
-<Slide>
+<Slide class="center">
 
 ## 코드
+
+코드 슬라이드 모음 — 기본 · 좌우 배치 · 위아래 배치
+
+</Slide>
+
+<Slide>
+
+### 코드 기본
 
 코드 블록은 사이트와 동일한 Shiki 하이라이팅이 적용됩니다.
 
@@ -120,17 +128,64 @@ async function goToSlide(deck: HTMLElement, i: number) {
 
 <Slide>
 
-## 다이어그램
+### 코드 왼쪽 · 글 오른쪽
 
-```mermaid
-flowchart LR
-  a[표지] --> b[레이아웃]
-  b --> c[이미지]
-  c --> d[코드]
-  d --> e[다이어그램]
+<div class="aas-split">
+
+```ts
+function go(deck, i) {
+  const s = deck
+    .querySelectorAll('.aas-slide');
+  deck.scrollLeft = s[i].offsetLeft;
+}
 ```
 
-Mermaid 다이어그램은 테마(라이트/다크)에 맞춰 렌더됩니다.
+<div>
+
+`aas-split` 안에 코드 블록을 먼저, 글을 나중에 두면 코드가 왼쪽입니다.
+
+- 이미지와 똑같은 분할 문법
+- 긴 줄은 코드 안에서 스크롤됩니다
+
+</div>
+</div>
+
+</Slide>
+
+<Slide>
+
+### 글 왼쪽 · 코드 오른쪽
+
+<div class="aas-split">
+<div>
+
+순서만 바꾸면 됩니다 — 글을 먼저, 코드 블록을 나중에 두면 코드가 오른쪽입니다.
+
+- `r-30-70`·`r-70-30`으로 비율도 조절
+
+</div>
+
+```ts
+function go(deck, i) {
+  const s = deck
+    .querySelectorAll('.aas-slide');
+  deck.scrollLeft = s[i].offsetLeft;
+}
+```
+
+</div>
+
+</Slide>
+
+<Slide>
+
+### 코드 위 · 설명 아래
+
+```ts
+deck.scrollLeft = slide.offsetLeft; // 스냅 지점으로 이동
+```
+
+코드 블록을 먼저 두고 아래에 설명을 답니다 — 분할 없이 자연스럽게 위아래로 쌓입니다.
 
 </Slide>
 
@@ -288,6 +343,90 @@ Mermaid 다이어그램은 테마(라이트/다크)에 맞춰 렌더됩니다.
 
 </div>
 </div>
+
+</Slide>
+
+<Slide class="center">
+
+## 다이어그램
+
+다이어그램 슬라이드 모음 — 기본 · 좌우 배치 · 위아래 배치
+
+</Slide>
+
+<Slide>
+
+### 다이어그램 기본
+
+```mermaid
+flowchart LR
+  a[표지] --> b[레이아웃]
+  b --> c[이미지]
+  c --> d[코드]
+  d --> e[다이어그램]
+```
+
+Mermaid 다이어그램은 테마(라이트/다크)에 맞춰 렌더됩니다.
+
+</Slide>
+
+<Slide>
+
+### 다이어그램 왼쪽 · 글 오른쪽
+
+<div class="aas-split">
+
+```mermaid
+flowchart TB
+  a[입력] --> b[처리]
+  b --> c[출력]
+```
+
+<div>
+
+이미지·코드와 똑같이, `aas-split` 안에 다이어그램을 먼저 두면 왼쪽에 옵니다.
+
+- 좁은 열에선 세로 방향(`TB`)이 잘 맞습니다
+- 다이어그램은 열 폭에 맞춰 축소됩니다
+
+</div>
+</div>
+
+</Slide>
+
+<Slide>
+
+### 글 왼쪽 · 다이어그램 오른쪽
+
+<div class="aas-split r-70-30">
+<div>
+
+글을 먼저, 다이어그램을 나중에 두면 다이어그램이 오른쪽입니다.
+
+`r-70-30`으로 글을 넓게, 다이어그램을 좁게 두었습니다.
+
+</div>
+
+```mermaid
+flowchart TB
+  a[입력] --> b[처리]
+  b --> c[출력]
+```
+
+</div>
+
+</Slide>
+
+<Slide>
+
+### 다이어그램 위 · 설명 아래
+
+```mermaid
+flowchart LR
+  a[계획] --> b[실행] --> c[검증]
+```
+
+다이어그램을 먼저 두고 아래에 설명을 답니다 — 분할 없이 위아래로 쌓입니다.
 
 </Slide>
 

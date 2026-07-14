@@ -1,6 +1,6 @@
 ---
 title: Layout sample
-description: Every slide construct in one deck — cover, default, center, columns, table, code, diagram, images, and a TOC-excluded slide
+description: Every slide construct in one deck — cover, default, center, columns, table, code, images, diagrams, and a TOC-excluded slide
 order: 99
 theme: default
 aspect: '16:9'          # '16:9' (default) | '16:10' | '4:3' | 'fill'
@@ -94,8 +94,8 @@ Good for a short emphasis slide or a section divider.
 | cover | `class="cover"` | large centered title |
 | background image | `bg={img}` | full-bleed |
 | columns | `:::cols` | split with `---` |
-| image split | `aas-split` | ratios like `r-30-70` |
-| image align/fill | `img-top`·`fill` | vertical position · cover |
+| media split | `aas-split` | image · code · diagram |
+| align/fill | `img-top`·`fill` | vertical position · cover |
 | subtitle | `::sub[…]` | small, under the title |
 | TOC-excluded | `toc={false}` | heading hidden |
 
@@ -103,9 +103,17 @@ Tables use standard Markdown syntax.
 
 </Slide>
 
-<Slide>
+<Slide class="center">
 
 ## Code
+
+Code slides — basic · left/right split · stacked
+
+</Slide>
+
+<Slide>
+
+### Code basic
 
 Code blocks get the same Shiki highlighting as the rest of the site.
 
@@ -121,17 +129,64 @@ async function goToSlide(deck: HTMLElement, i: number) {
 
 <Slide>
 
-## Diagram
+### Code left, text right
 
-```mermaid
-flowchart LR
-  a[Cover] --> b[Layouts]
-  b --> c[Images]
-  c --> d[Code]
-  d --> e[Diagram]
+<div class="aas-split">
+
+```ts
+function go(deck, i) {
+  const s = deck
+    .querySelectorAll('.aas-slide');
+  deck.scrollLeft = s[i].offsetLeft;
+}
 ```
 
-Mermaid diagrams render in the current (light/dark) theme.
+<div>
+
+Put the code block first and the text after inside `aas-split` to get code on the left.
+
+- same split syntax as images
+- long lines scroll inside the code
+
+</div>
+</div>
+
+</Slide>
+
+<Slide>
+
+### Text left, code right
+
+<div class="aas-split">
+<div>
+
+Just swap the order — text first, code block after, and the code is on the right.
+
+- tune the ratio with `r-30-70` / `r-70-30`
+
+</div>
+
+```ts
+function go(deck, i) {
+  const s = deck
+    .querySelectorAll('.aas-slide');
+  deck.scrollLeft = s[i].offsetLeft;
+}
+```
+
+</div>
+
+</Slide>
+
+<Slide>
+
+### Code on top, text below
+
+```ts
+deck.scrollLeft = slide.offsetLeft; // jump to the snap point
+```
+
+Put the code block first and the caption underneath — no split needed, it just stacks.
 
 </Slide>
 
@@ -289,6 +344,90 @@ Works together with the ratio modifiers (`r-30-70`, etc.).
 
 </div>
 </div>
+
+</Slide>
+
+<Slide class="center">
+
+## Diagrams
+
+Diagram slides — basic · left/right split · stacked
+
+</Slide>
+
+<Slide>
+
+### Diagram basic
+
+```mermaid
+flowchart LR
+  a[Cover] --> b[Layouts]
+  b --> c[Images]
+  c --> d[Code]
+  d --> e[Diagram]
+```
+
+Mermaid diagrams render in the current (light/dark) theme.
+
+</Slide>
+
+<Slide>
+
+### Diagram left, text right
+
+<div class="aas-split">
+
+```mermaid
+flowchart TB
+  a[Input] --> b[Process]
+  b --> c[Output]
+```
+
+<div>
+
+Just like images and code, put the diagram first inside `aas-split` to place it on the left.
+
+- a vertical (`TB`) graph fits a narrow column well
+- the diagram scales down to the column width
+
+</div>
+</div>
+
+</Slide>
+
+<Slide>
+
+### Text left, diagram right
+
+<div class="aas-split r-70-30">
+<div>
+
+Text first, diagram after, and the diagram is on the right.
+
+Here `r-70-30` makes the text wide and the diagram narrow.
+
+</div>
+
+```mermaid
+flowchart TB
+  a[Input] --> b[Process]
+  b --> c[Output]
+```
+
+</div>
+
+</Slide>
+
+<Slide>
+
+### Diagram on top, text below
+
+```mermaid
+flowchart LR
+  a[Plan] --> b[Run] --> c[Verify]
+```
+
+Put the diagram first and the caption underneath — no split, it just stacks.
 
 </Slide>
 
