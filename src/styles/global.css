@@ -1243,8 +1243,24 @@ summary {
   border-radius: 0.9rem;
   padding: 1.1em 1.3em;
   overflow: auto;
-  font-size: clamp(0.8rem, 1.3vw, 1.05rem);
+  font-size: clamp(0.95rem, 1.5vw, 1.3rem);
   max-height: 62vh;
+}
+/* Code in a proper monospace stack (a visual theme may override --aas-code-font). */
+.aas-slide-inner pre:not(.mermaid),
+.aas-slide-inner pre:not(.mermaid) code,
+.aas-slide-inner :not(pre) > code {
+  font-family: var(
+    --aas-code-font,
+    ui-monospace,
+    'SF Mono',
+    'JetBrains Mono',
+    'Cascadia Code',
+    'Fira Code',
+    Menlo,
+    Consolas,
+    monospace
+  );
 }
 .aas-slide-inner :not(pre) > code {
   font-size: 0.9em;
@@ -1259,13 +1275,13 @@ summary {
   justify-content: center;
 }
 .aas-slide-inner pre.mermaid svg {
-  /* Mermaid renders text at a fixed size; left at full slide width the diagram
-     sprawls and the labels read oversized. Cap the width (overriding Mermaid's
-     inline max-width) so it renders as a compact, centered graphic with smaller
-     relative text. */
-  max-width: min(100%, 46rem) !important;
+  /* Mermaid ships each svg with width="100%" + an inline max-width equal to the
+     diagram's natural width. Respect that (no !important) so it renders at its
+     true size — capped to the container by width:100%, never blown up past its
+     natural size. Forcing max-width here would upscale a small diagram (e.g. a
+     narrow vertical flowchart) to fill the column and balloon the labels. */
+  max-width: 100%;
   max-height: 52vh;
-  width: auto !important;
   height: auto;
 }
 
@@ -1350,7 +1366,12 @@ summary {
   max-height: 56vh;
 }
 .aas-slide-inner .aas-split > pre:not(.mermaid) {
-  font-size: clamp(0.72rem, 1.05vw, 0.95rem);
+  font-size: clamp(0.85rem, 1.2vw, 1.15rem);
+}
+/* Text column of a split stays top-aligned (the media may center/stretch, but
+   the prose reads from the top) — for image, diagram, and code splits alike. */
+.aas-slide-inner .aas-split > div:not(.aas-diagram) {
+  align-self: start;
 }
 /* Media vertical alignment within the split (default: centered). Pair with
    `tall` (below) so top / center / bottom are measured against a full-height
@@ -1419,7 +1440,9 @@ summary {
   max-height: none;
 }
 /* 3a) Diagram: the bordered box becomes a centering column, so the rendered
-       diagram sits in the vertical middle of the filled box. */
+       diagram sits in the vertical middle of the filled box. (The diagram keeps
+       its natural size — see the svg rule, which no longer forces width:auto —
+       so filling the box no longer balloons the labels.) */
 .aas-slide-inner .aas-diagram {
   display: flex;
   flex-direction: column;
@@ -1585,18 +1608,24 @@ summary {
   margin: 0.35rem 0.3rem;
   background: var(--aas-border);
 }
-/* Theme options: check mark on the right of the active one. */
-.aas-deck-menu-check {
-  margin-left: auto;
+/* Theme options: a single row of icon buttons (system · light · dark). */
+.aas-deck-menu-themes {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.15rem 0.2rem 0.05rem;
+}
+.aas-deck-menu-themes button {
+  flex: 1;
+  justify-content: center;
+  padding: 0.4rem 0;
+  color: var(--aas-muted);
+}
+.aas-deck-menu-themes button svg {
+  color: inherit;
+}
+.aas-deck-menu-themes button[aria-pressed='true'] {
+  background: var(--aas-tint);
   color: var(--aas-accent, var(--aas-text));
-  opacity: 0;
-}
-.aas-deck-menu-panel button[data-theme-option][aria-pressed='true'] {
-  color: var(--aas-text);
-  font-weight: 600;
-}
-.aas-deck-menu-panel button[data-theme-option][aria-pressed='true'] .aas-deck-menu-check {
-  opacity: 1;
 }
 /* The handle/tab — attached to the panel's right edge. */
 .aas-deck-menu-tab {
