@@ -450,10 +450,28 @@ const themeClass = `aas-theme-${entry.data.theme}`;
               : media;
             const clone = source.cloneNode(true) as HTMLElement;
             clone.querySelectorAll?.('.aas-zoom-btn').forEach((b) => b.remove());
-            // The pastel node styling is scoped to `.mermaid …`; tag the cloned
-            // svg so it keeps that look outside the slide.
-            if (clone.tagName?.toLowerCase() === 'svg') clone.classList.add('mermaid');
+            if (clone.tagName?.toLowerCase() === 'svg') {
+              // The pastel node styling is scoped to `.mermaid …`; tag the clone
+              // so it keeps that look outside the slide.
+              clone.classList.add('mermaid');
+              // Size for a readable enlargement: small diagrams scale up to fill
+              // the stage; a diagram bigger than the stage is shown at its natural
+              // size and the stage scrolls (pan a complex flowchart).
+              const vb = (clone.getAttribute('viewBox') || '').split(/[\s,]+/).map(Number);
+              const nW = vb[2] || 800;
+              const nH = vb[3] || 450;
+              const stageW = window.innerWidth * 0.92;
+              const stageH = window.innerHeight * 0.86;
+              const fit = Math.min(stageW / nW, stageH / nH);
+              const scale = fit >= 1 ? Math.min(fit, 2.4) : 1;
+              clone.style.width = `${Math.round(nW * scale)}px`;
+              clone.style.height = `${Math.round(nH * scale)}px`;
+              clone.style.maxWidth = 'none';
+              clone.style.maxHeight = 'none';
+            }
             zoomStage.replaceChildren(clone);
+            zoomStage.scrollTop = 0;
+            zoomStage.scrollLeft = 0;
             zoom.hidden = false;
             // next frame so the transition runs
             requestAnimationFrame(() => zoom.classList.add('is-open'));

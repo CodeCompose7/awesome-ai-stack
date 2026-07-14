@@ -537,6 +537,31 @@ Put the diagram first and the caption underneath — no split, it just stacks.
 
 </Slide>
 
+<Slide>
+
+### Complex flowchart
+::sub[Click to **enlarge** — if it's bigger than the screen, scroll inside the lightbox]
+
+```mermaid
+flowchart TD
+  A[User request] --> B{Validate input}
+  B -->|valid| C[Classify intent]
+  B -->|invalid| Z[Return error]
+  C --> D{Tool needed?}
+  D -->|yes| E[Select tool]
+  D -->|no| F[Answer directly]
+  E --> G[Run tool]
+  G --> H{Success?}
+  H -->|yes| I[Merge result]
+  H -->|no| J[Retry / fallback]
+  J --> G
+  I --> K[Generate response]
+  F --> K
+  K --> L[Output to user]
+```
+
+</Slide>
+
 <Slide class="compact">
 
 ### Diagram + long text (compact)
