@@ -1099,7 +1099,8 @@ summary {
   overflow-y: auto; /* a slide taller than the viewport scrolls internally */
 }
 .aas-slide.cover,
-.aas-slide.center {
+.aas-slide.center,
+.aas-slide.quote {
   align-items: center;
 }
 
@@ -1564,7 +1565,10 @@ summary {
   align-items: center;
   justify-content: center;
   padding: clamp(1.5rem, 5vh, 4rem);
-  background: rgba(0, 0, 0, 0.74);
+  /* Match the deck: light backdrop in light mode, dark in dark mode (a diagram's
+     pastel nodes read the same as they do on the slide). Opaque so the slide
+     behind — its own diagram/text — doesn't ghost through under the enlarged one. */
+  background: var(--aas-bg);
   opacity: 0;
   transition: opacity 0.2s ease;
   cursor: zoom-out;
@@ -1575,21 +1579,37 @@ summary {
 .aas-zoom[hidden] {
   display: none;
 }
-/* A large stage; the svg fills it (preserveAspectRatio keeps the diagram
-   undistorted and as big as fits), so the diagram enlarges past its slide size.
-   `max-width: none` overrides Mermaid's inline natural-width cap. */
+/* A large stage. The media is sized by the script (svg) or fit (img); `margin:
+   auto` centres it when it's smaller than the stage and lets the stage scroll
+   when it's bigger — so a complex diagram can be panned. */
 .aas-zoom-stage {
+  width: 92vw;
+  height: 86vh;
+  overflow: auto;
+  overscroll-behavior: contain;
+  cursor: default;
+  /* Same text context as .aas-slide-inner, where Mermaid measured its labels.
+     Without keep-all, Korean labels re-wrap per syllable inside their measured
+     boxes and drift to the top-left of each node. */
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+/* Centres content that fits; grows with (and scrolls) content that doesn't. */
+.aas-zoom-fit {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 92vw;
-  height: 86vh;
+  min-width: 100%;
+  min-height: 100%;
+}
+/* Holds the transform-scaled diagram at its scaled size (so scroll/centre work). */
+.aas-zoom-scalebox {
+  flex: none;
 }
 .aas-zoom-stage svg {
-  width: 100%;
-  height: 100%;
   max-width: none !important;
-  max-height: none;
+  flex: none;
+  display: block;
 }
 .aas-zoom-stage img {
   max-width: 100%;
@@ -1615,6 +1635,71 @@ summary {
   cursor: pointer;
 }
 
+/* --- Overview grid (press `o`) ------------------------------------------- */
+.aas-ov {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  overflow-y: auto;
+  padding: clamp(1rem, 4vh, 3rem);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 260px);
+  justify-content: center;
+  align-content: start;
+  gap: clamp(0.8rem, 2vw, 1.6rem);
+  background: color-mix(in srgb, var(--aas-bg) 93%, #000);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+.aas-ov.is-open {
+  opacity: 1;
+}
+.aas-ov[hidden] {
+  display: none;
+}
+.aas-ov-cell {
+  position: relative;
+  padding: 0;
+  border: 2px solid var(--aas-border);
+  border-radius: 0.6rem;
+  background: var(--aas-panel);
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+.aas-ov-cell:hover,
+.aas-ov-cell:focus-visible {
+  border-color: var(--aas-accent);
+}
+.aas-ov-cell.is-current {
+  border-color: var(--aas-accent);
+  box-shadow: 0 0 0 2px var(--aas-accent);
+}
+.aas-ov-thumb {
+  position: relative;
+  width: 260px;
+  overflow: hidden;
+  background: var(--aas-bg);
+  pointer-events: none;
+}
+.aas-ov-num {
+  position: absolute;
+  left: 0.4rem;
+  bottom: 0.4rem;
+  padding: 0.05rem 0.45rem;
+  border-radius: 0.4rem;
+  background: rgba(0, 0, 0, 0.62);
+  color: #fff;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+/* Overview + lightbox are screen-only affordances. */
+@media print {
+  .aas-ov {
+    display: none !important;
+  }
+}
+
 /* Stack image + text on narrow screens (screen only — print keeps them side by
    side regardless of the page width). */
 @media screen and (max-width: 48rem) {
@@ -1623,6 +1708,139 @@ summary {
   .aas-slide-inner .aas-split.r-70-30 {
     grid-template-columns: 1fr;
   }
+}
+
+/* --- Callout boxes (:::note / :::tip / :::warning / :::info) -------------- */
+.aas-slide-inner .aas-callout {
+  --cal: var(--aas-accent);
+  margin: 0.9em 0;
+  padding: 0.9em 1.2em;
+  border-left: 4px solid var(--cal);
+  border-radius: 0.6rem;
+  background: color-mix(in srgb, var(--cal) 12%, transparent);
+}
+.aas-slide-inner .aas-callout > :first-child {
+  margin-top: 0;
+}
+.aas-slide-inner .aas-callout > :last-child {
+  margin-bottom: 0;
+}
+.aas-slide-inner .aas-callout strong:first-child {
+  color: var(--cal);
+}
+/* Scoped to match the base rule's specificity so the colour actually wins. */
+.aas-slide-inner .aas-callout-tip {
+  --cal: #16a34a;
+}
+.aas-slide-inner .aas-callout-warning {
+  --cal: #d97706;
+}
+.aas-slide-inner .aas-callout-info {
+  --cal: #0284c7;
+}
+
+/* --- Stats / KPI (:::stats, cards split by ---) -------------------------- */
+.aas-slide-inner .aas-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  gap: clamp(1rem, 3vw, 2rem);
+  margin: 1.1em 0;
+  text-align: center;
+}
+.aas-slide-inner .aas-stat {
+  padding: 1.2em 1em;
+  border: 1px solid var(--aas-border);
+  border-radius: 0.9rem;
+  background: var(--aas-tint);
+}
+.aas-slide-inner .aas-stat > :first-child {
+  margin: 0 0 0.15em;
+  font-size: clamp(2.2rem, 5.5vw, 3.8rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--aas-accent);
+}
+.aas-slide-inner .aas-stat > :first-child + * {
+  margin-top: 0;
+}
+.aas-slide-inner .aas-stat p {
+  margin: 0;
+  color: var(--aas-muted);
+}
+
+/* --- Comparison (:::compare, cards split by ---) ------------------------- */
+.aas-slide-inner .aas-compare {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: clamp(1rem, 3vw, 2rem);
+  margin: 1.1em 0;
+  align-items: start;
+}
+.aas-slide-inner .aas-compare-col {
+  padding: 1.1em 1.3em 1.2em;
+  border: 1px solid var(--aas-border);
+  border-radius: 0.9rem;
+  background: var(--aas-tint);
+}
+.aas-slide-inner .aas-compare-col > :first-child {
+  margin-top: 0;
+}
+.aas-slide-inner .aas-compare-col > :last-child {
+  margin-bottom: 0;
+}
+.aas-slide-inner .aas-compare-col > :is(h2, h3, h4):first-child {
+  font-size: clamp(1.2rem, 2.4vw, 1.7rem);
+  margin: 0 0 0.5em;
+  color: var(--aas-text);
+}
+
+/* --- Hero quote (<Slide class="quote">) ---------------------------------- */
+.aas-slide.quote .aas-slide-inner {
+  text-align: center;
+  max-width: min(60rem, 90%);
+}
+.aas-slide.quote blockquote {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  border: none;
+  font-size: clamp(1.8rem, 4.4vw, 3.1rem);
+  font-weight: 600;
+  line-height: 1.28;
+  letter-spacing: -0.01em;
+  color: var(--aas-text);
+}
+.aas-slide.quote blockquote p {
+  margin: 0;
+  font-size: inherit;
+}
+.aas-slide.quote blockquote::before {
+  content: '\201C';
+  display: block;
+  font-size: 2.2em;
+  line-height: 0.7;
+  margin-bottom: 0.1em;
+  color: var(--aas-accent);
+  opacity: 0.55;
+}
+.aas-slide.quote .aas-subtitle {
+  margin: 1.1em 0 0;
+  font-size: clamp(1rem, 1.9vw, 1.45rem);
+  color: var(--aas-muted);
+}
+
+/* --- Step reveal (:::steps) — fragments shown one at a time -------------- */
+/* Progressive enhancement: hidden state is added by the deck script, so with no
+   JS (and in print) every step is visible. */
+.aas-slide-inner .aas-step {
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+.aas-slide-inner .aas-step.is-step-hidden {
+  opacity: 0;
+  transform: translateY(0.4em);
 }
 
 /* --- Visual themes ------------------------------------------------------- */

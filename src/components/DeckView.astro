@@ -126,6 +126,9 @@ const themeClass = `aas-theme-${entry.data.theme}`;
       </button>
     </div>
 
+    {/* Overview grid (press `o`). Thumbnails are built by the script. */}
+    <div class="aas-ov" data-ov hidden aria-label={t('slides.overview')}></div>
+
     {/* Lightbox for enlarging a diagram or image. Filled + shown by the script. */}
     <div class="aas-zoom" data-zoom hidden data-zoom-label={t('slides.zoom')}>
       <button type="button" class="aas-zoom-close" data-zoom-close aria-label={t('slides.close')}>
@@ -153,6 +156,20 @@ const themeClass = `aas-theme-${entry.data.theme}`;
         if (elTot) elTot.textContent = String(total);
 
         let current = 0;
+        // Step reveal (fragments): each slide's `.aas-step` elements are revealed
+        // one at a time. `shown[i]` = how many are currently visible.
+        const slideSteps = slides.map((s) =>
+          Array.from(s.querySelectorAll<HTMLElement>('.aas-step')),
+        );
+        const shown = slides.map(() => 0);
+        const applySteps = (i: number) => {
+          slideSteps[i].forEach((el, k) => el.classList.toggle('is-step-hidden', k >= shown[i]));
+        };
+        slides.forEach((_, i) => applySteps(i));
+        const revealAllSteps = (i: number) => {
+          shown[i] = slideSteps[i].length;
+          applySteps(i);
+        };
         // Programmatic navigation (buttons/keys/TOC) is the source of truth: while
         // a smooth scroll is animating toward `target`, the IntersectionObserver
         // must NOT rewrite `current` to slides it passes — otherwise fast presses
@@ -166,8 +183,10 @@ const themeClass = `aas-theme-${entry.data.theme}`;
         const paint = () => {
           if (elCur) elCur.textContent = String(current + 1);
           if (elFill) elFill.style.width = total > 1 ? `${(current / (total - 1)) * 100}%` : '100%';
-          if (btnPrev) btnPrev.disabled = current === 0;
-          if (btnNext) btnNext.disabled = current === total - 1;
+          // Prev/Next stay enabled while there are steps to hide/reveal on the edge slides.
+          if (btnPrev) btnPrev.disabled = current === 0 && shown[current] === 0;
+          if (btnNext)
+            btnNext.disabled = current === total - 1 && shown[current] === slideSteps[current].length;
           for (const l of tocLinks) l.el.classList.toggle('active', l.slide === current);
         };
 
@@ -177,9 +196,13 @@ const themeClass = `aas-theme-${entry.data.theme}`;
         const easeOutCubic = (t: number) => 1 - (1 - t) ** 3;
         let rafId: number | undefined;
 
-        const go = (i: number, smooth = true) => {
+        const go = (i: number, smooth = true, revealAll = true) => {
           target = Math.max(0, Math.min(total - 1, i));
           current = target;
+          // Landing on a slide: reveal all its steps (jumps/back) or none of them
+          // (forward, so they can be stepped through).
+          shown[current] = revealAll ? slideSteps[current].length : 0;
+          applySteps(current);
           navLock = true;
           clearTimeout(navTimer);
           // Fallback: release the lock even if the observer never reports arrival.
@@ -215,6 +238,27 @@ const themeClass = `aas-theme-${entry.data.theme}`;
           }
           history.replaceState(null, '', `#${current + 1}`);
           paint();
+        };
+
+        // Next/Prev reveal or hide a step first, and only move slides once the
+        // current slide's steps are exhausted.
+        const goNext = () => {
+          if (shown[current] < slideSteps[current].length) {
+            shown[current]++;
+            applySteps(current);
+            paint();
+          } else {
+            go(current + 1, true, false);
+          }
+        };
+        const goPrev = () => {
+          if (shown[current] > 0) {
+            shown[current]--;
+            applySteps(current);
+            paint();
+          } else {
+            go(current - 1, true, true);
+          }
         };
 
         // Mermaid sizes a diagram to its container at render time; a diagram in
@@ -298,6 +342,8 @@ const themeClass = `aas-theme-${entry.data.theme}`;
           // click must not close it (same as the TOC panel).
           menuPanel.querySelector('[data-action="print"]')?.addEventListener('click', () => {
             closeMenu();
+            // Reveal every step so nothing is hidden in the PDF.
+            slides.forEach((_, i) => revealAllSteps(i));
             window.print();
           });
           menuPanel.querySelector('[data-action="fullscreen"]')?.addEventListener('click', () => {
@@ -364,16 +410,18 @@ const themeClass = `aas-theme-${entry.data.theme}`;
         );
         slides.forEach((s) => io.observe(s));
 
-        btnPrev?.addEventListener('click', () => go(current - 1));
-        btnNext?.addEventListener('click', () => go(current + 1));
+        btnPrev?.addEventListener('click', () => goPrev());
+        btnNext?.addEventListener('click', () => goNext());
 
         window.addEventListener('keydown', (e) => {
+          // While the overview grid is open, it owns the keys (handled below).
+          if (deck.dataset.overview === 'open') return;
           if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
             e.preventDefault();
-            go(current + 1);
+            goNext();
           } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
             e.preventDefault();
-            go(current - 1);
+            goPrev();
           } else if (e.key === 'Home') {
             e.preventDefault();
             go(0);
@@ -402,13 +450,68 @@ const themeClass = `aas-theme-${entry.data.theme}`;
               : media;
             const clone = source.cloneNode(true) as HTMLElement;
             clone.querySelectorAll?.('.aas-zoom-btn').forEach((b) => b.remove());
-            // The pastel node styling is scoped to `.mermaid …`; tag the cloned
-            // svg so it keeps that look outside the slide.
-            if (clone.tagName?.toLowerCase() === 'svg') clone.classList.add('mermaid');
-            zoomStage.replaceChildren(clone);
+            let content: HTMLElement = clone;
+            if (clone.tagName?.toLowerCase() === 'svg') {
+              // The pastel node styling is scoped to `.mermaid …`; tag the clone
+              // so it keeps that look outside the slide.
+              clone.classList.add('mermaid');
+              // Mermaid measured its labels with the slide's font (25px+ inside
+              // .aas-slide-inner); outside that context the labels drop to the
+              // 16px root size and drift to the top-left of their boxes. Copy the
+              // source label's computed font onto the clone so text lays out at
+              // the size the boxes were measured for.
+              // Query the <p> first: the .nodeLabel span around it inherits the
+              // svg's 16px, while the p is what the slide's font rule actually
+              // sizes (and what Mermaid measured against).
+              const srcLabel =
+                source.querySelector('.nodeLabel p') ||
+                source.querySelector('.nodeLabel, .edgeLabel, text');
+              if (srcLabel) {
+                const lcs = getComputedStyle(srcLabel);
+                clone.style.fontSize = lcs.fontSize;
+                clone.style.lineHeight = lcs.lineHeight;
+              }
+              // Size for a readable enlargement: small diagrams scale up to fill
+              // the stage; a diagram bigger than the stage is shown at its natural
+              // size and the stage scrolls (pan a complex flowchart).
+              const vb = (clone.getAttribute('viewBox') || '').split(/[\s,]+/).map(Number);
+              const nW = vb[2] || 800;
+              const nH = vb[3] || 450;
+              const stageW = window.innerWidth * 0.92;
+              const stageH = window.innerHeight * 0.86;
+              const fit = Math.min(stageW / nW, stageH / nH);
+              const scale = fit >= 1 ? Math.min(fit, 2.4) : 1;
+              // Enlarge with a CSS transform on the natural-size svg (not by
+              // resizing width/height) so the node shapes and their labels scale
+              // together — resizing the svg shifts Mermaid's labels off-centre.
+              clone.style.width = `${nW}px`;
+              clone.style.height = `${nH}px`;
+              clone.style.maxWidth = 'none';
+              clone.style.maxHeight = 'none';
+              clone.style.transform = `scale(${scale})`;
+              clone.style.transformOrigin = 'top left';
+              // A box the size of the scaled diagram, so the stage scrolls/centres it.
+              const box = document.createElement('div');
+              box.className = 'aas-zoom-scalebox';
+              box.style.width = `${Math.round(nW * scale)}px`;
+              box.style.height = `${Math.round(nH * scale)}px`;
+              box.appendChild(clone);
+              content = box;
+            }
+            // A centering wrapper: it's at least the stage size (so a small
+            // diagram/image is centred both ways) and grows with the content (so
+            // a big diagram scrolls). Reliable, unlike flex `margin:auto`.
+            const fitWrap = document.createElement('div');
+            fitWrap.className = 'aas-zoom-fit';
+            fitWrap.appendChild(content);
+            zoomStage.replaceChildren(fitWrap);
             zoom.hidden = false;
-            // next frame so the transition runs
-            requestAnimationFrame(() => zoom.classList.add('is-open'));
+            requestAnimationFrame(() => {
+              zoom.classList.add('is-open');
+              // Start centred horizontally, at the top vertically (read top-down).
+              zoomStage.scrollLeft = (zoomStage.scrollWidth - zoomStage.clientWidth) / 2;
+              zoomStage.scrollTop = 0;
+            });
             zoomOpen = true;
           };
           const closeZoom = () => {
@@ -474,6 +577,118 @@ const themeClass = `aas-theme-${entry.data.theme}`;
             });
           });
         }
+
+        // Auto-fit: if a slide's content is taller than the slide, scale it down
+        // so it fits instead of scrolling. (Filled media slides already measure
+        // exactly 100%, so they're never scaled.)
+        const fitSlide = (s: HTMLElement) => {
+          const inner = s.querySelector<HTMLElement>('.aas-slide-inner');
+          if (!inner) return;
+          inner.style.transform = '';
+          inner.style.removeProperty('--aas-fit');
+          s.style.removeProperty('overflow-y');
+          const cs = getComputedStyle(s);
+          const avail = s.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+          const need = inner.scrollHeight;
+          if (need > avail + 2) {
+            const scale = Math.max(0.55, avail / need);
+            inner.style.transform = `scale(${scale})`;
+            inner.style.transformOrigin = 'top center';
+            s.style.overflowY = 'hidden';
+          }
+        };
+        const fitAll = () => slides.forEach(fitSlide);
+        fitAll();
+        // Re-fit after late layout shifts (fonts, images, Mermaid).
+        setTimeout(fitAll, 300);
+        setTimeout(fitAll, 900);
+        window.addEventListener('load', fitAll);
+
+        // Overview grid (press `o`): scaled thumbnails of every slide; click one
+        // to jump there. Built lazily and rebuilt when the viewport changes.
+        const ov = document.querySelector<HTMLElement>('[data-ov]');
+        let ovOpen = false;
+        const buildOv = () => {
+          if (!ov) return;
+          ov.replaceChildren();
+          const scale = 260 / window.innerWidth;
+          const thumbH = window.innerHeight * scale;
+          slides.forEach((s, i) => {
+            const cell = document.createElement('button');
+            cell.type = 'button';
+            cell.className = 'aas-ov-cell';
+            const thumb = document.createElement('div');
+            thumb.className = 'aas-ov-thumb';
+            thumb.style.height = `${thumbH}px`;
+            const clone = s.cloneNode(true) as HTMLElement;
+            clone.removeAttribute('style');
+            clone.style.width = `${window.innerWidth}px`;
+            clone.style.height = `${window.innerHeight}px`;
+            clone.style.transform = `scale(${scale})`;
+            clone.style.transformOrigin = 'top left';
+            if (s.classList.contains('has-bg'))
+              clone.style.backgroundImage = s.style.backgroundImage;
+            clone.querySelectorAll('.aas-zoom-btn, .aas-slide-source').forEach((n) => n.remove());
+            thumb.appendChild(clone);
+            const num = document.createElement('span');
+            num.className = 'aas-ov-num';
+            num.textContent = String(i + 1);
+            cell.append(thumb, num);
+            cell.addEventListener('click', () => {
+              closeOv();
+              go(i);
+            });
+            ov.appendChild(cell);
+          });
+        };
+        const openOv = () => {
+          if (!ov) return;
+          buildOv();
+          ov.hidden = false;
+          requestAnimationFrame(() => ov.classList.add('is-open'));
+          deck.dataset.overview = 'open';
+          ovOpen = true;
+          const active = ov.children[current] as HTMLElement | undefined;
+          active?.classList.add('is-current');
+          active?.scrollIntoView({ block: 'center' });
+        };
+        const closeOv = () => {
+          if (!ov) return;
+          ov.classList.remove('is-open');
+          delete deck.dataset.overview;
+          ovOpen = false;
+          const done = () => {
+            if (!ovOpen) {
+              ov.hidden = true;
+              ov.replaceChildren();
+            }
+            ov.removeEventListener('transitionend', done);
+          };
+          ov.addEventListener('transitionend', done);
+        };
+        window.addEventListener('keydown', (e) => {
+          if (e.key === 'o' || e.key === 'O') {
+            if (
+              (e.target as HTMLElement)?.tagName === 'INPUT' ||
+              (e.target as HTMLElement)?.tagName === 'TEXTAREA'
+            )
+              return;
+            e.preventDefault();
+            ovOpen ? closeOv() : openOv();
+          } else if (ovOpen && e.key === 'Escape') {
+            e.preventDefault();
+            closeOv();
+          }
+        });
+
+        let resizeT: ReturnType<typeof setTimeout> | undefined;
+        window.addEventListener('resize', () => {
+          clearTimeout(resizeT);
+          resizeT = setTimeout(() => {
+            fitAll();
+            if (ovOpen) buildOv();
+          }, 150);
+        });
 
         // Deep-link: open at #N if present, else slide 1. Jump without animation.
         const fromHash = parseInt((location.hash || '').slice(1), 10);

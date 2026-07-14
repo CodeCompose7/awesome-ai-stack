@@ -116,24 +116,87 @@ function remarkSlideDirectives() {
   const inlineText = (nodes) =>
     (nodes || []).map((n) => (n.value != null ? n.value : inlineText(n.children))).join('');
 
+  /** Split a directive's children into groups on `---` (thematic breaks). */
+  /** @param {any[]} children @returns {any[][]} */
+  const splitOnRule = (children) => {
+    /** @type {any[][]} */
+    const groups = [[]];
+    for (const c of children) {
+      if (c.type === 'thematicBreak') groups.push([]);
+      else groups[groups.length - 1].push(c);
+    }
+    return groups;
+  };
+
+  const CALLOUTS = ['note', 'tip', 'warning', 'info'];
+
   /** @param {any} node */
   const walk = (node) => {
     if (!node.children) return;
     for (let i = 0; i < node.children.length; i++) {
       const child = node.children[i];
       if (child.type === 'containerDirective' && child.name === 'cols') {
-        /** @type {any[][]} */
-        const groups = [[]];
-        for (const c of child.children) {
-          if (c.type === 'thematicBreak') groups.push([]);
-          else groups[groups.length - 1].push(c);
-        }
         child.data = { hName: 'div', hProperties: { className: ['cols'] } };
-        child.children = groups.map((g) => ({
+        child.children = splitOnRule(child.children).map((g) => ({
           type: 'columnGroup',
           data: { hName: 'div' },
           children: g,
         }));
+        walk(child);
+      } else if (child.type === 'containerDirective' && child.name === 'stats') {
+        // Big-number cards. Each heading starts a new card (its number), and the
+        // following lines are its label — no `---` needed (and a `---` right under
+        // a label line would be eaten as a Setext underline anyway).
+        /** @type {any[][]} */
+        const groups = [];
+        for (const c of child.children) {
+          if (c.type === 'heading' || groups.length === 0) groups.push([c]);
+          else groups[groups.length - 1].push(c);
+        }
+        child.data = { hName: 'div', hProperties: { className: ['aas-stats'] } };
+        child.children = groups.map((g) => ({
+          type: 'statCard',
+          data: { hName: 'div', hProperties: { className: ['aas-stat'] } },
+          children: g,
+        }));
+        walk(child);
+      } else if (child.type === 'containerDirective' && child.name === 'compare') {
+        // Side-by-side comparison cards, split by `---`.
+        child.data = { hName: 'div', hProperties: { className: ['aas-compare'] } };
+        child.children = splitOnRule(child.children).map((g) => ({
+          type: 'compareCol',
+          data: { hName: 'div', hProperties: { className: ['aas-compare-col'] } },
+          children: g,
+        }));
+        walk(child);
+      } else if (child.type === 'containerDirective' && child.name === 'steps') {
+        // Step-reveal container: each direct block becomes a step; a list inside
+        // makes each <li> a step, so bullets reveal one at a time.
+        child.data = { hName: 'div', hProperties: { className: ['aas-steps'] } };
+        /** @type {any[]} */
+        const out = [];
+        for (const c of child.children) {
+          if (c.type === 'list') {
+            for (const li of c.children) {
+              li.data = { hProperties: { className: ['aas-step'] } };
+            }
+            out.push(c);
+          } else {
+            out.push({
+              type: 'stepItem',
+              data: { hName: 'div', hProperties: { className: ['aas-step'] } },
+              children: [c],
+            });
+          }
+        }
+        child.children = out;
+        walk(child);
+      } else if (child.type === 'containerDirective' && CALLOUTS.includes(child.name)) {
+        // Callout box (note / tip / warning / info).
+        child.data = {
+          hName: 'div',
+          hProperties: { className: ['aas-callout', `aas-callout-${child.name}`] },
+        };
         walk(child);
       } else if (child.type === 'leafDirective' && child.name === 'sub') {
         child.data = { hName: 'p', hProperties: { className: ['aas-subtitle'] } };

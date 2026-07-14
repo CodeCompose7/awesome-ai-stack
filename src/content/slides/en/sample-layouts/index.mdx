@@ -79,6 +79,83 @@ Use this when order matters — steps and procedures.
 
 </Slide>
 
+<Slide>
+
+## Step reveal (steps)
+::sub[Items inside `:::steps` appear one at a time as you press → ]
+
+:::steps
+- First point — press the arrow to reveal
+- Second point — press again to continue
+- Third point — the next item
+- Once they're all shown, move to the next slide
+:::
+
+</Slide>
+
+<Slide class="quote">
+
+> A good talk is remembered as a story, not as slides.
+
+::sub[— awesome-ai-stack · `class="quote"`]
+
+</Slide>
+
+<Slide>
+
+## Stats · numbers
+
+:::stats
+### 99.9%
+uptime
+### 2.5×
+faster
+### 44KB
+bundle / locale
+:::
+
+`:::stats` — big numbers (`###`) with labels, as cards. Each heading starts a new card.
+
+</Slide>
+
+<Slide>
+
+## Callout boxes
+
+:::note
+**Note** — use `:::note` for asides and context.
+:::
+
+:::tip
+**Tip** — `:::tip` highlights a useful hint.
+:::
+
+:::warning
+**Warning** — `:::warning` is for cautions and gotchas.
+:::
+
+</Slide>
+
+<Slide>
+
+## Comparison (compare)
+
+:::compare
+### Build your own
+- fully integrated with the site
+- 44KB bundle / locale
+- customize however you like
+---
+### External tool
+- quick to start
+- separate build & bundle
+- feels bolted-on
+:::
+
+`:::compare` — side-by-side cards for trade-offs.
+
+</Slide>
+
 <Slide class="center">
 
 ## Center layout
@@ -122,12 +199,13 @@ Good for a short emphasis slide or a section divider.
 | columns | `:::cols` | split with `---` |
 | media split | `aas-split` | image · code · diagram |
 | align/fill | `img-top`·`fill` | vertical position · cover |
-| subtitle | `::sub[…]` | small, under the title |
-| source | `source="…"` | bottom-right, ≤2 lines |
-| compact | `class="compact"` | natural diagram + long text |
+| subtitle · source | `::sub[…]` · `source="…"` | under title · bottom-right |
+| quote · stats | `class="quote"` · `:::stats` | hero quote · number cards |
+| callout · compare | `:::note/tip/warning` · `:::compare` | boxes · side-by-side |
+| steps · compact | `:::steps` · `class="compact"` | reveal one-by-one · natural size |
 | TOC-excluded | `toc={false}` | heading hidden |
 
-Tables use standard Markdown syntax. Hover a diagram or image for an **Enlarge** button (top-right).
+Tables use standard Markdown syntax. Hover a diagram or image for an **Enlarge** button, and press `o` for an overview of every slide.
 
 </Slide>
 
@@ -459,6 +537,31 @@ Put the diagram first and the caption underneath — no split, it just stacks.
 
 </Slide>
 
+<Slide>
+
+### Complex flowchart
+::sub[Click to **enlarge** — if it's bigger than the screen, scroll inside the lightbox]
+
+```mermaid
+flowchart TD
+  A[User request] --> B{Validate input}
+  B -->|valid| C[Classify intent]
+  B -->|invalid| Z[Return error]
+  C --> D{Tool needed?}
+  D -->|yes| E[Select tool]
+  D -->|no| F[Answer directly]
+  E --> G[Run tool]
+  G --> H{Success?}
+  H -->|yes| I[Merge result]
+  H -->|no| J[Retry / fallback]
+  J --> G
+  I --> K[Generate response]
+  F --> K
+  K --> L[Output to user]
+```
+
+</Slide>
+
 <Slide class="compact">
 
 ### Diagram + long text (compact)
@@ -490,6 +593,7 @@ This slide is wrapped in `<Slide toc={false}>`. Open the TOC (☰) and this head
 <Slide class="center">
 
 ## The end
+::sub[`←` `→` navigate · `o` overview · click a diagram or image to enlarge]
 
 Open `src/content/slides/en/sample-layouts/index.mdx` to see the syntax.
 
