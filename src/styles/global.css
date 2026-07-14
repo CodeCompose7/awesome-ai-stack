@@ -1465,41 +1465,30 @@ summary {
   color: var(--aas-text);
 }
 
-/* Actions menu (top-left, under the back link): a small ⋯ toggle + dropdown. */
+/* Actions drawer (left edge, vertically centered): a slim tab pokes out; when
+   opened, the panel slides in from the left and the tab's arrow flips. */
 .aas-deck-menu {
+  --menu-w: 12rem;
   position: fixed;
-  top: 3.5rem;
-  left: 1rem;
+  top: 50%;
+  left: 0;
   z-index: 11;
-}
-.aas-deck-menu-btn {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  justify-content: center;
-  width: 2.1rem;
-  height: 2.1rem;
-  border-radius: 999px;
-  color: var(--aas-muted);
-  background: color-mix(in srgb, var(--aas-panel) 85%, transparent);
-  border: 1px solid var(--aas-border);
-  cursor: pointer;
-  opacity: 0.5;
-  transition: opacity 0.2s ease, color 0.2s ease;
+  /* Closed: the panel is parked off-screen left, only the tab shows at the edge. */
+  transform: translate(calc(-1 * var(--menu-w)), -50%);
+  transition: transform 0.28s ease;
 }
-.aas-deck-menu-btn:hover,
-.aas-deck-menu-btn[aria-expanded='true'] {
-  opacity: 1;
-  color: var(--aas-text);
+.aas-deck-menu.is-open {
+  transform: translate(0, -50%);
 }
 .aas-deck-menu-panel {
-  position: absolute;
-  top: calc(100% + 0.4rem);
-  left: 0;
-  min-width: 11rem;
+  width: var(--menu-w);
   padding: 0.4rem;
-  border-radius: 0.9rem;
-  background: var(--aas-panel);
   border: 1px solid var(--aas-border);
+  border-left: none;
+  border-radius: 0 0.9rem 0.9rem 0;
+  background: var(--aas-panel);
   box-shadow: var(--aas-shadow);
 }
 .aas-deck-menu-panel button {
@@ -1522,6 +1511,34 @@ summary {
 .aas-deck-menu-panel button svg {
   color: var(--aas-muted);
   flex: none;
+}
+/* The handle/tab — attached to the panel's right edge. */
+.aas-deck-menu-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 3.25rem;
+  padding: 0;
+  border: 1px solid var(--aas-border);
+  border-left: none;
+  border-radius: 0 0.6rem 0.6rem 0;
+  background: color-mix(in srgb, var(--aas-panel) 88%, transparent);
+  color: var(--aas-muted);
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+.aas-deck-menu-tab:hover,
+.aas-deck-menu.is-open .aas-deck-menu-tab {
+  opacity: 1;
+  color: var(--aas-text);
+}
+.aas-deck-menu-arrow {
+  transition: transform 0.28s ease;
+}
+.aas-deck-menu.is-open .aas-deck-menu-arrow {
+  transform: rotate(180deg); /* ▶ (open) → ◀ (close) */
 }
 
 /* Footer (bottom-left): presenter · date. */
