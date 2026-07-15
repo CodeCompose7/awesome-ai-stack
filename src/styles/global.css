@@ -1517,6 +1517,29 @@ summary {
   height: auto;
 }
 
+/* Horizontally-scrolling diagram (`<Slide class="scroll-x">`, usually paired with
+   `compact`): a wide flowchart keeps its natural width and the box scrolls
+   sideways instead of squeezing every node to fit. */
+.aas-slide.scroll-x .aas-slide-inner .aas-diagram {
+  display: block;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+}
+.aas-slide.scroll-x .aas-slide-inner .aas-diagram .mermaid {
+  display: block;
+  max-height: none;
+  overflow: visible;
+}
+.aas-slide.scroll-x .aas-slide-inner .aas-diagram svg {
+  /* Mermaid keeps an inline `max-width: <natural>px`; a huge width is clamped by
+     it to the diagram's natural width, so a wide flowchart overflows and scrolls
+     (max-content mis-resolves to the container width here). */
+  width: 99999px;
+  max-height: none;
+  height: auto;
+}
+
 /* --- Per-slide source / citation (bottom-right, ≤2 lines) ---------------- */
 .aas-slide-source {
   position: absolute;
