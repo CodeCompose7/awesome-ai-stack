@@ -1453,7 +1453,7 @@ summary {
 .aas-slide:not(.compact) .aas-slide-inner:has(> .aas-diagram),
 .aas-slide:not(.compact) .aas-slide-inner:has(> pre),
 .aas-slide:not(.compact) .aas-slide-inner:has(> .aas-split:not(.scroll) > .aas-diagram),
-.aas-slide:not(.compact) .aas-slide-inner:has(> .aas-split > pre) {
+.aas-slide:not(.compact) .aas-slide-inner:has(> .aas-split:not(.scroll) > pre) {
   display: flex;
   flex-direction: column;
   min-height: 100%;
@@ -1463,7 +1463,7 @@ summary {
 .aas-slide:not(.compact) .aas-slide-inner > .aas-diagram,
 .aas-slide:not(.compact) .aas-slide-inner > pre,
 .aas-slide:not(.compact) .aas-slide-inner > .aas-split:not(.scroll):has(> .aas-diagram),
-.aas-slide:not(.compact) .aas-slide-inner > .aas-split:has(> pre) {
+.aas-slide:not(.compact) .aas-slide-inner > .aas-split:not(.scroll):has(> pre) {
   flex: 1 1 auto;
   min-height: 0;
 }
@@ -1473,11 +1473,11 @@ summary {
 /* 3) In a split, the media cell stretches to the full height (the box fills);
       the text column stays vertically centered (.aas-split align-items: center). */
 .aas-slide:not(.compact) .aas-slide-inner > .aas-split:not(.scroll):has(> .aas-diagram) > .aas-diagram,
-.aas-slide:not(.compact) .aas-slide-inner > .aas-split:has(> pre) > pre {
+.aas-slide:not(.compact) .aas-slide-inner > .aas-split:not(.scroll):has(> pre) > pre {
   align-self: stretch;
   height: 100%;
 }
-.aas-slide:not(.compact) .aas-slide-inner > .aas-split:has(> pre) > pre {
+.aas-slide:not(.compact) .aas-slide-inner > .aas-split:not(.scroll):has(> pre) > pre {
   max-height: none;
 }
 /* 3a) Diagram: the bordered box becomes a centering column, so the rendered
@@ -1516,6 +1516,14 @@ summary {
   max-height: none;
   height: auto;
 }
+/* Code in a scroll split: a fixed-height scroll box (opted out of the fill
+   rules), so a long listing scrolls next to its walkthrough steps. */
+.aas-slide-inner .aas-split.scroll > pre {
+  align-self: start;
+  height: min(60vh, 30rem);
+  max-height: min(60vh, 30rem);
+  overflow: auto;
+}
 
 /* Horizontally-scrolling diagram (`<Slide class="scroll-x">`, usually paired with
    `compact`): a wide flowchart keeps its natural width and the box scrolls
@@ -1538,6 +1546,43 @@ summary {
   width: 99999px;
   max-height: none;
   height: auto;
+}
+
+/* Generic scroll box (`<div class="aas-scrollbox">`): a bounded, scrollable frame
+   for any media — used for the image walkthrough, where a full-width image is
+   taller than the box and scrolls vertically. */
+.aas-slide-inner .aas-scrollbox {
+  max-height: min(46vh, 22rem);
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--aas-border);
+  border-radius: 0.9rem;
+  margin: 0.3rem 0 1rem;
+}
+.aas-slide-inner .aas-scrollbox img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: none;
+  border-radius: 0.9rem;
+}
+
+/* Code walkthrough line highlight: the active step's rows get a full-width band
+   (whole line, not just coloured text) and the others dim, so the eye lands on
+   the lines being explained. The code box is always dark (github theme). */
+.aas-slide-inner pre.astro-code .line {
+  transition:
+    opacity 0.25s ease,
+    background 0.2s ease;
+}
+.aas-slide-inner pre.astro-code .line.is-line-hl {
+  display: inline-block;
+  width: 100%;
+  background: color-mix(in srgb, var(--aas-accent) 34%, transparent);
+  box-shadow: inset 3px 0 0 var(--aas-accent);
+}
+.aas-slide-inner pre.astro-code.has-hl .line:not(.is-line-hl) {
+  opacity: 0.4;
 }
 
 /* --- Per-slide source / citation (bottom-right, ≤2 lines) ---------------- */

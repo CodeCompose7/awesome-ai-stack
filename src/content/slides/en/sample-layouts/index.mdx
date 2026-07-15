@@ -717,6 +717,88 @@ flowchart LR
 
 </Slide>
 
+<Slide class="compact">
+
+### Image walkthrough
+::sub[Press → and the image scrolls to that region while the note below changes]
+
+<div class="aas-scrollbox">
+<Image src={media} alt="AI course background" />
+</div>
+
+:::step{scroll=0}
+**① Top** — start at the top of the image.
+:::
+
+:::step{scroll=50}
+**② Middle** — scroll to the centre.
+:::
+
+:::step{scroll=100}
+**③ Bottom** — all the way down.
+:::
+
+</Slide>
+
+<Slide>
+
+### Code walkthrough
+::sub[Press → to scroll the code and **highlight the whole line(s)** being explained]
+
+<div class="aas-split scroll">
+
+```ts
+const SYSTEM = 'You can call tools.';
+
+async function runAgent(input: string) {
+  const messages = [
+    { role: 'system', content: SYSTEM },
+    { role: 'user', content: input },
+  ];
+
+  for (let turn = 0; turn < MAX_TURNS; turn++) {
+    const res = await model.chat(messages);
+    messages.push(res.message);
+
+    if (!res.toolCalls?.length) {
+      return res.message.content;
+    }
+
+    for (const call of res.toolCalls) {
+      const out = await tools[call.name](call.args);
+      messages.push({
+        role: 'tool',
+        content: out,
+      });
+    }
+  }
+  throw new Error('max turns exceeded');
+}
+```
+
+<div>
+
+:::step{lines="3-7"}
+**① Entry** — start from the system and user messages.
+:::
+
+:::step{lines="9-11"}
+**② Call the model** — each turn, call the model and record the reply.
+:::
+
+:::step{lines="13-15"}
+**③ Stop condition** — with no tool calls, return the result.
+:::
+
+:::step{lines="17-23"}
+**④ Run tools** — call each tool and feed the output back in.
+:::
+
+</div>
+</div>
+
+</Slide>
+
 <Slide toc={false}>
 
 ## This heading is not in the TOC

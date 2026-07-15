@@ -161,13 +161,53 @@ const themeClass = `aas-theme-${entry.data.theme}`;
         const slideSteps = slides.map((s) =>
           Array.from(s.querySelectorAll<HTMLElement>('.aas-step')),
         );
-        // The scroll container a walkthrough drives (the scrollable diagram —
-        // vertical in a `scroll` split, horizontal in a `scroll-x` slide).
+        // The scroll container a walkthrough drives (the scrollable diagram in a
+        // `scroll` split, a `scroll-x` slide's diagram, or a generic scroll box
+        // such as the image walkthrough's `.aas-scrollbox`).
         const stepScroller = slides.map(
           (s) =>
-            s.querySelector<HTMLElement>('.aas-split.scroll > .aas-diagram, [data-scroll-container]') ||
-            (s.classList.contains('scroll-x') ? s.querySelector<HTMLElement>('.aas-diagram') : null),
+            s.querySelector<HTMLElement>(
+              '.aas-split.scroll > .aas-diagram, .aas-scrollbox, [data-scroll-container]',
+            ) || (s.classList.contains('scroll-x') ? s.querySelector<HTMLElement>('.aas-diagram') : null),
         );
+        // Parse a line spec like "3-6,9" into a set of 1-based line numbers.
+        const parseLines = (spec: string) => {
+          const set = new Set<number>();
+          for (const part of spec.split(',')) {
+            const m = part.trim().match(/^(\d+)(?:-(\d+))?$/);
+            if (!m) continue;
+            const a = +m[1];
+            const bb = m[2] ? +m[2] : a;
+            for (let n = a; n <= bb; n++) set.add(n);
+          }
+          return set;
+        };
+        // Code walkthrough: highlight the active step's line range and scroll the
+        // code block so it's centred.
+        const syncStepLines = (i: number) => {
+          const code = slides[i].querySelector<HTMLElement>('pre.astro-code');
+          if (!code) return;
+          const lines = Array.from(code.querySelectorAll<HTMLElement>('.line'));
+          lines.forEach((l) => l.classList.remove('is-line-hl'));
+          code.classList.remove('has-hl');
+          const el = slideSteps[i][shown[i] - 1];
+          const spec = el && el.dataset.lines;
+          if (!spec) return;
+          const set = parseLines(spec);
+          let first: HTMLElement | null = null;
+          lines.forEach((l, idx) => {
+            if (set.has(idx + 1)) {
+              l.classList.add('is-line-hl');
+              if (!first) first = l;
+            }
+          });
+          if (!first) return;
+          code.classList.add('has-hl');
+          const cr = code.getBoundingClientRect();
+          const lr = (first as HTMLElement).getBoundingClientRect();
+          const delta = lr.top - cr.top - (code.clientHeight / 2 - lr.height / 2);
+          code.scrollTo({ top: code.scrollTop + delta, behavior: animate ? 'smooth' : 'auto' });
+        };
         const shown = slides.map(() => 0);
         // If the active step carries `data-scroll`, scroll the slide's container
         // to that spot (`N` = N% of the scrollable length, or `Npx`). The axis is
@@ -194,6 +234,7 @@ const themeClass = `aas-theme-${entry.data.theme}`;
             el.classList.toggle('is-step-active', k === shown[i] - 1);
           });
           syncStepScroll(i);
+          syncStepLines(i);
         };
         slides.forEach((_, i) => applySteps(i));
         const revealAllSteps = (i: number) => {

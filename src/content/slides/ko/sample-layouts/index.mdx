@@ -716,6 +716,88 @@ flowchart LR
 
 </Slide>
 
+<Slide class="compact">
+
+### 이미지 워크스루
+::sub[→(화살표)를 누르면 이미지가 해당 영역으로 스크롤되고 아래 설명이 바뀝니다]
+
+<div class="aas-scrollbox">
+<Image src={media} alt="AI 강의 배경" />
+</div>
+
+:::step{scroll=0}
+**① 위쪽** — 이미지의 상단 영역부터 봅니다.
+:::
+
+:::step{scroll=50}
+**② 가운데** — 중앙 영역으로 스크롤됩니다.
+:::
+
+:::step{scroll=100}
+**③ 아래쪽** — 하단까지 스크롤됩니다.
+:::
+
+</Slide>
+
+<Slide>
+
+### 코드 워크스루
+::sub[→를 누르면 코드가 해당 부분으로 스크롤되고 **그 줄 전체가 강조**됩니다]
+
+<div class="aas-split scroll">
+
+```ts
+const SYSTEM = 'You can call tools.';
+
+async function runAgent(input: string) {
+  const messages = [
+    { role: 'system', content: SYSTEM },
+    { role: 'user', content: input },
+  ];
+
+  for (let turn = 0; turn < MAX_TURNS; turn++) {
+    const res = await model.chat(messages);
+    messages.push(res.message);
+
+    if (!res.toolCalls?.length) {
+      return res.message.content;
+    }
+
+    for (const call of res.toolCalls) {
+      const out = await tools[call.name](call.args);
+      messages.push({
+        role: 'tool',
+        content: out,
+      });
+    }
+  }
+  throw new Error('max turns exceeded');
+}
+```
+
+<div>
+
+:::step{lines="3-7"}
+**① 진입점** — 시스템·사용자 메시지로 대화를 시작합니다.
+:::
+
+:::step{lines="9-11"}
+**② 모델 호출** — 매 턴 모델을 호출하고 응답을 기록합니다.
+:::
+
+:::step{lines="13-15"}
+**③ 종료 조건** — 도구 호출이 없으면 결과를 반환합니다.
+:::
+
+:::step{lines="17-23"}
+**④ 도구 실행** — 도구를 호출하고 결과를 대화에 넣습니다.
+:::
+
+</div>
+</div>
+
+</Slide>
+
 <Slide toc={false}>
 
 ## 이 제목은 목차에 없습니다
