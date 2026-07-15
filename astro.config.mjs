@@ -191,6 +191,16 @@ function remarkSlideDirectives() {
         }
         child.children = out;
         walk(child);
+      } else if (child.type === 'containerDirective' && child.name === 'step') {
+        // A single reveal step for scroll+text walkthroughs. Optionally tied to a
+        // scroll position (`:::step{scroll=40}` = 40%, or `scroll=120px`) or, for
+        // a code walkthrough, a line range to highlight (`:::step{lines="5-9"}`).
+        const props = { className: ['aas-step'] };
+        const attrs = child.attributes || {};
+        if (attrs.scroll != null && attrs.scroll !== '') props['data-scroll'] = String(attrs.scroll);
+        if (attrs.lines != null && attrs.lines !== '') props['data-lines'] = String(attrs.lines);
+        child.data = { hName: 'div', hProperties: props };
+        walk(child);
       } else if (child.type === 'containerDirective' && CALLOUTS.includes(child.name)) {
         // Callout box (note / tip / warning / info).
         child.data = {

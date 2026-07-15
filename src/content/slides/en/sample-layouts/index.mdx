@@ -205,7 +205,7 @@ Good for a short emphasis slide or a section divider.
 | steps · compact | `:::steps` · `class="compact"` | reveal one-by-one · natural size |
 | TOC-excluded | `toc={false}` | heading hidden |
 
-Tables use standard Markdown syntax. Hover a diagram or image for an **Enlarge** button, and press `o` for an overview of every slide.
+Tables use standard Markdown syntax. Hover a diagram or image for an **Enlarge** button, and press `o` for an overview of every slide. A long diagram scrolls inside its box — `aas-split scroll` (vertical) or `class="scroll-x"` (horizontal).
 
 </Slide>
 
@@ -562,6 +562,95 @@ flowchart TD
 
 </Slide>
 
+<Slide>
+
+### Complex flowchart + notes
+::sub[`aas-split scroll` — the diagram on the left scrolls vertically inside its column]
+
+<div class="aas-split scroll">
+
+```mermaid
+flowchart TD
+  A[User request] --> B{Validate input}
+  B -->|valid| C[Classify intent]
+  B -->|invalid| Z[Return error]
+  C --> D{Tool needed?}
+  D -->|yes| E[Select tool]
+  D -->|no| F[Answer directly]
+  E --> G[Run tool]
+  G --> H{Success?}
+  H -->|yes| I[Merge result]
+  H -->|no| J[Retry / fallback]
+  J --> G
+  I --> K[Generate response]
+  F --> K
+  K --> L[Output to user]
+```
+
+<div>
+
+How the agent handles a request.
+
+1. **Validate input** — invalid requests return an error immediately
+2. **Classify intent → decide if a tool is needed**
+3. If so, **select → run → check success**, retry / fall back on failure
+4. Merge the result or answer directly, then **output**
+
+The diagram is long, so it scrolls vertically inside its column. Click it to enlarge.
+
+</div>
+</div>
+
+</Slide>
+
+<Slide>
+
+### Scroll walkthrough
+::sub[Press → and the flowchart on the left scrolls to that spot while the notes on the right change]
+
+<div class="aas-split scroll">
+
+```mermaid
+flowchart TD
+  A[User request] --> B{Validate input}
+  B -->|valid| C[Classify intent]
+  B -->|invalid| Z[Return error]
+  C --> D{Tool needed?}
+  D -->|yes| E[Select tool]
+  D -->|no| F[Answer directly]
+  E --> G[Run tool]
+  G --> H{Success?}
+  H -->|yes| I[Merge result]
+  H -->|no| J[Retry / fallback]
+  J --> G
+  I --> K[Generate response]
+  F --> K
+  K --> L[Output to user]
+```
+
+<div>
+
+:::step{scroll=0}
+**① Validate** — check the request is valid, else return an error right away.
+:::
+
+:::step{scroll=35}
+**② Decide** — classify the intent and decide whether a tool is needed.
+:::
+
+:::step{scroll=72}
+**③ Run & check** — run the tool; on success merge the result, on failure retry / fall back.
+:::
+
+:::step{scroll=100}
+**④ Output** — generate the response and hand it to the user.
+:::
+
+</div>
+</div>
+
+</Slide>
+
 <Slide class="compact">
 
 ### Diagram + long text (compact)
@@ -579,6 +668,134 @@ A normal diagram slide fills the height, but `<Slide class="compact">` keeps the
 - when you need several paragraphs
 
 Adding paragraphs like this doesn't push the diagram up — it stays put, with just a little padding around the box.
+
+</Slide>
+
+<Slide class="compact scroll-x">
+
+### Wide diagram (horizontal scroll)
+::sub[`class="compact scroll-x"` — a wide flowchart keeps its natural size and scrolls sideways inside the box]
+
+```mermaid
+flowchart LR
+  a[Collect] --> b[Clean] --> c[Label] --> d[Extract features] --> e[Train] --> f[Cross-validate] --> g[Evaluate] --> h[Tune] --> i[Deploy] --> j[Monitor]
+```
+
+A flowchart with many stages runs wide; shrinking it to fit makes the labels tiny. With `scroll-x` the diagram keeps its **natural size** and the box **scrolls horizontally** instead.
+
+- good for data / ML pipelines with many stages
+- every node stays a readable size
+- click it to see the whole thing enlarged in the lightbox
+
+</Slide>
+
+<Slide class="compact scroll-x">
+
+### Horizontal scroll walkthrough
+::sub[Press → and the pipeline above **scrolls sideways** to that stage while the note below changes]
+
+```mermaid
+flowchart LR
+  a[Collect] --> b[Clean] --> c[Label] --> d[Extract features] --> e[Train] --> f[Cross-validate] --> g[Evaluate] --> h[Tune] --> i[Deploy] --> j[Monitor]
+```
+
+:::step{scroll=0}
+**① Prepare data** — collect, clean, and label to build the training set.
+:::
+
+:::step{scroll=42}
+**② Train** — extract features and train the model.
+:::
+
+:::step{scroll=72}
+**③ Evaluate** — cross-validate and evaluate, then tune.
+:::
+
+:::step{scroll=100}
+**④ Operate** — deploy, monitor, and retrain when needed.
+:::
+
+</Slide>
+
+<Slide class="compact">
+
+### Image walkthrough
+::sub[Press → and the image scrolls to that region while the note below changes]
+
+<div class="aas-scrollbox">
+<Image src={media} alt="AI course background" />
+</div>
+
+:::step{scroll=0}
+**① Top** — start at the top of the image.
+:::
+
+:::step{scroll=50}
+**② Middle** — scroll to the centre.
+:::
+
+:::step{scroll=100}
+**③ Bottom** — all the way down.
+:::
+
+</Slide>
+
+<Slide>
+
+### Code walkthrough
+::sub[Press → to scroll the code and **highlight the whole line(s)** being explained]
+
+<div class="aas-split scroll">
+
+```ts
+const SYSTEM = 'You can call tools.';
+
+async function runAgent(input: string) {
+  const messages = [
+    { role: 'system', content: SYSTEM },
+    { role: 'user', content: input },
+  ];
+
+  for (let turn = 0; turn < MAX_TURNS; turn++) {
+    const res = await model.chat(messages);
+    messages.push(res.message);
+
+    if (!res.toolCalls?.length) {
+      return res.message.content;
+    }
+
+    for (const call of res.toolCalls) {
+      const out = await tools[call.name](call.args);
+      messages.push({
+        role: 'tool',
+        content: out,
+      });
+    }
+  }
+  throw new Error('max turns exceeded');
+}
+```
+
+<div>
+
+:::step{lines="3-7"}
+**① Entry** — start from the system and user messages.
+:::
+
+:::step{lines="9-11"}
+**② Call the model** — each turn, call the model and record the reply.
+:::
+
+:::step{lines="13-15"}
+**③ Stop condition** — with no tool calls, return the result.
+:::
+
+:::step{lines="17-23"}
+**④ Run tools** — call each tool and feed the output back in.
+:::
+
+</div>
+</div>
 
 </Slide>
 

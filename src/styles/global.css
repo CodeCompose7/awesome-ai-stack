@@ -1452,8 +1452,8 @@ summary {
       and the text flows normally, leaving room for longer copy. */
 .aas-slide:not(.compact) .aas-slide-inner:has(> .aas-diagram),
 .aas-slide:not(.compact) .aas-slide-inner:has(> pre),
-.aas-slide:not(.compact) .aas-slide-inner:has(> .aas-split > .aas-diagram),
-.aas-slide:not(.compact) .aas-slide-inner:has(> .aas-split > pre) {
+.aas-slide:not(.compact) .aas-slide-inner:has(> .aas-split:not(.scroll) > .aas-diagram),
+.aas-slide:not(.compact) .aas-slide-inner:has(> .aas-split:not(.scroll) > pre) {
   display: flex;
   flex-direction: column;
   min-height: 100%;
@@ -1462,8 +1462,8 @@ summary {
       the leftover height; drop the height cap so flex-grow can actually fill. */
 .aas-slide:not(.compact) .aas-slide-inner > .aas-diagram,
 .aas-slide:not(.compact) .aas-slide-inner > pre,
-.aas-slide:not(.compact) .aas-slide-inner > .aas-split:has(> .aas-diagram),
-.aas-slide:not(.compact) .aas-slide-inner > .aas-split:has(> pre) {
+.aas-slide:not(.compact) .aas-slide-inner > .aas-split:not(.scroll):has(> .aas-diagram),
+.aas-slide:not(.compact) .aas-slide-inner > .aas-split:not(.scroll):has(> pre) {
   flex: 1 1 auto;
   min-height: 0;
 }
@@ -1472,12 +1472,12 @@ summary {
 }
 /* 3) In a split, the media cell stretches to the full height (the box fills);
       the text column stays vertically centered (.aas-split align-items: center). */
-.aas-slide:not(.compact) .aas-slide-inner > .aas-split:has(> .aas-diagram) > .aas-diagram,
-.aas-slide:not(.compact) .aas-slide-inner > .aas-split:has(> pre) > pre {
+.aas-slide:not(.compact) .aas-slide-inner > .aas-split:not(.scroll):has(> .aas-diagram) > .aas-diagram,
+.aas-slide:not(.compact) .aas-slide-inner > .aas-split:not(.scroll):has(> pre) > pre {
   align-self: stretch;
   height: 100%;
 }
-.aas-slide:not(.compact) .aas-slide-inner > .aas-split:has(> pre) > pre {
+.aas-slide:not(.compact) .aas-slide-inner > .aas-split:not(.scroll):has(> pre) > pre {
   max-height: none;
 }
 /* 3a) Diagram: the bordered box becomes a centering column, so the rendered
@@ -1491,6 +1491,99 @@ summary {
 }
 /* 3b) Code stays pinned to the top of its filled box — that's the default block
        flow of a tall <pre>, so nothing extra is needed. */
+
+/* Scrollable diagram (`<div class="aas-split scroll">`): the diagram column is a
+   fixed-height scroll box (opted out of the fill rules above) and the diagram
+   fits the column width, so a tall/complex flowchart scrolls vertically next to
+   its explanation instead of shrinking to fit. Click the diagram to enlarge. */
+.aas-slide-inner .aas-split.scroll > .aas-diagram {
+  display: block;
+  align-self: start;
+  height: min(64vh, 34rem);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+/* The inner <pre.mermaid> otherwise caps itself at 62vh and scrolls on its own,
+   creating a nested scroll box; unclamp it so .aas-diagram is the sole scroller. */
+.aas-slide-inner .aas-split.scroll > .aas-diagram .mermaid {
+  display: block;
+  max-height: none;
+  overflow: visible;
+}
+.aas-slide-inner .aas-split.scroll > .aas-diagram svg {
+  width: 100%;
+  max-width: 100%;
+  max-height: none;
+  height: auto;
+}
+/* Code in a scroll split: a fixed-height scroll box (opted out of the fill
+   rules), so a long listing scrolls next to its walkthrough steps. */
+.aas-slide-inner .aas-split.scroll > pre {
+  align-self: start;
+  height: min(60vh, 30rem);
+  max-height: min(60vh, 30rem);
+  overflow: auto;
+}
+
+/* Horizontally-scrolling diagram (`<Slide class="scroll-x">`, usually paired with
+   `compact`): a wide flowchart keeps its natural width and the box scrolls
+   sideways instead of squeezing every node to fit. */
+.aas-slide.scroll-x .aas-slide-inner .aas-diagram {
+  display: block;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+}
+.aas-slide.scroll-x .aas-slide-inner .aas-diagram .mermaid {
+  display: block;
+  max-height: none;
+  overflow: visible;
+}
+.aas-slide.scroll-x .aas-slide-inner .aas-diagram svg {
+  /* Mermaid keeps an inline `max-width: <natural>px`; a huge width is clamped by
+     it to the diagram's natural width, so a wide flowchart overflows and scrolls
+     (max-content mis-resolves to the container width here). */
+  width: 99999px;
+  max-height: none;
+  height: auto;
+}
+
+/* Generic scroll box (`<div class="aas-scrollbox">`): a bounded, scrollable frame
+   for any media — used for the image walkthrough, where a full-width image is
+   taller than the box and scrolls vertically. */
+.aas-slide-inner .aas-scrollbox {
+  max-height: min(46vh, 22rem);
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--aas-border);
+  border-radius: 0.9rem;
+  margin: 0.3rem 0 1rem;
+}
+.aas-slide-inner .aas-scrollbox img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: none;
+  border-radius: 0.9rem;
+}
+
+/* Code walkthrough line highlight: the active step's rows get a full-width band
+   (whole line, not just coloured text) and the others dim, so the eye lands on
+   the lines being explained. The code box is always dark (github theme). */
+.aas-slide-inner pre.astro-code .line {
+  transition:
+    opacity 0.25s ease,
+    background 0.2s ease;
+}
+.aas-slide-inner pre.astro-code .line.is-line-hl {
+  display: inline-block;
+  width: 100%;
+  background: color-mix(in srgb, var(--aas-accent) 34%, transparent);
+  box-shadow: inset 3px 0 0 var(--aas-accent);
+}
+.aas-slide-inner pre.astro-code.has-hl .line:not(.is-line-hl) {
+  opacity: 0.4;
+}
 
 /* --- Per-slide source / citation (bottom-right, ≤2 lines) ---------------- */
 .aas-slide-source {
@@ -1841,6 +1934,24 @@ summary {
 .aas-slide-inner .aas-step.is-step-hidden {
   opacity: 0;
   transform: translateY(0.4em);
+}
+
+/* Walkthrough steps (`:::step{scroll=…}`): the block-level step gets some room,
+   and while stepping the non-active ones dim so the current one leads the eye
+   (paired with the diagram scrolling to the step's spot). */
+.aas-slide-inner .aas-step[data-scroll] {
+  margin: 0 0 0.9em;
+  padding-left: 0.9em;
+  border-left: 3px solid transparent;
+}
+.aas-slide-inner .aas-step[data-scroll] > :first-child {
+  margin-top: 0;
+}
+.aas-slide-inner .aas-step[data-scroll]:not(.is-step-hidden):not(.is-step-active) {
+  opacity: 0.4;
+}
+.aas-slide-inner .aas-step[data-scroll].is-step-active {
+  border-left-color: var(--aas-accent);
 }
 
 /* --- Visual themes ------------------------------------------------------- */

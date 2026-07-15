@@ -204,7 +204,7 @@ import media from './course-bg-2.png'; // ② co-located (이 덱 전용)
 | 단계 · compact | `:::steps` · `class="compact"` | 화살표로 하나씩 · 자연 크기 |
 | 목차 제외 | `toc={false}` | 제목 숨김 |
 
-표는 표준 마크다운 문법을 그대로 씁니다. 다이어그램·이미지는 마우스를 올리면 **크게 보기** 버튼이 나타나고, `o` 키로 전체 슬라이드를 한눈에 볼 수 있습니다.
+표는 표준 마크다운 문법을 그대로 씁니다. 다이어그램·이미지는 마우스를 올리면 **크게 보기** 버튼이 나타나고, `o` 키로 전체 슬라이드를 한눈에 볼 수 있습니다. 긴 다이어그램은 `aas-split scroll`(세로)·`class="scroll-x"`(가로)로 박스 안에서 스크롤됩니다.
 
 </Slide>
 
@@ -561,6 +561,95 @@ flowchart TD
 
 </Slide>
 
+<Slide>
+
+### 복잡한 순서도 + 설명
+::sub[`aas-split scroll` — 왼쪽 다이어그램은 열 안에서 세로로 스크롤됩니다]
+
+<div class="aas-split scroll">
+
+```mermaid
+flowchart TD
+  A[사용자 요청] --> B{입력 검증}
+  B -->|유효| C[의도 분류]
+  B -->|무효| Z[오류 반환]
+  C --> D{도구 필요?}
+  D -->|예| E[도구 선택]
+  D -->|아니오| F[직접 응답]
+  E --> G[도구 실행]
+  G --> H{성공?}
+  H -->|예| I[결과 통합]
+  H -->|아니오| J[재시도 · 폴백]
+  J --> G
+  I --> K[응답 생성]
+  F --> K
+  K --> L[사용자에게 출력]
+```
+
+<div>
+
+에이전트가 요청을 처리하는 흐름입니다.
+
+1. **입력 검증** — 유효하지 않으면 즉시 오류를 반환합니다
+2. **의도 분류 → 도구 필요 여부** 판단
+3. 필요하면 **도구 선택 → 실행 → 성공 확인**, 실패 시 재시도·폴백
+4. 결과를 통합하거나 직접 응답해 **최종 출력**
+
+다이어그램이 길어 열 안에서 세로로 스크롤됩니다. 클릭하면 크게 볼 수 있습니다.
+
+</div>
+</div>
+
+</Slide>
+
+<Slide>
+
+### 스크롤 워크스루
+::sub[→(화살표)를 누르면 왼쪽 순서도가 해당 위치로 스크롤되고 오른쪽 설명이 바뀝니다]
+
+<div class="aas-split scroll">
+
+```mermaid
+flowchart TD
+  A[사용자 요청] --> B{입력 검증}
+  B -->|유효| C[의도 분류]
+  B -->|무효| Z[오류 반환]
+  C --> D{도구 필요?}
+  D -->|예| E[도구 선택]
+  D -->|아니오| F[직접 응답]
+  E --> G[도구 실행]
+  G --> H{성공?}
+  H -->|예| I[결과 통합]
+  H -->|아니오| J[재시도 · 폴백]
+  J --> G
+  I --> K[응답 생성]
+  F --> K
+  K --> L[사용자에게 출력]
+```
+
+<div>
+
+:::step{scroll=0}
+**① 입력 검증** — 요청이 유효한지 확인하고, 아니면 바로 오류를 반환합니다.
+:::
+
+:::step{scroll=35}
+**② 도구 판단** — 의도를 분류하고 도구가 필요한지 결정합니다.
+:::
+
+:::step{scroll=72}
+**③ 실행·검증** — 도구를 실행해 성공하면 결과를 통합, 실패하면 재시도·폴백합니다.
+:::
+
+:::step{scroll=100}
+**④ 최종 출력** — 응답을 생성해 사용자에게 전달합니다.
+:::
+
+</div>
+</div>
+
+</Slide>
+
 <Slide class="compact">
 
 ### 다이어그램 + 긴 설명 (compact)
@@ -578,6 +667,134 @@ flowchart LR
 - 여러 문단이 필요할 때 적합합니다
 
 이렇게 문단을 이어서 넣어도 다이어그램이 위로 밀려 올라가지 않고, 박스에는 약간의 패딩만 유지됩니다.
+
+</Slide>
+
+<Slide class="compact scroll-x">
+
+### 가로로 긴 다이어그램 (가로 스크롤)
+::sub[`class="compact scroll-x"` — 넓은 순서도는 줄이지 않고 자연 크기 그대로, 박스 안에서 가로로 스크롤됩니다]
+
+```mermaid
+flowchart LR
+  a[수집] --> b[정제] --> c[라벨링] --> d[특징 추출] --> e[학습] --> f[교차 검증] --> g[평가] --> h[튜닝] --> i[배포] --> j[모니터링]
+```
+
+파이프라인처럼 단계가 많아 가로로 긴 순서도는, 폭에 맞춰 축소하면 글자가 너무 작아집니다. `scroll-x`를 쓰면 다이어그램이 **원래 크기**를 유지하고 박스 안에서 **좌우로 스크롤**됩니다.
+
+- 데이터·ML 파이프라인처럼 단계가 많은 흐름에 적합합니다
+- 각 노드는 읽기 좋은 크기를 유지합니다
+- 클릭하면 라이트박스로 전체를 크게 볼 수 있습니다
+
+</Slide>
+
+<Slide class="compact scroll-x">
+
+### 가로 스크롤 워크스루
+::sub[→(화살표)를 누르면 위쪽 파이프라인이 해당 단계로 **가로 스크롤**되고 아래 설명이 바뀝니다]
+
+```mermaid
+flowchart LR
+  a[수집] --> b[정제] --> c[라벨링] --> d[특징 추출] --> e[학습] --> f[교차 검증] --> g[평가] --> h[튜닝] --> i[배포] --> j[모니터링]
+```
+
+:::step{scroll=0}
+**① 데이터 준비** — 수집·정제·라벨링으로 학습용 데이터를 만듭니다.
+:::
+
+:::step{scroll=42}
+**② 학습** — 특징을 추출하고 모델을 학습합니다.
+:::
+
+:::step{scroll=72}
+**③ 평가** — 교차 검증과 평가로 성능을 확인하고 튜닝합니다.
+:::
+
+:::step{scroll=100}
+**④ 운영** — 배포하고 모니터링하며 필요하면 다시 학습합니다.
+:::
+
+</Slide>
+
+<Slide class="compact">
+
+### 이미지 워크스루
+::sub[→(화살표)를 누르면 이미지가 해당 영역으로 스크롤되고 아래 설명이 바뀝니다]
+
+<div class="aas-scrollbox">
+<Image src={media} alt="AI 강의 배경" />
+</div>
+
+:::step{scroll=0}
+**① 위쪽** — 이미지의 상단 영역부터 봅니다.
+:::
+
+:::step{scroll=50}
+**② 가운데** — 중앙 영역으로 스크롤됩니다.
+:::
+
+:::step{scroll=100}
+**③ 아래쪽** — 하단까지 스크롤됩니다.
+:::
+
+</Slide>
+
+<Slide>
+
+### 코드 워크스루
+::sub[→를 누르면 코드가 해당 부분으로 스크롤되고 **그 줄 전체가 강조**됩니다]
+
+<div class="aas-split scroll">
+
+```ts
+const SYSTEM = 'You can call tools.';
+
+async function runAgent(input: string) {
+  const messages = [
+    { role: 'system', content: SYSTEM },
+    { role: 'user', content: input },
+  ];
+
+  for (let turn = 0; turn < MAX_TURNS; turn++) {
+    const res = await model.chat(messages);
+    messages.push(res.message);
+
+    if (!res.toolCalls?.length) {
+      return res.message.content;
+    }
+
+    for (const call of res.toolCalls) {
+      const out = await tools[call.name](call.args);
+      messages.push({
+        role: 'tool',
+        content: out,
+      });
+    }
+  }
+  throw new Error('max turns exceeded');
+}
+```
+
+<div>
+
+:::step{lines="3-7"}
+**① 진입점** — 시스템·사용자 메시지로 대화를 시작합니다.
+:::
+
+:::step{lines="9-11"}
+**② 모델 호출** — 매 턴 모델을 호출하고 응답을 기록합니다.
+:::
+
+:::step{lines="13-15"}
+**③ 종료 조건** — 도구 호출이 없으면 결과를 반환합니다.
+:::
+
+:::step{lines="17-23"}
+**④ 도구 실행** — 도구를 호출하고 결과를 대화에 넣습니다.
+:::
+
+</div>
+</div>
 
 </Slide>
 
