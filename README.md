@@ -25,7 +25,7 @@ Live site: <https://codecompose7.github.io/awesome-ai-stack>
 | Styling        | Tailwind CSS v4 (`@tailwindcss/vite`)              |
 | SEO            | `@astrojs/sitemap`                                 |
 | i18n           | Astro i18n (`en` default, `ko` under `/ko/`)       |
-| Monorepo       | pnpm workspace — one theme package, N sites        |
+| Theme          | [`stack-site-builder`](https://www.npmjs.com/package/stack-site-builder) from npm |
 | Hosting        | GitHub Pages (see `.github/workflows/deploy.yml`)  |
 | Tooling        | Node 24 + pnpm (devcontainer included)             |
 
@@ -77,7 +77,7 @@ locale-partitioned (`en/` and `ko/` subfolders, same filename in both):
 | `articles` | `<site>/src/content/articles/`     | `/article/<slug>/`    | Writing — long-form posts, kept apart from the catalog            |
 
 Frontmatter for all three is validated at build time by the Zod schemas in
-[`packages/stack-site-builder/src/content.ts`](packages/stack-site-builder/src/content.ts) — shared by every
+[`packages/stack-site-builder/src/content.ts`](https://github.com/CodeCompose7/stack-site-builder/blob/main/src/content.ts) — shared by every
 site via `defineAasCollections()`. A typo or missing required field fails
 `pnpm build` and `pnpm check`, so broken entries can't ship.
 
@@ -88,64 +88,44 @@ and `/article/category/<id>/` (their own taxonomies), `/tags/<tag>/`,
 
 ## One theme, many sites
 
-This repo is a **pnpm workspace**: everything site-agnostic (routes, components,
-styles, the markdown pipeline, content schemas) lives in the
-[`stack-site-builder`](packages/stack-site-builder/) theme package, and each catalog site
-is a thin consumer under `sites/` that supplies only content, taxonomy data and
-a small config. [`sites/awesome-ai-stack/`](sites/awesome-ai-stack/) is this
-site; further catalogs (e.g. an AI-image stack) are added the same way — a thin
-folder under `sites/`. The endgame is to publish the theme to npm and split
-each site into its own repo — the workspace is the workbench where the theme's
-boundary gets stabilized first.
-
-Root scripts target the main site (`pnpm dev` / `pnpm build`);
-`pnpm -r build` builds every site in the workspace.
+Everything site-agnostic — routes, components, styles, the markdown pipeline,
+content schemas — lives in the [`stack-site-builder`](https://github.com/CodeCompose7/stack-site-builder)
+theme, installed from npm. This repo supplies only what makes it *this* site:
+content, taxonomy data, identity and a small config. Another catalog on the
+same engine is just another thin repo depending on the theme; theme updates
+arrive as ordinary version upgrades (`pnpm up stack-site-builder`).
 
 ## Project structure
 
 ```text
-packages/stack-site-builder/                  # stack-site-builder — the theme (engine)
-├─ index.mjs                    # integration: injects every route, wires markdown/tailwind,
-│                               #   aliases @aas-data/* + @assets/* to the consuming site
-├─ markdown.mjs                 # remark/rehype pipeline (mermaid, slides, [[wikilinks]]…)
-├─ dev/                         # dev-only local-samples middleware (run wizard)
-└─ src/
-   ├─ content.ts                # shared Zod schemas — defineAasCollections()
-   ├─ components/               # ~45 components: cards, detail pages, tabs, slides, viewer…
-   ├─ layouts/BaseLayout.astro  # shared shell (header/footer/theme + lang toggles)
-   ├─ lib/                      # collection queries, backlinks, github stars, samples…
-   ├─ i18n/ui.ts                # languages, UI strings, t() translator (per-site overrides)
-   ├─ pages/                    # every route (EN at root + /ko mirrors), injected into sites
-   └─ styles/global.css         # Tailwind import + Markdown/prose + slide styles
-
-sites/awesome-ai-stack/                 # THIS site — content and config only
-├─ astro.config.mjs             # site/base/i18n + aasTheme({ glossary })
-├─ src/content.config.ts        # one call: defineAasCollections({ categoryMap })
-├─ src/content/
+astro.config.mjs                # site/base/i18n + aasTheme({ glossary }) — the theme does the rest
+src/
+├─ content.config.ts            # one call: defineAasCollections({ categoryMap })
+├─ content/
 │  ├─ stacks/{en,ko}/*.mdx      # one tool per locale       ← add a tool here
 │  ├─ concepts/{en,ko}/*.mdx    # composed patterns         ← add a concept here
 │  ├─ articles/{en,ko}/*.mdx    # writing/blog posts        ← add an article here
 │  └─ slides/{en,ko}/*.mdx      # presentation decks
-├─ src/data/
+├─ data/
 │  ├─ site.ts                   # site identity: name, repo URL, UI string overrides
 │  ├─ categories.ts             # tool category TREE (nested children, per-locale labels)
 │  ├─ concept-categories.ts     # concept taxonomy
 │  ├─ article-categories.ts     # article taxonomy
 │  └─ glossary.mjs              # [[Term]] wikilink glossary (see below)
-├─ public/logos/                # tool logos
-└─ samples/                     # runnable mini-projects (Implementation tabs)
-
+└─ assets/                      # in-body images (@assets/... alias)
+public/logos/                   # tool logos
+samples/                        # runnable mini-projects (Implementation tabs)
 ```
 
 ## Internationalization (EN / KO)
 
 The site is bilingual. `en` is the default locale (served at the root) and `ko`
 is served under `/ko/` — configured via Astro's `i18n` in
-[`sites/awesome-ai-stack/astro.config.mjs`](sites/awesome-ai-stack/astro.config.mjs). A language toggle in the header links to
+[`astro.config.mjs`](astro.config.mjs). A language toggle in the header links to
 the same page in the other locale.
 
-- **UI strings** live in [`src/i18n/ui.ts`](packages/stack-site-builder/src/i18n/ui.ts) (the `ui` dictionary).
-- **Category labels** are per-locale in [`src/data/categories.ts`](sites/awesome-ai-stack/src/data/categories.ts)
+- **UI strings** live in [`src/i18n/ui.ts`](https://github.com/CodeCompose7/stack-site-builder/blob/main/src/i18n/ui.ts) (the `ui` dictionary).
+- **Category labels** are per-locale in [`src/data/categories.ts`](src/data/categories.ts)
   (and the concept/article taxonomies alongside it).
 - **Content** is one MDX file per locale: `content/<collection>/en/<slug>.mdx`
   and `content/<collection>/ko/<slug>.mdx`. Keep the **same slug** in both so the
@@ -180,7 +160,7 @@ Detail pages also render a sticky right-rail **table of contents** (h2–h3, fro
 
 Beyond the illustrative code samples, a tool can ship one or more **real,
 runnable mini-projects** as standalone folders under `samples/` (source, a
-`Dockerfile`, and a README — e.g. [`samples/langgraph_1/`](sites/awesome-ai-stack/samples/langgraph_1/)).
+`Dockerfile`, and a README — e.g. [`samples/langgraph_1/`](samples/langgraph_1/)).
 List them in frontmatter — a bare folder name, or an object that also names the
 other catalog tools the project uses:
 
@@ -193,8 +173,8 @@ projects:
 ```
 
 The detail page then shows an **Implementation** tab
-([`ProjectViewer`](packages/stack-site-builder/src/components/ProjectViewer.astro)) where, per project,
-[`src/lib/project.ts`](packages/stack-site-builder/src/lib/project.ts) (at build time):
+([`ProjectViewer`](https://github.com/CodeCompose7/stack-site-builder/blob/main/src/components/ProjectViewer.astro)) where, per project,
+[`src/lib/project.ts`](https://github.com/CodeCompose7/stack-site-builder/blob/main/src/lib/project.ts) (at build time):
 
 - renders the `README.md` as prose (its first `#` heading becomes the project name),
 - shows a **file tree** on the left; clicking a file shows it syntax-highlighted,
@@ -208,7 +188,7 @@ frontmatter field and `<SampleProject folder="…"/>`.
 
 - **Mermaid** diagrams work both in the Overview body (a ```mermaid fenced
   block) and per-sample via `diagram:`. They render on the client and recolor
-  with the light/dark theme ([`MermaidLoader.astro`](packages/stack-site-builder/src/components/MermaidLoader.astro)).
+  with the light/dark theme ([`MermaidLoader.astro`](https://github.com/CodeCompose7/stack-site-builder/blob/main/src/components/MermaidLoader.astro)).
 - Code is highlighted at **build time** with Shiki.
 - Tools without `samples` render the MDX body directly (no tabs), so adopting
   this per tool is optional and incremental.
@@ -217,7 +197,7 @@ frontmatter field and `<SampleProject folder="…"/>`.
 
 Cards and detail pages show a star count and the latest version for any tool
 with a `repo` on GitHub — **fetched at build time**, not hand-entered. The logic
-lives in [`src/lib/github.ts`](packages/stack-site-builder/src/lib/github.ts) (memoized per repo, cached
+lives in [`src/lib/github.ts`](https://github.com/CodeCompose7/stack-site-builder/blob/main/src/lib/github.ts) (memoized per repo, cached
 ~daily in `.aas-cache/`; degrades to the last known values on error/offline/rate-limit).
 
 - These reflect the project's real state **as of the last build**. The deploy
@@ -233,7 +213,7 @@ lives in [`src/lib/github.ts`](packages/stack-site-builder/src/lib/github.ts) (m
 Prose in any collection can link a term with `[[Term]]` (or
 `[[Term|display text]]`). The `remarkGlossary` plugin in
 [`astro.config.mjs`](astro.config.mjs) resolves each marker against the central
-glossary ([`src/data/glossary.mjs`](sites/awesome-ai-stack/src/data/glossary.mjs)) at build time:
+glossary ([`src/data/glossary.mjs`](src/data/glossary.mjs)) at build time:
 
 - A term targets a **stack**, a **concept**, an external **href**, or nothing —
   a definition-only term, which links to its entry on the `/glossary/` page.
@@ -267,7 +247,7 @@ That single `tools` list powers links in **both** directions:
   base-independent relative path, e.g. `[Langfuse](../../stack/langfuse/)` —
   or just write `[[Langfuse]]` and let the glossary resolve it.
 - **Backlink** (tool → article): Astro has **no native backlinks**, so
-  [`getArticlesForTool()`](packages/stack-site-builder/src/lib/articles.ts) computes the reverse lookup at
+  [`getArticlesForTool()`](https://github.com/CodeCompose7/stack-site-builder/blob/main/src/lib/articles.ts) computes the reverse lookup at
   build time — `StackDetail` then shows a "Related writing" list of every
   article whose `tools` includes that slug. Add the slug to an article and the
   backlink appears automatically; nothing to maintain by hand.
@@ -278,8 +258,8 @@ link back.
 
 ## Adding a tool
 
-Drop one MDX file per locale into `sites/awesome-ai-stack/src/content/stacks/en/` and
-`sites/awesome-ai-stack/src/content/stacks/ko/` (use the **same filename** in both). The filename
+Drop one MDX file per locale into `src/content/stacks/en/` and
+`src/content/stacks/ko/` (use the **same filename** in both). The filename
 becomes the URL slug (`langgraph.mdx` → `/stack/langgraph/` and
 `/ko/stack/langgraph/`).
 
@@ -316,13 +296,13 @@ Explain what it is and why it matters for building agents.
 A sentence or two on the sweet spot.
 ```
 
-The schema ([`packages/stack-site-builder/src/content.ts`](packages/stack-site-builder/src/content.ts)) supports more
+The schema ([`packages/stack-site-builder/src/content.ts`](https://github.com/CodeCompose7/stack-site-builder/blob/main/src/content.ts)) supports more
 when you need it: `formerNames`, `pricingTiers`/`pricingNote`/`pricingSource`,
 `related` tools, `deprecated`, `docVersion`/`updated`, and the `samples`/
 `projects` fields described above.
 
 To add a **new category**, add a node to the tree in
-[`src/data/categories.ts`](sites/awesome-ai-stack/src/data/categories.ts) — top-level or nested under
+[`src/data/categories.ts`](src/data/categories.ts) — top-level or nested under
 `children`; ids must be unique across the whole tree. Homepage sections render
 in top-level order.
 
@@ -331,7 +311,7 @@ in top-level order.
 Pushing to `main` triggers [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml),
 which builds with Astro and publishes to GitHub Pages (it also runs on a daily
 cron to refresh the live GitHub stats). The `site` and `base` are configured in
-[`sites/awesome-ai-stack/astro.config.mjs`](sites/awesome-ai-stack/astro.config.mjs) for a GitHub project page; to use a
+[`astro.config.mjs`](astro.config.mjs) for a GitHub project page; to use a
 custom domain, set `site` to the domain, `base` to `'/'`, and add `public/CNAME`.
 
 ## Contributing

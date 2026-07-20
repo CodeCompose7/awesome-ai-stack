@@ -1,16 +1,26 @@
 {
-  "name": "awesome-ai-stack-workspace",
+  "name": "awesome-ai-stack",
   "type": "module",
+  "version": "1.10.0",
   "private": true,
   "packageManager": "pnpm@11.7.0",
   "engines": {
     "node": ">=20.3.0"
   },
   "scripts": {
-    "dev": "pnpm --filter awesome-ai-stack dev",
-    "build": "pnpm --filter awesome-ai-stack build",
-    "preview": "pnpm --filter awesome-ai-stack preview",
-    "check": "pnpm -r check",
-    "build:all": "pnpm -r build"
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "stack-site-builder": "^1.10.0",
+    "astro": "^5.7.0",
+    "sharp": "^0.35.2"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.9",
+    "typescript": "^6.0.3"
   }
 }
