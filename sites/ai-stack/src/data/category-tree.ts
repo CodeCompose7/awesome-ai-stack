@@ -1,4 +1,4 @@
-import type { Lang } from '../i18n/ui';
+import type { Lang } from '@awesome-ai-stack/core/i18n/ui';
 
 /**
  * A category node, nestable into subcategories to any depth. Reused for several

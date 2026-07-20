@@ -8,7 +8,7 @@ importers:
 
   .: {}
 
-  sites/ai-stack:
+  packages/core:
     dependencies:
       '@astrojs/mdx':
         specifier: ^4.2.0
@@ -19,34 +19,12 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.1.0
         version: 4.3.1(vite@6.4.3(@types/node@24.13.2)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))
-      astro:
-        specifier: ^5.7.0
-        version: 5.18.2(@types/node@24.13.2)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.62.2)(typescript@6.0.3)(yaml@2.9.0)
       markdown-it:
         specifier: ^14.2.0
         version: 14.2.0
       mermaid:
         specifier: ^11.15.0
         version: 11.15.0
-      sharp:
-        specifier: ^0.35.2
-        version: 0.35.2
-      shiki:
-        specifier: ^4.2.0
-        version: 4.2.0
-      tailwindcss:
-        specifier: ^4.1.0
-        version: 4.3.1
-    devDependencies:
-      '@astrojs/check':
-        specifier: ^0.9.9
-        version: 0.9.9(prettier@3.8.4)(typescript@6.0.3)
-      '@types/markdown-it':
-        specifier: ^14.1.2
-        version: 14.1.2
-      rehype-autolink-headings:
-        specifier: ^7.1.0
-        version: 7.1.0
       rehype-external-links:
         specifier: ^3.0.0
         version: 3.0.0
@@ -56,6 +34,38 @@ importers:
       remark-directive:
         specifier: ^4.0.0
         version: 4.0.0
+      shiki:
+        specifier: ^4.2.0
+        version: 4.2.0
+      tailwindcss:
+        specifier: ^4.1.0
+        version: 4.3.1
+    devDependencies:
+      '@types/markdown-it':
+        specifier: ^14.1.2
+        version: 14.1.2
+      astro:
+        specifier: ^5.7.0
+        version: 5.18.2(@types/node@24.13.2)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.62.2)(typescript@6.0.3)(yaml@2.9.0)
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+
+  sites/ai-stack:
+    dependencies:
+      '@awesome-ai-stack/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      astro:
+        specifier: ^5.7.0
+        version: 5.18.2(@types/node@24.13.2)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.62.2)(typescript@6.0.3)(yaml@2.9.0)
+      sharp:
+        specifier: ^0.35.2
+        version: 0.35.2
+    devDependencies:
+      '@astrojs/check':
+        specifier: ^0.9.9
+        version: 0.9.9(prettier@3.8.4)(typescript@6.0.3)
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -2422,9 +2432,6 @@ packages:
 
   regex@6.1.0:
     resolution: {integrity: sha512-6VwtthbV4o/7+OaAF9I5L5V3llLEsoPyq9P1JVXkedTP33c7MfCG0/5NOPcSJn0TzXcG9YUrR0gQSWioew3LDg==}
-
-  rehype-autolink-headings@7.1.0:
-    resolution: {integrity: sha512-rItO/pSdvnvsP4QRB1pmPiNHUskikqtPojZKJPPPAVx9Hj8i8TwMBhofrrAYRhYOOBZH9tgmG5lPqDLuIWPWmw==}
 
   rehype-external-links@3.0.0:
     resolution: {integrity: sha512-yp+e5N9V3C6bwBeAC4n796kc86M4gJCdlVhiMTxIrJG5UHDMh+PJANf9heqORJbt1nrCbDwIlAZKjANIaVBbvw==}
@@ -5665,15 +5672,6 @@ snapshots:
   regex@6.1.0:
     dependencies:
       regex-utilities: 2.3.0
-
-  rehype-autolink-headings@7.1.0:
-    dependencies:
-      '@types/hast': 3.0.4
-      '@ungap/structured-clone': 1.3.1
-      hast-util-heading-rank: 3.0.0
-      hast-util-is-element: 3.0.0
-      unified: 11.0.5
-      unist-util-visit: 5.1.0
 
   rehype-external-links@3.0.0:
     dependencies:
