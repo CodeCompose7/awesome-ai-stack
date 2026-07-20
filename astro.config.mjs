@@ -195,6 +195,7 @@ function remarkSlideDirectives() {
         // A single reveal step for scroll+text walkthroughs. Optionally tied to a
         // scroll position (`:::step{scroll=40}` = 40%, or `scroll=120px`) or, for
         // a code walkthrough, a line range to highlight (`:::step{lines="5-9"}`).
+        /** @type {Record<string, any>} */
         const props = { className: ['aas-step'] };
         const attrs = child.attributes || {};
         if (attrs.scroll != null && attrs.scroll !== '') props['data-scroll'] = String(attrs.scroll);
