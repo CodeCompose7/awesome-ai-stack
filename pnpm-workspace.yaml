@@ -1,6 +1,8 @@
 allowBuilds:
   esbuild: true
   sharp: true
+minimumReleaseAgeExclude:
+  - stack-site-builder@1.10.0
 # pnpm 10+ no longer runs dependency build scripts unless explicitly allowed.
 # Astro needs esbuild (bundling) and sharp (image optimization) to build.
 onlyBuiltDependencies:

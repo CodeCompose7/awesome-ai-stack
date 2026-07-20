@@ -19,8 +19,8 @@
 | 버전 번호 | [`package.json`](../package.json) | `"version"` 필드를 새 버전으로 |
 | 변경 이력 | [`CHANGELOG.md`](../CHANGELOG.md) | 맨 위에 새 섹션 추가(아래 형식 참고) |
 
-버전 문자열은 이 두 곳에만 있습니다. `astro.config.mjs`나 README에는 버전이
-박혀 있지 않으므로 손댈 필요가 없습니다.
+버전 문자열은 이 두 곳에만 있습니다. 테마(`stack-site-builder`)는 자기
+저장소에서 따로 버전을 관리하므로 이 사이트의 릴리스와는 무관합니다.
 
 ## CHANGELOG 작성 형식
 

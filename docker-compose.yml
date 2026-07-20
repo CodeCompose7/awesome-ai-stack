@@ -15,7 +15,7 @@ services:
       - '4321:4321'
     volumes:
       # Live source: edit on the host, the dev server reloads (Vite polls for
-      # changes — set in astro.config.mjs — which is needed over a bind mount).
+      # changes — set by the stack-site-builder theme — needed over a bind mount).
       - .:/app
       # Keep the image's installed node_modules; don't let the host mount
       # overlay it (the host may have none, or a different platform's binaries).
