@@ -1,4 +1,4 @@
-import { buildTree, type Category } from './category-tree';
+import { buildTree, type Category } from 'stack-site-builder/lib/category-tree';
 
 /**
  * Taxonomy for the `concepts` collection — separate from the tool categories.

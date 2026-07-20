@@ -25,6 +25,7 @@ Live site: <https://codecompose7.github.io/awesome-ai-stack>
 | Styling        | Tailwind CSS v4 (`@tailwindcss/vite`)              |
 | SEO            | `@astrojs/sitemap`                                 |
 | i18n           | Astro i18n (`en` default, `ko` under `/ko/`)       |
+| Theme          | [`stack-site-builder`](https://www.npmjs.com/package/stack-site-builder) from npm |
 | Hosting        | GitHub Pages (see `.github/workflows/deploy.yml`)  |
 | Tooling        | Node 24 + pnpm (devcontainer included)             |
 
@@ -71,54 +72,49 @@ locale-partitioned (`en/` and `ko/` subfolders, same filename in both):
 
 | Collection | Lives in                    | Renders at            | What it is                                                        |
 | ---------- | --------------------------- | --------------------- | ----------------------------------------------------------------- |
-| `stacks`   | `src/content/stacks/`       | `/stack/<slug>/`      | The catalog — one entry per tool/service                          |
-| `concepts` | `src/content/concepts/`     | `/concept/<slug>/`    | Higher-level patterns that compose several tools (living docs)    |
-| `articles` | `src/content/articles/`     | `/article/<slug>/`    | Writing — long-form posts, kept apart from the catalog            |
+| `stacks`   | `<site>/src/content/stacks/`       | `/stack/<slug>/`      | The catalog — one entry per tool/service                          |
+| `concepts` | `<site>/src/content/concepts/`     | `/concept/<slug>/`    | Higher-level patterns that compose several tools (living docs)    |
+| `articles` | `<site>/src/content/articles/`     | `/article/<slug>/`    | Writing — long-form posts, kept apart from the catalog            |
 
 Frontmatter for all three is validated at build time by the Zod schemas in
-[`src/content.config.ts`](src/content.config.ts) — a typo or missing required
-field fails `pnpm build` and `pnpm check`, so broken entries can't ship.
+[`stack-site-builder/src/content.ts`](https://github.com/CodeCompose7/stack-site-builder/blob/main/src/content.ts) — shared by every
+site via `defineAasCollections()`. A typo or missing required field fails
+`pnpm build` and `pnpm check`, so broken entries can't ship.
 
 Beyond the detail pages there are **browse pages**, all generated from the same
 frontmatter: `/categories/<id>/` (tool category tree), `/concept/category/<id>/`
 and `/article/category/<id>/` (their own taxonomies), `/tags/<tag>/`,
 `/vendors/<vendor>/`, and a searchable `/glossary/`.
 
+## One theme, many sites
+
+Everything site-agnostic — routes, components, styles, the markdown pipeline,
+content schemas — lives in the [`stack-site-builder`](https://github.com/CodeCompose7/stack-site-builder)
+theme, installed from npm. This repo supplies only what makes it *this* site:
+content, taxonomy data, identity and a small config. Another catalog on the
+same engine is just another thin repo depending on the theme; theme updates
+arrive as ordinary version upgrades (`pnpm up stack-site-builder`).
+
 ## Project structure
 
 ```text
+astro.config.mjs                # site/base/i18n + aasTheme({ glossary }) — the theme does the rest
 src/
-├─ content.config.ts            # Zod schemas for the three collections
+├─ content.config.ts            # one call: defineAasCollections({ categoryMap })
 ├─ content/
 │  ├─ stacks/{en,ko}/*.mdx      # one tool per locale       ← add a tool here
 │  ├─ concepts/{en,ko}/*.mdx    # composed patterns         ← add a concept here
-│  └─ articles/{en,ko}/*.mdx    # writing/blog posts        ← add an article here
+│  ├─ articles/{en,ko}/*.mdx    # writing/blog posts        ← add an article here
+│  └─ slides/{en,ko}/*.mdx      # presentation decks
 ├─ data/
+│  ├─ site.ts                   # site identity: name, repo URL, UI string overrides
 │  ├─ categories.ts             # tool category TREE (nested children, per-locale labels)
 │  ├─ concept-categories.ts     # concept taxonomy
 │  ├─ article-categories.ts     # article taxonomy
-│  ├─ category-tree.ts          # shared tree helpers (buildTree)
 │  └─ glossary.mjs              # [[Term]] wikilink glossary (see below)
-├─ i18n/ui.ts                   # languages, UI strings, t() translator
-├─ lib/
-│  ├─ stacks.ts / articles.ts / concepts.ts   # collection queries + backlinks
-│  ├─ github.ts                 # build-time GitHub stars/version (cached in .aas-cache/)
-│  ├─ project.ts / samples.ts   # runnable sample-project rendering
-│  └─ pricing.ts / dates.ts / inline-md.ts
-├─ layouts/BaseLayout.astro     # shared shell (header/footer/theme + lang toggles)
-├─ components/                  # ~30 components: cards, detail pages, tabs,
-│                               #   TOC rails, glossary, filters, project viewer…
-├─ pages/                       # EN routes at the root:
-│  ├─ index.astro               #   /                homepage (catalog by category)
-│  ├─ stack/[...id].astro       #   /stack/<slug>/
-│  ├─ categories/[id].astro     #   /categories/<id>/
-│  ├─ concept/…                 #   /concept/, /concept/<slug>/, /concept/category/<id>/
-│  ├─ article/…                 #   /article/, /article/<slug>/, /article/category/<id>/
-│  ├─ glossary.astro            #   /glossary/
-│  ├─ tags/[tag].astro          #   /tags/<tag>/
-│  ├─ vendors/[vendor].astro    #   /vendors/<vendor>/
-│  └─ ko/…                      #   …and the same pages mirrored under /ko/
-└─ styles/global.css            # Tailwind import + Markdown ("prose") styles
+└─ assets/                      # in-body images (@assets/... alias)
+public/logos/                   # tool logos
+samples/                        # runnable mini-projects (Implementation tabs)
 ```
 
 ## Internationalization (EN / KO)
@@ -128,7 +124,7 @@ is served under `/ko/` — configured via Astro's `i18n` in
 [`astro.config.mjs`](astro.config.mjs). A language toggle in the header links to
 the same page in the other locale.
 
-- **UI strings** live in [`src/i18n/ui.ts`](src/i18n/ui.ts) (the `ui` dictionary).
+- **UI strings** live in [`src/i18n/ui.ts`](https://github.com/CodeCompose7/stack-site-builder/blob/main/src/i18n/ui.ts) (the `ui` dictionary).
 - **Category labels** are per-locale in [`src/data/categories.ts`](src/data/categories.ts)
   (and the concept/article taxonomies alongside it).
 - **Content** is one MDX file per locale: `content/<collection>/en/<slug>.mdx`
@@ -177,8 +173,8 @@ projects:
 ```
 
 The detail page then shows an **Implementation** tab
-([`ProjectViewer`](src/components/ProjectViewer.astro)) where, per project,
-[`src/lib/project.ts`](src/lib/project.ts) (at build time):
+([`ProjectViewer`](https://github.com/CodeCompose7/stack-site-builder/blob/main/src/components/ProjectViewer.astro)) where, per project,
+[`src/lib/project.ts`](https://github.com/CodeCompose7/stack-site-builder/blob/main/src/lib/project.ts) (at build time):
 
 - renders the `README.md` as prose (its first `#` heading becomes the project name),
 - shows a **file tree** on the left; clicking a file shows it syntax-highlighted,
@@ -192,7 +188,7 @@ frontmatter field and `<SampleProject folder="…"/>`.
 
 - **Mermaid** diagrams work both in the Overview body (a ```mermaid fenced
   block) and per-sample via `diagram:`. They render on the client and recolor
-  with the light/dark theme ([`MermaidLoader.astro`](src/components/MermaidLoader.astro)).
+  with the light/dark theme ([`MermaidLoader.astro`](https://github.com/CodeCompose7/stack-site-builder/blob/main/src/components/MermaidLoader.astro)).
 - Code is highlighted at **build time** with Shiki.
 - Tools without `samples` render the MDX body directly (no tabs), so adopting
   this per tool is optional and incremental.
@@ -201,7 +197,7 @@ frontmatter field and `<SampleProject folder="…"/>`.
 
 Cards and detail pages show a star count and the latest version for any tool
 with a `repo` on GitHub — **fetched at build time**, not hand-entered. The logic
-lives in [`src/lib/github.ts`](src/lib/github.ts) (memoized per repo, cached
+lives in [`src/lib/github.ts`](https://github.com/CodeCompose7/stack-site-builder/blob/main/src/lib/github.ts) (memoized per repo, cached
 ~daily in `.aas-cache/`; degrades to the last known values on error/offline/rate-limit).
 
 - These reflect the project's real state **as of the last build**. The deploy
@@ -251,7 +247,7 @@ That single `tools` list powers links in **both** directions:
   base-independent relative path, e.g. `[Langfuse](../../stack/langfuse/)` —
   or just write `[[Langfuse]]` and let the glossary resolve it.
 - **Backlink** (tool → article): Astro has **no native backlinks**, so
-  [`getArticlesForTool()`](src/lib/articles.ts) computes the reverse lookup at
+  [`getArticlesForTool()`](https://github.com/CodeCompose7/stack-site-builder/blob/main/src/lib/articles.ts) computes the reverse lookup at
   build time — `StackDetail` then shows a "Related writing" list of every
   article whose `tools` includes that slug. Add the slug to an article and the
   backlink appears automatically; nothing to maintain by hand.
@@ -300,7 +296,7 @@ Explain what it is and why it matters for building agents.
 A sentence or two on the sweet spot.
 ```
 
-The schema ([`src/content.config.ts`](src/content.config.ts)) supports more
+The schema ([`stack-site-builder/src/content.ts`](https://github.com/CodeCompose7/stack-site-builder/blob/main/src/content.ts)) supports more
 when you need it: `formerNames`, `pricingTiers`/`pricingNote`/`pricingSource`,
 `related` tools, `deprecated`, `docVersion`/`updated`, and the `samples`/
 `projects` fields described above.
