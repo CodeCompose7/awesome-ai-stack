@@ -1,4 +1,4 @@
-import { buildTree, type Category } from './category-tree';
+import { buildTree, type Category } from '@awesome-ai-stack/core/lib/category-tree';
 
 /**
  * Canonical category tree for the tool catalog. A category may have `children`
@@ -10,7 +10,7 @@ import { buildTree, type Category } from './category-tree';
  * `/categories/<id>/` and the `category` field in `src/content/stacks`).
  * Top-level order here is the order sections render on the homepage.
  */
-export type { Category } from './category-tree';
+export type { Category } from '@awesome-ai-stack/core/lib/category-tree';
 
 export const categories: Category[] = [
   {

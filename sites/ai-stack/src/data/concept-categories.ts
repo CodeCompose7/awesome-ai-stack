@@ -1,4 +1,4 @@
-import { buildTree, type Category } from './category-tree';
+import { buildTree, type Category } from '@awesome-ai-stack/core/lib/category-tree';
 
 /**
  * Taxonomy for the `concepts` collection — separate from the tool categories.

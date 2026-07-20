@@ -51,6 +51,25 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
 
+  sites/ai-image-stack:
+    dependencies:
+      '@awesome-ai-stack/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      astro:
+        specifier: ^5.7.0
+        version: 5.18.2(@types/node@24.13.2)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.62.2)(typescript@6.0.3)(yaml@2.9.0)
+      sharp:
+        specifier: ^0.35.2
+        version: 0.35.2
+    devDependencies:
+      '@astrojs/check':
+        specifier: ^0.9.9
+        version: 0.9.9(prettier@3.8.4)(typescript@6.0.3)
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+
   sites/ai-stack:
     dependencies:
       '@awesome-ai-stack/core':

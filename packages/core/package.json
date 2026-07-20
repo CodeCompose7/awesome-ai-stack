@@ -5,7 +5,10 @@
   "private": true,
   "description": "The engine behind the awesome-*-stack catalog sites: an Astro theme with the catalog/concepts/articles/slides/samples routes, components, styles and markdown pipeline. Sites provide content, taxonomy data and config.",
   "exports": {
-    ".": "./index.mjs",
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.mjs"
+    },
     "./markdown": "./markdown.mjs",
     "./content": "./src/content.ts",
     "./pages/*": "./src/pages/*",
