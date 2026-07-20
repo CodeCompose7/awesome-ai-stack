@@ -15,8 +15,8 @@ importers:
         specifier: ^0.35.2
         version: 0.35.2
       stack-site-builder:
-        specifier: ^1.10.0
-        version: 1.10.0(astro@5.18.2(@types/node@24.13.2)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.62.2)(typescript@6.0.3)(yaml@2.9.0))(vite@6.4.3(@types/node@24.13.2)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))
+        specifier: ^1.12.0
+        version: 1.12.0(astro@5.18.2(@types/node@24.13.2)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.62.2)(typescript@6.0.3)(yaml@2.9.0))(vite@6.4.3(@types/node@24.13.2)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.9
@@ -2512,8 +2512,8 @@ packages:
   space-separated-tokens@2.0.2:
     resolution: {integrity: sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q==}
 
-  stack-site-builder@1.10.0:
-    resolution: {integrity: sha512-9e5rRp/vAyEfSWUPC8GpK61LHPn48v2lN9Al94ZHAMYjlmp0QBCTfDLfXYW4TaDClZSX/Bpzk9HtSQH89x1fiQ==}
+  stack-site-builder@1.12.0:
+    resolution: {integrity: sha512-g81jYi06pK95qUq/ZOcIp+pCOdClWJ7poKBZekeN/QDZMTurho1HnoHHMgUMxG3W4FyoV9miU72oobZtIwPtwg==}
     peerDependencies:
       astro: ^5.7.0
 
@@ -5906,7 +5906,7 @@ snapshots:
 
   space-separated-tokens@2.0.2: {}
 
-  stack-site-builder@1.10.0(astro@5.18.2(@types/node@24.13.2)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.62.2)(typescript@6.0.3)(yaml@2.9.0))(vite@6.4.3(@types/node@24.13.2)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0)):
+  stack-site-builder@1.12.0(astro@5.18.2(@types/node@24.13.2)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.62.2)(typescript@6.0.3)(yaml@2.9.0))(vite@6.4.3(@types/node@24.13.2)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0)):
     dependencies:
       '@astrojs/mdx': 4.3.14(astro@5.18.2(@types/node@24.13.2)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.62.2)(typescript@6.0.3)(yaml@2.9.0))
       '@astrojs/sitemap': 3.7.3

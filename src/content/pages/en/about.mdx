@@ -1,0 +1,39 @@
+---
+title: About
+description: What awesome-ai-stack is, who it's for, and how it's built.
+nav: true
+navLabel: About
+order: 0
+---
+
+## What this is
+
+**awesome-ai-stack** is a curated catalog of the tools and services you
+actually use to build AI systems — frameworks, LLM providers, vector stores,
+serving, observability, and more. It is not a flat list: every entry has a
+detail page with an overview, metadata (language, license, pricing), and links,
+and most carry a **runnable code sample** so you can go from "what is this" to
+"show me" in one scroll.
+
+Alongside the catalog there are **concepts** (the patterns that compose several
+tools into a working stack), **writing** (long-form comparisons and notes),
+**presentation slides**, and a **glossary** that ties the recurring terms
+together with `[[wikilinks]]`. Everything is bilingual — English at the root,
+Korean under `/ko/`.
+
+## How it's built
+
+The site is a static [Astro](https://astro.build) build, deployed to GitHub
+Pages. All of its content lives as MDX files and small data modules in this
+repository; the engine that turns them into the site — every route, component,
+style, and the markdown pipeline — is a separate Astro theme,
+[stack-site-builder](https://github.com/CodeCompose7/stack-site-builder),
+installed from npm. That split means this repository holds only what makes it
+*this* site: the content, the taxonomy, and a little configuration.
+
+## Contributing
+
+Adding a tool is one MDX file per locale; the catalog, browse pages, and
+backlinks follow from its frontmatter. Contributions that add tools, improve
+samples, or fix metadata are welcome on
+[GitHub](https://github.com/codecompose7/awesome-ai-stack).
