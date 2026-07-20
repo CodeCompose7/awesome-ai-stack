@@ -6,7 +6,7 @@
   "description": "The engine behind the awesome-*-stack catalog sites: an Astro theme with the catalog/concepts/articles/slides/samples routes, components, styles and markdown pipeline. Sites provide content, taxonomy data and config.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/codecompose7/stack-site-builder.git"
+    "url": "git+https://github.com/CodeCompose7/stack-site-builder.git"
   },
   "files": [
     "index.mjs",
