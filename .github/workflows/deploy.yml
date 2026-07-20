@@ -37,6 +37,8 @@ jobs:
           node-version: 24
           # Pinned to match package.json's packageManager field / the dev container.
           package-manager: pnpm@11.7.0
+          # The Astro project lives in the workspace, not the repo root.
+          path: ./sites/ai-stack
 
   deploy:
     needs: build

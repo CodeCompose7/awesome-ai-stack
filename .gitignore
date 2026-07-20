@@ -16,7 +16,7 @@ dist/
 .astro/
 
 # pagefind (generated search index)
-public/pagefind/
+**/public/pagefind/
 
 # environment variables
 .env

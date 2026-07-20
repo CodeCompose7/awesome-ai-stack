@@ -25,6 +25,7 @@ WORKDIR /app
 # The full source is bind-mounted at run time by compose; node_modules is kept
 # out of that mount by an anonymous volume, so these installed deps are used.
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY sites/ai-stack/package.json sites/ai-stack/
 RUN pnpm install --frozen-lockfile
 
 EXPOSE 4321

@@ -6,7 +6,9 @@ settings:
 
 importers:
 
-  .:
+  .: {}
+
+  sites/ai-stack:
     dependencies:
       '@astrojs/mdx':
         specifier: ^4.2.0
