@@ -2,7 +2,7 @@
 // Site-level config only: URL, base path, locales, and the site's glossary.
 // Everything else — routes, components, markdown pipeline, tailwind, the
 // dev-only local-samples middleware — comes from the stack-site-builder
-// theme. See packages/stack-site-builder/index.mjs.
+// theme — https://github.com/CodeCompose7/stack-site-builder
 import { defineConfig } from 'astro/config';
 import aasTheme from 'stack-site-builder';
 import { glossary } from './src/data/glossary.mjs';

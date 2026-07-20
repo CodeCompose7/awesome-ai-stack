@@ -3,7 +3,7 @@
  * `@aas-data/site` alias: header/home name, the GitHub repo behind "view
  * source" links and sample folder URLs, and the User-Agent for build-time
  * GitHub API calls. UI strings (taglines etc.) can be overridden per-site via
- * `ui` — keys match `packages/stack-site-builder/src/i18n/ui.ts`.
+ * `ui` — keys match the theme's src/i18n/ui.ts.
  */
 export const site = {
   /** Shown in the header and as the homepage title. */
