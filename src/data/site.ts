@@ -1,4 +1,5 @@
 import type { LocaleDef } from 'stack-site-builder/i18n/ui';
+import type { SectionKey } from 'stack-site-builder';
 
 /**
  * This site's identity, consumed by the stack-site-builder theme via the
@@ -27,6 +28,17 @@ export const site = {
     { code: 'en', label: 'English', dateLocale: 'en-US' },
     { code: 'ko', label: '한국어', dateLocale: 'ko-KR' },
   ] satisfies LocaleDef[],
+  /**
+   * Optional sections to turn off (all on by default). The core catalog (home,
+   * tool detail, categories, tags, vendors) is always on; concepts, articles,
+   * samples, slides, glossary and the standalone `pages` collection are opt-out.
+   * This hides the section's header-nav item; astro.config forwards the same
+   * object to `aasTheme({ sections })` to also skip its routes — keep the two
+   * in sync (astro.config reads `site.sections`, so they can't drift).
+   *
+   * `pages` is off: this site has no standalone pages section (no About/소개).
+   */
+  sections: { pages: false } satisfies Partial<Record<SectionKey, boolean>>,
   /** Per-locale overrides for the theme's UI strings; empty = theme defaults. */
   ui: {
     en: {} as Record<string, string>,

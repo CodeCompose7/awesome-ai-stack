@@ -6,6 +6,7 @@
 import { defineConfig } from 'astro/config';
 import aasTheme from 'stack-site-builder';
 import { glossary } from './src/data/glossary.mjs';
+import { site } from './src/data/site';
 
 // https://astro.build/config
 export default defineConfig({
@@ -22,5 +23,7 @@ export default defineConfig({
     },
   },
 
-  integrations: [aasTheme({ glossary })],
+  // `sections` (declared in src/data/site.ts) turns optional sections off; the
+  // theme skips their routes here and hides their nav item there, from one source.
+  integrations: [aasTheme({ glossary, sections: site.sections })],
 });
