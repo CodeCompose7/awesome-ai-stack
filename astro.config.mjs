@@ -6,6 +6,7 @@ import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import rehypeExternalLinks from 'rehype-external-links';
 import rehypeSlug from 'rehype-slug';
+import remarkDirective from 'remark-directive';
 import { glossary } from './src/data/glossary.mjs';
 import { localSamples } from './dev/local-samples.mjs';
 
@@ -91,6 +92,140 @@ function remarkMermaid() {
         walk(child);
       }
     });
+  };
+  return (/** @type {any} */ tree) => walk(tree);
+}
+
+// Slide directives (needs remarkDirective, which runs first). Two are handled:
+//
+//   :::cols          columns, separated by `---`:
+//   ### Left           :::cols
+//   ---                ### Left
+//   ### Right          ---
+//   :::                ### Right
+//                      :::
+//   ::sub[짧은 부제]  a small subtitle line under a slide title
+//
+// `cols` renders as <div class="cols"> (one <div> per column); `sub` renders as
+// <p class="aas-subtitle"> (styled in global.css). Crucially, any OTHER
+// directive is reclaimed back to its literal text — remark-directive parses
+// every `:name` as a directive, so without this a colon in prose ("50:50",
+// "12:00") would be silently eaten. Keeps the source pure Markdown.
+function remarkSlideDirectives() {
+  /** @param {any[]} nodes @returns {string} */
+  const inlineText = (nodes) =>
+    (nodes || []).map((n) => (n.value != null ? n.value : inlineText(n.children))).join('');
+
+  /** Split a directive's children into groups on `---` (thematic breaks). */
+  /** @param {any[]} children @returns {any[][]} */
+  const splitOnRule = (children) => {
+    /** @type {any[][]} */
+    const groups = [[]];
+    for (const c of children) {
+      if (c.type === 'thematicBreak') groups.push([]);
+      else groups[groups.length - 1].push(c);
+    }
+    return groups;
+  };
+
+  const CALLOUTS = ['note', 'tip', 'warning', 'info'];
+
+  /** @param {any} node */
+  const walk = (node) => {
+    if (!node.children) return;
+    for (let i = 0; i < node.children.length; i++) {
+      const child = node.children[i];
+      if (child.type === 'containerDirective' && child.name === 'cols') {
+        child.data = { hName: 'div', hProperties: { className: ['cols'] } };
+        child.children = splitOnRule(child.children).map((g) => ({
+          type: 'columnGroup',
+          data: { hName: 'div' },
+          children: g,
+        }));
+        walk(child);
+      } else if (child.type === 'containerDirective' && child.name === 'stats') {
+        // Big-number cards. Each heading starts a new card (its number), and the
+        // following lines are its label — no `---` needed (and a `---` right under
+        // a label line would be eaten as a Setext underline anyway).
+        /** @type {any[][]} */
+        const groups = [];
+        for (const c of child.children) {
+          if (c.type === 'heading' || groups.length === 0) groups.push([c]);
+          else groups[groups.length - 1].push(c);
+        }
+        child.data = { hName: 'div', hProperties: { className: ['aas-stats'] } };
+        child.children = groups.map((g) => ({
+          type: 'statCard',
+          data: { hName: 'div', hProperties: { className: ['aas-stat'] } },
+          children: g,
+        }));
+        walk(child);
+      } else if (child.type === 'containerDirective' && child.name === 'compare') {
+        // Side-by-side comparison cards, split by `---`.
+        child.data = { hName: 'div', hProperties: { className: ['aas-compare'] } };
+        child.children = splitOnRule(child.children).map((g) => ({
+          type: 'compareCol',
+          data: { hName: 'div', hProperties: { className: ['aas-compare-col'] } },
+          children: g,
+        }));
+        walk(child);
+      } else if (child.type === 'containerDirective' && child.name === 'steps') {
+        // Step-reveal container: each direct block becomes a step; a list inside
+        // makes each <li> a step, so bullets reveal one at a time.
+        child.data = { hName: 'div', hProperties: { className: ['aas-steps'] } };
+        /** @type {any[]} */
+        const out = [];
+        for (const c of child.children) {
+          if (c.type === 'list') {
+            for (const li of c.children) {
+              li.data = { hProperties: { className: ['aas-step'] } };
+            }
+            out.push(c);
+          } else {
+            out.push({
+              type: 'stepItem',
+              data: { hName: 'div', hProperties: { className: ['aas-step'] } },
+              children: [c],
+            });
+          }
+        }
+        child.children = out;
+        walk(child);
+      } else if (child.type === 'containerDirective' && child.name === 'step') {
+        // A single reveal step for scroll+text walkthroughs. Optionally tied to a
+        // scroll position (`:::step{scroll=40}` = 40%, or `scroll=120px`) or, for
+        // a code walkthrough, a line range to highlight (`:::step{lines="5-9"}`).
+        /** @type {Record<string, any>} */
+        const props = { className: ['aas-step'] };
+        const attrs = child.attributes || {};
+        if (attrs.scroll != null && attrs.scroll !== '') props['data-scroll'] = String(attrs.scroll);
+        if (attrs.lines != null && attrs.lines !== '') props['data-lines'] = String(attrs.lines);
+        child.data = { hName: 'div', hProperties: props };
+        walk(child);
+      } else if (child.type === 'containerDirective' && CALLOUTS.includes(child.name)) {
+        // Callout box (note / tip / warning / info).
+        child.data = {
+          hName: 'div',
+          hProperties: { className: ['aas-callout', `aas-callout-${child.name}`] },
+        };
+        walk(child);
+      } else if (child.type === 'leafDirective' && child.name === 'sub') {
+        child.data = { hName: 'p', hProperties: { className: ['aas-subtitle'] } };
+        walk(child);
+      } else if (
+        child.type === 'textDirective' ||
+        child.type === 'leafDirective' ||
+        child.type === 'containerDirective'
+      ) {
+        // Unintended directive (e.g. `:50` inside "50:50") — restore its source.
+        const marker =
+          child.type === 'containerDirective' ? ':::' : child.type === 'leafDirective' ? '::' : ':';
+        const label = child.children && child.children.length ? `[${inlineText(child.children)}]` : '';
+        node.children[i] = { type: 'text', value: `${marker}${child.name || ''}${label}` };
+      } else {
+        walk(child);
+      }
+    }
   };
   return (/** @type {any} */ tree) => walk(tree);
 }
@@ -268,7 +403,7 @@ export default defineConfig({
   // Open external links in Markdown/MDX bodies in a new tab. Internal links
   // (no protocol) are left alone, so in-site navigation stays in the same tab.
   markdown: {
-    remarkPlugins: [remarkHeadingIds, remarkMermaid, remarkGlossary],
+    remarkPlugins: [remarkHeadingIds, remarkMermaid, remarkDirective, remarkSlideDirectives, remarkGlossary],
     rehypePlugins: [
       rehypeSlug,
       rehypeHeadingAnchors,

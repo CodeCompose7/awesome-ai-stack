@@ -92,17 +92,10 @@
       return 'bash run/' + recipe + '.sh' + q;
     }
     var build = 'docker build -t ' + data.image + ' .';
-    if (data.dood) {
-      return (
-        build +
-        '\ndocker logs -f "$(docker run -d --env-file .env' +
-        ' -v /var/run/docker.sock:/var/run/docker.sock ' +
-        data.image +
-        q +
-        ')"'
-      );
-    }
-    return build + '\ndocker run --rm --env-file .env ' + data.image + q;
+    // Always detached + logs (a foreground run loses its output under this
+    // repo's nested Docker); DooD samples also mount the host socket.
+    var sock = data.dood ? ' -v /var/run/docker.sock:/var/run/docker.sock' : '';
+    return build + '\ndocker logs -f "$(docker run -d --env-file .env' + sock + ' ' + data.image + q + ')"';
   }
   function autoGrow() {
     taskEl.style.height = 'auto';

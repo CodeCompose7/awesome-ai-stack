@@ -113,7 +113,7 @@ export function localSamples() {
     /** @type {{id:string,name:string,desc:string}[]} */
     const recipes = [];
     if (existsSync(join(dir, 'Dockerfile')))
-      recipes.push({ id: '__default', name: '기본 · docker build + run', desc: 'Dockerfile을 빌드해 실행합니다 (DooD 샘플은 detached + logs).' });
+      recipes.push({ id: '__default', name: '기본 · docker build + run', desc: 'Dockerfile을 빌드해 detached로 실행하고 로그를 따라갑니다.' });
     const runDir = join(dir, 'run');
     if (existsSync(runDir) && statSync(runDir).isDirectory()) {
       for (const f of readdirSync(runDir).filter((n) => n.endsWith('.sh')).sort()) {
@@ -286,14 +286,19 @@ export function localSamples() {
       });
     });
 
-  // DooD run: under nested Docker-outside-of-Docker a foreground `docker run`
-  // often prints nothing (the output only reaches the daemon log), so — as the
-  // sample READMEs prescribe — run detached, follow `docker logs -f`, then
-  // remove the container. `--rm` is dropped so the log survives to be read.
-  /** @param {{write:(d:any)=>void}} sink @param {string} image @param {string} envPath @param {string} task */
-  const runDooD = (sink, image, envPath, task) =>
+  // Detached run: under nested Docker-outside-of-Docker (this repo's
+  // devcontainer) a foreground `docker run` often prints nothing and still
+  // exits 0 — the attach stream drops the output at the VM boundary. So, as the
+  // sample READMEs prescribe, run every sample detached, follow `docker logs
+  // -f`, then remove the container. `--rm` is dropped so the log survives to be
+  // read. DooD samples additionally mount the host Docker socket so the agent
+  // can spawn sibling containers.
+  /** @param {{write:(d:any)=>void}} sink @param {string} image @param {string} envPath @param {string} task @param {boolean} mountSock */
+  const runDetached = (sink, image, envPath, task, mountSock) =>
     new Promise((resolve) => {
-      const args = ['run', '-d', '--env-file', envPath, '-v', '/var/run/docker.sock:/var/run/docker.sock', image];
+      const args = ['run', '-d', '--env-file', envPath];
+      if (mountSock) args.push('-v', '/var/run/docker.sock:/var/run/docker.sock');
+      args.push(image);
       if (task) args.push(task);
       sink.write('$ ' + ['docker', ...args].map(shellish).join(' ') + '\n');
       let id = '';
@@ -453,14 +458,10 @@ export function localSamples() {
                 const image = imageName(folder);
                 const envPath = join(dir, '.env');
                 const buildCode = await runStep(job, 'docker', ['build', '-t', image, dir]);
-                if (buildCode === 0) {
-                  if (isDooD(dir)) await runDooD(job, image, envPath, task);
-                  else {
-                    const runArgs = ['run', '--rm', '--env-file', envPath, image];
-                    if (task) runArgs.push(task);
-                    await runStep(job, 'docker', runArgs);
-                  }
-                }
+                // Always run detached + `docker logs -f`: a foreground run loses
+                // its output under this repo's nested Docker (see runDetached).
+                // Only DooD samples also mount the host socket.
+                if (buildCode === 0) await runDetached(job, image, envPath, task, isDooD(dir));
               }
             } catch (e) {
               job.write('\n[error] ' + (/** @type {Error} */ (e)).message + '\n');

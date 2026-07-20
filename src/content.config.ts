@@ -170,4 +170,44 @@ const concepts = defineCollection({
     }),
 });
 
-export const collections = { stacks, articles, concepts };
+/**
+ * The `slides` collection holds presentation decks — one MDX file per deck, with
+ * each slide wrapped in a <Slide> component (see src/components/Slide.astro). The
+ * deck renders as a fullscreen scroll-snap presentation at /slides/<name>/.
+ *
+ * Decks are self-contained and language-agnostic (flat, not locale-partitioned):
+ * a deck's prose carries its own language, and both locale indexes link to the
+ * same deck. Add per-locale folders later if decks need translating.
+ */
+const slides = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/slides' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    // Concept slug this deck summarizes (links back to /concept/<slug>/).
+    related: z.string().optional(),
+    order: z.number().optional(), // manual sort on the index (lower first)
+    // Slide-change animation: 'slide' animates the scroll between slides,
+    // 'none' cuts instantly. (Reduced-motion users always get an instant cut.)
+    transition: z.enum(['slide', 'none']).default('slide'),
+    // Visual style theme (typography / accent / spacing). Light vs dark still
+    // follows the site's color-scheme preference; this only picks the look.
+    theme: z.enum(['default', 'simple', 'calm', 'bold']).default('default'),
+    // Content aspect ratio: the content area's width tracks this ratio × height,
+    // so 16:9/16:10/4:3 give a proportioned (wider) content column; 'fill' uses
+    // the full slide width.
+    aspect: z.enum(['16:9', '16:10', '4:3', 'fill']).default('16:9'),
+    // Optional footer (bottom-left): presenter name and a date/version string.
+    presenter: z.string().optional(),
+    date: z.string().optional(),
+    // In-deck table of contents (top-right). `toc` toggles it; `toc_level` is the
+    // deepest heading level it includes (2 = ## only … up to 4 = ## ### ####);
+    // `toc_open` starts it expanded. Exclude a whole slide with <Slide toc={false}>.
+    toc: z.boolean().default(true),
+    toc_level: z.number().int().min(2).max(4).default(2),
+    toc_open: z.boolean().default(true),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { stacks, articles, concepts, slides };

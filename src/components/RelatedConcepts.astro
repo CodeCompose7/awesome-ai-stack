@@ -29,8 +29,6 @@ const t = useTranslations(lang);
         {concepts.map((c) => (
           <a
             href={getRelativeLocaleUrl(lang, `concept/${conceptSlugOf(c)}/`)}
-            target="_blank"
-            rel="noopener noreferrer"
             class="aas-lift flex items-stretch overflow-hidden rounded-2xl border border-[var(--aas-border)] bg-[var(--aas-panel)] no-underline"
           >
             {c.data.image && (

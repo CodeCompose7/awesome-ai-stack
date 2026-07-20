@@ -247,7 +247,7 @@ The sandbox isolation flags, the Dockerfile, and how to run it are identical to 
 - **The state is just a list**
   - Plain OpenAI-format dicts appended together, so you can print the conversation at any point as-is.
 - **The sandbox is framework-agnostic**
-  - `run_python` and its isolation flags are unchanged — the isolation comes from the [Sandboxing](../../concept/sandboxing/) design, not from the wiring.
+  - `run_python` and its isolation flags are unchanged — the isolation comes from the [[Sandboxing]] design, not from the wiring.
 
 To weigh the two versions side by side,  
 see [[litellm-langgraph-vs-langchain|Dropping LangChain]]; for the two-line `create_agent` build, see [[code-sandbox-agent|the original tutorial]].

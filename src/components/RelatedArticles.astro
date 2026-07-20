@@ -29,8 +29,6 @@ const t = useTranslations(lang);
         {articles.map((a) => (
           <a
             href={getRelativeLocaleUrl(lang, `article/${articleSlugOf(a)}/`)}
-            target="_blank"
-            rel="noopener noreferrer"
             class="aas-lift flex items-stretch overflow-hidden rounded-2xl border border-[var(--aas-border)] bg-[var(--aas-panel)] no-underline"
           >
             {a.data.image && (
