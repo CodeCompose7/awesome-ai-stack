@@ -77,7 +77,7 @@ locale-partitioned (`en/` and `ko/` subfolders, same filename in both):
 | `articles` | `<site>/src/content/articles/`     | `/article/<slug>/`    | Writing — long-form posts, kept apart from the catalog            |
 
 Frontmatter for all three is validated at build time by the Zod schemas in
-[`packages/stack-site-builder/src/content.ts`](https://github.com/CodeCompose7/stack-site-builder/blob/main/src/content.ts) — shared by every
+[`stack-site-builder/src/content.ts`](https://github.com/CodeCompose7/stack-site-builder/blob/main/src/content.ts) — shared by every
 site via `defineAasCollections()`. A typo or missing required field fails
 `pnpm build` and `pnpm check`, so broken entries can't ship.
 
@@ -296,7 +296,7 @@ Explain what it is and why it matters for building agents.
 A sentence or two on the sweet spot.
 ```
 
-The schema ([`packages/stack-site-builder/src/content.ts`](https://github.com/CodeCompose7/stack-site-builder/blob/main/src/content.ts)) supports more
+The schema ([`stack-site-builder/src/content.ts`](https://github.com/CodeCompose7/stack-site-builder/blob/main/src/content.ts)) supports more
 when you need it: `formerNames`, `pricingTiers`/`pricingNote`/`pricingSource`,
 `related` tools, `deprecated`, `docVersion`/`updated`, and the `samples`/
 `projects` fields described above.
