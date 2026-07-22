@@ -1,9 +1,13 @@
-# Keep the build context small (Dockerfile.dev only needs the manifests; the
-# source arrives via the compose bind mount).
+# Dockerfile.dev bakes the whole tree in (`COPY . .`), so keep the context — and
+# the image — small: exclude installed deps, build output, caches, VCS metadata,
+# and dev-only tooling the running site doesn't need.
 node_modules
 dist
 .astro
 .git
+.github
+.devcontainer
+.claude
 .aas-cache
 .pnpm-store
 .pnpm

@@ -34,15 +34,37 @@ Live site: <https://codecompose7.github.io/awesome-ai-stack>
 **Quickest — clone and run, nothing to install but Docker:**
 
 ```bash
-docker compose up      # builds the image, installs deps, runs `pnpm dev`
+docker compose up      # builds a self-contained image, serves the site
 ```
 
-Then open <http://localhost:4321/awesome-ai-stack/>. The source is bind-mounted,
-so edits on your machine hot-reload in the container. This runs the **dev server**
-([`Dockerfile.dev`](Dockerfile.dev) + [`docker-compose.yml`](docker-compose.yml)) —
-the production site is the static build from the deploy workflow, not this image.
-The compose file also mounts the Docker socket so the dev-only sample **run**
-wizard works; drop that line if you don't use it or aren't on Linux/macOS.
+Then open <http://localhost:4321/awesome-ai-stack/>. Deps and source are baked
+into the image ([`Dockerfile.dev`](Dockerfile.dev) +
+[`docker-compose.yml`](docker-compose.yml)), so this works on a fresh clone with
+nothing else installed. It runs the **dev server** — the production site is the
+static build from the deploy workflow, not this image. The compose file also
+mounts the Docker socket so the sample **run** wizard can build and run the
+[`samples/`](samples/) projects; drop that line if you don't use it or aren't on
+Linux/macOS.
+
+**Editing content — hot-reload your working tree (a lighter alternative to the
+devcontainer):**
+
+```bash
+docker compose -f docker-compose.dev.yml up
+```
+
+Same URL, but your working tree is bind-mounted, so edits on your machine
+hot-reload in the container ([`docker-compose.dev.yml`](docker-compose.dev.yml)) —
+otherwise identical to the default (same image, same Docker socket for the run
+wizard).
+
+**Snapshot vs. live edit — why your edits might not show.** The default image
+_bakes_ the source in, so `docker compose up` serves a **snapshot**: edits on your
+host don't appear until you rebuild it with `docker compose up --build`. Use the
+dev compose above for an edit-and-refresh loop instead — it bind-mounts your
+working tree, so changes show on the next browser reload with no rebuild
+(`src/content` hot-reloads via HMR; the `samples/` files are re-read fresh per
+request by the run wizard).
 
 **Or with Node locally** (Node ≥ 20; the devcontainer uses Node 24) and **pnpm**:
 
