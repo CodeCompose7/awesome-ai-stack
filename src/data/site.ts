@@ -12,7 +12,7 @@ export const site = {
   /** Shown in the header and as the homepage title. */
   name: 'awesome-ai-stack',
   /** The repo that hosts this site's content — sample folder links point here. */
-  repoUrl: 'https://github.com/codecompose7/awesome-ai-stack',
+  repoUrl: 'https://github.com/CodeComposeStudio/awesome-ai-stack',
   /** User-Agent for build-time GitHub API calls (stars/latest release). */
   buildUserAgent: 'awesome-ai-stack-build',
   /**
