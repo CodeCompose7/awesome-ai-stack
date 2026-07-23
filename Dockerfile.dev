@@ -1,14 +1,17 @@
 # syntax=docker/dockerfile:1
-# Local-dev image: runs the Astro dev server (`pnpm dev`) so anyone can clone the
-# repo and `docker compose up` without installing Node or pnpm. This is NOT the
-# production build — the site ships as a static build via
-# .github/workflows/deploy.yml (GitHub Pages). See docker-compose.yml.
+# App image for local viewing/editing: Node + pnpm + this repo, running the Astro
+# dev server (`pnpm dev`). Both compose files build it:
+#   - docker-compose.yml (default) runs it as-is — a self-contained "clone and
+#     `docker compose up`" with deps and source baked in, no host files needed.
+#   - docker-compose.dev.yml bind-mounts your working tree over it for live edits.
+# This is NOT the production build — the site ships as a static build via
+# .github/workflows/deploy.yml (GitHub Pages).
 FROM node:24-slim
 
 # The docker CLI (client only), copied from the official image. It lets the
-# dev-only sample "run" wizard drive the *host* Docker daemon through the socket
-# that docker-compose.yml mounts — the same Docker-out-of-Docker setup the dev
-# container uses. Harmless if you never use the run wizard.
+# sample "run" wizard drive the *host* Docker daemon through the socket that both
+# compose files mount — the same Docker-out-of-Docker setup the dev container
+# uses. Harmless if you never use the run wizard.
 COPY --from=docker:27-cli /usr/local/bin/docker /usr/local/bin/docker
 
 # git + certs for tooling; pnpm via Corepack, pinned to package.json's
@@ -22,10 +25,14 @@ RUN apt-get update \
 WORKDIR /app
 
 # Install dependencies as their own layer (cached until the manifests change).
-# The full source is bind-mounted at run time by compose; node_modules is kept
-# out of that mount by an anonymous volume, so these installed deps are used.
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
+
+# Bake the source in so `docker compose up` is self-contained (see .dockerignore
+# for what's excluded). docker-compose.dev.yml bind-mounts the host tree over
+# this at run time, keeping node_modules from the layer above via an anonymous
+# volume — so live edits win there, while the baked copy serves the default mode.
+COPY . .
 
 EXPOSE 4321
 

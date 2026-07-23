@@ -37,16 +37,33 @@
 **가장 간편 — 클론 후 Docker만 있으면 됩니다.** 별도 설치가 필요 없습니다:
 
 ```bash
-docker compose up      # 이미지 빌드, 의존성 설치, `pnpm dev` 실행
+docker compose up      # 자체 완결형 이미지를 빌드해 사이트를 서빙
 ```
 
-그리고 <http://localhost:4321/awesome-ai-stack/>를 엽니다. 소스가
-바인드마운트되므로 내 컴퓨터에서 파일을 고치면 컨테이너에서 핫리로드됩니다. 이건
-**개발 서버**를 띄우는 것입니다.
-([`Dockerfile.dev`](../../Dockerfile.dev) + [`docker-compose.yml`](../../docker-compose.yml).)
-프로덕션 사이트는 이 이미지가 아니라 배포 워크플로의 정적 빌드입니다. compose는
-개발 전용 샘플 **실행** 위저드가 동작하도록 Docker 소켓도 마운트합니다 — 쓰지 않거나
-Linux/macOS가 아니면 그 줄을 지우면 됩니다.
+그리고 <http://localhost:4321/awesome-ai-stack/>를 엽니다. 의존성과 소스가
+이미지에 구워져 있어([`Dockerfile.dev`](../../Dockerfile.dev) +
+[`docker-compose.yml`](../../docker-compose.yml)) 아무것도 설치하지 않은 갓 클론한
+상태에서도 그대로 동작합니다. **개발 서버**를 띄우며, 프로덕션 사이트는 이 이미지가
+아니라 배포 워크플로의 정적 빌드입니다. compose는 샘플 **실행** 위저드가
+[`samples/`](../../samples/) 프로젝트를 빌드·실행할 수 있도록 Docker 소켓도
+마운트합니다 — 쓰지 않거나 Linux/macOS가 아니면 그 줄을 지우면 됩니다.
+
+**콘텐츠 편집 — 워킹트리 핫리로드(devcontainer의 가벼운 대안):**
+
+```bash
+docker compose -f docker-compose.dev.yml up
+```
+
+같은 URL이지만 워킹트리가 [`docker-compose.dev.yml`](../../docker-compose.dev.yml)로
+바인드마운트되어, 내 컴퓨터에서 파일을 고치면 컨테이너에서 핫리로드됩니다. 이미지도
+소켓도 기본과 동일하고, 소스만 마운트에서 온다는 점만 다릅니다.
+
+**스냅샷 vs 라이브 편집 — 편집이 왜 안 보일까요?** 기본 이미지는 소스를 _구워넣기_
+때문에 `docker compose up`은 **스냅샷**을 서빙합니다. 내 호스트의 편집은
+`docker compose up --build`로 다시 빌드하기 전까지 반영되지 않습니다. 편집-새로고침
+루프가 필요하면 위의 dev compose를 쓰세요. 워킹트리를 바인드마운트하므로 다시 빌드할
+필요 없이 다음 브라우저 새로고침에서 변경이 보입니다. `src/content`는 HMR로
+핫리로드되고, `samples/` 파일은 실행 위저드가 요청마다 새로 읽습니다.
 
 **또는 로컬 Node로** (Node ≥ 20, devcontainer는 Node 24)와 **pnpm**:
 

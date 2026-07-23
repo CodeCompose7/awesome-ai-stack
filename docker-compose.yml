@@ -1,25 +1,32 @@
-# Local development without installing Node/pnpm:
+# Clone and run — view the site with nothing installed but Docker:
 #
 #   docker compose up
 #
-# then open http://localhost:4321/awesome-ai-stack/ . The source is bind-
-# mounted, so edits on the host hot-reload in the container. This runs the Astro
-# dev server only — the production site is the static build from
-# .github/workflows/deploy.yml.
+# then open http://localhost:4321/awesome-ai-stack/ .
+#
+# Self-contained: deps and source are baked into the image (Dockerfile.dev), so
+# this needs no files from your host and works on a fresh clone. It serves the
+# Astro dev server — the production site is the static build from
+# .github/workflows/deploy.yml, not this image.
+#
+# Editing content? Use docker-compose.dev.yml instead — it bind-mounts your
+# working tree so edits hot-reload:
+#
+#   docker compose -f docker-compose.dev.yml up
 services:
-  dev:
+  app:
     build:
       context: .
       dockerfile: Dockerfile.dev
     ports:
       - '4321:4321'
+    environment:
+      # Non-interactive: should pnpm's pre-run dependency check ever want to
+      # touch node_modules, let it proceed instead of aborting at a TTY prompt.
+      CI: 'true'
     volumes:
-      # Live source: edit on the host, the dev server reloads (Vite polls for
-      # changes — set by the stack-site-builder theme — needed over a bind mount).
-      - .:/app
-      # Keep the image's installed node_modules; don't let the host mount
-      # overlay it (the host may have none, or a different platform's binaries).
-      - /app/node_modules
-      # The dev-only sample "run" wizard shells out to Docker (Docker-out-of-
-      # Docker). Remove this line if you don't use it or aren't on Linux/macOS.
+      # The sample "run" wizard shells out to Docker (Docker-out-of-Docker) to
+      # build and run the samples/ projects from the local site UI; this mounts
+      # the host daemon's socket so it can. Remove this line if you don't use the
+      # wizard or aren't on Linux/macOS.
       - /var/run/docker.sock:/var/run/docker.sock

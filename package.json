@@ -1,7 +1,7 @@
 {
   "name": "awesome-ai-stack",
   "type": "module",
-  "version": "1.13.0",
+  "version": "1.13.1",
   "private": true,
   "packageManager": "pnpm@11.7.0",
   "engines": {
@@ -15,7 +15,7 @@
     "astro": "astro"
   },
   "dependencies": {
-    "stack-site-builder": "^1.13.0",
+    "stack-site-builder": "^1.14.0",
     "astro": "^5.7.0",
     "sharp": "^0.35.2"
   },
